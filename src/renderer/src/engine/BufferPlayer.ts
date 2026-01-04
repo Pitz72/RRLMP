@@ -105,4 +105,9 @@ export class BufferPlayer implements IAudioPlayer {
         this.gainNode.disconnect();
         this.buffer = null;
     }
+
+    setBus(bus: GainNode): void {
+        this.gainNode.disconnect();
+        this.gainNode.connect(bus);
+    }
 }
