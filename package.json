@@ -1,6 +1,6 @@
 {
     "name": "rrlmp",
-    "version": "0.0.5",
+    "version": "0.1.2fix1",
     "description": "Runtime Radio Live Machine Pro",
     "main": "out/main/index.js",
     "scripts": {
@@ -14,7 +14,7 @@
         "appId": "com.antigravity.rrlmp",
         "productName": "RRLMP",
         "directories": {
-            "output": "builds/v0.0.5"
+            "output": "builds/v0.1.2fix1"
         },
         "files": [
             "out/**/*",

@@ -16,8 +16,9 @@ export interface AudioClip {
     path: string; // File system path
     type: ClipType;
     color: string;
-    volume: number; // 0.0 to 1.0
+    volume: number; // 0.0 to 1.5 (Gain, default 1.0)
     pan: number;    // -1.0 to 1.0
+    isLooping: boolean; // Default false
 
     // Audio Logic
     isPlaying: boolean;
@@ -31,9 +32,18 @@ export interface AudioClip {
     endMarker?: number;   // Early stop
 
     // Behavioral Logic
-    nextAction?: 'stop' | 'play_next' | 'loop';
-    duckingTarget?: boolean; // Se true, viene abbassato dal voice
-    duckingSource?: boolean; // Se true, abbassa gli altri
+    nextAction: 'stop' | 'play_next' | 'loop'; // Default 'stop'
+    behavior: 'normal' | 'stacco'; // Default 'normal' This allows intra-column ducking
+
+    // Regole di ingaggio
+    duckingRole: 'source' | 'target' | 'none'; // Default basato su colonna
+
+    // Transizioni
+    fadeIn: number; // ms
+    fadeOut: number; // ms
+
+    // Metadati visuali
+    customColor?: string; // Override colore colonna
 }
 
 export interface Column {

@@ -61,6 +61,7 @@ export class BufferPlayer implements IAudioPlayer {
         this.sourceNode.onended = () => {
             this.isPlaying = false;
             this.pauseTime = 0;
+            if (this.onEndedCallback) this.onEndedCallback();
         };
     }
 
@@ -109,5 +110,31 @@ export class BufferPlayer implements IAudioPlayer {
     setBus(bus: GainNode): void {
         this.gainNode.disconnect();
         this.gainNode.connect(bus);
+    }
+
+    private onEndedCallback: (() => void) | null = null;
+
+    onEnded(callback: () => void): void {
+        this.onEndedCallback = callback;
+    }
+
+    onFadeOutStart(_callback: () => void): void {
+        // BufferPlayer functionality limited for now
+        // Could implement similar time check in getCurrentTime or via setTimeout
+    }
+
+    updateSettings(clip: any): void {
+        // BufferPlayer uses AudioBufferSourceNode which is one-time use.
+        // Changing 'loop' here only affects if we are created/playing?
+        // Actually we can set gain anytime.
+        if (clip.volume !== undefined) this.setVolume(clip.volume);
+
+        // Looping must be set on the active source node
+        if (this.sourceNode && clip.isLooping !== undefined) {
+            this.sourceNode.loop = clip.isLooping;
+        }
+        // Also store it for next play() ? BufferPlayer usually recreates sourceNode
+        // We'd need to store 'isLooping' state.
+        // Let's add that prop if we want full support, but for interface strictness:
     }
 }

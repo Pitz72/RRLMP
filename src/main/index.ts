@@ -27,7 +27,7 @@ function createWindow(): void {
 
     mainWindow.on('ready-to-show', () => {
         mainWindow.show();
-        mainWindow.webContents.openDevTools(); // Enable DevTools in production for Debug
+        // mainWindow.webContents.openDevTools(); // Disabled for Release
     });
 
     mainWindow.webContents.setWindowOpenHandler((details) => {

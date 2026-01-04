@@ -20,7 +20,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
         },
         {
             id: 'col-music',
-            title: 'MUSIC PLAYLIST',
+            title: "CANZONI DELL'EPISODIO",
             type: 'music',
             color: '#EF4444', // Red-500
             isLocked: false,
@@ -28,7 +28,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
         },
         {
             id: 'col-voice',
-            title: 'VOICE / GUESTS',
+            title: 'VOCI / PREREGISTRAZIONI',
             type: 'voice',
             color: '#F97316', // Orange-500
             isLocked: false,
@@ -67,12 +67,21 @@ export const useProjectStore = create<ProjectState>((set) => ({
                     color: col.color,
                     volume: 1.0,
                     pan: 0,
+                    isLooping: false,
                     isPlaying: false,
-                    duration: 0, // Da calcolare dopo
+                    duration: 0,
                     currentTime: 0,
+
                     // Default Logic basata sul tipo di colonna
-                    duckingSource: col.type === 'voice' || col.type === 'asset',
-                    duckingTarget: col.type === 'music' || col.type === 'preshow',
+                    nextAction: 'stop',
+                    behavior: 'normal',
+                    duckingRole: (col.type === 'voice') ? 'source' :
+                        (col.type === 'music' || col.type === 'preshow') ? 'target' : 'none',
+
+                    // Transizioni Defaults
+                    fadeIn: 0,
+                    fadeOut: (col.type === 'music' || col.type === 'preshow') ? 2000 :
+                        (col.type === 'asset' ? 500 : 0)
                 };
                 createdClip = newClip;
 
