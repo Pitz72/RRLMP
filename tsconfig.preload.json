@@ -1,0 +1,16 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "composite": false,
+        "noEmit": false,
+        "outDir": "out/preload",
+        "rootDir": "src/preload",
+        "target": "ESNext",
+        "module": "CommonJS",
+        "moduleResolution": "Node",
+        "allowImportingTsExtensions": false
+    },
+    "include": [
+        "src/preload/**/*"
+    ]
+}

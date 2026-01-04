@@ -1,0 +1,16 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "composite": false,
+        "noEmit": false,
+        "outDir": "out/main",
+        "rootDir": "src/main",
+        "target": "ESNext",
+        "module": "CommonJS",
+        "moduleResolution": "Node",
+        "allowImportingTsExtensions": false
+    },
+    "include": [
+        "src/main/**/*"
+    ]
+}
