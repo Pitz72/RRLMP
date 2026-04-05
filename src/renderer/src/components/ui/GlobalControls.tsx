@@ -65,8 +65,11 @@ export const GlobalControls = () => {
     }, []);
 
     // Auto-Backup Timer (5 minutes)
+    // BUGFIX v0.10.3: Decoupled from columns dependency to avoid resetting the timer on every change.
     useEffect(() => {
         const timer = setInterval(async () => {
+            const { columns, currentFilePath } = useProjectStore.getState();
+            
             // Only auto-backup if there are changes and we have valid project data
             if (columns.length > 0) {
                 const projectData = {
@@ -75,18 +78,21 @@ export const GlobalControls = () => {
                     project: { columns }
                 };
                 const json = JSON.stringify(projectData, null, 2);
-                const result = await window.electron.saveProjectSilent(json, currentFilePath || undefined);
+                
+                if (window.electron && window.electron.saveProjectSilent) {
+                    const result = await window.electron.saveProjectSilent(json, currentFilePath || undefined);
 
-                if (result.success) {
-                    debugLog(`Auto-backup completed: ${result.path?.split(/[\\/]/).pop()}`, 'info');
-                } else {
-                    debugLog(`Auto-backup failed: ${result.error}`, 'error');
+                    if (result.success) {
+                        debugLog(`Auto-backup completed: ${result.path?.split(/[\\/]/).pop()}`, 'info');
+                    } else {
+                        debugLog(`Auto-backup failed: ${result.error}`, 'error');
+                    }
                 }
             }
         }, 300000); // 5 minutes
 
         return () => clearInterval(timer);
-    }, [columns, currentFilePath]);
+    }, []); // Run once on mount
 
     // Unsaved Changes Alert (Close Protection)
     useEffect(() => {

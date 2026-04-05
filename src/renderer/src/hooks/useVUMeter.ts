@@ -6,12 +6,25 @@ export const useVUMeter = () => {
     const requestRef = useRef<number>();
 
     useEffect(() => {
-        const { left, right } = AudioContextManager.getInstance().getAnalysers();
+        let analysers: { left: AnalyserNode, right: AnalyserNode } | null = null;
+        try {
+            analysers = AudioContextManager.getInstance().getAnalysers();
+        } catch (e) {
+            console.warn("VU Meter: AudioContext not ready");
+            return;
+        }
+
+        const { left, right } = analysers;
         const bufferLength = left.frequencyBinCount;
         const dataArrayL = new Uint8Array(bufferLength);
         const dataArrayR = new Uint8Array(bufferLength);
 
         const updateMeter = () => {
+            if (AudioContextManager.getInstance().getContext().state !== 'running') {
+                requestRef.current = requestAnimationFrame(updateMeter);
+                return;
+            }
+
             // Get Time Domain Data for RMS (Volume)
             left.getByteTimeDomainData(dataArrayL);
             right.getByteTimeDomainData(dataArrayR);
@@ -19,12 +32,8 @@ export const useVUMeter = () => {
             const rmsL = calculateRMS(dataArrayL);
             const rmsR = calculateRMS(dataArrayR);
 
-            // Normalize (RMS usually comes 0-256 for byte data, but 128 is silence)
-            // Silence is 128. Signal goes 0..256.
-            // value = data[i] - 128.
-
             setLevels({
-                left: Math.min(100, rmsL * 100 * 2), // Boost factor for visibility
+                left: Math.min(100, rmsL * 100 * 2),
                 right: Math.min(100, rmsR * 100 * 2)
             });
 

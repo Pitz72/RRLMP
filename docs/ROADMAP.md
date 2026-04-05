@@ -16,9 +16,11 @@ Analisi condotta su: tutto il sorgente in `src/`, `package.json`, file di config
 
 ---
 
-## 🟢 Criticità Aperte
+## 🟢 Criticità Aperte (In Progress - v0.10.3+)
 
-*Tutte le criticità tecniche identificate (Gravissime, Gravi, Medie, Lievi) sono state risolte al 100%.*
+- [🔴] **Renderer Crash (Access Violation)**: Risolvere definitivamente il crash `0xC0000005` nell'editor del Trim.
+  - **STRATEGIA**: Abbandonare la decodifica audio nel Renderer. Spostare calcolo picchi e Waveform nel processo Main (Node.js).
+  - **RE-DESIGN**: Implementare un sistema di "Waveform Proxy" dove il Main invia i dati pre-generati al frontend.
 
 ---
 
@@ -26,12 +28,12 @@ Analisi condotta su: tutto il sorgente in `src/`, `package.json`, file di config
 
 Dalle analisi tecniche e dai commenti nel codice sorgente, sono state identificate le seguenti direzioni di sviluppo per la finalizzazione del prodotto RRLMP:
 
-### 🎵 Audio & Playback Engine (Finalizzazione)
+### 🎼 Audio Engine Pro (Riprogettazione Professionale)
 
-- [✅] **Advanced Markers Support**: Implementazione di Intro/Outro markers per l'automazione dei mix point e il countdown vocale. ✅ v0.9.20
-- [✅] **Precise Trimming UI**: Mini-editor per definire `trimStart` e `trimEnd` visualmente tramite waveform. ✅ v0.10.0
-- [⚠️] **PFL (Pre-Fade Listen)**: *Sospesa* — Sistema di monitoraggio audio indipendente (da valutare in futuro).
-- [✅] **Ducking Sidechain Dinamico**: Espansione del sistema `stacco` per supportare parametri di ducking configurabili dall'utente. ✅ v0.9.20
+- [🔥] **Main-Process Decoding**: Migrazione della decodifica file pesanti nel Main process per stabilità assoluta.
+- [⚠️] **Librerie Native Audio**: Investigare l'uso di moduli nativi (C++/Rust) per il playback, distaccandosi dalle Web Audio API.
+- [ ] **Advanced Markers Support**: Ottimizzare Intro/Outro markers basandoli su metadati pre-calcolati.
+- [ ] **Ducking Sidechain Dinamico**: Espansione del sistema `stacco` per supportare parametri di ducking configurabili dall'utente.
 
 ### 🖥️ Interfaccia e Workflow
 

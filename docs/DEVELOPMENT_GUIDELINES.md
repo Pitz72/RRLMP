@@ -10,16 +10,15 @@
 - **Bridge (`src/preload/`)**: Uses `contextBridge` to expose a safe API (`window.electron`).
   - **Critical**: `getFilePath(file)` allows retrieving native paths from Drag & Drop.
 
-### **Audio Engine**
-- **Singleton**: `AudioContextManager.ts` is the single source of truth for `VideoAudioContext`.
-- **Bus Routing**:
-  - `Music Bus` (Music, Preshow)
-  - `Voice Bus` (Voice tracks)
-  - `SFX Bus` (Sound effects)
-  - `Assets Bus` (Jingles, Beds)
-- **Player**: `StreamPlayer.ts` handles individual file playback.
-  - **Protocol**: Uses `toFileUrl()` (`file:///`) for decoding stability.
-  - **Features**: Supports Fade In/Out, Trim, and Output Device selection.
+### **Audio Engine & Stability Strategy**
+- **Architecture Pattern: "Main-Side-Heavy" (Pro-Desktop)**: 
+  - **Renderer**: Deve fungere solo da interfaccia grafica ("skin"). **VIETATO** il caricamento o la decodifica di raw audio buffer (WAV pesanti) nel processo Renderer per prevenire `Access Violation (0xC0000005)`.
+  - **Main Process (Node.js)**: È l'unico responsabile per le operazioni I/O pesanti.
+    - **Waveform Generation**: Deve essere eseguita nel Main (o tramite worker threads) e inviata al Renderer come metadata/JSON leggero.
+    - **Audio Probing**: Utilizzare librerie Node.js native (o processi esterni stabili) per analizzare metadati, durate e picchi.
+- **Singleton**: `AudioContextManager.ts` è il riferimento unico per il routing audio nel frontend.
+- **Protocol**: Utilizzare esclusivamente `media://` (custom protocol) ottimizzato nel Main con streaming a blocchi (HighWaterMark).
+- **Features**: Trim, Intro, Outro devono basarsi su metadati pre-calcolati dal Main per garantire stabilità professionale.
 
 ## 2. State Management (Zustand)
 
