@@ -19,7 +19,9 @@ interface AudioStore {
 
     // Actions
     playClip: (clip: AudioClip) => Promise<void>;
-    loadClip: (clip: AudioClip, fileObject?: File) => Promise<void>;
+    loadClip: (clip: AudioClip) => Promise<void>;
+    playColumn: (colIndex: number) => Promise<void>;
+    updateOutputDevice: (deviceId: string) => void;
     stopClip: (clipId: string) => void;
     stopAll: () => void;
 
@@ -139,10 +141,20 @@ const getColumnForClip = (clipId: string): string | null => {
     return null;
 }
 
+// G3 Fix: Mappa generation ID per evitare race condition in playClip.
+// Ogni chiamata a playClip incrementa il contatore per quella clip;
+// se al ritorno dell'await load() il contatore non corrisponde più,
+// l'operazione è obsoleta e va scartata.
+const playGenerations = new Map<string, number>();
+
 export const useAudioStore = create<AudioStore>((set, get) => {
 
+    // G8 Fix: setInterval condizionale — chiama _syncProgress solo se ci sono
+    // clip attive, evitando 10 set() Zustand/s inutili durante il silenzio.
     setInterval(() => {
-        get()._syncProgress();
+        if (Object.keys(get().activeClips).length > 0) {
+            get()._syncProgress();
+        }
     }, 100);
 
     return {
@@ -158,6 +170,18 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             const columnId = getColumnForClip(freshClip.id);
 
             debugLog(`AudioStore: PlayClip ${freshClip.name} (Next: ${freshClip.nextAction}, Behavior: ${freshClip.behavior})`, 'event');
+
+            // PRE-SHOW LOGIC: Stop Pre-Show if starting Show Assets
+            if (columnId === 'col-assets') {
+                const preShowClips = Object.values(currentStore.activeClips).filter(ac =>
+                    getColumnForClip(ac.clip.id) === 'col-preshow'
+                );
+                if (preShowClips.length > 0) {
+                    debugLog('AudioStore: Automatically stopping Pre-Show for Show Asset', 'info');
+                    // G7 Fix: usa get() invece di currentStore (riferimento potenzialmente stale)
+                    preShowClips.forEach(ac => get().stopClip(ac.clip.id));
+                }
+            }
 
             // Handle Intra-Column Conflict
             if (columnId) {
@@ -195,6 +219,10 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 return;
             }
 
+            // G3 Fix: registra generation ID prima del load asincrono.
+            const generation = (playGenerations.get(freshClip.id) || 0) + 1;
+            playGenerations.set(freshClip.id, generation);
+
             let player: IAudioPlayer = new StreamPlayer();
 
             try {
@@ -222,7 +250,9 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
                 player.onEnded(() => {
                     debugLog(`AudioStore: Ended ${freshClip.name}`, 'info');
-                    currentStore.stopClip(freshClip.id);
+                    // G7 Fix: usa get().stopClip invece di currentStore.stopClip
+                    // per evitare stale closure su riferimento Zustand catturato in passato.
+                    get().stopClip(freshClip.id);
 
                     if (freshClip.nextAction === 'loop') {
                         debugLog(`AudioStore: Looping ${freshClip.name}`, 'event');
@@ -238,6 +268,15 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 });
 
                 await player.load(freshClip.path);
+
+                // G3 Fix: verifica che questa operazione di load sia ancora valida.
+                // Se l'utente ha switchato clip durante il load, scarta silenziosamente.
+                if ((playGenerations.get(freshClip.id) || 0) !== generation) {
+                    debugLog(`AudioStore: Load obsoleto scartato per ${freshClip.name} (gen ${generation})`, 'info');
+                    player.cleanup();
+                    return;
+                }
+
                 player.play();
 
                 set((state) => {
@@ -256,17 +295,18 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     return newState;
                 });
 
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Failed to play clip:", freshClip, error);
+                debugLog(`AudioStore: Failed to play ${freshClip.name} - ${error.message || error}`, 'error');
             }
         },
 
-        loadClip: async (clip: AudioClip, fileObject?: File) => {
+        loadClip: async (clip: AudioClip) => {
             // ... existing implementation
             let player: IAudioPlayer = new StreamPlayer();
             try {
-                const source = fileObject || clip.path;
-                await player.load(source);
+                // Memory Leak Fix: Use path only (media:// protocol via StreamPlayer)
+                await player.load(clip.path);
                 const duration = player.getDuration();
                 const { useProjectStore } = await import('./useProjectStore');
                 useProjectStore.getState().updateClip(
@@ -281,6 +321,51 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             }
         },
 
+        playColumn: async (colIndex: number) => {
+            const { columns } = useProjectStore.getState();
+            // Validate index
+            if (colIndex < 0 || colIndex >= columns.length) return;
+
+            const targetCol = columns[colIndex];
+            const currentStore = get();
+
+            // Find first available clip (not currently playing)
+            const availableClip = targetCol.clips.find(clip => !currentStore.activeClips[clip.id]);
+
+            if (availableClip) {
+                await get().playClip(availableClip);
+            } else if (targetCol.clips.length > 0) {
+                // Determine fallback if all are playing? 
+                // Request says: "or the first in absolute if none sound".
+                // My logic: `!activeClips` handles "not playing". 
+                // If ALL are playing, `availableClip` is undefined.
+                // Should I restart the first one?
+                // Request: "cercare la prima clip della colonna che non è attualmente in riproduzione (o la prima in assoluto se nessuna suona)."
+                // If all are playing, it implies 'Find the first one that is NOT playing'. If ALL are playing, then none are 'not playing'. 
+                // Wait, "o la prima in assoluto se nessuna suona" means "OR the first absolute IF NO ONE [of that column] IS PLAYING".
+                // This implies: 
+                // 1. Is any clip in this column playing?
+                //    Yes: Find the first one that isn't.
+                //    No: Play the first one.
+                // My logic `find(!active)` covers both cases!
+                // If NO clips are playing, `find` returns the first one (index 0).
+                // If clip 0 is playing, `find` return clip 1.
+                // If ALL are playing, `find` returns undefined. In that case do nothing? 
+                // The prompt assumes a radio workflow: usually you trigger the next valid item.
+                debugLog(`AudioStore: playColumn(${colIndex}) -> All clips playing or empty?`, 'info');
+            }
+        },
+
+        updateOutputDevice: (deviceId: string) => {
+            debugLog(`AudioStore: Update Output Device -> ${deviceId}`, 'info');
+            const { activeClips } = get();
+            Object.values(activeClips).forEach(state => {
+                if (state.player) {
+                    state.player.setOutputDevice(deviceId);
+                }
+            });
+        },
+
         stopClip: (clipId: string) => {
             set((state) => {
                 const active = state.activeClips[clipId];
@@ -291,11 +376,20 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     const newActiveClips = { ...state.activeClips };
                     delete newActiveClips[clipId];
 
-                    // Logic to Restore Suppressed Clips
-                    // In v0.1.2, evaluateMix handles restoration automatically.
+                    // G4 Fix: gestione di suppressedClips.
+                    // Se la clip fermata era uno STACCO, svuotiamo completamente
+                    // suppressedClips così evaluateMix può ripristinare liberamente
+                    // i volumi di tutte le clip rimaste attive.
+                    // Se era una clip normale soppressa, rimuoviamo solo la sua entry.
+                    const wasStacco = active.clip.behavior === 'stacco';
+                    const newSuppressedClips = wasStacco
+                        ? {}
+                        : Object.fromEntries(
+                            Object.entries(state.suppressedClips).filter(([id]) => id !== clipId)
+                        );
 
                     evaluateMix(newActiveClips);
-                    return { activeClips: newActiveClips };
+                    return { activeClips: newActiveClips, suppressedClips: newSuppressedClips };
                 }
                 return state;
             });

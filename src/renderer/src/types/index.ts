@@ -6,7 +6,27 @@ declare global {
     interface Window {
         electron: {
             getFilePath: (file: File) => string;
+            saveProject: (content: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
+            loadProject: () => Promise<{ success: boolean; data?: string; filePath?: string; error?: string }>;
+            exportProject: (projectJsonString: string) => Promise<{ success: boolean; path?: string; stats?: { copied: number; skipped: number }; error?: string }>;
+            saveProjectSilent: (content: string, filePath?: string) => Promise<{ success: boolean; path?: string; error?: string }>;
+            saveProjectDirect: (content: string, filePath: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
+
+            showCloseDialog: () => Promise<number>;
+            showCloseDialogI18n?: (labels: {
+                btnSave: string; btnDiscard: string; btnCancel: string;
+                title: string; message: string;
+            }) => Promise<number>;
+            forceClose: () => void;
+
+            onExportProgress: (callback: (event: any, data: { current: number; total: number; filename: string }) => void) => () => void;
+            onCheckCloseIntent: (callback: () => void) => () => void;
         }
+
+
+
+
+
     }
 }
 
@@ -44,7 +64,14 @@ export interface AudioClip {
 
     // Metadati visuali
     customColor?: string; // Override colore colonna
+    keybind?: string; // Tasto personalizzato (es. "KeyQ", "Numpad1")
+    midiBind?: string; // MIDI Note Bind (es. "NOTE:60")
+
+    // Cue Points
+    trimStart?: number; // Skip seconds at start
+    trimEnd?: number;   // Cut seconds from end
 }
+
 
 export interface Column {
     id: string;

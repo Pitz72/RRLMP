@@ -42,14 +42,22 @@ const DebugOverlay: React.FC = () => {
             <div className="w-1/2 h-full bg-black/80 text-gray-300 p-4 overflow-auto pointer-events-auto">
                 <div className="flex justify-between items-center mb-2 border-b border-gray-700 pb-1">
                     <h3 className="font-bold text-white">LOG STREAM</h3>
-                    <button onClick={clear} className="bg-red-900/50 hover:bg-red-900 text-red-200 px-2 py-0.5 rounded text-xs border border-red-800">
-                        CLEAR
-                    </button>
+                    <div>
+                        <button onClick={() => {
+                            const text = logs.map(l => `[${l.time}] ${l.type.toUpperCase()}: ${l.msg}`).join('\n');
+                            navigator.clipboard.writeText(text);
+                        }} className="bg-blue-900/50 hover:bg-blue-900 text-blue-200 px-2 py-0.5 rounded text-xs border border-blue-800 mr-2">
+                            COPY
+                        </button>
+                        <button onClick={clear} className="bg-red-900/50 hover:bg-red-900 text-red-200 px-2 py-0.5 rounded text-xs border border-red-800">
+                            CLEAR
+                        </button>
+                    </div>
                 </div>
                 <div className="flex flex-col gap-1">
                     {logs.map((log, idx) => (
                         <div key={idx} className={`flex gap-2 ${log.type === 'error' ? 'text-red-400' :
-                                log.type === 'event' ? 'text-yellow-400' : 'text-gray-400'
+                            log.type === 'event' ? 'text-yellow-400' : 'text-gray-400'
                             }`}>
                             <span className="opacity-50 select-none">[{log.time}]</span>
                             <span>{log.msg}</span>

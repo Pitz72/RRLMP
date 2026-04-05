@@ -1,0 +1,41 @@
+{
+    "welcome": {
+        "title": "Runtime Live Machine",
+        "newProject": "Nuovo Progetto",
+        "loadProject": "Carica Progetto",
+        "manual": "Manuale Online (Presto Disponibile)",
+        "version": "v{{version}}",
+        "checking": "Controllo aggiornamenti...",
+        "latest": "✅ Ultima versione",
+        "updateAvailable": "⬇️ Aggiornamento v{{version}}",
+        "developedBy": "Sviluppato da Simone Pizzi con Gemini 3.0",
+        "copyright": "© 2026 Runtime Radio"
+    },
+    "columns": {
+        "assets": "SHOW ASSETS",
+        "music": "EPISODE SONGS",
+        "voice": "VOICE / RECORDINGS",
+        "sfx": "SFX / CARTWALL",
+        "preshow": "PRE-SHOW"
+    },
+    "controls": {
+        "stopAll": "STOP ALL",
+        "masterVol": "MASTER VOL",
+        "midiLearn": "MIDI LEARN",
+        "info": "Info",
+        "settings": "Impostazioni"
+    },
+    "modal": {
+        "about": {
+            "title": "Runtime Live Machine",
+            "description": "Professional Broadcast Audio Architecture",
+            "manual": "Manuale Online"
+        },
+        "settings": {
+            "title": "Impostazioni Generali"
+        },
+        "clip": {
+            "title": "Impostazioni Clip"
+        }
+    }
+}

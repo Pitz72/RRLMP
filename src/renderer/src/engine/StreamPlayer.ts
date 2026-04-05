@@ -2,6 +2,7 @@ import { IAudioPlayer } from './AudioPlayer.interface';
 import AudioContextManager from './AudioContextManager';
 import { toFileUrl } from '../utils/pathUtils';
 import { debugLog } from '../store/useDebugStore';
+import { useSettingsStore } from '../store/useSettingsStore';
 
 export class StreamPlayer implements IAudioPlayer {
     private audioElement: HTMLAudioElement;
@@ -12,6 +13,9 @@ export class StreamPlayer implements IAudioPlayer {
     private fadeInDuration: number = 0;
     private fadeOutDuration: number = 0;
     private targetVolume: number = 1.0;
+    private trimStart: number = 0;
+    private trimEnd: number = 0;
+
     private currentClipId: string = '';
     private volumeGainNode: GainNode;
 
@@ -21,6 +25,10 @@ export class StreamPlayer implements IAudioPlayer {
     constructor() {
         const ctx = AudioContextManager.getInstance().getContext();
         this.audioElement = new Audio();
+        const deviceId = useSettingsStore.getState().outputDeviceId;
+        if (deviceId && deviceId !== 'default') {
+            this.setOutputDevice(deviceId);
+        }
 
         // Setup internal volume gain (allows > 1.0)
         this.volumeGainNode = ctx.createGain();
@@ -38,10 +46,24 @@ export class StreamPlayer implements IAudioPlayer {
 
         this.audioElement.ontimeupdate = () => {
             const { currentTime, duration } = this.audioElement;
+            const effectiveDuration = Math.max(0, duration - this.trimEnd);
 
-            // 1. Fade Out Logic
-            if (this.fadeOutDuration > 0 && !this.fadeOutTriggered && duration > 0) {
-                const remaining = duration - currentTime;
+            // 0. Manual Trim End Trigger
+            if (this.trimEnd > 0 && duration > 0 && currentTime >= effectiveDuration) {
+                // Prevent duplicate triggers?
+                // The consumer `AudioStore` calls stop() which pauses.
+                // But we should pause here to stop audio immediately.
+                if (!this.audioElement.paused) {
+                    debugLog(`StreamPlayer: Trim End Triggered (${this.trimEnd}s offset)`, 'event');
+                    this.audioElement.pause();
+                    if (this.onEndedCallback) this.onEndedCallback();
+                }
+                return;
+            }
+
+            // 1. Fade Out Logic (Disable for Loops)
+            if (this.fadeOutDuration > 0 && !this.fadeOutTriggered && duration > 0 && !this.audioElement.loop) {
+                const remaining = effectiveDuration - currentTime;
                 if (remaining <= (this.fadeOutDuration / 1000)) {
                     this.fadeOutTriggered = true;
                     if (this.onFadeOutStartCallback) this.onFadeOutStartCallback();
@@ -49,10 +71,10 @@ export class StreamPlayer implements IAudioPlayer {
                 }
             }
 
-            // 2. PreEnd Logic
-            if (duration > 0 && !this.preEndTriggered && this.onPreEndCallback) {
+            // 2. PreEnd Logic (Disable for Loops)
+            if (duration > 0 && !this.preEndTriggered && this.onPreEndCallback && !this.audioElement.loop) {
                 const threshold = (this.fadeOutDuration > 0) ? (this.fadeOutDuration / 1000) : 0.05;
-                const remaining = duration - currentTime;
+                const remaining = effectiveDuration - currentTime;
                 if (remaining <= threshold) {
                     this.preEndTriggered = true;
                     debugLog(`StreamPlayer: PreEnd Triggered for ${this.currentClipId}`, 'event');
@@ -62,21 +84,20 @@ export class StreamPlayer implements IAudioPlayer {
         };
 
         this.audioElement.onerror = (e: Event | string) => {
-            if (this.audioElement.src === '' || this.audioElement.src.endsWith('media:///')) return;
-            console.error("StreamPlayer Error", e, this.audioElement.error);
+            if (this.audioElement.src === '') return;
+            // Removed suppression of media:// errors to ensure we see failures
+            console.error("StreamPlayer Global Error", e, this.audioElement.error);
             const errorType = (typeof e === 'string') ? e : e.type;
-            debugLog(`StreamPlayer: Error ${errorType}`, 'error');
+            const errorMsg = this.audioElement.error ? `Code ${this.audioElement.error.code} - ${this.audioElement.error.message}` : '';
+            debugLog(`StreamPlayer: Error ${errorType} ${errorMsg}`, 'error');
         };
     }
 
-    async load(path: string | File): Promise<void> {
+    async load(path: string): Promise<void> {
         return new Promise((resolve, reject) => {
-            let url: string;
-            if (path instanceof File) {
-                url = URL.createObjectURL(path);
-            } else {
-                url = toFileUrl(path);
-            }
+            // Memory Leak Fix: FORCE usage of Streaming Protocol
+            // Never use URL.createObjectURL(file) here.
+            const url = toFileUrl(path);
 
             const handleCanPlay = () => {
                 this.audioElement.removeEventListener('canplaythrough', handleCanPlay);
@@ -105,16 +126,22 @@ export class StreamPlayer implements IAudioPlayer {
         this.fadeOutTriggered = false;
         this.preEndTriggered = false;
 
+        // Trim Start Logic
+        if (this.trimStart > 0) {
+            this.audioElement.currentTime = this.trimStart;
+        }
+
         this.volumeGainNode.gain.cancelScheduledValues(ctx.currentTime);
         if (this.fadeInDuration > 0) {
             this.volumeGainNode.gain.setValueAtTime(0, ctx.currentTime);
             this.volumeGainNode.gain.linearRampToValueAtTime(this.targetVolume, ctx.currentTime + (this.fadeInDuration / 1000));
+            // Ensure volume stays set after ramp
             this.volumeGainNode.gain.setValueAtTime(this.targetVolume, ctx.currentTime + (this.fadeInDuration / 1000) + 0.1);
         } else {
             this.volumeGainNode.gain.setValueAtTime(this.targetVolume, ctx.currentTime);
         }
 
-        debugLog(`StreamPlayer: Play ${this.currentClipId} (FadeIn: ${this.fadeInDuration})`, 'info');
+        debugLog(`StreamPlayer: Play ${this.currentClipId} (FadeIn: ${this.fadeInDuration}ms, Trim: ${this.trimStart}s)`, 'info');
         this.audioElement.play().catch(e => {
             console.error("Play failed", e);
             debugLog(`StreamPlayer: Play failed ${e.message}`, 'error');
@@ -170,8 +197,37 @@ export class StreamPlayer implements IAudioPlayer {
         this.audioElement.ontimeupdate = null;
         this.audioElement.onerror = null;
 
+        // G2 Fix: disconnetti TUTTI i nodi Web Audio per evitare memory leak.
+        // I nodi non disconnessi rimangono sull'audio graph come zombie,
+        // causando degradazioni progressive in sessioni di ore.
+        if (this.sourceNode) {
+            this.sourceNode.disconnect();
+            this.sourceNode = null;
+        }
         if (this.volumeGainNode) {
             this.volumeGainNode.disconnect();
+        }
+    }
+
+    setOutputDevice(deviceId: string) {
+        if (!deviceId) return;
+        // @ts-ignore - setSinkId non ancora nelle definizioni TS standard
+        if (typeof this.audioElement.setSinkId === 'function') {
+            // GR3 Fix: in caso di errore (device disconnesso/non disponibile),
+            // logga nel debug store visible in UI e tenta fallback a 'default'.
+            // Prima era solo console.warn, invisibile durante il broadcast.
+            this.audioElement.setSinkId(deviceId).catch((err: Error) => {
+                console.warn(`StreamPlayer: setSinkId(${deviceId}) fallito:`, err.message);
+                // Import dinamico per evitare dipendenza circolare
+                import('../store/useDebugStore').then(({ debugLog }) => {
+                    debugLog(`⚠️ Device audio non disponibile (${deviceId.substring(0, 8)}…) — fallback a sistema`, 'error');
+                });
+                // Fallback automatico al dispositivo di sistema
+                if (deviceId !== 'default') {
+                    // @ts-ignore
+                    this.audioElement.setSinkId('default').catch(() => {});
+                }
+            });
         }
     }
 

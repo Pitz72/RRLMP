@@ -1,5 +1,5 @@
 export interface IAudioPlayer {
-    load(path: string | File): Promise<void>;
+    load(path: string): Promise<void>;
     play(): void;
     stop(): void;
     seek(time: number): void;
@@ -7,6 +7,9 @@ export interface IAudioPlayer {
     getCurrentTime(): number;
     getDuration(): number;
     cleanup(): void;
+
+    // Routing
+    setOutputDevice(deviceId: string): void;
     setBus(bus: GainNode): void;
     onEnded(callback: () => void): void;
     onFadeOutStart(callback: () => void): void;

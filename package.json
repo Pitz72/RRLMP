@@ -1,7 +1,7 @@
 {
-    "name": "rrlmp",
-    "version": "0.1.2fix1",
-    "description": "Runtime Radio Live Machine Pro",
+    "name": "runtime-live-machine",
+    "version": "0.9.16",
+    "description": "Professional Broadcast Audio Architecture",
     "main": "out/main/index.js",
     "scripts": {
         "dev": "vite",
@@ -12,26 +12,53 @@
     },
     "build": {
         "appId": "com.antigravity.rrlmp",
-        "productName": "RRLMP",
+        "productName": "Runtime Live Machine",
         "directories": {
-            "output": "builds/v0.1.2fix1"
+            "output": "builds/v${version}"
         },
         "files": [
             "out/**/*",
-            "package.json"
+            "package.json",
+            "build/icon.png"
         ],
         "win": {
-            "target": "nsis"
-        }
+            "target": "nsis",
+            "icon": "build/icon.png"
+        },
+        "mac": {
+            "target": "dmg",
+            "icon": "build/icon.png"
+        },
+        "linux": {
+            "target": [
+                "AppImage",
+                "deb"
+            ],
+            "icon": "build/icon.png"
+        },
+        "fileAssociations": [
+            {
+                "ext": "lmp",
+                "name": "RRLMP Project",
+                "role": "Editor",
+                "icon": "build/icon.png"
+            }
+        ]
     },
     "keywords": [],
     "author": "Antigravity",
     "license": "ISC",
     "dependencies": {
+        "@dnd-kit/core": "^6.3.1",
+        "@dnd-kit/sortable": "^10.0.0",
+        "@dnd-kit/utilities": "^3.2.2",
         "clsx": "^2.1.0",
+        "i18next": "^25.8.0",
+        "i18next-browser-languagedetector": "^8.2.0",
         "lucide-react": "^0.300.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
+        "react-i18next": "^16.5.4",
         "tailwind-merge": "^2.2.0",
         "uuid": "^9.0.1",
         "zustand": "^4.5.0"
@@ -40,6 +67,7 @@
         "@types/node": "^20.11.0",
         "@types/react": "^18.2.0",
         "@types/react-dom": "^18.2.0",
+        "@types/react-i18next": "^7.8.3",
         "@types/uuid": "^9.0.7",
         "@vitejs/plugin-react": "^4.2.1",
         "autoprefixer": "^10.4.16",

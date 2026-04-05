@@ -1,7 +1,10 @@
 class AudioContextManager {
     private static instance: AudioContextManager;
-    private audioContext: AudioContext;
+    private context: AudioContext;
     private masterGain: GainNode;
+    private analyserL: AnalyserNode;
+    private analyserR: AnalyserNode;
+    private splitter: ChannelSplitterNode;
 
     // Buses
     private musicBus: GainNode;
@@ -10,17 +13,32 @@ class AudioContextManager {
     private assetsBus: GainNode;
 
     private constructor() {
-        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        this.context = new (window.AudioContext || (window as any).webkitAudioContext)();
 
         // Master Gain
-        this.masterGain = this.audioContext.createGain();
-        this.masterGain.connect(this.audioContext.destination);
+        this.masterGain = this.context.createGain();
+        this.masterGain.connect(this.context.destination);
 
         // Initialize Buses
-        this.musicBus = this.audioContext.createGain();
-        this.voiceBus = this.audioContext.createGain();
-        this.sfxBus = this.audioContext.createGain();
-        this.assetsBus = this.audioContext.createGain();
+        this.musicBus = this.context.createGain();
+        this.voiceBus = this.context.createGain();
+        this.sfxBus = this.context.createGain();
+        this.assetsBus = this.context.createGain();
+
+        // Metering Setup
+        this.splitter = this.context.createChannelSplitter(2);
+        this.analyserL = this.context.createAnalyser();
+        this.analyserR = this.context.createAnalyser();
+
+        this.analyserL.fftSize = 256;
+        this.analyserR.fftSize = 256;
+        this.analyserL.smoothingTimeConstant = 0.8;
+        this.analyserR.smoothingTimeConstant = 0.8;
+
+        // Route Master to Splitter (Parallel to Destination)
+        this.masterGain.connect(this.splitter);
+        this.splitter.connect(this.analyserL, 0);
+        this.splitter.connect(this.analyserR, 1);
 
         // Connect Buses to Master
         this.musicBus.connect(this.masterGain);
@@ -44,11 +62,15 @@ class AudioContextManager {
     }
 
     public getContext(): AudioContext {
-        return this.audioContext;
+        return this.context;
     }
 
     public getOutput(): GainNode {
         return this.masterGain;
+    }
+
+    public getAnalysers() {
+        return { left: this.analyserL, right: this.analyserR };
     }
 
     // Bus Getters
@@ -58,14 +80,14 @@ class AudioContextManager {
     public getAssetsBus(): GainNode { return this.assetsBus; }
 
     public async resume(): Promise<void> {
-        if (this.audioContext.state === 'suspended') {
-            await this.audioContext.resume();
+        if (this.context.state === 'suspended') {
+            await this.context.resume();
         }
     }
 
     public setMasterVolume(value: number): void {
         const clampedValue = Math.max(0, Math.min(1, value));
-        this.masterGain.gain.setTargetAtTime(clampedValue, this.audioContext.currentTime, 0.1);
+        this.masterGain.gain.setTargetAtTime(clampedValue, this.context.currentTime, 0.1);
     }
 }
 

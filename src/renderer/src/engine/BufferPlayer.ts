@@ -118,23 +118,25 @@ export class BufferPlayer implements IAudioPlayer {
         this.onEndedCallback = callback;
     }
 
+    onPreEnd(_callback: (clipId: string) => void): void {
+        // BufferPlayer functionality limited 
+    }
+
+    fadeTo(volume: number, duration: number): void {
+        const ctx = AudioContextManager.getInstance().getContext();
+        const now = ctx.currentTime;
+        this.gainNode.gain.cancelScheduledValues(now);
+        this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, now);
+        this.gainNode.gain.linearRampToValueAtTime(volume, now + (duration / 1000));
+    }
     onFadeOutStart(_callback: () => void): void {
-        // BufferPlayer functionality limited for now
-        // Could implement similar time check in getCurrentTime or via setTimeout
+        // BufferPlayer functionality limited
     }
 
     updateSettings(clip: any): void {
-        // BufferPlayer uses AudioBufferSourceNode which is one-time use.
-        // Changing 'loop' here only affects if we are created/playing?
-        // Actually we can set gain anytime.
         if (clip.volume !== undefined) this.setVolume(clip.volume);
-
-        // Looping must be set on the active source node
         if (this.sourceNode && clip.isLooping !== undefined) {
             this.sourceNode.loop = clip.isLooping;
         }
-        // Also store it for next play() ? BufferPlayer usually recreates sourceNode
-        // We'd need to store 'isLooping' state.
-        // Let's add that prop if we want full support, but for interface strictness:
     }
 }

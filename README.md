@@ -32,3 +32,9 @@ src/
 ## License
 
 ISC
+
+## Documentation
+
+Full documentation, including changelogs and technical reports, can be found in the [docs/](./docs/) directory.
+- [Changelogs](./docs/changelogs/)
+- [Technical Reports](./docs/technical_reports/)
