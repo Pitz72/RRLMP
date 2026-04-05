@@ -1,6 +1,7 @@
 import AudioContextManager from './AudioContextManager';
 import { IAudioPlayer } from './AudioPlayer.interface';
 import { toFileUrl } from '../utils/pathUtils';
+import { AudioClip } from '../types';
 
 export class BufferPlayer implements IAudioPlayer {
     private buffer: AudioBuffer | null = null;
@@ -107,6 +108,11 @@ export class BufferPlayer implements IAudioPlayer {
         this.buffer = null;
     }
 
+    setOutputDevice(_deviceId: string): void {
+        // Web Audio API non supporta il re-routing di singoli nodi su device diversi
+        // senza usare contesti separati. Implementato come no-op per soddisfare l'interfaccia.
+    }
+
     setBus(bus: GainNode): void {
         this.gainNode.disconnect();
         this.gainNode.connect(bus);
@@ -133,7 +139,7 @@ export class BufferPlayer implements IAudioPlayer {
         // BufferPlayer functionality limited
     }
 
-    updateSettings(clip: any): void {
+    updateSettings(clip: AudioClip): void {
         if (clip.volume !== undefined) this.setVolume(clip.volume);
         if (this.sourceNode && clip.isLooping !== undefined) {
             this.sourceNode.loop = clip.isLooping;

@@ -3,18 +3,30 @@ import AudioContextManager from './AudioContextManager';
 import { toFileUrl } from '../utils/pathUtils';
 import { debugLog } from '../store/useDebugStore';
 import { useSettingsStore } from '../store/useSettingsStore';
+import { AudioClip } from '../types';
+
+// Extended HTMLAudioElement to include experimental setSinkId
+interface HTMLAudioElementWithSinkId extends HTMLAudioElement {
+    setSinkId(deviceId: string): Promise<void>;
+}
 
 export class StreamPlayer implements IAudioPlayer {
-    private audioElement: HTMLAudioElement;
+    private audioElement: HTMLAudioElementWithSinkId;
     private onFadeOutStartCallback: (() => void) | null = null;
     private onPreEndCallback: ((clipId: string) => void) | null = null;
+    private onIntroReachedCallback: ((clipId: string) => void) | null = null;
+    private onOutroReachedCallback: ((clipId: string) => void) | null = null;
     private fadeOutTriggered: boolean = false;
     private preEndTriggered: boolean = false;
+    private introReached: boolean = false;
+    private outroReached: boolean = false;
     private fadeInDuration: number = 0;
     private fadeOutDuration: number = 0;
     private targetVolume: number = 1.0;
     private trimStart: number = 0;
     private trimEnd: number = 0;
+    private introMarker: number = 0;
+    private outroMarker: number = 0;
 
     private currentClipId: string = '';
     private volumeGainNode: GainNode;
@@ -24,7 +36,7 @@ export class StreamPlayer implements IAudioPlayer {
 
     constructor() {
         const ctx = AudioContextManager.getInstance().getContext();
-        this.audioElement = new Audio();
+        this.audioElement = new Audio() as HTMLAudioElementWithSinkId;
         const deviceId = useSettingsStore.getState().outputDeviceId;
         if (deviceId && deviceId !== 'default') {
             this.setOutputDevice(deviceId);
@@ -48,11 +60,9 @@ export class StreamPlayer implements IAudioPlayer {
             const { currentTime, duration } = this.audioElement;
             const effectiveDuration = Math.max(0, duration - this.trimEnd);
 
+            // --- L4 Logic Documentation ---
             // 0. Manual Trim End Trigger
             if (this.trimEnd > 0 && duration > 0 && currentTime >= effectiveDuration) {
-                // Prevent duplicate triggers?
-                // The consumer `AudioStore` calls stop() which pauses.
-                // But we should pause here to stop audio immediately.
                 if (!this.audioElement.paused) {
                     debugLog(`StreamPlayer: Trim End Triggered (${this.trimEnd}s offset)`, 'event');
                     this.audioElement.pause();
@@ -61,7 +71,19 @@ export class StreamPlayer implements IAudioPlayer {
                 return;
             }
 
-            // 1. Fade Out Logic (Disable for Loops)
+            // 1. Intro Marker Reached
+            if (this.introMarker > 0 && !this.introReached && currentTime >= this.introMarker) {
+                this.introReached = true;
+                if (this.onIntroReachedCallback) this.onIntroReachedCallback(this.currentClipId);
+            }
+
+            // 2. Outro Marker Reached
+            if (this.outroMarker > 0 && !this.outroReached && currentTime >= this.outroMarker) {
+                this.outroReached = true;
+                if (this.onOutroReachedCallback) this.onOutroReachedCallback(this.currentClipId);
+            }
+
+            // 3. Fade Out Logic
             if (this.fadeOutDuration > 0 && !this.fadeOutTriggered && duration > 0 && !this.audioElement.loop) {
                 const remaining = effectiveDuration - currentTime;
                 if (remaining <= (this.fadeOutDuration / 1000)) {
@@ -71,7 +93,7 @@ export class StreamPlayer implements IAudioPlayer {
                 }
             }
 
-            // 2. PreEnd Logic (Disable for Loops)
+            // 4. PreEnd Logic
             if (duration > 0 && !this.preEndTriggered && this.onPreEndCallback && !this.audioElement.loop) {
                 const threshold = (this.fadeOutDuration > 0) ? (this.fadeOutDuration / 1000) : 0.05;
                 const remaining = effectiveDuration - currentTime;
@@ -85,11 +107,10 @@ export class StreamPlayer implements IAudioPlayer {
 
         this.audioElement.onerror = (e: Event | string) => {
             if (this.audioElement.src === '') return;
-            // Removed suppression of media:// errors to ensure we see failures
+            // L2 Fix: Uniform error handling
             console.error("StreamPlayer Global Error", e, this.audioElement.error);
-            const errorType = (typeof e === 'string') ? e : e.type;
-            const errorMsg = this.audioElement.error ? `Code ${this.audioElement.error.code} - ${this.audioElement.error.message}` : '';
-            debugLog(`StreamPlayer: Error ${errorType} ${errorMsg}`, 'error');
+            const errorMsg = this.audioElement.error ? `Code ${this.audioElement.error.code} - ${this.audioElement.error.message}` : String(e);
+            debugLog(`StreamPlayer: Error ${errorMsg}`, 'error');
         };
     }
 
@@ -198,8 +219,6 @@ export class StreamPlayer implements IAudioPlayer {
         this.audioElement.onerror = null;
 
         // G2 Fix: disconnetti TUTTI i nodi Web Audio per evitare memory leak.
-        // I nodi non disconnessi rimangono sull'audio graph come zombie,
-        // causando degradazioni progressive in sessioni di ore.
         if (this.sourceNode) {
             this.sourceNode.disconnect();
             this.sourceNode = null;
@@ -211,11 +230,10 @@ export class StreamPlayer implements IAudioPlayer {
 
     setOutputDevice(deviceId: string) {
         if (!deviceId) return;
-        // @ts-ignore - setSinkId non ancora nelle definizioni TS standard
+        
         if (typeof this.audioElement.setSinkId === 'function') {
             // GR3 Fix: in caso di errore (device disconnesso/non disponibile),
             // logga nel debug store visible in UI e tenta fallback a 'default'.
-            // Prima era solo console.warn, invisibile durante il broadcast.
             this.audioElement.setSinkId(deviceId).catch((err: Error) => {
                 console.warn(`StreamPlayer: setSinkId(${deviceId}) fallito:`, err.message);
                 // Import dinamico per evitare dipendenza circolare
@@ -224,7 +242,6 @@ export class StreamPlayer implements IAudioPlayer {
                 });
                 // Fallback automatico al dispositivo di sistema
                 if (deviceId !== 'default') {
-                    // @ts-ignore
                     this.audioElement.setSinkId('default').catch(() => {});
                 }
             });
@@ -250,12 +267,24 @@ export class StreamPlayer implements IAudioPlayer {
         this.onPreEndCallback = callback;
     }
 
-    updateSettings(clip: any): void {
+    onIntroReached(callback: (clipId: string) => void): void {
+        this.onIntroReachedCallback = callback;
+    }
+
+    onOutroReached(callback: (clipId: string) => void): void {
+        this.onOutroReachedCallback = callback;
+    }
+
+    updateSettings(clip: AudioClip): void {
         if (clip.id) this.currentClipId = clip.id;
         if (clip.volume !== undefined) this.targetVolume = clip.volume;
         if (clip.isLooping !== undefined) this.audioElement.loop = clip.isLooping;
         if (clip.fadeIn !== undefined) this.fadeInDuration = clip.fadeIn;
         if (clip.fadeOut !== undefined) this.fadeOutDuration = clip.fadeOut;
+        if (clip.trimStart !== undefined) this.trimStart = clip.trimStart;
+        if (clip.trimEnd !== undefined) this.trimEnd = clip.trimEnd;
+        if (clip.introMarker !== undefined) this.introMarker = clip.introMarker;
+        if (clip.outroMarker !== undefined) this.outroMarker = clip.outroMarker;
     }
 
     fadeTo(volume: number, duration: number): void {
@@ -264,13 +293,8 @@ export class StreamPlayer implements IAudioPlayer {
         const ctx = AudioContextManager.getInstance().getContext();
         const now = ctx.currentTime;
 
-        // Force a value set to ensure ramp has a starting point, even if strictly 0.
-        // Web Audio API sometimes ignores ramps if starting value is 0 or scheduled at same time.
         this.volumeGainNode.gain.cancelScheduledValues(now);
         this.volumeGainNode.gain.setValueAtTime(this.volumeGainNode.gain.value, now);
-
-        // Use exponential ramp for natural sound? No, linear is safer for 0 handling usually.
-        // But for music ducking linear is fine.
         this.volumeGainNode.gain.linearRampToValueAtTime(volume, now + (duration / 1000));
     }
 }

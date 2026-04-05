@@ -21,7 +21,8 @@ export const useDebugStore = create<DebugState>((set) => ({
     log: (msg, type = 'info') => set((s) => {
         const time = new Date().toISOString().split('T')[1].slice(0, 12); // HH:MM:SS.mmm
         const newLog = { time, msg, type };
-        return { logs: [newLog, ...s.logs].slice(0, 500) }; // Max 500 logs
+        // L6 Fix: Implement FIFO rotation with 200 items limit to reduce memory pressure
+        return { logs: [newLog, ...s.logs].slice(0, 200) }; 
     }),
     clear: () => set({ logs: [] })
 }));

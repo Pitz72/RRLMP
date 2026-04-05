@@ -30,46 +30,74 @@ declare global {
     }
 }
 
+/**
+ * Essential data structure for an audio clip in the RRLMP project.
+ */
 export interface AudioClip {
+    /** Unique identifier (UUID) */
     id: string;
+    /** Display name of the clip */
     name: string;
-    path: string; // File system path
+    /** Native file system path */
+    path: string; 
+    /** Broadcast type (affects color and bus routing) */
     type: ClipType;
+    /** Base color inherited from column or project */
     color: string;
-    volume: number; // 0.0 to 1.5 (Gain, default 1.0)
-    pan: number;    // -1.0 to 1.0
-    isLooping: boolean; // Default false
+    /** Volume gain multiplier. Default: 1.0 (Unity Gain). Range: 0.0 to 1.5 */
+    volume: number; 
+    /** Stereo panning. Default: 0.0 (Center). Range: -1.0 to 1.0 */
+    pan: number;    
+    /** Whether the clip should loop automatically. Default: false */
+    isLooping: boolean; 
 
     // Audio Logic
+    /** Dynamic state: is currently playing */
     isPlaying: boolean;
+    /** Duration in seconds (loaded from metadata) */
     duration: number;
+    /** Current playback position in seconds */
     currentTime: number;
 
     // Advanced Broadcast Features
-    startMarker?: number; // Intro start (skip silence)
-    introMarker?: number; // Countdown end (vocal start)
-    outroMarker?: number; // Mix point
-    endMarker?: number;   // Early stop
+    /** Intro start position (skip silence). Default: 0 */
+    startMarker?: number; 
+    /** Countdown end (vocal start marker) */
+    introMarker?: number; 
+    /** Mix point (outro transition start) */
+    outroMarker?: number; 
+    /** Early stop position (end marker) */
+    endMarker?: number;   
 
     // Behavioral Logic
-    nextAction: 'stop' | 'play_next' | 'loop'; // Default 'stop'
-    behavior: 'normal' | 'stacco'; // Default 'normal' This allows intra-column ducking
+    /** Sequencer action after completion. Default: 'stop' */
+    nextAction: 'stop' | 'play_next' | 'loop'; 
+    /** Mixer behavior. 'stacco' triggers ducking on other clips. Default: 'normal' */
+    behavior: 'normal' | 'stacco'; 
 
     // Regole di ingaggio
-    duckingRole: 'source' | 'target' | 'none'; // Default basato su colonna
+    /** Ducking priority. Default: 'none' */
+    duckingRole: 'source' | 'target' | 'none'; 
 
     // Transizioni
-    fadeIn: number; // ms
-    fadeOut: number; // ms
+    /** Fade In duration in milliseconds. Default: 0 */
+    fadeIn: number; 
+    /** Fade Out duration in milliseconds. Default: 0 */
+    fadeOut: number; 
 
     // Metadati visuali
-    customColor?: string; // Override colore colonna
-    keybind?: string; // Tasto personalizzato (es. "KeyQ", "Numpad1")
-    midiBind?: string; // MIDI Note Bind (es. "NOTE:60")
+    /** Manual color override for this specific clip */
+    customColor?: string; 
+    /** Keyboard shortcut (e.g., "KeyQ", "Numpad1") */
+    keybind?: string; 
+    /** MIDI Note/Control Bind (e.g., "NOTE:60") */
+    midiBind?: string; 
 
     // Cue Points
-    trimStart?: number; // Skip seconds at start
-    trimEnd?: number;   // Cut seconds from end
+    /** Pre-play offset (skip seconds from start). Default: 0 */
+    trimStart?: number; 
+    /** Post-play offset (stop seconds before end). Default: 0 */
+    trimEnd?: number;   
 }
 
 

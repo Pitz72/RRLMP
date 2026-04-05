@@ -5,6 +5,8 @@ import { AudioClip } from '../types';
 import AudioContextManager from '../engine/AudioContextManager';
 import { debugLog } from './useDebugStore';
 import { useProjectStore } from './useProjectStore';
+import { useSettingsStore } from './useSettingsStore';
+import * as AUDIO_CONST from '../constants/audioConstants';
 
 interface ActiveClipState {
     player: IAudioPlayer;
@@ -41,11 +43,23 @@ const getBusForType = (type: string) => {
     }
 };
 
-// --- CENTRALIZED MIXING ENGINE (v0.1.2) ---
+/**
+ * CENTRALIZED MIXING ENGINE (L4: Logic Documentation)
+ * 
+ * This function is the "brain" of the audio engine. It is called every time
+ * a clip starts or stops to recalculate the target volume of all active clips.
+ * 
+ * Logic follows a hierarchy of priority:
+ * 1. VOICE: Always 100% volume.
+ * 2. STACCO: High priority jingles that mute other assets and duck music.
+ * 3. MUSIC: Standard background, ducks when Voice or Stacco is active.
+ * 4. ASSETS: Beds/Jingles that duck on voice or mute on music dominance.
+ */
 const evaluateMix = (activeClips: Record<string, ActiveClipState>) => {
     const activeValues = Object.values(activeClips);
+    const { duckingFactor, duckingDuration } = useSettingsStore.getState();
 
-    // 1. ANALYSIS
+    // 1. ANALYSIS: Scan for high-priority types currently playing
     const isVoiceActive = activeValues.some(c => c.clip.type === 'voice');
     const isMusicActive = activeValues.some(c => c.clip.type === 'music');
     // Active Stacco defined as: An asset that is playing and has behavior 'stacco'
@@ -57,16 +71,16 @@ const evaluateMix = (activeClips: Record<string, ActiveClipState>) => {
 
     activeValues.forEach(ac => {
         const { clip, player } = ac;
-        let targetVolume = clip.volume; // Start with nominal volume
+        let targetVolume = clip.volume; // Start with nominal volume set by user
 
         if (clip.type === 'voice') {
-            // VOICE: Always nominal
+            // VOICE: Always nominal (never ducked)
             targetVolume = clip.volume;
         }
         else if (clip.type === 'music' || clip.type === 'preshow') {
-            // MUSIC: Ducks if Voice is active
-            if (isVoiceActive) {
-                targetVolume = clip.volume * 0.2; // -14dB approx
+            // MUSIC: Ducks if Voice or Stacco is active
+            if (isVoiceActive || activeStacco) {
+                targetVolume = clip.volume * duckingFactor;
             } else {
                 targetVolume = clip.volume;
             }
@@ -81,13 +95,13 @@ const evaluateMix = (activeClips: Record<string, ActiveClipState>) => {
             else if (activeStacco) {
                 targetVolume = 0;
             }
-            // Rule 3: Music Dominance (If Music active, I mute)
+            // Rule 3: Music Dominance (If Music active, assets/beds mute to avoid mud)
             else if (isMusicActive) {
                 targetVolume = 0;
             }
             // Rule 4: Voice Ducking (If Voice active, I duck)
             else if (isVoiceActive) {
-                targetVolume = clip.volume * 0.2;
+                targetVolume = clip.volume * duckingFactor;
             }
             // Rule 5: Normal
             else {
@@ -95,12 +109,12 @@ const evaluateMix = (activeClips: Record<string, ActiveClipState>) => {
             }
         }
         else {
-            // SFX / Others: Default behavior (maybe duck on voice?)
+            // SFX / Others: Default behavior (duck half-way on voice)
             if (isVoiceActive) targetVolume = clip.volume * 0.5;
         }
 
-        // APPLY
-        player.fadeTo(targetVolume, 500);
+        // APPLY: Smooth transition to target volume
+        player.fadeTo(targetVolume, duckingDuration);
     });
 };
 
@@ -198,13 +212,11 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                         // Store original volume if not already suppressed
                         const isAlreadySuppressed = currentStore.suppressedClips[ac.clip.id] !== undefined;
                         if (!isAlreadySuppressed) {
-                            // Use current target volume? Or clip volume? 
-                            // Let's use clip settings volume.
                             set(state => ({
                                 suppressedClips: { ...state.suppressedClips, [ac.clip.id]: ac.clip.volume }
                             }));
                         }
-                        ac.player.fadeTo(0, 200); // Fast fade to silence
+                        ac.player.fadeTo(0, AUDIO_CONST.STACCO_FADE_DURATION); // Fast fade to silence
                     });
                 } else {
                     // NORMAL behavior: Stop others in same column
@@ -239,10 +251,30 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     const currentClip = get().activeClips[clipId]?.clip;
                     if (!currentClip) return;
 
+                    // If NO outro marker set, fallback to PreEnd for play_next
+                    if ((currentClip.outroMarker || 0) <= 0 && currentClip.nextAction === 'play_next') {
+                        const nextClip = getNextClipInColumn(currentClip.id);
+                        if (nextClip) {
+                            debugLog(`AudioStore: Sequencer Play Next (Fallback to PreEnd) -> ${nextClip.name}`, 'event');
+                            get().playClip(nextClip);
+                        }
+                    }
+                });
+
+                player.onIntroReached((clipId) => {
+                    const clipName = get().activeClips[clipId]?.clip.name || 'Unknown';
+                    debugLog(`🎤 Intro Ended for ${clipName} (Markers)`, 'event');
+                });
+
+                player.onOutroReached((clipId) => {
+                    const currentClip = get().activeClips[clipId]?.clip;
+                    if (!currentClip) return;
+                    debugLog(`🔊 Outro Reached for ${currentClip.name}`, 'info');
+
                     if (currentClip.nextAction === 'play_next') {
                         const nextClip = getNextClipInColumn(currentClip.id);
                         if (nextClip) {
-                            debugLog(`AudioStore: Sequencer Play Next -> ${nextClip.name}`, 'event');
+                            debugLog(`AudioStore: Sequencer Play Next (via Outro Marker) -> ${nextClip.name}`, 'event');
                             get().playClip(nextClip);
                         }
                     }
@@ -250,8 +282,6 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
                 player.onEnded(() => {
                     debugLog(`AudioStore: Ended ${freshClip.name}`, 'info');
-                    // G7 Fix: usa get().stopClip invece di currentStore.stopClip
-                    // per evitare stale closure su riferimento Zustand catturato in passato.
                     get().stopClip(freshClip.id);
 
                     if (freshClip.nextAction === 'loop') {
@@ -270,7 +300,6 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 await player.load(freshClip.path);
 
                 // G3 Fix: verifica che questa operazione di load sia ancora valida.
-                // Se l'utente ha switchato clip durante il load, scarta silenziosamente.
                 if ((playGenerations.get(freshClip.id) || 0) !== generation) {
                     debugLog(`AudioStore: Load obsoleto scartato per ${freshClip.name} (gen ${generation})`, 'info');
                     player.cleanup();
@@ -296,16 +325,16 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 });
 
             } catch (error: any) {
+                // Standardized L2 error handling
+                const errorMsg = error.message || String(error);
+                debugLog(`AudioStore: Failed to play ${freshClip.name} - ${errorMsg}`, 'error');
                 console.error("Failed to play clip:", freshClip, error);
-                debugLog(`AudioStore: Failed to play ${freshClip.name} - ${error.message || error}`, 'error');
             }
         },
 
         loadClip: async (clip: AudioClip) => {
-            // ... existing implementation
             let player: IAudioPlayer = new StreamPlayer();
             try {
-                // Memory Leak Fix: Use path only (media:// protocol via StreamPlayer)
                 await player.load(clip.path);
                 const duration = player.getDuration();
                 const { useProjectStore } = await import('./useProjectStore');
@@ -316,6 +345,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 );
                 player.cleanup();
             } catch (e) {
+                // Standardized error handling
+                debugLog(`AudioStore: Failed to load metadata for ${clip.name}`, 'error');
                 console.error("Failed to load clip metadata", clip.path, e);
                 player.cleanup();
             }
@@ -323,7 +354,6 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
         playColumn: async (colIndex: number) => {
             const { columns } = useProjectStore.getState();
-            // Validate index
             if (colIndex < 0 || colIndex >= columns.length) return;
 
             const targetCol = columns[colIndex];
@@ -335,24 +365,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             if (availableClip) {
                 await get().playClip(availableClip);
             } else if (targetCol.clips.length > 0) {
-                // Determine fallback if all are playing? 
-                // Request says: "or the first in absolute if none sound".
-                // My logic: `!activeClips` handles "not playing". 
-                // If ALL are playing, `availableClip` is undefined.
-                // Should I restart the first one?
-                // Request: "cercare la prima clip della colonna che non è attualmente in riproduzione (o la prima in assoluto se nessuna suona)."
-                // If all are playing, it implies 'Find the first one that is NOT playing'. If ALL are playing, then none are 'not playing'. 
-                // Wait, "o la prima in assoluto se nessuna suona" means "OR the first absolute IF NO ONE [of that column] IS PLAYING".
-                // This implies: 
-                // 1. Is any clip in this column playing?
-                //    Yes: Find the first one that isn't.
-                //    No: Play the first one.
-                // My logic `find(!active)` covers both cases!
-                // If NO clips are playing, `find` returns the first one (index 0).
-                // If clip 0 is playing, `find` return clip 1.
-                // If ALL are playing, `find` returns undefined. In that case do nothing? 
-                // The prompt assumes a radio workflow: usually you trigger the next valid item.
-                debugLog(`AudioStore: playColumn(${colIndex}) -> All clips playing or empty?`, 'info');
+                debugLog(`AudioStore: playColumn(${colIndex}) -> All clips in column are already playing`, 'info');
             }
         },
 

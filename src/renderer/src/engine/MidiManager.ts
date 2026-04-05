@@ -1,18 +1,32 @@
 export type MidiMessageCallback = (note: number, velocity: number, command: number) => void;
 export type MidiStatusCallback = (supported: boolean, inputCount: number) => void;
 
+// Local interface to avoid 'any' and handle missing @types/webmidi
+interface MidiEvent extends Event {
+    data: Uint8Array;
+}
+
+interface MidiPort extends EventTarget {
+    type: 'input' | 'output';
+    state: 'connected' | 'disconnected';
+    onmidimessage: ((event: MidiEvent) => void) | null;
+}
+
+interface MidiAccess extends EventTarget {
+    inputs: Map<string, MidiPort>;
+    onstatechange: ((event: { port: MidiPort }) => void) | null;
+}
 
 class MidiManager {
     private static instance: MidiManager;
     private listeners: MidiMessageCallback[] = [];
     private statusListeners: MidiStatusCallback[] = [];
-    private access: any = null;
+    private access: MidiAccess | null = null;
     private _supported = false;
     private _inputCount = 0;
 
     private constructor() {
-        // @ts-ignore
-        if (navigator.requestMIDIAccess) {
+        if ((navigator as any).requestMIDIAccess) {
             this.init();
         } else {
             // M2 Fix: segnala anche visualmente che MIDI non è disponibile
@@ -30,22 +44,23 @@ class MidiManager {
 
     private async init() {
         try {
-            // @ts-ignore
-            this.access = await navigator.requestMIDIAccess();
+            this.access = await (navigator as any).requestMIDIAccess();
             if (this.access) {
                 // Listen to existing inputs
-                this.access.inputs.forEach((input: any) => {
+                this.access.inputs.forEach((input: MidiPort) => {
                     input.onmidimessage = this.handleMidiMessage.bind(this);
                 });
 
                 // Listen for new connections
-                this.access.onstatechange = (e: any) => {
+                this.access.onstatechange = (e: { port: MidiPort }) => {
                     if (e.port.type === 'input' && e.port.state === 'connected') {
                         e.port.onmidimessage = this.handleMidiMessage.bind(this);
                     }
                     // Aggiorna il conteggio ad ogni cambio di stato
-                    this._inputCount = this.access.inputs.size;
-                    this._notifyStatus(true, this._inputCount);
+                    if (this.access) {
+                        this._inputCount = this.access.inputs.size;
+                        this._notifyStatus(true, this._inputCount);
+                    }
                 };
 
                 this._supported = true;
@@ -67,7 +82,7 @@ class MidiManager {
         this.statusListeners.forEach(fn => fn(supported, inputCount));
     }
 
-    private handleMidiMessage(event: any) {
+    private handleMidiMessage(event: MidiEvent) {
         const [command, note, velocity] = event.data;
         // Command 144 (0x90) is Note On.
         // Some devices send Note On with 0 velocity as Note Off. We filter those.

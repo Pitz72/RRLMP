@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { AudioClip } from '../../types';
 import { debugLog } from '../../store/useDebugStore';
-import { Wand2 } from 'lucide-react';
+import { Wand2, Settings2, Scissors } from 'lucide-react';
+import { WaveformEditor } from '../ui/WaveformEditor';
 
 
 interface ClipSettingsModalProps {
@@ -25,6 +26,8 @@ const COLORS = [
 ];
 
 export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOpen, onClose, onSave, onDelete }) => {
+    const [activeTab, setActiveTab] = useState<'general' | 'markers'>('general');
+    
     const [name, setName] = useState(clip.name);
     const [volume, setVolume] = useState(clip.volume);
     const [isLooping, setIsLooping] = useState(clip.isLooping);
@@ -37,6 +40,8 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
     const [keybind, setKeybind] = useState(clip.keybind || '');
     const [trimStart, setTrimStart] = useState(clip.trimStart || 0);
     const [trimEnd, setTrimEnd] = useState(clip.trimEnd || 0);
+    const [introMarker, setIntroMarker] = useState(clip.introMarker || 0);
+    const [outroMarker, setOutroMarker] = useState(clip.outroMarker || 0);
 
     // Reset state when clip changes or modal opens
     useEffect(() => {
@@ -53,6 +58,9 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             setKeybind(clip.keybind || '');
             setTrimStart(clip.trimStart || 0);
             setTrimEnd(clip.trimEnd || 0);
+            setIntroMarker(clip.introMarker || 0);
+            setOutroMarker(clip.outroMarker || 0);
+            setActiveTab('general'); // Reset tab
         }
     }, [clip, isOpen]);
 
@@ -72,8 +80,10 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             keybind,
             trimStart: Number(trimStart),
             trimEnd: Number(trimEnd),
+            introMarker: Number(introMarker),
+            outroMarker: Number(outroMarker),
         };
-        debugLog(`Saving Clip: ${clip.name} FadeOut=${updatedClip.fadeOut} TrimStart=${updatedClip.trimStart} TrimEnd=${updatedClip.trimEnd}`, 'info');
+        debugLog(`Saving Clip: ${clip.name} Intro=${updatedClip.introMarker} Outro=${updatedClip.outroMarker}`, 'info');
         onSave(clip.id, updatedClip);
         onClose();
     };
@@ -88,16 +98,9 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
     const detectSilence = async () => {
         try {
             debugLog('Smart Trim: decoding...', 'info');
-            // 1. Fetch
-            // Use media protocol if available or file protocol?
-            // Renderer has webSecurity:false so file:// might work or fetch via media://
-            // clip.path is likely "C:\..." or "audio/..."
-            // If absolute, use file:// protocol for fetch? Or just fetch(clip.path).
-            // Electron with webSecurity:false allow fetch('file:///...')
-
             let fetchPath = clip.path;
             if (!fetchPath.startsWith('http') && !fetchPath.startsWith('file:')) {
-                fetchPath = `media://${fetchPath}`; // Use our custom protocol!
+                fetchPath = `media://${fetchPath}`; // Use our custom protocol
             }
 
             const response = await fetch(fetchPath);
@@ -105,8 +108,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
             const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 
-            // 2. Analyze PCM
-            const rawData = audioBuffer.getChannelData(0); // Analyze first channel
+            const rawData = audioBuffer.getChannelData(0);
             const sampleRate = audioBuffer.sampleRate;
             const threshold = 0.01; // -40dB roughly
 
@@ -129,14 +131,15 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                 }
             }
 
-            // Margin of 0.1s
             const margin = 0.1;
             const suggestedStart = Math.max(0, (startFrame / sampleRate) - margin);
-            // End Cut is duration from END. 
-            // Total Duration = audioBuffer.duration
-            // End Time = endFrame / sampleRate
-            // Cut Amount = Total Duration - End Time
             const suggestedEndCut = Math.max(0, audioBuffer.duration - (endFrame / sampleRate) - margin);
+
+            // Degenerate case protection
+            if (audioBuffer.duration - suggestedEndCut <= suggestedStart + 0.1) {
+                alert('Silence detection failed: The entire file appears to be silence or volume is too low.');
+                return;
+            }
 
             setTrimStart(parseFloat(suggestedStart.toFixed(3)));
             setTrimEnd(parseFloat(suggestedEndCut.toFixed(3)));
@@ -152,224 +155,268 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
 
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-zinc-900 rounded-lg border border-zinc-800 w-full max-w-3xl shadow-2xl flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <div className="bg-zinc-900 rounded-lg border border-zinc-700 w-full max-w-4xl shadow-2xl flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
 
-                {/* HEADER */}
-                <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-950/50 rounded-t-lg">
-                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-full" style={{ backgroundColor: customColor }}></span>
-                        Clip Settings
-                    </h2>
-                    <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">✕</button>
+                {/* HEADER & TABS */}
+                <div className="border-b border-zinc-800 bg-zinc-950/50 rounded-t-lg">
+                    <div className="p-4 flex justify-between items-center border-b border-zinc-800">
+                        <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: customColor }}></span>
+                            {clip.name}
+                        </h2>
+                        <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">✕</button>
+                    </div>
+                    <div className="flex px-4 gap-4">
+                        <button 
+                            onClick={() => setActiveTab('general')}
+                            className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'general' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
+                        >
+                            <Settings2 size={16} /> General Settings
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('markers')}
+                            className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'markers' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
+                        >
+                            <Scissors size={16} /> Trim & Markers
+                        </button>
+                    </div>
                 </div>
 
                 {/* SCROLLABLE CONTENT */}
                 <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
 
-                    {/* 2-COLUMN GRID */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-                        {/* LEFT COLUMN: Visual & Basic */}
-                        <div className="space-y-6">
-                            {/* NAME */}
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Clip Name</label>
-                                <input
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    className="w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-white focus:border-emerald-500 outline-none transition-colors"
-                                    placeholder="Enter clip name..."
-                                />
-                            </div>
-
-                            {/* COLORS */}
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Color Label</label>
-                                <div className="flex flex-wrap gap-2 bg-zinc-950 p-2 rounded border border-zinc-800">
-                                    {COLORS.map((c) => (
-                                        <button
-                                            key={c}
-                                            onClick={() => setCustomColor(c)}
-                                            className={`w-6 h-6 rounded-full transition-transform hover:scale-110 ${customColor === c ? 'ring-2 ring-white scale-110' : ''}`}
-                                            style={{ backgroundColor: c }}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* VOLUME */}
-                            <div className="space-y-2">
-                                <div className="flex justify-between items-center">
-                                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Volume Gain</label>
-                                    <span className="text-xs font-mono text-emerald-400">{(volume * 100).toFixed(0)}%</span>
-                                </div>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="2"
-                                    step="0.05"
-                                    value={volume}
-                                    onChange={(e) => setVolume(parseFloat(e.target.value))}
-                                    className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
-                                />
-                            </div>
-
-                            {/* KEYBIND */}
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Global Keybind</label>
-                                <div className="flex gap-2">
+                    {activeTab === 'general' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {/* LEFT COLUMN: Visual & Basic */}
+                            <div className="space-y-6">
+                                {/* NAME */}
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Clip Name</label>
                                     <input
                                         type="text"
-                                        value={keybind}
-                                        readOnly
-                                        placeholder="Click to Record..."
-                                        className="flex-1 bg-zinc-950 border border-zinc-800 rounded p-2 text-sm text-yellow-400 font-mono text-center cursor-pointer hover:border-yellow-500/50 focus:border-yellow-500 outline-none"
-                                        onKeyDown={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            if (e.key === 'Escape' || e.key === 'Backspace') {
-                                                setKeybind('');
-                                            } else {
-                                                setKeybind(e.code);
-                                            }
-                                        }}
-                                        onClick={(e) => (e.currentTarget as HTMLInputElement).focus()}
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        className="w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-white focus:border-emerald-500 outline-none transition-colors"
                                     />
-                                    {keybind && (
+                                </div>
+
+                                {/* COLORS */}
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Color Label</label>
+                                    <div className="flex flex-wrap gap-2 bg-zinc-950 p-2 rounded border border-zinc-800">
+                                        {COLORS.map((c) => (
+                                            <button
+                                                key={c}
+                                                onClick={() => setCustomColor(c)}
+                                                className={`w-6 h-6 rounded-full transition-transform hover:scale-110 ${customColor === c ? 'ring-2 ring-white scale-110' : ''}`}
+                                                style={{ backgroundColor: c }}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* VOLUME */}
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Volume Gain</label>
+                                        <span className="text-xs font-mono text-emerald-400">{(volume * 100).toFixed(0)}%</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="2"
+                                        step="0.05"
+                                        value={volume}
+                                        onChange={(e) => setVolume(parseFloat(e.target.value))}
+                                        className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                                    />
+                                </div>
+
+                                {/* KEYBIND */}
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Global Keybind</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={keybind}
+                                            readOnly
+                                            placeholder="Click to Record..."
+                                            className="flex-1 bg-zinc-950 border border-zinc-800 rounded p-2 text-sm text-yellow-400 font-mono text-center cursor-pointer hover:border-yellow-500/50 focus:border-yellow-500 outline-none"
+                                            onKeyDown={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                if (e.key === 'Escape' || e.key === 'Backspace') {
+                                                    setKeybind('');
+                                                } else {
+                                                    setKeybind(e.code);
+                                                }
+                                            }}
+                                            onClick={(e) => (e.currentTarget as HTMLInputElement).focus()}
+                                        />
+                                        {keybind && (
+                                            <button
+                                                onClick={() => setKeybind('')}
+                                                className="px-3 bg-zinc-800 text-zinc-400 hover:text-white rounded border border-zinc-700"
+                                            >
+                                                ✕
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* RIGHT COLUMN: Behavior & Mixing */}
+                            <div className="space-y-6">
+                                {/* BEHAVIOR */}
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Playback Behavior</label>
+                                    <div className="grid grid-cols-2 gap-2">
                                         <button
-                                            onClick={() => setKeybind('')}
-                                            className="px-3 bg-zinc-800 text-zinc-400 hover:text-white rounded border border-zinc-700"
+                                            onClick={() => setBehavior('normal')}
+                                            className={`p-2 rounded border text-sm transition-all ${behavior === 'normal' ? 'bg-zinc-800 border-emerald-500 text-white' : 'bg-zinc-950 border-zinc-800 text-zinc-500 hover:border-zinc-700'}`}
                                         >
-                                            ✕
+                                            Normal
                                         </button>
+                                        <button
+                                            onClick={() => setBehavior('stacco')}
+                                            className={`p-2 rounded border text-sm transition-all ${behavior === 'stacco' ? 'bg-purple-900/20 border-purple-500 text-purple-200' : 'bg-zinc-950 border-zinc-800 text-zinc-500 hover:border-zinc-700'}`}
+                                        >
+                                            Stacco (Jingle)
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* TOGGLES */}
+                                <div className="space-y-3 bg-zinc-950 p-3 rounded border border-zinc-800">
+                                    <label className="flex items-center justify-between cursor-pointer group">
+                                        <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">Loop Playback</span>
+                                        <input
+                                            type="checkbox"
+                                            checked={isLooping}
+                                            onChange={(e) => setIsLooping(e.target.checked)}
+                                            className="w-4 h-4 rounded border-zinc-700 bg-zinc-800 accent-emerald-500"
+                                        />
+                                    </label>
+
+                                    <div className="h-px bg-zinc-900 my-1" />
+
+                                    <label className="flex items-center justify-between cursor-pointer group">
+                                        <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">Autoplay Next</span>
+                                        <select
+                                            value={nextAction}
+                                            onChange={(e) => setNextAction(e.target.value as AudioClip['nextAction'])}
+                                            className="bg-zinc-900 border border-zinc-800 rounded text-xs p-1 text-white outline-none focus:border-emerald-500"
+                                        >
+                                            <option value="stop">Stop</option>
+                                            <option value="play_next">Play Next</option>
+                                        </select>
+                                    </label>
+
+                                    {isLooping && nextAction === 'play_next' && (
+                                        <div className="mt-2 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded flex items-start gap-2">
+                                            <span className="text-yellow-500 text-xs">⚠️</span>
+                                            <p className="text-[10px] text-yellow-200/80 leading-tight">
+                                                <strong>Conflict:</strong> Looping has priority. "Autoplay Next" will be ignored.
+                                            </p>
+                                        </div>
                                     )}
+
+                                    <div className="h-px bg-zinc-900 my-1" />
+
+                                    <label className="flex items-center justify-between cursor-pointer group">
+                                        <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">Ducking Role</span>
+                                        <select
+                                            value={duckingRole}
+                                            onChange={(e) => setDuckingRole(e.target.value as any)}
+                                            className="bg-zinc-900 border border-zinc-800 rounded text-xs p-1 text-white outline-none focus:border-emerald-500"
+                                        >
+                                            <option value="none">None</option>
+                                            <option value="source">Source (Speaker)</option>
+                                            <option value="target">Target (Music)</option>
+                                        </select>
+                                    </label>
                                 </div>
-                                <p className="text-[10px] text-zinc-500">Click and press a key. ESC/Backspace to clear.</p>
                             </div>
                         </div>
+                    )}
 
-                        {/* RIGHT COLUMN: Behavior & Timing */}
-                        <div className="space-y-6">
+                    {activeTab === 'markers' && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-200">
+                            {/* Waveform Visual Editor */}
+                            <WaveformEditor 
+                                path={clip.path}
+                                trimStart={trimStart}
+                                trimEnd={trimEnd}
+                                introMarker={introMarker}
+                                outroMarker={outroMarker}
+                                onChange={(updates) => {
+                                    if (updates.trimStart !== undefined) setTrimStart(updates.trimStart);
+                                    if (updates.trimEnd !== undefined) setTrimEnd(updates.trimEnd);
+                                    if (updates.introMarker !== undefined) setIntroMarker(updates.introMarker);
+                                    if (updates.outroMarker !== undefined) setOutroMarker(updates.outroMarker);
+                                }}
+                            />
 
-                            {/* BEHAVIOR */}
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Playback Behavior</label>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <button
-                                        onClick={() => setBehavior('normal')}
-                                        className={`p-2 rounded border text-sm transition-all ${behavior === 'normal' ? 'bg-zinc-800 border-emerald-500 text-white' : 'bg-zinc-950 border-zinc-800 text-zinc-500 hover:border-zinc-700'}`}
-                                    >
-                                        Normal
-                                    </button>
-                                    <button
-                                        onClick={() => setBehavior('stacco')}
-                                        className={`p-2 rounded border text-sm transition-all ${behavior === 'stacco' ? 'bg-purple-900/20 border-purple-500 text-purple-200' : 'bg-zinc-950 border-zinc-800 text-zinc-500 hover:border-zinc-700'}`}
-                                    >
-                                        Stacco (Jingle)
-                                    </button>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {/* FADES */}
+                                <div className="space-y-4 bg-zinc-950 p-4 rounded border border-zinc-800">
+                                    <h3 className="text-xs uppercase text-zinc-500 font-bold border-b border-zinc-800 pb-2">Smooth Fades</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">Fade In (ms)</label>
+                                            <input
+                                                type="number"
+                                                value={fadeIn}
+                                                onChange={(e) => setFadeIn(parseInt(e.target.value) || 0)}
+                                                className="w-full bg-zinc-900 border border-zinc-700 rounded p-1.5 text-sm text-center focus:border-emerald-500 outline-none"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">Fade Out (ms)</label>
+                                            <input
+                                                type="number"
+                                                value={fadeOut}
+                                                onChange={(e) => setFadeOut(parseInt(e.target.value) || 0)}
+                                                className="w-full bg-zinc-900 border border-zinc-700 rounded p-1.5 text-sm text-center focus:border-emerald-500 outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* MANUAL MARKERS INPUTS */}
+                                <div className="space-y-4 bg-zinc-950 p-4 rounded border border-zinc-800">
+                                    <div className="flex justify-between items-center border-b border-zinc-800 pb-2">
+                                        <h3 className="text-xs uppercase text-zinc-500 font-bold">Manual Inputs</h3>
+                                        <button
+                                            onClick={detectSilence}
+                                            className="flex items-center gap-1 text-[10px] text-purple-400 hover:text-purple-300 transition-colors border border-purple-500/30 rounded px-2 py-0.5 bg-purple-500/10"
+                                        >
+                                            <Wand2 size={10} /> Auto-Trim
+                                        </button>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">Trim Start (s)</label>
+                                            <input type="number" step="0.1" value={trimStart} onChange={(e) => setTrimStart(parseFloat(e.target.value) || 0)} className="w-full bg-zinc-900 border border-zinc-700 rounded p-1.5 text-sm text-center text-blue-400" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">Trim End (s)</label>
+                                            <input type="number" step="0.1" value={trimEnd} onChange={(e) => setTrimEnd(parseFloat(e.target.value) || 0)} className="w-full bg-zinc-900 border border-zinc-700 rounded p-1.5 text-sm text-center text-blue-400" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">Intro End (s)</label>
+                                            <input type="number" step="0.1" value={introMarker} onChange={(e) => setIntroMarker(parseFloat(e.target.value) || 0)} className="w-full bg-zinc-900 border border-zinc-700 rounded p-1.5 text-sm text-center text-emerald-400" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">Outro Start (s)</label>
+                                            <input type="number" step="0.1" value={outroMarker} onChange={(e) => setOutroMarker(parseFloat(e.target.value) || 0)} className="w-full bg-zinc-900 border border-zinc-700 rounded p-1.5 text-sm text-center text-orange-400" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
-                            {/* TIMING (Fade/Trim) */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-bold text-zinc-500 uppercase">Fade In (ms)</label>
-                                    <input
-                                        type="number"
-                                        value={fadeIn}
-                                        onChange={(e) => setFadeIn(parseInt(e.target.value) || 0)}
-                                        className="w-full bg-zinc-950 border border-zinc-800 rounded p-1.5 text-sm text-center"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-bold text-zinc-500 uppercase">Fade Out (ms)</label>
-                                    <input
-                                        type="number"
-                                        value={fadeOut}
-                                        onChange={(e) => setFadeOut(parseInt(e.target.value) || 0)}
-                                        className="w-full bg-zinc-950 border border-zinc-800 rounded p-1.5 text-sm text-center"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-bold text-zinc-500 uppercase">Trim Start (s)</label>
-                                    <input
-                                        type="number"
-                                        step="0.1"
-                                        value={trimStart}
-                                        onChange={(e) => setTrimStart(parseFloat(e.target.value) || 0)}
-                                        className="w-full bg-zinc-950 border border-zinc-800 rounded p-1.5 text-sm text-center text-blue-400"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-bold text-zinc-500 uppercase">Trim End (s)</label>
-                                    <input
-                                        type="number"
-                                        step="0.1"
-                                        value={trimEnd}
-                                        onChange={(e) => setTrimEnd(parseFloat(e.target.value) || 0)}
-                                        className="w-full bg-zinc-950 border border-zinc-800 rounded p-1.5 text-sm text-center text-blue-400"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* SMART TRIM ACTION */}
-                            <div className="flex justify-end">
-                                <button
-                                    onClick={detectSilence}
-                                    className="flex items-center gap-2 text-xs text-purple-400 hover:text-purple-300 transition-colors border border-purple-500/30 rounded px-2 py-1 bg-purple-500/10"
-                                >
-                                    <Wand2 size={12} />
-                                    Auto-Detect Silence
-                                </button>
-                            </div>
-
-
-                            {/* TOGGLES */}
-                            <div className="space-y-3 bg-zinc-950 p-3 rounded border border-zinc-800">
-                                <label className="flex items-center justify-between cursor-pointer group">
-                                    <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">Loop Playback</span>
-                                    <input
-                                        type="checkbox"
-                                        checked={isLooping}
-                                        onChange={(e) => setIsLooping(e.target.checked)}
-                                        className="w-4 h-4 rounded border-zinc-700 bg-zinc-800 accent-emerald-500"
-                                    />
-                                </label>
-
-                                <div className="h-px bg-zinc-900 my-1" />
-
-                                <label className="flex items-center justify-between cursor-pointer group">
-                                    <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">Autoplay Next</span>
-                                    <select
-                                        value={nextAction}
-                                        onChange={(e) => setNextAction(e.target.value as any)}
-                                        className="bg-zinc-900 border border-zinc-800 rounded text-xs p-1 text-white outline-none focus:border-emerald-500"
-                                    >
-                                        <option value="stop">Stop</option>
-                                        <option value="play_next">Play Next</option>
-                                    </select>
-                                </label>
-
-                                <div className="h-px bg-zinc-900 my-1" />
-
-                                <label className="flex items-center justify-between cursor-pointer group">
-                                    <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">Ducking Role</span>
-                                    <select
-                                        value={duckingRole}
-                                        onChange={(e) => setDuckingRole(e.target.value as any)}
-                                        className="bg-zinc-900 border border-zinc-800 rounded text-xs p-1 text-white outline-none focus:border-emerald-500"
-                                    >
-                                        <option value="none">None</option>
-                                        <option value="source">Source (Speaker)</option>
-                                        <option value="target">Target (Music)</option>
-                                    </select>
-                                </label>
-                            </div>
-
                         </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* FOOTER */}

@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 const { webUtils } = require('electron');
 
 // Expose protected methods that allow the renderer process to use
@@ -7,15 +7,14 @@ if (process.contextIsolated) {
     try {
         contextBridge.exposeInMainWorld('electron', {
             // Metodo sicuro per ottenere il path di un File Object
-            // Usa fallback su proprietà non standard se webUtils fallisce (electron < 20 o problemi di bundling)
             getFilePath: (file: File) => {
-                // @ts-ignore
                 if (webUtils && typeof webUtils.getPathForFile === 'function') {
-                    // @ts-ignore
                     return webUtils.getPathForFile(file);
                 }
-                if ((file as any).path) {
-                    return (file as any).path;
+                // Fallback for older electron or specific cases where webUtils might be restricted
+                const fileWithPath = file as File & { path?: string };
+                if (fileWithPath.path) {
+                    return fileWithPath.path;
                 }
                 return '';
             },
@@ -24,8 +23,8 @@ if (process.contextIsolated) {
             loadProject: () => ipcRenderer.invoke('dialog:load-project'),
             // Export API (v0.7.0)
             exportProject: (projectJsonString: string) => ipcRenderer.invoke('export-project', projectJsonString),
-            onExportProgress: (callback: (event: any, data: { current: number; total: number; filename: string }) => void) => {
-                const subscription = (_event: any, data: any) => callback(_event, data);
+            onExportProgress: (callback: (event: IpcRendererEvent, data: { current: number; total: number; filename: string }) => void) => {
+                const subscription = (_event: IpcRendererEvent, data: { current: number; total: number; filename: string }) => callback(_event, data);
                 ipcRenderer.on('export-progress', subscription);
                 // Return cleanup function to allow removing listener
                 return () => ipcRenderer.removeListener('export-progress', subscription);
@@ -35,7 +34,7 @@ if (process.contextIsolated) {
             showCloseDialog: () => ipcRenderer.invoke('show-close-dialog'),
             forceClose: () => ipcRenderer.send('force-close'),
             onCheckCloseIntent: (callback: () => void) => {
-                const subscription = (_: any) => callback();
+                const subscription = () => callback();
                 ipcRenderer.on('check-close-intent', subscription);
                 return () => ipcRenderer.removeListener('check-close-intent', subscription);
             },
@@ -48,22 +47,16 @@ if (process.contextIsolated) {
                 message: string;
             }) => ipcRenderer.invoke('show-close-dialog-i18n', labels),
         });
-
-
-
-
     } catch (error) {
         console.error("Context Bridge Error:", error);
     }
 } else {
-    // @ts-ignore (define in dts)
-    window.electron = {
-        getFilePath: (file: File) => (file as any).path,
+    // Fallback for non-isolated environments
+    (window as any).electron = {
+        getFilePath: (file: File) => (file as any).path || '',
         saveProject: async () => ({ success: false, error: 'Not available in non-isolated mode' }),
         loadProject: async () => ({ success: false, error: 'Not available in non-isolated mode' }),
         exportProject: async () => ({ success: false, error: 'Not available in non-isolated mode' }),
         onExportProgress: () => () => { } // No-op cleanup
     };
-
-
 }

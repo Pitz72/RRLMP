@@ -1,3 +1,12 @@
+/**
+ * AudioContextManager (Singleton)
+ * 
+ * Manages the global Web Audio API context and the main routing graph.
+ * 
+ * Audio Graph Topology (GR2):
+ * Bus (Music/Voice/SFX/Assets) → masterGain → ChannelSplitter → AnalyserL, AnalyserR
+ *                                            ↘ destination
+ */
 class AudioContextManager {
     private static instance: AudioContextManager;
     private context: AudioContext;
@@ -13,32 +22,36 @@ class AudioContextManager {
     private assetsBus: GainNode;
 
     private constructor() {
-        this.context = new (window.AudioContext || (window as any).webkitAudioContext)();
+        // GR4: Type safety improvement
+        const AudioContextClass = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext;
+        this.context = new AudioContextClass();
 
-        // Master Gain
+        // 1. Master Gain (Single source for destination and analysis)
         this.masterGain = this.context.createGain();
+
+        // 2. Routing to Output
         this.masterGain.connect(this.context.destination);
 
-        // Initialize Buses
-        this.musicBus = this.context.createGain();
-        this.voiceBus = this.context.createGain();
-        this.sfxBus = this.context.createGain();
-        this.assetsBus = this.context.createGain();
-
-        // Metering Setup
+        // 3. Routing to Metering (Parallel to Destination)
         this.splitter = this.context.createChannelSplitter(2);
         this.analyserL = this.context.createAnalyser();
         this.analyserR = this.context.createAnalyser();
 
-        this.analyserL.fftSize = 256;
-        this.analyserR.fftSize = 256;
+        // M4: Optimization - 64 is enough for VU meters
+        this.analyserL.fftSize = 64;
+        this.analyserR.fftSize = 64;
         this.analyserL.smoothingTimeConstant = 0.8;
         this.analyserR.smoothingTimeConstant = 0.8;
 
-        // Route Master to Splitter (Parallel to Destination)
         this.masterGain.connect(this.splitter);
         this.splitter.connect(this.analyserL, 0);
         this.splitter.connect(this.analyserR, 1);
+
+        // 4. Initialize Buses
+        this.musicBus = this.context.createGain();
+        this.voiceBus = this.context.createGain();
+        this.sfxBus = this.context.createGain();
+        this.assetsBus = this.context.createGain();
 
         // Connect Buses to Master
         this.musicBus.connect(this.masterGain);

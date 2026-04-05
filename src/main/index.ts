@@ -55,16 +55,18 @@ function createWindow(): void {
                 ...details.responseHeaders,
                 'Content-Security-Policy': [
                     "default-src 'self'; " +
-                    // media: necessario per il protocollo custom (audio)
-                    "media-src 'self' media:; " +
+                    // media: necessario per il protocollo custom (audio), blob: per Wavesurfer
+                    "media-src 'self' media: blob:; " +
                     // 'unsafe-inline' necessario per il bundle Vite (script inline nell'HTML)
                     "script-src 'self' 'unsafe-inline'; " +
                     // 'unsafe-inline' necessario per Tailwind CSS-in-JS
                     "style-src 'self' 'unsafe-inline'; " +
                     "font-src 'self' data:; " +
-                    "img-src 'self' data:; " +
-                    // runtimeradio.it necessario per il check aggiornamenti versione
-                    "connect-src 'self' https://www.runtimeradio.it;"
+                    "img-src 'self' data: blob:; " +
+                    "worker-src 'self' blob:; " +
+                    // runtimeradio.it/.com necessario per il check aggiornamenti versione
+                    // media: e blob: necessario per fetch() del waveform editor
+                    "connect-src 'self' media: blob: https://www.runtimeradio.it https://runtimeradio.it https://www.runtimeradio.com https://runtimeradio.com;"
                 ]
             }
         });

@@ -1,3 +1,5 @@
+import { AudioClip } from '../types';
+
 export interface IAudioPlayer {
     load(path: string): Promise<void>;
     play(): void;
@@ -14,6 +16,8 @@ export interface IAudioPlayer {
     onEnded(callback: () => void): void;
     onFadeOutStart(callback: () => void): void;
     onPreEnd(callback: (clipId: string) => void): void;
-    updateSettings(clip: any): void;
+    onIntroReached(callback: (clipId: string) => void): void;
+    onOutroReached(callback: (clipId: string) => void): void;
+    updateSettings(clip: AudioClip): void;
     fadeTo(volume: number, duration: number): void;
 }
