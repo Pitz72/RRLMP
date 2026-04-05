@@ -31,6 +31,7 @@ Problemi che possono causare perdita di dati, crash in produzione, buchi di sicu
 
 **Descrizione**:  
 La finestra Electron è istanziata con `webSecurity: false`, il che disabilita completamente la Content Security Policy (CSP), i controlli CORS e l'isolamento delle origini. In combinazione con l'accesso al file system locale, questa configurazione espone l'applicazione a:
+
 - Lettura arbitraria di file locali da parte di codice renderer non autorizzato.
 - Attacchi XSS se mai venisse caricato contenuto esterno.
 - Bypass di tutte le policy di sicurezza del browser integrato Chromium.
@@ -38,6 +39,7 @@ La finestra Electron è istanziata con `webSecurity: false`, il che disabilita c
 **Causa**: Probabilmente necessario in origine per permettere la riproduzione di file locali tramite `file://`. La soluzione definitiva è già presente nel progetto (protocollo `media://`), rendendo `webSecurity: false` non più necessario.
 
 **Fix proposto**:
+
 1. Impostare `webSecurity: true`.
 2. Assicurarsi che tutti i file audio vengano serviti esclusivamente tramite il protocollo `media://` già implementato.
 3. Aggiungere un CSP header esplicito (vedere anche G6).
@@ -54,12 +56,13 @@ La finestra Electron è istanziata con `webSecurity: false`, il che disabilita c
 Ogni istanza di `StreamPlayer` crea nodi Web Audio (`createMediaElementSource`, nodi gain, nodi di fade) che vengono connessi all'audio graph. Quando il player viene distrutto o rimpiazzato da un nuovo clip, questi nodi **non vengono mai disconnessi** con `.disconnect()`.
 
 In una sessione broadcast di ore con decine di clip switchati, l'audio graph cresce indefinitamente in memoria causando:
+
 - Degrado progressivo delle performance.
 - Potenziale crash del renderer dopo molte ore di uso.
 - Comportamenti imprevisti dell'audio graph (nodi zombie ancora attivi).
 
 **Fix proposto**:  
-Aggiungere un metodo `cleanup()` completo in `StreamPlayer`:
+
 ```typescript
 cleanup(): void {
     this.stop();
@@ -77,6 +80,7 @@ cleanup(): void {
     this.audioElement.load();
 }
 ```
+
 Chiamare `cleanup()` in `useAudioStore` prima di riassegnare il player di un clip.
 
 ---
@@ -89,12 +93,13 @@ Chiamare `cleanup()` in `useAudioStore` prima di riassegnare il player di un cli
 
 **Descrizione**:  
 La funzione `playClip` esegue `await player.load(freshClip.path)` prima di chiamare `player.play()`. Se l'operatore switcha clip rapidamente (scenario comune in broadcast), il `load()` della clip precedente può risolvere **dopo** che quella nuova è già stata selezionata, causando:
+
 - Avvio accidentale di una clip sbagliata.
 - Stato interno del store non allineato con la riproduzione effettiva.
 - Bug difficili da riprodurre e diagnosticare.
 
 **Fix proposto**:  
-Introdurre un sistema di "generation ID" per ogni operazione di play:
+
 ```typescript
 let currentPlayGeneration = 0;
 
@@ -109,6 +114,7 @@ async function playClip(clipId: string) {
     player.play();
 }
 ```
+
 In alternativa, usare `AbortController` se il loading diventa basato su `fetch`.
 
 ---
@@ -148,6 +154,7 @@ La logica di trim è invece correttamente implementata in `StreamPlayer.ts` (lin
 
 **Fix proposto**:  
 Aggiungere i campi mancanti all'oggetto `updatedClip` nel handler di salvataggio del modal:
+
 ```typescript
 const updatedClip = {
     ...clip,
@@ -171,10 +178,12 @@ La funzione `toFileUrl()`, usata da `StreamPlayer.load()` per caricare OGNI file
 Il protocollo `media://` implementato nel main process (con supporto Range Request, streaming e gestione corretta dei path) **non viene mai usato dal player audio principale**.
 
 Questo significa che:
+
 - Attivare `webSecurity: true` (G1) **romperebbe TUTTA la riproduzione audio**.
 - La stima nella roadmap per G1+GR6 (2h) è **gravemente sottostimata**: servono almeno 4-5h includendo test.
 
 **Fix proposto**:
+
 ```typescript
 // pathUtils.ts
 export const toFileUrl = (filePath: string): string => {
@@ -182,6 +191,7 @@ export const toFileUrl = (filePath: string): string => {
     return `media://${normalized}`;
 };
 ```
+
 Più testing completo di seeking, trim, fade su tutti i formati (mp3, wav, ogg, m4a, aac, flac).
 
 ---
@@ -196,6 +206,7 @@ Più testing completo di seeking, trim, fade su tutti i formati (mp3, wav, ogg, 
 Il callback `player.onEnded()` cattura `freshClip` per closure e usa `currentStore.stopClip` ottenuto a inizio funzione (`const currentStore = get()` alla linea 155). Zustand `get()` a inizio funzione restituisce lo stato al momento della chiamata, non al momento in cui il clip finisce (che può essere minuti dopo).
 
 Questo può causare:
+
 - Rimozione di clip errate se lo stato è cambiato nel frattempo.
 - `stopClip` che non trova più la clip perché è stata già rimossa.
 - La stessa issue esiste alla linea 171 dove `preShowClips.forEach` usa lo store catturato all'inizio.
@@ -213,11 +224,13 @@ Sostituire `currentStore.stopClip(...)` con `get().stopClip(...)` nei callback c
 
 **Descrizione**:  
 Un `setInterval` da 100ms viene avviato nella factory function dello store Zustand. Questo interval:
+
 - **Non viene mai cancellato** (nessun cleanup `clearInterval`).
 - Chiama `_syncProgress()` ogni 100ms, che a sua volta chiama `set()` sullo store, causando **10 re-render al secondo** di TUTTI i componenti che usano `useAudioStore`, anche quando non c'è niente in riproduzione.
 - In una sessione di 8h = ~288.000 chiamate inutili a `set()`.
 
 **Fix proposto**:
+
 ```typescript
 // Usare requestAnimationFrame condizionale
 const syncLoop = () => {
@@ -248,6 +261,7 @@ Problemi che compromettono la robustezza, la correttezza tecnica o creano debito
 Esiste una classe `DuckingManager` dedicata alla gestione del ducking audio. Tuttavia, tutta la logica di ducking è stata reimplementata nella funzione `evaluateMix` in `useAudioStore.ts`, che è quella effettivamente in uso. `DuckingManager` viene istanziato ma i suoi metodi non vengono mai chiamati.
 
 Questo crea:
+
 - Codice morto che induce i developer a pensare che il ducking sia gestito lì.
 - Rischio di modifiche future al modulo sbagliato.
 - Massa di codice da mantenere senza valore.
@@ -268,10 +282,12 @@ Il `masterGain` viene connesso sia direttamente a `context.destination` che a un
 
 **Fix proposto**:  
 Verificare e documentare esplicitamente il grafo:
-```
+
+```text
 Bus (Music/Voice/SFX/Assets) → masterGain → ChannelSplitter → AnalyserL, AnalyserR
                                            ↘ destination
 ```
+
 Assicurarsi che le connessioni nel codice rispecchino esattamente questo schema.
 
 ---
@@ -286,6 +302,7 @@ Assicurarsi che le connessioni nel codice rispecchino esattamente questo schema.
 Quando il dispositivo audio selezionato si disconnette (es. scheda audio USB staccata accidentalmente), l'errore di `setSinkId()` viene gestito solo con `console.warn()`. L'operatore non riceve alcuna notifica visiva e l'audio semplicemente smette di funzionare.
 
 **Fix proposto**:
+
 1. Emettere un evento verso `useAudioStore` o `useDebugStore` con la notifica dell'errore.
 2. Tentare il fallback automatico al dispositivo di sistema (`deviceId = 'default'`).
 3. Mostrare un toast o un warning visibile nella UI.
@@ -300,6 +317,7 @@ Quando il dispositivo audio selezionato si disconnette (es. scheda audio USB sta
 
 **Descrizione**:  
 Il codebase contiene numerosi usi di `any` espliciti e direttive `@ts-ignore` che disabilitano localmente il type checker. Esempi:
+
 - Import di moduli Electron tramite `require()` invece di `import type`.
 - Cast a `any` per aggirare tipi incompatibili nei gestori di eventi.
 - `@ts-ignore` per API Web non completamente tipizzate (es. `setSinkId`).
@@ -307,6 +325,7 @@ Il codebase contiene numerosi usi di `any` espliciti e direttive `@ts-ignore` ch
 Ogni `@ts-ignore` è una potenziale bomba a orologeria per refactoring futuri.
 
 **Fix proposto**:  
+
 - Sostituire `require()` con import tipizzati dove possibile.
 - Per API non tipizzate come `setSinkId`, aggiungere una dichiarazione `declare` locale piuttosto che ignorare l'errore.
 - Introdurre una regola ESLint `@typescript-eslint/no-explicit-any` con `warn`.
@@ -339,7 +358,8 @@ In `App.tsx`, nell'`useEffect` di inizializzazione, leggere `outputDeviceId` da 
 L'applicazione Electron non configura alcun `Content-Security-Policy` header. In assenza di CSP, il renderer può eseguire script inline, caricare risorse da origini arbitrarie e compiere azioni che una policy restrittiva impedirebbe.
 
 **Fix proposto**:
-```javascript
+
+```typescript
 mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
     callback({
         responseHeaders: {
@@ -362,6 +382,7 @@ mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) 
 
 **Descrizione**:  
 L'interfaccia `Window.electron` è dichiarata in **due file diversi** con firme **diverse**:
+
 - `env.d.ts` include `ipcRenderer.send/on/invoke` (accesso raw) + API di persistenza.
 - `types/index.ts` include i metodi corretti (`getFilePath`, `onCheckCloseIntent`, `showCloseDialog`, `forceClose`).
 
@@ -380,6 +401,7 @@ Eliminare la dichiarazione ripetuta in `env.d.ts`, mantenere solo quella in `typ
 
 **Descrizione**:  
 Esistono DUE file preload:
+
 - `src/main/preload.ts` — espone oggetti vuoti `{}` per electron e api.
 - `src/preload/index.ts` — il preload REALE con tutte le API.
 
@@ -399,6 +421,7 @@ Il file `src/main/preload.ts` è un residuo che non viene usato (il `webPreferen
 I file audio vengono copiati nella cartella `audio/` usando il loro filename originale (`fs.copyFileSync(originalPath, destPath)`). Se due clip in colonne diverse hanno lo stesso filename (es. `intro.mp3`), il secondo file **sovrascrive silenziosamente** il primo. Il path nel progetto esportato punterà allo stesso file, corrompendo il progetto.
 
 **Fix proposto**:
+
 ```typescript
 let destFileName = fileName;
 let counter = 1;
@@ -448,6 +471,7 @@ L'interfaccia `IAudioPlayer` richiede il metodo `setOutputDevice(deviceId: strin
 Il handler `handleNativeDrop` accetta qualsiasi file droppato (immagini, video, PDF, exe...) senza filtrare per estensione audio. Il file viene aggiunto alla colonna e il `loadClip` tenterà di decodificarlo, fallendo silenziosamente.
 
 **Fix proposto**:
+
 ```typescript
 const SUPPORTED_EXTENSIONS = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'];
 const audioFiles = files.filter(f => {
@@ -472,9 +496,11 @@ Problemi che impattano l'esperienza utente, la consistenza del prodotto o la cor
 
 **Descrizione**:  
 Il software supporta 8 lingue tramite i18next, ma i dialogs nativi di sistema (es. "Salva prima di uscire?") usano testo italiano hardcoded:
-```javascript
+
+```typescript
 buttons: ['Salva', 'Non Salvare', 'Annulla']
 ```
+
 Un utente con interfaccia in inglese o tedesco vede dialogs in italiano.
 
 **Fix proposto**:  
@@ -520,6 +546,7 @@ Aggiungere un timeout automatico di 10-15 secondi con feedback visivo countdown,
 Gli analyser per il VU meter stereo sono configurati con `fftSize = 256`. Per un semplice misuratore di livello RMS/peak, un `fftSize` di 32 o 64 è completamente sufficiente e dimezza il lavoro del DSP.
 
 **Fix proposto**:  
+
 ```typescript
 this.analyserL.fftSize = 64;
 this.analyserR.fftSize = 64;
@@ -537,7 +564,7 @@ this.analyserR.fftSize = 64;
 La funzione `detectSilence` analizza l'audio per trovare punti di trim automatici. Se l'intero file audio è sotto la soglia di silenzio (file corrotto, volume molto basso, o silenzio totale), `suggestedStartCut` e `suggestedEndCut` convergono allo stesso valore, producendo un trim che elimina l'intera clip senza alcun avviso.
 
 **Fix proposto**:  
-Aggiungere una guard:
+
 ```typescript
 if (suggestedEndCut <= suggestedStartCut + 0.1) {
     alert(t('error.silence_detection_failed'));
@@ -656,7 +683,7 @@ Problemi di qualità del codice, naming, commenti e piccole inconsistenze che no
 Ordine raccomandato basato su impatto/effort:
 
 | # | Issue | Categoria | Stima | Motivo priorità |
-|---|-------|-----------|-------|-----------------|
+| :-: | --- | --- | --- | --- |
 | 1 | ~~**G5** — Trim non salvato nel modal~~ ✅ | Gravissima | 15 min | **RISOLTO in v0.9.9** |
 | 2 | ~~**M8** — Versione hardcoded `0.7.3` in App.tsx~~ ✅ | Media | 5 min | **RISOLTO in v0.9.9** |
 | 3 | ~~**G4** — Stacco non ripristina volume~~ ✅ | Gravissima | 1h | **RISOLTO in v0.9.10** |
@@ -686,7 +713,7 @@ Ordine raccomandato basato su impatto/effort:
 ## Riepilogo Criticità
 
 | Gravità | Quantità | Issue |
-|---|---|---|
+| --- | --- | --- |
 | 🔴 Gravissime | 8 | G1, G2, G3, G4, G5, G6, G7, G8 |
 | 🟠 Gravi | 12 | GR1–GR12 |
 | 🟡 Medie | 8 | M1–M8 |
@@ -697,4 +724,4 @@ Ordine raccomandato basato su impatto/effort:
 
 ---
 
-*Documento generato da analisi statica manuale del sorgente e integrato con analisi indipendente del 2026-04-05. Aggiornare questo file man mano che le issue vengono risolte.*
+_Documento generato da analisi statica manuale del sorgente e integrato con analisi indipendente del 2026-04-05. Aggiornare questo file man mano che le issue vengono risolte._
