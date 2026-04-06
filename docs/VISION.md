@@ -1,5 +1,5 @@
 # RRLMP — Documento di Visione Tecnica
-**Versione**: 0.13.2 | **Data**: 2026-04-06
+**Versione**: 0.14.1 | **Data**: 2026-04-07
 
 Questo documento sintetizza lo **stato reale del software** confrontato con la documentazione di progetto, identifica le aree di miglioramento prioritarie, e propone le funzionalità essenziali per il perfezionamento del software broadcast.
 
@@ -20,7 +20,12 @@ Questo documento sintetizza lo **stato reale del software** confrontato con la d
 | **Engine** | Sequencer play_next | ≤0.9.x | per la colonna PRE-SHOW |
 | **Waveform** | Peak-based rendering (200 barre max) | 0.10.7 | Via IPC FFmpeg PCM |
 | **Waveform** | Mini-Player locale per clip | 0.10.7 | Tag `<audio>` HTML5 |
-| **Markers** | Trim Start/End (via pulsanti) | 0.10.7 | No drag, click-based |
+| **Waveform** | Click-to-seek nel player locale | 0.10.7 | Click sulla waveform → jump al punto |
+| **Waveform** | Playhead visivo durante riproduzione | 0.14.1 | Linea bianca al `currentTime` |
+| **Markers** | Trim Start/End via pulsanti (set @ position) | 0.10.7 | Click-based |
+| **Markers** | Trim Start/End via drag interattivo | 0.14.1 | Handle rossi trascinabili, constraint logic |
+| **Markers** | Intro Marker via pulsante + drag interattivo | 0.14.1 | Handle cyan, appare se > 0 |
+| **Markers** | Outro Marker via pulsante + drag interattivo | 0.14.1 | Handle arancione, appare se > 0 |
 | **Markers** | Intro Marker (countdown board) | 0.12.0 | `INTRO: -Xs` |
 | **Markers** | Outro Marker (pre-cue + alert) | 0.12.1 | `OUTRO IN: -Xs` + `🚨 OUTRO` |
 | **UI** | Clip Settings Modal (tab General + Trim&Markers) | 0.10.0 | |
@@ -48,7 +53,7 @@ Questo documento sintetizza lo **stato reale del software** confrontato con la d
 | Claim Documentato | Versione | Realtà | Correzione Applicata |
 |------------------|----------|--------|---------------------|
 | "Rendering Wavesurfer.js" | 0.10.0 | Wavesurfer MAI usato dopo v0.10.7 | ✅ Nota errata in 0.10.0.md; rimosso da `package.json` |
-| "Marker Drag & Drop visivi" | 0.10.0 | Implementati come pulsanti click-based, non drag | ✅ Nota errata in 0.10.0.md — UX documentata correttamente |
+| "Marker Drag & Drop visivi" | 0.10.0 | Implementati come pulsanti click-based, non drag | ✅ Nota errata in 0.10.0.md — **e feature implementata in v0.14.1** |
 | Fix CSP "per wavesurfer.js" | 0.10.1 | Wavesurfer abbandonato; il fix CSP rimane valido per `<audio>` | ✅ Nota errata in 0.10.1.md — fix contestualizzato |
 | "Auto-Fit Zoom (px/sec)" | 0.10.2 | Nessun sistema zoom esiste; fix reale fu migrazione architetturale | ✅ Nota errata in 0.10.2.md — realtà documentata |
 | `isUpdatingRef` lock per Wavesurfer | 0.10.3 | Diventato irrilevante con abbandono Wavesurfer | ✅ Nota errata in 0.10.3.md |
@@ -62,11 +67,8 @@ Questo documento sintetizza lo **stato reale del software** confrontato con la d
 
 #### 🔴 Priorità Alta
 
-**Marker Drag & Drop Interattivi**
-- *Promesso*: Trim/Intro/Outro spostabili trascinando handle sulla waveform
-- *Attuale*: Pulsanti "Set Trim Start", "Set Intro" ecc. — funzionale ma meno intuitivo
-- *Impatto*: UX broadcast richiede editing rapido. Il drag visivo è lo standard (Adobe Audition, Audacity, RX)
-- *Complessità*: Media — richiede overlay SVG/canvas interattivo sopra la waveform
+~~**Marker Drag & Drop Interattivi**~~
+> ✅ **Implementato in v0.14.1** — 4 handle trascinabili (Trim Start, Trim End, Intro, Outro) con drag globale document-level, anti-stale closure via ref, constraint logic, playhead visivo e legenda. Vedi `WaveformEditor.tsx`.
 
 **LMP Integrity Check**
 - *Promesso*: Diagnostica all'apertura progetto per file mancanti (Clip Rosse)
@@ -104,19 +106,22 @@ Questo documento sintetizza lo **stato reale del software** confrontato con la d
 
 ## 3. FUNZIONALITÀ DA MIGLIORARE
 
-### 3.1 Waveform Editor — UX Insufficiente per Standard Broadcast
+### 3.1 Waveform Editor — Stato Aggiornato (v0.14.1)
 
-**Problema attuale**: Il WaveformEditor mostra una rappresentazione visiva dell'onda ma non è interattiva oltre i pulsanti. In un software broadcast professionale (Adobe Audition, ProTools, Descript) l'editor è il cuore dell'operatività.
+> **Aggiornamento 2026-04-07**: La maggior parte dei miglioramenti prioritari è stata implementata in v0.14.1. Il WaveformEditor è ora un editor interattivo completo per standard broadcast.
 
-**Miglioramenti prioritari**:
+**Miglioramenti implementati** ✅:
 
-1. **Handle Drag & Drop** — Overlay semitrasparente con handle SVG trascinabili per Trim Start, Trim End, Intro, Outro. La posizione x del mouse → secondi via `(x / containerWidth) * clip.duration`.
+1. ~~**Handle Drag & Drop**~~ → ✅ **v0.14.1** — 4 handle trascinabili (Trim Start/End in rosso, Intro in cyan, Outro in arancione). Drag globale su `document`, anti-stale closure via `useRef`, constraint logic tra Trim Start e Trim End.
 
-2. **Click-to-Seek nel Mini-Player** — Click sulla waveform → salta a quel punto nel player locale. Standard atteso in qualsiasi DAW.
+2. ~~**Click-to-Seek nel Mini-Player**~~ → ✅ **v0.10.7** — Click sulla waveform già presente. Confermato nel codice (`handleSeekClick` su `containerRef`).
 
-3. **Zoom orizzontale** — Pinch/scroll per ingrandire una zona specifica. Fondamentale per editing preciso di tracce lunghe (intros di 30s su clip da 4 minuti).
+3. ~~**Playhead visivo**~~ → ✅ **v0.14.1** — Linea bianca semitrasparente al `currentTime`, aggiornata via `timeupdate` event ogni 200ms.
 
-4. **Playhead visivo** — Lineetta verticale che avanza mentre il mini-player suona. Attualmente non c'è.
+**Miglioramento ancora aperto** 📋:
+
+4. **Zoom orizzontale** — Pinch/scroll per ingrandire una zona specifica. Fondamentale per editing preciso di tracce lunghe (intros di 30s su clip da 4 minuti). Non implementato.
+   - *Complessità*: Alta — richiede viewport virtuale, mapping coordinate, scroll sync con waveform peaks.
 
 ### 3.2 Sistema di Transizioni — Buono ma Incompleto
 
@@ -232,11 +237,12 @@ Al play di clip mancante → toast error invece di silenziosa
 
 | # | Feature | Effort | Impatto |
 |---|---------|--------|---------|
-| B1 | **Drag & Drop marker waveform** | 2 giorni | 🟠 Editing preciso |
-| B2 | **Click-to-seek waveform** | 4h | 🟡 Comfort utente |
-| B3 | **Playhead visivo waveform** | 4h | 🟡 Comfort utente |
+| ~~B1~~ | ~~**Drag & Drop marker waveform**~~ | ~~2 giorni~~ | ✅ Completato v0.14.1 |
+| ~~B2~~ | ~~**Click-to-seek waveform**~~ | ~~4h~~ | ✅ Presente da v0.10.7 |
+| ~~B3~~ | ~~**Playhead visivo waveform**~~ | ~~4h~~ | ✅ Completato v0.14.1 |
 | B4 | **Timer On Air** | 3h | 🟠 Workflow speaker |
 | B5 | **Note/Script per clip** | 1 giorno | 🟠 Workflow speaker |
+| B6 | **Zoom orizzontale waveform** | 3 giorni | 🟡 Editing tracce lunghe |
 
 ### Fase C — Potenza & Scalabilità (medio termine)
 
@@ -269,4 +275,4 @@ Per uso broadcast professionale ad alta criticità, il sistema attuale è adegua
 
 ---
 
-*Documento generato il 2026-04-06 — basato su analisi completa del codice sorgente v0.13.2.*
+*Documento aggiornato il 2026-04-07 — allineato a v0.14.1 (Waveform Editor Drag & Drop Interattivo).*
