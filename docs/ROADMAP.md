@@ -38,7 +38,7 @@ Ultimo aggiornamento: 2026-04-06
 - [✅] **Main-Process Decoding (Main-Side-Heavy)**: FFmpeg + music-metadata nel Main. ✅ v0.11.0
 - [✅] **Sistema Transizioni Pre-Show**: Gapless / Segue / Crossfade con override per-clip. ✅ v0.13.2
 - [✅] **Auto-Silence Detection al Drop**: Silence detection automatica al drag di file nel PRE-SHOW. ✅ v0.13.2
-- [ ] **Marker Drag & Drop Visivo**: Aggiungere handle trascinabili sulla waveform per Trim Start/End, Intro, Outro. (Pianificato da v0.10.0, mai implementato — sostituito da pulsanti click-based)
+- [✅] **Marker Drag & Drop Visivo**: Handle trascinabili per Trim Start/End, Intro, Outro con drag globale e anti-stale ref pattern. ✅ v0.14.1
 - [ ] **Native Audio Module**: Investigare moduli nativi C++/Rust per playback ultra-stabile su file WAV 24-bit / 96kHz.
 - [ ] **Advanced Markers Pre-Calcolati**: Ottimizzare marker da metadati pre-calcolati nel Main (metadata embedding in .lmp).
 
@@ -72,7 +72,7 @@ Ultimo aggiornamento: 2026-04-06
 | Priorità | Item | Dettaglio | Stato |
 |----------|------|-----------|-------|
 | ~~🔴 Alta~~ | ~~`wavesurfer.js` / `waveform-data` in package.json~~ | ~~Mai importati dal v0.10.7~~ | ✅ Rimossi 2026-04-06 |
-| 🟡 Media | Drag & drop marker waveform | Promesso in v0.10.0, mai implementato. UX usa pulsanti. | 📋 Aperto |
+| ~~🟡 Media~~ | ~~Drag & drop marker waveform~~ | ~~Promesso in v0.10.0, mai implementato~~ | ✅ Implementato v0.14.1 |
 | 🟡 Media | Testi hardcoded in IT nei modali | ClipSettingsModal, GeneralSettingsModal hanno testi non i18n. | 📋 Aperto |
 | 🟡 Media | Feedback Auto-Silence su drop | Nessun indicatore visivo mentre FFmpeg gira in background. | 📋 Aperto |
 | 🟢 Bassa | `crossfadeDuration` usato anche per segue | Nome variabile impreciso: usato per entrambi segue e crossfade. | 📋 Aperto |
@@ -86,8 +86,8 @@ Ultimo aggiornamento: 2026-04-06
 | --- | --- | --- | --- |
 | 🔴 Criticità (Tutte) | 4 | 4 | **100%** ✅ |
 | 🚀 Nuove Feature Core | 12 | 17 | **71%** 🚀 |
-| 🔧 Debito Tecnico | 1 | 6 | **17%** 🔧 |
-| **TOTALE PROGETTO** | **17** | **27** | **63% COMPLETATO** |
+| 🔧 Debito Tecnico | 2 | 6 | **33%** 🔧 |
+| **TOTALE PROGETTO** | **19** | **27** | **70% COMPLETATO** |
 
 ---
 
