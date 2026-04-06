@@ -1,6 +1,6 @@
 {
     "name": "runtime-live-machine",
-    "version": "0.12.1",
+    "version": "0.13.2",
     "description": "Professional Broadcast Audio Architecture",
     "main": "out/main/index.js",
     "scripts": {
@@ -83,7 +83,7 @@
         "@types/uuid": "^9.0.7",
         "@vitejs/plugin-react": "^4.2.1",
         "autoprefixer": "^10.4.16",
-        "electron": "^28.1.0",
+        "electron": "28.3.3",
         "electron-builder": "^24.9.1",
         "postcss": "^8.4.33",
         "tailwindcss": "^3.4.1",

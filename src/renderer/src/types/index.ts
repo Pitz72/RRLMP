@@ -1,5 +1,13 @@
 export type ClipType = 'asset' | 'music' | 'voice' | 'sfx' | 'preshow';
 
+/**
+ * Tipo di transizione tra clip in sequenza (v0.13.2).
+ * - gapless:   la nuova parte esattamente alla fine della precedente, taglio netto.
+ * - segue:     la nuova parte mentre la precedente sfuma (fade out → start).
+ * - crossfade: sovrapposizione bilanciata, la vecchia sfuma e la nuova sale contemporaneamente.
+ */
+export type TransitionType = 'gapless' | 'segue' | 'crossfade';
+
 export type PlaybackMode = 'oneshot' | 'loop' | 'sequence';
 
 declare global {
@@ -8,6 +16,7 @@ declare global {
             getFilePath: (file: File) => string;
             getAudioMetadata: (filePath: string) => Promise<{success: boolean, data?: any, error?: string}>;
             getWaveformData: (filePath: string) => Promise<{success: boolean, data?: any, error?: string}>;
+            detectSilence: (filePath: string) => Promise<{success: boolean, data?: {trimStart: number, trimEnd: number, noSilence?: boolean}, error?: string}>;
             saveProject: (content: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
             loadProject: () => Promise<{ success: boolean; data?: string; filePath?: string; error?: string }>;
             exportProject: (projectJsonString: string) => Promise<{ success: boolean; path?: string; stats?: { copied: number; skipped: number }; error?: string }>;
@@ -97,9 +106,13 @@ export interface AudioClip {
 
     // Cue Points
     /** Pre-play offset (skip seconds from start). Default: 0 */
-    trimStart?: number; 
+    trimStart?: number;
     /** Post-play offset (stop seconds before end). Default: 0 */
-    trimEnd?: number;   
+    trimEnd?: number;
+
+    // Transizione sequencer (v0.13.2)
+    /** Override del tipo di transizione per questa clip. Se assente, usa il default globale. */
+    transitionType?: TransitionType;
 }
 
 

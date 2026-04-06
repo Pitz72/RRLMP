@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useAudioStore } from '../../store/useAudioStore';
+import { TransitionType } from '../../types';
 
 interface Props {
     isOpen: boolean;
@@ -13,7 +14,11 @@ interface AudioDevice {
 }
 
 export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
-    const { outputDeviceId, setOutputDeviceId, duckingFactor, duckingDuration, setDuckingSettings } = useSettingsStore();
+    const {
+        outputDeviceId, setOutputDeviceId,
+        duckingFactor, duckingDuration, setDuckingSettings,
+        preshowTransitionType, crossfadeDuration, setPreshowTransition
+    } = useSettingsStore();
     const updateOutputDevice = useAudioStore(s => s.updateOutputDevice);
     const [devices, setDevices] = useState<AudioDevice[]>([]);
 
@@ -111,6 +116,56 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 Tempo di transizione del volume. Più è alto, più il mix è "morbido".
                             </p>
                         </div>
+                    </div>
+
+                    <div className="h-px bg-zinc-800" />
+
+                    {/* PRE-SHOW TRANSITION (v0.13.2) */}
+                    <div className="space-y-4">
+                        <h3 className="text-xs uppercase text-violet-400 font-bold tracking-wider">Pre-Show Transition</h3>
+
+                        <div className="space-y-2">
+                            <label className="text-xs text-zinc-400">Tipo di Transizione Default</label>
+                            <div className="grid grid-cols-3 gap-2">
+                                {(['gapless', 'segue', 'crossfade'] as TransitionType[]).map((t) => (
+                                    <button
+                                        key={t}
+                                        onClick={() => setPreshowTransition({ type: t })}
+                                        className={`p-2 rounded border text-xs font-bold transition-all capitalize ${
+                                            preshowTransitionType === t
+                                                ? 'bg-violet-900/30 border-violet-500 text-violet-200'
+                                                : 'bg-zinc-950 border-zinc-700 text-zinc-500 hover:border-zinc-500'
+                                        }`}
+                                    >
+                                        {t}
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-[10px] text-zinc-500 italic">
+                                Gapless: taglio netto · Segue: la vecchia sfuma · Crossfade: sovrapposizione bilanciata
+                            </p>
+                        </div>
+
+                        {preshowTransitionType !== 'gapless' && (
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center">
+                                    <label className="text-xs text-zinc-400">Durata Transizione</label>
+                                    <span className="text-xs font-mono text-violet-400">{crossfadeDuration}ms</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="500"
+                                    max="8000"
+                                    step="250"
+                                    value={crossfadeDuration}
+                                    onChange={(e) => setPreshowTransition({ duration: parseInt(e.target.value) })}
+                                    className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-violet-500"
+                                />
+                                <p className="text-[10px] text-zinc-500 italic">
+                                    Durata del fade-out / crossfade in millisecondi. Ogni clip può fare override.
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
 

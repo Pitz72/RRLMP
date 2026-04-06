@@ -21,6 +21,7 @@ if (process.contextIsolated) {
             // Audio Engine (Main-Side-Heavy)
             getAudioMetadata: (filePath: string) => ipcRenderer.invoke('get-audio-metadata', filePath),
             getWaveformData: (filePath: string) => ipcRenderer.invoke('get-waveform-data', filePath),
+            detectSilence: (filePath: string) => ipcRenderer.invoke('detect-silence', filePath),
             
             // Persistence APIs
             saveProject: (content: string) => ipcRenderer.invoke('dialog:save-project', content),

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AudioClip } from '../../types';
+import { AudioClip, TransitionType } from '../../types';
 import { debugLog } from '../../store/useDebugStore';
 import { Wand2, Settings2, Scissors } from 'lucide-react';
 import { WaveformEditor } from '../ui/WaveformEditor';
@@ -42,6 +42,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
     const [trimEnd, setTrimEnd] = useState(clip.trimEnd || 0);
     const [introMarker, setIntroMarker] = useState(clip.introMarker || 0);
     const [outroMarker, setOutroMarker] = useState(clip.outroMarker || 0);
+    const [transitionType, setTransitionType] = useState<TransitionType | undefined>(clip.transitionType);
 
     // Reset state when clip changes or modal opens
     useEffect(() => {
@@ -60,6 +61,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             setTrimEnd(clip.trimEnd || 0);
             setIntroMarker(clip.introMarker || 0);
             setOutroMarker(clip.outroMarker || 0);
+            setTransitionType(clip.transitionType);
             setActiveTab('general'); // Reset tab
         }
     }, [clip, isOpen]);
@@ -82,6 +84,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             trimEnd: Number(trimEnd),
             introMarker: Number(introMarker),
             outroMarker: Number(outroMarker),
+            transitionType: transitionType,
         };
         debugLog(`Saving Clip: ${clip.name} Intro=${updatedClip.introMarker} Outro=${updatedClip.outroMarker}`, 'info');
         onSave(clip.id, updatedClip);
@@ -97,52 +100,22 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
 
     const detectSilence = async () => {
         try {
-            debugLog('Smart Trim: decoding...', 'info');
-            let fetchPath = clip.path;
-            if (!fetchPath.startsWith('http') && !fetchPath.startsWith('file:')) {
-                fetchPath = `media://${fetchPath}`; // Use our custom protocol
-            }
+            debugLog('Smart Trim: analisi FFmpeg (main process) in corso...', 'info');
+            const result = await window.electron.detectSilence(clip.path);
 
-            const response = await fetch(fetchPath);
-            const arrayBuffer = await response.arrayBuffer();
-            const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-            const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-
-            const rawData = audioBuffer.getChannelData(0);
-            const sampleRate = audioBuffer.sampleRate;
-            const threshold = 0.01; // -40dB roughly
-
-            let startFrame = 0;
-            let endFrame = rawData.length - 1;
-
-            // Find Start
-            for (let i = 0; i < rawData.length; i++) {
-                if (Math.abs(rawData[i]) > threshold) {
-                    startFrame = i;
-                    break;
-                }
-            }
-
-            // Find End
-            for (let i = rawData.length - 1; i >= 0; i--) {
-                if (Math.abs(rawData[i]) > threshold) {
-                    endFrame = i;
-                    break;
-                }
-            }
-
-            const margin = 0.1;
-            const suggestedStart = Math.max(0, (startFrame / sampleRate) - margin);
-            const suggestedEndCut = Math.max(0, audioBuffer.duration - (endFrame / sampleRate) - margin);
-
-            // Degenerate case protection
-            if (audioBuffer.duration - suggestedEndCut <= suggestedStart + 0.1) {
-                alert('Silence detection failed: The entire file appears to be silence or volume is too low.');
+            if (!result.success || !result.data) {
+                alert(result.error || 'Silence detection failed.');
                 return;
             }
 
-            setTrimStart(parseFloat(suggestedStart.toFixed(3)));
-            setTrimEnd(parseFloat(suggestedEndCut.toFixed(3)));
+            if (result.data.noSilence) {
+                alert('Nessun silenzio rilevato all\'inizio o alla fine del file.\nTrim non necessario.');
+                return;
+            }
+
+            const { trimStart: suggestedStart, trimEnd: suggestedEndCut } = result.data;
+            setTrimStart(suggestedStart);
+            setTrimEnd(suggestedEndCut);
 
             debugLog(`Smart Trim: Start=${suggestedStart.toFixed(3)}, EndCut=${suggestedEndCut.toFixed(3)}`, 'info');
             alert(`Silence Detected!\nTrim Start: ${suggestedStart.toFixed(3)}s\nTrim End: ${suggestedEndCut.toFixed(3)}s`);
@@ -285,6 +258,33 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                             Stacco (Jingle)
                                         </button>
                                     </div>
+                                </div>
+
+                                {/* TRANSITION TYPE OVERRIDE (v0.13.2) */}
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                                        Transizione Sequencer
+                                    </label>
+                                    <div className="grid grid-cols-4 gap-1">
+                                        <button
+                                            onClick={() => setTransitionType(undefined)}
+                                            className={`p-1.5 rounded border text-[10px] font-bold transition-all ${transitionType === undefined ? 'bg-zinc-700 border-zinc-500 text-white' : 'bg-zinc-950 border-zinc-800 text-zinc-500 hover:border-zinc-600'}`}
+                                        >
+                                            Default
+                                        </button>
+                                        {(['gapless', 'segue', 'crossfade'] as TransitionType[]).map(t => (
+                                            <button
+                                                key={t}
+                                                onClick={() => setTransitionType(t)}
+                                                className={`p-1.5 rounded border text-[10px] font-bold transition-all capitalize ${transitionType === t ? 'bg-violet-900/30 border-violet-500 text-violet-200' : 'bg-zinc-950 border-zinc-800 text-zinc-500 hover:border-zinc-600'}`}
+                                            >
+                                                {t}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <p className="text-[9px] text-zinc-600 italic">
+                                        "Default" usa il valore delle Impostazioni Generali.
+                                    </p>
                                 </div>
 
                                 {/* TOGGLES */}
