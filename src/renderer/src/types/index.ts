@@ -6,6 +6,8 @@ declare global {
     interface Window {
         electron: {
             getFilePath: (file: File) => string;
+            getAudioMetadata: (filePath: string) => Promise<{success: boolean, data?: any, error?: string}>;
+            getWaveformData: (filePath: string) => Promise<{success: boolean, data?: any, error?: string}>;
             saveProject: (content: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
             loadProject: () => Promise<{ success: boolean; data?: string; filePath?: string; error?: string }>;
             exportProject: (projectJsonString: string) => Promise<{ success: boolean; path?: string; stats?: { copied: number; skipped: number }; error?: string }>;

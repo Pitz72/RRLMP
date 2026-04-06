@@ -26,8 +26,30 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
     const [duration, setDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [peaks, setPeaks] = useState<number[]>([]);
+    const [isAnalyzing, setIsAnalyzing] = useState(true);
 
     const fileUrl = toFileUrl(path);
+
+    // Fetch WaveformData from Main Process (Node.js) proxy
+    useEffect(() => {
+        setIsAnalyzing(true);
+        if (window.electron && window.electron.getWaveformData) {
+            window.electron.getWaveformData(path).then(res => {
+                if (res.success && res.data) {
+                    setPeaks(res.data);
+                } else {
+                    console.error("Waveform Generation failed:", res.error);
+                }
+                setIsAnalyzing(false);
+            }).catch(err => {
+                console.error("IPC Waveform Error:", err);
+                setIsAnalyzing(false);
+            });
+        } else {
+            setIsAnalyzing(false);
+        }
+    }, [path]);
 
     // Sync audio state
     useEffect(() => {
@@ -109,11 +131,19 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                     onClick={handleSeek}
                     className="relative h-24 bg-zinc-900 rounded-lg border border-zinc-800 overflow-hidden cursor-pointer group"
                 >
-                    {/* Background "Fake" Waveform - Semplici barre per dare l'idea */}
-                    <div className="absolute inset-0 flex items-center justify-around px-2 opacity-20 group-hover:opacity-30 transition-opacity">
-                        {[...Array(40)].map((_, i) => (
-                            <div key={i} className="w-1 bg-zinc-500 rounded-full" style={{ height: `${20 + Math.random() * 60}%` }} />
-                        ))}
+                    {/* Background Real Waveform from Peak Data Proxy */}
+                    <div className="absolute inset-0 flex items-center justify-between px-1 opacity-40 group-hover:opacity-60 transition-opacity">
+                        {isAnalyzing ? (
+                            <div className="w-full flex justify-center items-center h-full">
+                                <span className="text-zinc-500 font-mono text-[10px] animate-pulse">Analisi Audio Backend (Node.js) in corso...</span>
+                            </div>
+                        ) : peaks.length > 0 ? (
+                            peaks.map((p, i) => (
+                                <div key={i} className="flex-1 bg-emerald-500 mx-[0.5px] rounded-full" style={{ height: `${Math.max(2, p * 100)}%` }} />
+                            ))
+                        ) : (
+                            <div className="w-full text-center text-zinc-600 text-[10px]">Waveform non disponibile. Riproduzione standard.</div>
+                        )}
                     </div>
 
                     {/* Progress Fill */}
@@ -201,7 +231,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
             <div className="bg-emerald-950/10 border border-emerald-900/30 rounded p-3 flex items-center gap-3">
                 <Music size={18} className="text-emerald-500" />
                 <div className="text-[10px] text-emerald-300/80 leading-tight">
-                    <strong>MODALITÀ STABILITÀ ATTIVA:</strong> La waveform visiva è stata disabilitata per gestire file di grandi dimensioni senza crash. I marker funzionano in tempo reale durante l'ascolto.
+                    <strong>MAIN-SIDE-HEAVY ATTIVO:</strong> La waveform visiva è generata e decodificata esternamente (Node.js) senza gravare sulla memoria RAM del Renderer (Chromium). Prevenzione Crash garantita.
                 </div>
             </div>
         </div>

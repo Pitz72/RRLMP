@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, protocol, nativeImage, ipcMain, dialog } fro
 import { join } from 'path';
 import * as fs from 'fs';
 import { Readable } from 'stream';
+import { AudioProcessor } from './AudioProcessor';
 
 // CRITICAL: Disable GPU Acceleration to prevent 0xC0000005 Access Violation crashes on some Windows systems
 // especially when using multiple Canvas elements (Waveform Editor).
@@ -94,6 +95,15 @@ function createWindow(): void {
 }
 
 // --- IPC HANDLERS (Top Level to avoid multiple registrations) ---
+
+// Audio Processing (Main-Side-Heavy Architecture)
+ipcMain.handle('get-audio-metadata', async (_event, filePath: string) => {
+    return await AudioProcessor.extractMetadata(filePath);
+});
+
+ipcMain.handle('get-waveform-data', async (_event, filePath: string) => {
+    return await AudioProcessor.generateWaveformData(filePath);
+});
 
 // Force Close (Called by Renderer when safe)
 ipcMain.on('force-close', () => {
@@ -344,7 +354,14 @@ app.whenReady().then(() => {
                 const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
                 const chunksize = (end - start) + 1;
 
-                const nodeStream = fs.createReadStream(filePath, { start, end, highWaterMark: 128 * 1024 });
+                // Ottimizzazione v0.12.0: Buffer ibrido. 
+                // Start a 128KB per colpire immediatamente l'evento <audio onPlay> ed azzerare la latenza.
+                // 1MB per chunking parallelo o stream pesante.
+                const isStartup = start === 0;
+                const bufferSize = isStartup ? 128 * 1024 : 1024 * 1024;
+                const nodeStream = fs.createReadStream(filePath, { start, end, highWaterMark: bufferSize });
+                nodeStream.on('error', (err) => console.error('[Media] ReadStream Range error:', err));
+                
                 // @ts-ignore
                 const webStream = Readable.toWeb(nodeStream);
 
@@ -359,7 +376,9 @@ app.whenReady().then(() => {
                     }
                 });
             } else {
-                const nodeStream = fs.createReadStream(filePath, { highWaterMark: 128 * 1024 });
+                const nodeStream = fs.createReadStream(filePath, { highWaterMark: 1024 * 1024 });
+                nodeStream.on('error', (err) => console.error('[Media] ReadStream Full error:', err));
+                
                 // @ts-ignore
                 const webStream = Readable.toWeb(nodeStream);
 

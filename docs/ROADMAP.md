@@ -1,6 +1,6 @@
 # RRLMP — Roadmap & Issue Backlog
 
-Versione corrente: **0.10.4**
+Versione corrente: **0.12.1**
 Ultimo aggiornamento: 2026-04-06
 
 ---
@@ -14,14 +14,16 @@ Ultimo aggiornamento: 2026-04-06
 
 ---
 
-## 🟢 Criticità Aperte (In Progress - v0.10.3+)
+## 🟢 Criticità (Risolte in v0.11.0)
 
-- [🔴] **Renderer Crash (Access Violation - FIX DEFINITIVO)**: Sebbene la 0.10.3 abbia introdotto i lock, il crash persiste su file WAV pesanti.
-  - **STRATEGIA**: Completare la migrazione "Main-Side-Heavy". La decodifica e il calcolo picchi devono essere spostati interamente nel processo Main (Node.js).
-  - **STATO**: In investigazione tecnica. Il Renderer non deve più toccare buffer raw.
+- [✅] **Renderer Crash (Access Violation)**
+  - **RISOLTO in v0.11.0**: Completata la migrazione "Main-Side-Heavy". La decodifica e i file pesanti sono gestiti dal proxy Node.js e delegati a FFmpeg.
 
-- [🟡] **UI Micro-Stutter**: Durante lo streaming intenso, l'interfaccia può subire piccoli lag.
-  - **SOLUZIONE**: Ottimizzare ulteriormente il protocollo `media://` e l'uso dei Web Worker per il rendering della Waveform.
+- [✅] **UI Micro-Stutter / Buffer Streaming**
+  - **RISOLTO in v0.11.0**: Ottimizzato protocollo `media://` portando l'HighWaterMark a 1MB per stabilizzare read asincrone da network drive.
+
+- [✅] **Build e Compilazione TypeScript**
+  - **RISOLTO in v0.11.0**: Chiusi i conflitti TS1259 per l'architettura Main-Side-Heavy. Build `.exe` verificata e rilasciata.
 
 ---
 

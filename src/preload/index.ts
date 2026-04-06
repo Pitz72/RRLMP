@@ -18,6 +18,10 @@ if (process.contextIsolated) {
                 }
                 return '';
             },
+            // Audio Engine (Main-Side-Heavy)
+            getAudioMetadata: (filePath: string) => ipcRenderer.invoke('get-audio-metadata', filePath),
+            getWaveformData: (filePath: string) => ipcRenderer.invoke('get-waveform-data', filePath),
+            
             // Persistence APIs
             saveProject: (content: string) => ipcRenderer.invoke('dialog:save-project', content),
             loadProject: () => ipcRenderer.invoke('dialog:load-project'),

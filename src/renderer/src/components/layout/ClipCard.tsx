@@ -48,6 +48,16 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
     const remaining = Math.max(0, duration - currentTime);
     const isNearEnd = isPlaying && remaining < 15;
 
+    // Intro/Outro Board Feedback Logic
+    const introTime = clip.introMarker || 0;
+    const outroTime = clip.outroMarker || 0;
+    const inIntro = isPlaying && introTime > 0 && currentTime < introTime;
+    const inOutroPre = isPlaying && outroTime > 0 && currentTime < outroTime && (outroTime - currentTime) <= 15; // Ultime battute prima dell'outro
+    const inOutroActive = isPlaying && outroTime > 0 && currentTime >= outroTime && remaining > 0;
+    
+    const introRemaining = Math.max(0, introTime - currentTime);
+    const outroRemainingPre = Math.max(0, outroTime - currentTime);
+
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
 
@@ -140,9 +150,27 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
 
             {/* TIMER ROW */}
             <div className="relative z-10 flex justify-between items-baseline text-[10px] font-mono mt-1">
-                <span className="text-zinc-500">
+                <span className="text-zinc-500 flex items-center gap-2">
                     {clip.type.toUpperCase()}
+                    
+                    {/* Visual Cues Real-Time: Sponsorizzato tramite Implementation Plan v0.12.0 */}
+                    {inIntro && (
+                        <span className="text-cyan-400 font-bold animate-pulse font-sans bg-cyan-950/80 px-1.5 py-0.5 rounded shadow-sm border border-cyan-500/30">
+                            INTRO: -{formatTime(introRemaining)}
+                        </span>
+                    )}
+                    {inOutroPre && (
+                        <span className="text-orange-400 font-bold animate-pulse font-sans bg-orange-950/80 px-1.5 py-0.5 rounded shadow-sm border border-orange-500/30">
+                            OUTRO IN: -{formatTime(outroRemainingPre)}
+                        </span>
+                    )}
+                    {inOutroActive && (
+                        <span className="text-orange-400 font-bold font-sans bg-orange-950/80 px-1.5 py-0.5 rounded shadow-sm border border-orange-500/30">
+                            🚨 OUTRO
+                        </span>
+                    )}
                 </span>
+                
                 <span className={`font-bold transition-colors ${isNearEnd ? 'text-red-500 animate-pulse' : (isPlaying ? 'text-white' : 'text-zinc-500')}`}>
                     {isPlaying ? `-${formatTime(remaining)}` : formatTime(duration)}
                 </span>
