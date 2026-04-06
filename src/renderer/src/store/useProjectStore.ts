@@ -60,6 +60,8 @@ interface ProjectState {
     loadProject: (state: ProjectState, filePath?: string) => void; // Added filePath
     moveClip: (sourceColId: string, destColId: string, oldIndex: number, newIndex: number) => void;
 
+    /** Verifica l'esistenza su disco di tutti i file delle clip. Imposta isMissing. Ritorna il numero di file mancanti. */
+    runIntegrityCheck: () => Promise<number>;
 
     isMidiLearnMode: boolean;
     setIsMidiLearnMode: (active: boolean) => void;
@@ -165,7 +167,32 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
     // Persistence
     loadProject: (stateToLoad: ProjectState, filePath?: string) => {
-        set({ columns: stateToLoad.columns, isDirty: false, currentFilePath: filePath || null });
+        // Reset isMissing on all clips before integrity check
+        const cleanColumns = stateToLoad.columns.map(col => ({
+            ...col,
+            clips: col.clips.map(c => ({ ...c, isMissing: false }))
+        }));
+        set({ columns: cleanColumns, isDirty: false, currentFilePath: filePath || null });
+    },
+
+    // Integrity Check (v0.14.2)
+    runIntegrityCheck: async () => {
+        const state = useProjectStore.getState();
+        const allClips = state.columns.flatMap(col => col.clips);
+        const paths = allClips.map(c => c.path).filter(Boolean);
+        if (paths.length === 0) return 0;
+
+        const { missing } = await window.electron.checkFilesExist(paths);
+        const missingSet = new Set(missing);
+
+        set((s) => ({
+            columns: s.columns.map(col => ({
+                ...col,
+                clips: col.clips.map(c => ({ ...c, isMissing: missingSet.has(c.path) }))
+            }))
+        }));
+
+        return missing.length;
     },
 
 

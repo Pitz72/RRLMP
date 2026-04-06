@@ -162,6 +162,16 @@ const getColumnForClip = (clipId: string): string | null => {
 // l'operazione è obsoleta e va scartata.
 const playGenerations = new Map<string, number>();
 
+// v0.13.2 — Transition System
+// Set di clip attualmente in fase di fade-out per una transizione (crossfade o segue).
+// La conflict resolution in playClip salta queste clip invece di stopparle bruscamente,
+// permettendo la sovrapposizione controllata.
+const transitioningClips = new Set<string>();
+
+// Durata fadeIn da applicare alla PROSSIMA clip avviata come parte di un crossfade.
+// Viene letta una sola volta da playClip e poi azzerata (pattern one-shot).
+let pendingCrossfadeFadeIn: number | null = null;
+
 export const useAudioStore = create<AudioStore>((set, get) => {
 
     // G8 Fix: setInterval condizionale — chiama _syncProgress solo se ci sono
@@ -183,6 +193,12 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             const { columns } = useProjectStore.getState();
             const freshClip = columns.flatMap(col => col.clips).find(c => c.id === clipArg.id) || clipArg;
             const columnId = getColumnForClip(freshClip.id);
+
+            // Integrity Guard (v0.14.2): blocca playback per file mancanti
+            if (freshClip.isMissing) {
+                debugLog(`AudioStore: PlayClip bloccato — file mancante: ${freshClip.path}`, 'warn');
+                return;
+            }
 
             debugLog(`AudioStore: PlayClip ${freshClip.name} (Next: ${freshClip.nextAction}, Behavior: ${freshClip.behavior})`, 'event');
 
@@ -220,10 +236,14 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                         ac.player.fadeTo(0, AUDIO_CONST.STACCO_FADE_DURATION); // Fast fade to silence
                     });
                 } else {
-                    // NORMAL behavior: Stop others in same column
-                    sameColumnClips.forEach(ac => {
-                        currentStore.stopClip(ac.clip.id);
-                    });
+                    // NORMAL behavior: Stop others in same column.
+                    // v0.13.2: le clip in transizione (crossfade/segue) vengono saltate —
+                    // il loro fade-out e stopClip sono già schedulati dal transition handler.
+                    sameColumnClips
+                        .filter(ac => !transitioningClips.has(ac.clip.id))
+                        .forEach(ac => {
+                            currentStore.stopClip(ac.clip.id);
+                        });
                 }
             }
 
@@ -244,7 +264,68 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 player.setBus(targetBus);
 
                 // Apply Settings
-                player.updateSettings(freshClip);
+                // v0.13.2: se è stato richiesto un crossfade, sovrascriamo il fadeIn
+                // della clip entrante con la durata del crossfade (one-shot, poi reset).
+                const fadeInOverride = pendingCrossfadeFadeIn;
+                pendingCrossfadeFadeIn = null;
+                player.updateSettings(
+                    fadeInOverride !== null
+                        ? { ...freshClip, fadeIn: fadeInOverride }
+                        : freshClip
+                );
+
+                // v0.13.2 — Helper per applicare la transizione corretta tra clip in sequenza.
+                // Legge il tipo di transizione dalla clip corrente (override) o dal default globale.
+                const applyTransitionAndPlayNext = (clipId: string) => {
+                    const currentClip = get().activeClips[clipId]?.clip;
+                    if (!currentClip || currentClip.nextAction !== 'play_next') return;
+
+                    const nextClip = getNextClipInColumn(currentClip.id);
+                    if (!nextClip) return;
+
+                    const { preshowTransitionType, crossfadeDuration } = useSettingsStore.getState();
+                    const colId = getColumnForClip(currentClip.id);
+                    // Il tipo di transizione si applica solo alla colonna preshow (per ora);
+                    // per le altre colonne rimane il comportamento gapless esistente.
+                    const isPreshow = colId === 'col-preshow';
+                    const effectiveType = currentClip.transitionType
+                        || (isPreshow ? preshowTransitionType : 'gapless');
+
+                    debugLog(`AudioStore: Transition [${effectiveType}] ${currentClip.name} → ${nextClip.name}`, 'event');
+
+                    if (effectiveType === 'crossfade') {
+                        const currentPlayer = get().activeClips[clipId]?.player;
+                        if (currentPlayer) {
+                            transitioningClips.add(clipId);
+                            currentPlayer.fadeTo(0, crossfadeDuration);
+                            setTimeout(() => {
+                                get().stopClip(clipId);
+                                transitioningClips.delete(clipId);
+                            }, crossfadeDuration + 200);
+                        }
+                        // Imposta il fadeIn one-shot per la clip entrante
+                        pendingCrossfadeFadeIn = crossfadeDuration;
+                        get().playClip(nextClip);
+
+                    } else if (effectiveType === 'segue') {
+                        const currentPlayer = get().activeClips[clipId]?.player;
+                        if (currentPlayer) {
+                            transitioningClips.add(clipId);
+                            currentPlayer.fadeTo(0, crossfadeDuration);
+                            setTimeout(() => {
+                                get().stopClip(clipId);
+                                transitioningClips.delete(clipId);
+                            }, crossfadeDuration + 200);
+                        }
+                        // La clip entrante parte subito a volume pieno (nessun fade-in forzato)
+                        get().playClip(nextClip);
+
+                    } else {
+                        // gapless: comportamento esistente — la clip precedente viene fermata
+                        // dalla conflict resolution di playClip in modo immediato.
+                        get().playClip(nextClip);
+                    }
+                };
 
                 // Sequencer Logic
                 player.onPreEnd((clipId) => {

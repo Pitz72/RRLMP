@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Play, Pause, Scissors, Timer, Flag, Music } from 'lucide-react';
+import { Play, Pause, Scissors, Flag, Music } from 'lucide-react';
 import { toFileUrl } from '../../utils/pathUtils';
+
+type DraggingMarker = 'trimStart' | 'trimEnd' | 'intro' | 'outro' | null;
 
 interface WaveformEditorProps {
     path: string;
@@ -12,226 +14,436 @@ interface WaveformEditorProps {
 }
 
 /**
- * SAFE WAVEFORM EDITOR (Draft Mode)
- * Questo componente sostituisce Wavesurfer con un player standard HTML5 
- * per prevenire i crash di memoria (Access Violation) su file WAV di grandi dimensioni.
+ * WAVEFORM EDITOR v2 — Drag & Drop Interattivo (v0.14.1)
+ *
+ * Architettura "Main-Side-Heavy": i Peak Data sono generati via FFmpeg nel processo
+ * Node.js (IPC) e inviati al renderer come array di float normalizzati (max 200 barre).
+ * Il renderer NON decodifica mai file audio pesanti — nessun rischio di Access Violation.
+ *
+ * I 4 handle (Trim Start, Trim End, Intro, Outro) sono trascinabili direttamente sulla
+ * waveform. I listener mousemove/mouseup sono registrati su document per seguire il
+ * cursore anche fuori dai bordi del container.
+ *
+ * Refs sono usati per i valori "live" nelle closure del drag, evitando stale values
+ * senza dover includere tutto nelle dependencies degli useEffect.
  */
 export const WaveformEditor: React.FC<WaveformEditorProps> = ({
     path, trimStart, trimEnd, introMarker, outroMarker, onChange
 }) => {
-    const audioRef = useRef<HTMLAudioElement>(null);
-    const progressBarRef = useRef<HTMLDivElement>(null);
-    
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [duration, setDuration] = useState(0);
+    const audioRef    = useRef<HTMLAudioElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    // Refs per valori "live" nelle closure di drag (evita stale closure senza re-registrare listeners)
+    const onChangeRef    = useRef(onChange);
+    const trimStartRef   = useRef(trimStart);
+    const trimEndRef     = useRef(trimEnd);
+    const durationRef    = useRef(0);
+    onChangeRef.current  = onChange;
+    trimStartRef.current = trimStart;
+    trimEndRef.current   = trimEnd;
+
+    const [isPlaying,   setIsPlaying]   = useState(false);
+    const [duration,    setDuration]    = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
-    const [isLoaded, setIsLoaded] = useState(false);
-    const [peaks, setPeaks] = useState<number[]>([]);
+    const [isLoaded,    setIsLoaded]    = useState(false);
+    const [peaks,       setPeaks]       = useState<number[]>([]);
     const [isAnalyzing, setIsAnalyzing] = useState(true);
+    const [dragging,    setDragging]    = useState<DraggingMarker>(null);
 
     const fileUrl = toFileUrl(path);
 
-    // Fetch WaveformData from Main Process (Node.js) proxy
+    // Aggiorna durationRef in sync con lo stato
+    useEffect(() => { durationRef.current = duration; }, [duration]);
+
+    // ─── Waveform peaks dal Main Process (FFmpeg) ───────────────────────────────
     useEffect(() => {
         setIsAnalyzing(true);
-        if (window.electron && window.electron.getWaveformData) {
-            window.electron.getWaveformData(path).then(res => {
-                if (res.success && res.data) {
-                    setPeaks(res.data);
-                } else {
-                    console.error("Waveform Generation failed:", res.error);
-                }
-                setIsAnalyzing(false);
-            }).catch(err => {
-                console.error("IPC Waveform Error:", err);
-                setIsAnalyzing(false);
-            });
+        setPeaks([]);
+        if (window.electron?.getWaveformData) {
+            window.electron.getWaveformData(path)
+                .then(res => {
+                    if (res.success && res.data) setPeaks(res.data);
+                    setIsAnalyzing(false);
+                })
+                .catch(() => setIsAnalyzing(false));
         } else {
             setIsAnalyzing(false);
         }
     }, [path]);
 
-    // Sync audio state
+    // ─── Sync stato audio ───────────────────────────────────────────────────────
     useEffect(() => {
         const audio = audioRef.current;
         if (!audio) return;
-
-        const onLoadedMetadata = () => {
-            setDuration(audio.duration);
-            setIsLoaded(true);
-        };
-        const onTimeUpdate = () => setCurrentTime(audio.currentTime);
-        const onPlay = () => setIsPlaying(true);
-        const onPause = () => setIsPlaying(false);
-
-        audio.addEventListener('loadedmetadata', onLoadedMetadata);
-        audio.addEventListener('timeupdate', onTimeUpdate);
-        audio.addEventListener('play', onPlay);
-        audio.addEventListener('pause', onPause);
-
+        const onLoaded = () => { setDuration(audio.duration); setIsLoaded(true); };
+        const onTime   = () => setCurrentTime(audio.currentTime);
+        const onPlay   = () => setIsPlaying(true);
+        const onPause  = () => setIsPlaying(false);
+        audio.addEventListener('loadedmetadata', onLoaded);
+        audio.addEventListener('timeupdate',     onTime);
+        audio.addEventListener('play',           onPlay);
+        audio.addEventListener('pause',          onPause);
         return () => {
-            audio.removeEventListener('loadedmetadata', onLoadedMetadata);
-            audio.removeEventListener('timeupdate', onTimeUpdate);
-            audio.removeEventListener('play', onPlay);
-            audio.removeEventListener('pause', onPause);
+            audio.removeEventListener('loadedmetadata', onLoaded);
+            audio.removeEventListener('timeupdate',     onTime);
+            audio.removeEventListener('play',           onPlay);
+            audio.removeEventListener('pause',          onPause);
         };
     }, [path]);
 
+    // ─── Drag listeners globali (seguono il cursore anche fuori dal container) ──
+    useEffect(() => {
+        if (!dragging) return;
+
+        const getTime = (clientX: number): number => {
+            if (!containerRef.current || durationRef.current === 0) return 0;
+            const rect  = containerRef.current.getBoundingClientRect();
+            const ratio = (clientX - rect.left) / rect.width;
+            return Math.max(0, Math.min(durationRef.current, ratio * durationRef.current));
+        };
+
+        const onMove = (e: MouseEvent) => {
+            e.preventDefault();
+            const t   = getTime(e.clientX);
+            const dur = durationRef.current;
+            const ts  = trimStartRef.current;
+            const te  = trimEndRef.current;
+
+            if (dragging === 'trimStart') {
+                // Non può superare il punto finale della clip (duration - trimEnd)
+                const max = dur - te - 0.05;
+                onChangeRef.current({ trimStart: Math.max(0, Math.min(t, max > 0 ? max : 0)) });
+
+            } else if (dragging === 'trimEnd') {
+                // trimEnd = secondi tagliati dalla FINE. Handle è a (duration - trimEnd) dalla sx.
+                const newTrimEnd = Math.max(0, dur - t);
+                const max = dur - ts - 0.05;
+                onChangeRef.current({ trimEnd: Math.min(newTrimEnd, max > 0 ? max : 0) });
+
+            } else if (dragging === 'intro') {
+                onChangeRef.current({ introMarker: t });
+
+            } else if (dragging === 'outro') {
+                onChangeRef.current({ outroMarker: t });
+            }
+        };
+
+        const onUp = () => setDragging(null);
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup',   onUp);
+        return () => {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup',   onUp);
+        };
+    }, [dragging]); // Solo dragging — tutti i valori live acceduti via ref
+
+    // ─── Handlers ───────────────────────────────────────────────────────────────
     const togglePlay = () => {
-        if (audioRef.current) {
-            if (isPlaying) audioRef.current.pause();
-            else audioRef.current.play();
-        }
+        if (!audioRef.current) return;
+        isPlaying ? audioRef.current.pause() : audioRef.current.play();
     };
 
-    const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!progressBarRef.current || !audioRef.current || duration === 0) return;
-        const rect = progressBarRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const percentage = x / rect.width;
-        audioRef.current.currentTime = percentage * duration;
+    const handleSeekClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (dragging || !containerRef.current || !audioRef.current || duration === 0) return;
+        const rect = containerRef.current.getBoundingClientRect();
+        audioRef.current.currentTime = ((e.clientX - rect.left) / rect.width) * duration;
     };
 
-    // Helper per convertire pixel in secondi
-    const getPosFromTime = (time: number) => (time / duration) * 100;
+    const startDrag = (marker: DraggingMarker) => (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation(); // Non triggera handleSeekClick
+        setDragging(marker);
+    };
 
+    // ─── Helpers posizione (%) ───────────────────────────────────────────────────
+    const pct = (t: number): number => duration > 0 ? Math.max(0, Math.min(100, (t / duration) * 100)) : 0;
+    // Posizione dell'handle Trim End: da sx = (duration - trimEnd) / duration
+    const trimEndPct = duration > 0 ? Math.max(0, Math.min(100, ((duration - trimEnd) / duration) * 100)) : 100;
+
+    // ─── Componente handle trascinabile ─────────────────────────────────────────
+    const DragHandle = ({
+        leftPct,
+        marker,
+        color,
+        label,
+        show = true,
+    }: {
+        leftPct: number;
+        marker: DraggingMarker;
+        color: string;
+        label: string;
+        show?: boolean;
+    }) => {
+        if (!show || duration === 0) return null;
+        const isActive = dragging === marker;
+        return (
+            <div
+                className="absolute inset-y-0 z-40 flex items-center justify-center"
+                style={{ left: `${leftPct}%`, width: '20px', marginLeft: '-10px', cursor: 'ew-resize' }}
+                onMouseDown={startDrag(marker)}
+                title={`Trascina per spostare ${label}`}
+            >
+                {/* Grip bar */}
+                <div
+                    className="flex flex-col items-center justify-center gap-[3px] rounded-sm transition-all duration-75"
+                    style={{
+                        width:   isActive ? '8px' : '6px',
+                        height:  '40px',
+                        backgroundColor: color,
+                        opacity: isActive ? 1 : 0.75,
+                        boxShadow: isActive ? `0 0 10px ${color}` : 'none',
+                    }}
+                >
+                    <div style={{ width: '2px', height: '10px', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: '1px' }} />
+                    <div style={{ width: '2px', height: '10px', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: '1px' }} />
+                </div>
+                {/* Label */}
+                <span
+                    className="absolute text-[7px] font-bold whitespace-nowrap px-1 rounded pointer-events-none select-none"
+                    style={{
+                        bottom: '2px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        color,
+                        backgroundColor: '#09090b',
+                        border: `1px solid ${color}30`,
+                    }}
+                >
+                    {label}
+                </span>
+            </div>
+        );
+    };
+
+    // ─── Render ──────────────────────────────────────────────────────────────────
     return (
-        <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 space-y-6 select-none">
-            <audio ref={audioRef} src={fileUrl} />
-            
-            {/* Header / Controls */}
+        <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 space-y-4 select-none">
+            <audio ref={audioRef} src={fileUrl} preload="metadata" />
+
+            {/* ── Header: player + position ── */}
             <div className="flex justify-between items-center">
                 <div className="flex items-center gap-4">
-                    <button 
+                    <button
                         onClick={togglePlay}
-                        className="w-12 h-12 flex items-center justify-center rounded-full bg-emerald-600 hover:bg-emerald-500 text-white transition-all active:scale-95 shadow-lg shadow-emerald-900/20"
+                        className="w-10 h-10 flex items-center justify-center rounded-full bg-emerald-600 hover:bg-emerald-500 text-white transition-all active:scale-95 shadow-lg shadow-emerald-900/20"
                     >
-                        {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
+                        {isPlaying
+                            ? <Pause size={18} fill="currentColor" />
+                            : <Play  size={18} fill="currentColor" className="ml-0.5" />
+                        }
                     </button>
                     <div>
-                        <div className="text-xs text-zinc-500 font-bold uppercase tracking-wider">Status</div>
-                        <div className="text-sm font-mono text-emerald-400">
-                            {isLoaded ? 'PRONTO (Streaming Mode)' : 'CARICAMENTO...'}
+                        <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Status</div>
+                        <div className="text-xs font-mono text-emerald-400">
+                            {isLoaded ? 'PRONTO' : 'CARICAMENTO...'}
                         </div>
                     </div>
                 </div>
-
                 <div className="text-right">
-                    <div className="text-xs text-zinc-500 font-bold uppercase tracking-wider">Position</div>
-                    <div className="text-lg font-mono text-zinc-300">
-                        {currentTime.toFixed(2)}s / <span className="text-zinc-500">{duration.toFixed(2)}s</span>
+                    <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Posizione</div>
+                    <div className="text-sm font-mono text-zinc-300">
+                        {currentTime.toFixed(2)}s <span className="text-zinc-600">/ {duration.toFixed(2)}s</span>
                     </div>
                 </div>
             </div>
 
-            {/* Simulated Waveform (The "Draft") */}
-            <div className="space-y-2">
-                <div 
-                    ref={progressBarRef}
-                    onClick={handleSeek}
-                    className="relative h-24 bg-zinc-900 rounded-lg border border-zinc-800 overflow-hidden cursor-pointer group"
+            {/* ── Waveform zone ── */}
+            <div className="space-y-1">
+
+                {/* Legenda */}
+                <div className="flex items-center gap-4 mb-1 flex-wrap">
+                    <span className="flex items-center gap-1 text-[9px] font-bold text-red-400 uppercase">
+                        <span className="inline-block w-2 h-2 rounded-sm bg-red-500" /> Trim
+                    </span>
+                    <span className="flex items-center gap-1 text-[9px] font-bold text-cyan-400 uppercase">
+                        <span className="inline-block w-0.5 h-3 bg-cyan-400" /> Intro
+                    </span>
+                    <span className="flex items-center gap-1 text-[9px] font-bold text-orange-400 uppercase">
+                        <span className="inline-block w-0.5 h-3 bg-orange-400" /> Outro
+                    </span>
+                    <span className="ml-auto text-[9px] text-zinc-600 italic normal-case">
+                        Click → Seek &nbsp;·&nbsp; Trascina handle → Sposta marker
+                    </span>
+                </div>
+
+                {/*
+                 * OUTER container: cattura eventi click/drag, NON ha overflow-hidden
+                 * così gli handle possono sporgere leggermente dai bordi visivi.
+                 * INNER container: ha overflow-hidden per clippare peaks e fill areas.
+                 */}
+                <div
+                    ref={containerRef}
+                    onClick={handleSeekClick}
+                    className="relative h-24"
+                    style={{ cursor: dragging ? 'ew-resize' : 'pointer' }}
                 >
-                    {/* Background Real Waveform from Peak Data Proxy */}
-                    <div className="absolute inset-0 flex items-center justify-between px-1 opacity-40 group-hover:opacity-60 transition-opacity">
-                        {isAnalyzing ? (
-                            <div className="w-full flex justify-center items-center h-full">
-                                <span className="text-zinc-500 font-mono text-[10px] animate-pulse">Analisi Audio Backend (Node.js) in corso...</span>
-                            </div>
-                        ) : peaks.length > 0 ? (
-                            peaks.map((p, i) => (
-                                <div key={i} className="flex-1 bg-emerald-500 mx-[0.5px] rounded-full" style={{ height: `${Math.max(2, p * 100)}%` }} />
-                            ))
-                        ) : (
-                            <div className="w-full text-center text-zinc-600 text-[10px]">Waveform non disponibile. Riproduzione standard.</div>
+                    {/* ── INNER: visual layer clippato ── */}
+                    <div className="absolute inset-0 bg-zinc-900 rounded-lg border border-zinc-800 overflow-hidden pointer-events-none">
+
+                        {/* Peaks */}
+                        <div className="absolute inset-0 flex items-center justify-between px-0.5 opacity-50">
+                            {isAnalyzing ? (
+                                <div className="w-full flex justify-center items-center h-full">
+                                    <span className="text-zinc-500 font-mono text-[10px] animate-pulse">
+                                        Analisi waveform (Node.js)...
+                                    </span>
+                                </div>
+                            ) : peaks.length > 0 ? (
+                                peaks.map((p, i) => (
+                                    <div
+                                        key={i}
+                                        className="flex-1 bg-emerald-500 mx-[0.5px] rounded-full"
+                                        style={{ height: `${Math.max(2, p * 100)}%` }}
+                                    />
+                                ))
+                            ) : (
+                                <div className="w-full text-center text-zinc-600 text-[10px]">
+                                    Waveform non disponibile — riproduzione standard
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Progress fill (playhead area) */}
+                        <div
+                            className="absolute inset-y-0 left-0 bg-emerald-500/10 border-r border-emerald-400/40 z-10"
+                            style={{ width: `${pct(currentTime)}%` }}
+                        />
+
+                        {/* Playhead line */}
+                        {currentTime > 0 && duration > 0 && (
+                            <div
+                                className="absolute inset-y-0 w-px bg-white/40 z-15"
+                                style={{ left: `${pct(currentTime)}%` }}
+                            />
+                        )}
+
+                        {/* Trim Start: zona rossa sinistra */}
+                        <div
+                            className="absolute inset-y-0 left-0 bg-red-950/60 border-r-2 border-red-500 z-20"
+                            style={{ width: `${pct(trimStart)}%` }}
+                        >
+                            {trimStart > 0 && (
+                                <span className="absolute top-1 right-1 text-[7px] text-red-400 font-bold bg-zinc-950/90 px-1 rounded">
+                                    CUT
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Trim End: zona rossa destra */}
+                        <div
+                            className="absolute inset-y-0 right-0 bg-red-950/60 border-l-2 border-red-500 z-20"
+                            style={{ width: `${100 - trimEndPct}%` }}
+                        >
+                            {trimEnd > 0 && (
+                                <span className="absolute top-1 left-1 text-[7px] text-red-400 font-bold bg-zinc-950/90 px-1 rounded">
+                                    CUT
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Intro marker line */}
+                        {introMarker > 0 && (
+                            <div
+                                className="absolute inset-y-0 w-0.5 bg-cyan-400 z-30"
+                                style={{
+                                    left: `${pct(introMarker)}%`,
+                                    boxShadow: '0 0 8px rgba(34,211,238,0.6)',
+                                }}
+                            />
+                        )}
+
+                        {/* Outro marker line */}
+                        {outroMarker > 0 && (
+                            <div
+                                className="absolute inset-y-0 w-0.5 bg-orange-400 z-30"
+                                style={{
+                                    left: `${pct(outroMarker)}%`,
+                                    boxShadow: '0 0 8px rgba(251,146,60,0.6)',
+                                }}
+                            />
                         )}
                     </div>
 
-                    {/* Progress Fill */}
-                    <div 
-                        className="absolute inset-y-0 left-0 bg-emerald-500/10 border-r border-emerald-500/50 z-10"
-                        style={{ width: `${getPosFromTime(currentTime)}%` }}
+                    {/* ── OUTER: drag handles (non clippati) ── */}
+                    <DragHandle
+                        leftPct={pct(trimStart)}
+                        marker="trimStart"
+                        color="#ef4444"
+                        label="TRIM S"
                     />
-
-                    {/* TRIM START Area */}
-                    <div 
-                        className="absolute inset-y-0 left-0 bg-red-950/40 border-r-2 border-red-500 z-20 pointer-events-none"
-                        style={{ width: `${getPosFromTime(trimStart)}%` }}
-                    >
-                        <span className="absolute top-1 right-1 text-[8px] text-red-400 font-bold bg-zinc-950 px-1 rounded">START</span>
-                    </div>
-
-                    {/* TRIM END Area */}
-                    <div 
-                        className="absolute inset-y-0 right-0 bg-red-950/40 border-l-2 border-red-500 z-20 pointer-events-none"
-                        style={{ width: `${getPosFromTime(trimEnd)}%` }}
-                    >
-                        <span className="absolute top-1 left-1 text-[8px] text-red-400 font-bold bg-zinc-950 px-1 rounded">END</span>
-                    </div>
-
-                    {/* INTRO Marker Line */}
-                    {introMarker > 0 && (
-                        <div 
-                            className="absolute inset-y-0 w-0.5 bg-cyan-400 z-30 shadow-[0_0_10px_rgba(34,211,238,0.5)]"
-                            style={{ left: `${getPosFromTime(introMarker)}%` }}
-                        >
-                            <span className="absolute bottom-1 left-1 text-[8px] text-cyan-400 font-bold bg-zinc-950 px-1 rounded">INTRO</span>
-                        </div>
-                    )}
-
-                    {/* OUTRO Marker Line */}
-                    {outroMarker > 0 && (
-                        <div 
-                            className="absolute inset-y-0 w-0.5 bg-orange-400 z-30 shadow-[0_0_10px_rgba(251,146,60,0.5)]"
-                            style={{ left: `${getPosFromTime(outroMarker)}%` }}
-                        >
-                            <span className="absolute bottom-1 right-1 text-[8px] text-orange-400 font-bold bg-zinc-950 px-1 rounded">OUTRO</span>
-                        </div>
-                    )}
+                    <DragHandle
+                        leftPct={trimEndPct}
+                        marker="trimEnd"
+                        color="#ef4444"
+                        label="TRIM E"
+                    />
+                    <DragHandle
+                        leftPct={pct(introMarker)}
+                        marker="intro"
+                        color="#22d3ee"
+                        label="INTRO"
+                        show={introMarker > 0}
+                    />
+                    <DragHandle
+                        leftPct={pct(outroMarker)}
+                        marker="outro"
+                        color="#fb923c"
+                        label="OUTRO"
+                        show={outroMarker > 0}
+                    />
                 </div>
-                
-                <div className="flex justify-between text-[9px] text-zinc-600 font-bold uppercase">
+
+                {/* Ruler */}
+                <div className="flex justify-between text-[9px] text-zinc-600 font-mono">
                     <span>0.00s</span>
-                    <span>Clicca sulla barra per navigare</span>
-                    <span>{duration.toFixed(2)}s</span>
+                    {duration > 0 && <span className="text-zinc-700">{(duration / 2).toFixed(1)}s</span>}
+                    <span>{duration > 0 ? duration.toFixed(2) + 's' : '—'}</span>
                 </div>
             </div>
 
-            {/* Quick Actions / Info */}
+            {/* ── Quick Set Buttons ── */}
             <div className="grid grid-cols-4 gap-2">
-                <button 
+                <button
                     onClick={() => onChange({ trimStart: currentTime })}
-                    className="flex flex-col items-center p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded transition-colors group"
+                    className="flex flex-col items-center p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-500/50 rounded transition-all group"
+                    title="Imposta Trim Start alla posizione corrente"
                 >
-                    <Scissors size={14} className="text-zinc-500 group-hover:text-red-400 mb-1" />
-                    <span className="text-[9px] text-zinc-500 uppercase">Set Trim Start</span>
+                    <Scissors size={14} className="text-zinc-500 group-hover:text-red-400 mb-1 transition-colors" />
+                    <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">Trim Start</span>
                 </button>
-                <button 
+                <button
                     onClick={() => onChange({ trimEnd: Math.max(0, duration - currentTime) })}
-                    className="flex flex-col items-center p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded transition-colors group"
+                    className="flex flex-col items-center p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-500/50 rounded transition-all group"
+                    title="Imposta Trim End alla posizione corrente"
                 >
-                    <Scissors size={14} className="text-zinc-500 group-hover:text-red-400 mb-1" />
-                    <span className="text-[9px] text-zinc-500 uppercase">Set Trim End</span>
+                    <Scissors size={14} className="text-zinc-500 group-hover:text-red-400 mb-1 transition-colors" />
+                    <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">Trim End</span>
                 </button>
-                <button 
+                <button
                     onClick={() => onChange({ introMarker: currentTime })}
-                    className="flex flex-col items-center p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded transition-colors group"
+                    className="flex flex-col items-center p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-cyan-500/50 rounded transition-all group"
+                    title="Imposta Intro alla posizione corrente"
                 >
-                    <Flag size={14} className="text-zinc-500 group-hover:text-cyan-400 mb-1" />
-                    <span className="text-[9px] text-zinc-500 uppercase">Set Intro</span>
+                    <Flag size={14} className="text-zinc-500 group-hover:text-cyan-400 mb-1 transition-colors" />
+                    <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">Set Intro</span>
                 </button>
-                <button 
+                <button
                     onClick={() => onChange({ outroMarker: currentTime })}
-                    className="flex flex-col items-center p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded transition-colors group"
+                    className="flex flex-col items-center p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-orange-500/50 rounded transition-all group"
+                    title="Imposta Outro alla posizione corrente"
                 >
-                    <Flag size={14} className="text-zinc-500 group-hover:text-orange-400 mb-1" />
-                    <span className="text-[9px] text-zinc-500 uppercase">Set Outro</span>
+                    <Flag size={14} className="text-zinc-500 group-hover:text-orange-400 mb-1 transition-colors" />
+                    <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">Set Outro</span>
                 </button>
             </div>
 
+            {/* ── Banner architettura ── */}
             <div className="bg-emerald-950/10 border border-emerald-900/30 rounded p-3 flex items-center gap-3">
-                <Music size={18} className="text-emerald-500" />
-                <div className="text-[10px] text-emerald-300/80 leading-tight">
-                    <strong>MAIN-SIDE-HEAVY ATTIVO:</strong> La waveform visiva è generata e decodificata esternamente (Node.js) senza gravare sulla memoria RAM del Renderer (Chromium). Prevenzione Crash garantita.
+                <Music size={16} className="text-emerald-500 shrink-0" />
+                <div className="text-[10px] text-emerald-300/70 leading-tight">
+                    <strong>MAIN-SIDE-HEAVY:</strong> Waveform generata da FFmpeg (Node.js) —
+                    Chromium non carica mai il file audio in memoria. Crash prevention attivo.
                 </div>
             </div>
         </div>

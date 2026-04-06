@@ -1,19 +1,25 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { TransitionType } from '../types';
 
 interface SettingsState {
     outputDeviceId: string;
     globalMidiBinds: Record<string, string>;
-    
+
     // Mixing Settings
     duckingFactor: number; // 0.0 to 1.0
     duckingDuration: number; // ms
     defaultPreshowTransition: 'crossfade' | 'segue' | 'gapless'; // Effetto Continuous-Play
 
+    // Pre-Show Transition Settings (v0.13.2)
+    preshowTransitionType: TransitionType;
+    crossfadeDuration: number; // ms — usato sia per crossfade che per segue
+
     setOutputDeviceId: (id: string) => void;
     setGlobalMidiBind: (actionKey: string, midiMessage: string) => void;
     setDuckingSettings: (updates: { factor?: number; duration?: number }) => void;
     setDefaultPreshowTransition: (transition: 'crossfade' | 'segue' | 'gapless') => void;
+    setPreshowTransition: (updates: { type?: TransitionType; duration?: number }) => void;
 }
 
 
@@ -22,11 +28,15 @@ export const useSettingsStore = create<SettingsState>()(
         (set) => ({
             outputDeviceId: 'default',
             globalMidiBinds: {},
-            
-            // Defaults (L1 fallback)
+
+            // Defaults mixing
             duckingFactor: 0.2,
             duckingDuration: 500,
             defaultPreshowTransition: 'crossfade',
+
+            // Defaults preshow transition (v0.13.2)
+            preshowTransitionType: 'gapless',
+            crossfadeDuration: 2000,
 
             setOutputDeviceId: (id) => set({ outputDeviceId: id }),
             setGlobalMidiBind: (actionKey, midiMessage) => set((state) => ({
@@ -37,6 +47,10 @@ export const useSettingsStore = create<SettingsState>()(
                 duckingDuration: updates.duration ?? state.duckingDuration
             })),
             setDefaultPreshowTransition: (transition: 'crossfade' | 'segue' | 'gapless') => set({ defaultPreshowTransition: transition }),
+            setPreshowTransition: (updates) => set((state) => ({
+                preshowTransitionType: updates.type ?? state.preshowTransitionType,
+                crossfadeDuration: updates.duration ?? state.crossfadeDuration
+            })),
         }),
 
         {

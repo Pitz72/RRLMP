@@ -105,6 +105,15 @@ ipcMain.handle('get-waveform-data', async (_event, filePath: string) => {
     return await AudioProcessor.generateWaveformData(filePath);
 });
 
+ipcMain.handle('detect-silence', async (_event, filePath: string) => {
+    return await AudioProcessor.detectSilence(filePath);
+});
+
+ipcMain.handle('check-files-exist', async (_event, paths: string[]) => {
+    const missing = (paths as string[]).filter(p => !fs.existsSync(p));
+    return { missing };
+});
+
 // Force Close (Called by Renderer when safe)
 ipcMain.on('force-close', () => {
     const wins = BrowserWindow.getAllWindows();

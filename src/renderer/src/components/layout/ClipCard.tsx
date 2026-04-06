@@ -70,6 +70,9 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
         // Standard Click: Clear Selection AND Play
         clearSelection();
 
+        // Block playback for missing files (v0.14.2)
+        if (clip.isMissing) return;
+
         if (isPlaying) {
             stopClip(clip.id);
         } else {
@@ -86,19 +89,19 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
         <div
             onClick={handleClick}
             onContextMenu={handleContextMenu}
-            className={`p-2 rounded border cursor-pointer transition-all group relative overflow-hidden select-none
-                ${clip.isMissing 
-                    ? 'bg-red-950/30 border-l-4 border-l-red-600 border-t-red-900 border-r-red-900 border-b-red-900'
+            className={`p-2 rounded border transition-all group relative overflow-hidden select-none
+                ${clip.isMissing
+                    ? 'bg-red-950/60 border-red-800 cursor-not-allowed opacity-80'
                     : isPlaying
-                        ? 'bg-zinc-800 shadow-[0_0_15px_rgba(0,0,0,0.5)]'
-                        : 'bg-zinc-900 border-zinc-800 hover:border-zinc-600'
+                        ? 'bg-zinc-800 shadow-[0_0_15px_rgba(0,0,0,0.5)] cursor-pointer'
+                        : 'bg-zinc-900 border-zinc-800 hover:border-zinc-600 cursor-pointer'
                 }
                 ${isSelected ? 'ring-2 ring-blue-500 z-10' : ''}
-                ${isMidiLearnMode && isSelected ? 'ring-2 ring-cyan-400 ring-dashed' : ''} 
+                ${isMidiLearnMode && isSelected ? 'ring-2 ring-cyan-400 ring-dashed' : ''}
                 ${isMidiLearnMode && !isSelected ? 'border-dashed border-cyan-800 opacity-80' : ''}
             `}
             style={{
-                borderColor: isPlaying ? (clip.customColor || '#22c55e') : undefined
+                borderColor: clip.isMissing ? undefined : (isPlaying ? (clip.customColor || '#22c55e') : undefined)
             }}
         >
             {/* Progress Bar Background */}
@@ -109,6 +112,14 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                     backgroundColor: clip.customColor || '#ffffff'
                 }}
             />
+
+            {/* Missing File Banner (v0.14.2) */}
+            {clip.isMissing && (
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-red-950/70 pointer-events-none">
+                    <span className="text-red-400 text-lg leading-none">⚠️</span>
+                    <span className="text-red-300 text-[9px] font-bold tracking-widest mt-0.5">FILE MANCANTE</span>
+                </div>
+            )}
 
             {/* Visual Tags Overlay (Top Left) */}
             <div className="relative z-10 flex gap-1 mb-1 flex-wrap">

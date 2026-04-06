@@ -20,6 +20,7 @@ import {
 } from '@dnd-kit/sortable';
 import { useProjectStore } from '../../store/useProjectStore';
 import { useAudioStore } from '../../store/useAudioStore';
+import { debugLog } from '../../store/useDebugStore';
 import { ClipCard } from './ClipCard';
 import { SortableClip } from './SortableClip'; // New component
 import { Upload } from 'lucide-react';
@@ -145,6 +146,22 @@ export const MainGrid: React.FC = () => {
             const newClip = addClip(colId, file);
             if (newClip) {
                 await loadClip(newClip);
+
+                // Auto-Silence Detection per la colonna Pre-Show (v0.13.2)
+                // Dopo il caricamento dei metadati, rileva automaticamente il silenzio
+                // e imposta trimStart/trimEnd senza che l'utente debba farlo manualmente.
+                const col = columns.find(c => c.id === colId);
+                if (col?.type === 'preshow' && window.electron?.detectSilence) {
+                    window.electron.detectSilence(newClip.path).then(result => {
+                        if (result.success && result.data && !result.data.noSilence) {
+                            updateClip(colId, newClip.id, {
+                                trimStart: result.data.trimStart,
+                                trimEnd: result.data.trimEnd
+                            });
+                            debugLog(`AutoSilence [${newClip.name}]: trimStart=${result.data.trimStart}s, trimEnd=${result.data.trimEnd}s`, 'info');
+                        }
+                    }).catch(() => {/* silent fail — non blocca il workflow */});
+                }
             }
         }
     };

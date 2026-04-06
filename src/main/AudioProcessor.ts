@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as mm from 'music-metadata';
 import * as ffmpeg from 'fluent-ffmpeg';
+import { spawn } from 'child_process';
 
 // Fix ESM/CJS interop per questi pacchetti old-school exports
 const ffmpegStatic = require('ffmpeg-static');
@@ -79,6 +80,11 @@ export class AudioProcessor {
             // Una transform stream (rimossa in v0.11.0 poiché si ascolta l'evento data direttamente)
 
             const ffStream = command.pipe();
+            ffStream.on('error', (err: Error) => {
+                console.error('[AudioProcessor] ffStream pipe error:', err);
+                resolve({ success: false, error: err.message });
+            });
+
             ffStream.on('data', (chunk: Buffer) => {
                  // Sicurezza contro Buffer troncati/dispari che lanciano RangeError
                  const limit = chunk.length - (chunk.length % 2);
@@ -112,9 +118,95 @@ export class AudioProcessor {
                 console.log(`[AudioProcessor] Peak Data estratti con successo! Punti: ${reducedPeaks.length}`);
                 resolve({ success: true, data: reducedPeaks });
             });
-            
+
         } catch (error) {
             console.error('[AudioProcessor] Errore fatale waveform:', error);
+            resolve({ success: false, error: String(error) });
+        }
+    });
+  }
+
+  /**
+   * Rileva il silenzio iniziale e finale del file audio tramite FFmpeg silencedetect.
+   * Viene eseguito nel main process (Node.js) per evitare OOM nel renderer su file grandi.
+   * Ritorna trimStart e trimEnd in secondi.
+   */
+  static async detectSilence(filePath: string): Promise<any> {
+    return new Promise((resolve) => {
+        try {
+            if (!fs.existsSync(filePath)) {
+                return resolve({ success: false, error: 'File non trovato' });
+            }
+
+            console.log(`[AudioProcessor] Silence detection per: ${filePath}`);
+
+            const args = [
+                '-i', filePath,
+                '-af', 'silencedetect=noise=-40dB:d=0.1',
+                '-f', 'null', '-'
+            ];
+
+            const proc = spawn(safeFfmpegPath, args);
+            let stderrData = '';
+
+            proc.stderr.on('data', (chunk: Buffer) => {
+                stderrData += chunk.toString();
+            });
+
+            proc.on('error', (err: Error) => {
+                console.error('[AudioProcessor] detectSilence spawn error:', err);
+                resolve({ success: false, error: err.message });
+            });
+
+            proc.on('close', () => {
+                try {
+                    const durMatch = stderrData.match(/Duration:\s*(\d+):(\d+):([\d.]+)/);
+                    const duration = durMatch
+                        ? parseInt(durMatch[1]) * 3600 + parseInt(durMatch[2]) * 60 + parseFloat(durMatch[3])
+                        : 0;
+
+                    const silenceEnds: number[] = [];
+                    const silenceStarts: number[] = [];
+
+                    for (const line of stderrData.split('\n')) {
+                        const endMatch = line.match(/silence_end:\s*([\d.e+\-]+)/);
+                        if (endMatch) silenceEnds.push(parseFloat(endMatch[1]));
+                        const startMatch = line.match(/silence_start:\s*([\d.e+\-]+)/);
+                        if (startMatch) silenceStarts.push(parseFloat(startMatch[1]));
+                    }
+
+                    const margin = 0.1;
+                    let trimStart = 0;
+                    let trimEnd = 0;
+
+                    // Silenzio iniziale: il file comincia con silenzio
+                    if (silenceEnds.length > 0 && silenceEnds[0] < duration * 0.5) {
+                        trimStart = parseFloat(Math.max(0, silenceEnds[0] - margin).toFixed(3));
+                    }
+
+                    // Silenzio finale: il file termina con silenzio
+                    if (silenceStarts.length > 0 && silenceStarts[silenceStarts.length - 1] > duration * 0.5) {
+                        trimEnd = parseFloat(Math.max(0, duration - silenceStarts[silenceStarts.length - 1] - margin).toFixed(3));
+                    }
+
+                    if (trimStart === 0 && trimEnd === 0) {
+                        return resolve({ success: true, data: { trimStart: 0, trimEnd: 0, noSilence: true } });
+                    }
+
+                    if (duration > 0 && duration - trimEnd <= trimStart + 0.1) {
+                        return resolve({ success: false, error: 'Il file sembra essere tutto silenzio o il volume è troppo basso.' });
+                    }
+
+                    console.log(`[AudioProcessor] Silence OK: trimStart=${trimStart}, trimEnd=${trimEnd}, dur=${duration.toFixed(2)}`);
+                    resolve({ success: true, data: { trimStart, trimEnd } });
+                } catch (parseErr) {
+                    console.error('[AudioProcessor] Parse error silence:', parseErr);
+                    resolve({ success: false, error: String(parseErr) });
+                }
+            });
+
+        } catch (error) {
+            console.error('[AudioProcessor] detectSilence error:', error);
             resolve({ success: false, error: String(error) });
         }
     });
