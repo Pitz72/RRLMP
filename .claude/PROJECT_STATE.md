@@ -1,134 +1,176 @@
-# RRLMP — Claude Project State
-**Ultimo aggiornamento**: 2026-04-06
-**Versione corrente**: 0.13.2
-**Branch attivo**: `claude/musing-lumiere` (worktree in `.claude/worktrees/musing-lumiere/`)
+# RRLMP — Stato Progetto per Sessioni Claude
+
+**Aggiornato**: 2026-04-07
+**Versione corrente**: 0.14.2
+**Build verificata**: ✅ `builds/v0.14.2/Runtime Live Machine Setup 0.14.2.exe`
+**Branch attivo**: `master` (merge worktree completato)
 
 ---
 
 ## Struttura Repository
 
+- **Repo principale**: `C:\Users\Utente\Documents\GitHub\RRLMP\`
+- **Branch attivo**: `master`
+- **Build output**: `builds/v{version}/` nel repo principale
+- **Worktree Claude**: `.claude/worktrees/` (in .gitignore — non committare)
+
+## Stack Tecnologico
+
+- **Electron** 28.3.3 + **React** + **TypeScript**
+- **Vite** 5 (renderer) + **tsc** (main/preload)
+- **Zustand** (state management: useAudioStore, useProjectStore, useSettingsStore, useDebugStore)
+- **electron-builder** → NSIS installer Windows
+- **FFmpeg/FFprobe** (ASAR unpack, main process)
+- **Tailwind CSS** (UI)
+- **react-i18next** (IT/EN)
+
+## Architettura Principale (Main-Side-Heavy)
+
+- **Main process**: FFmpeg, fs, metadata, silence detection, IPC handlers
+- **Renderer (Chromium)**: UI pura, Zustand stores, Web Audio API
+- **Preload** (`contextBridge`): ponte sicuro IPC main ↔ renderer
+- **Engine**: `StreamPlayer` (streaming via `media://`), `AudioContextManager`, `MidiManager`
+
+## IPC API Disponibili
+
+| Canale IPC | Funzione Preload | Descrizione |
+|------------|-----------------|-------------|
+| `get-audio-metadata` | `getAudioMetadata` | Estrae metadata (music-metadata) |
+| `get-waveform-data` | `getWaveformData` | Genera dati waveform (FFmpeg) |
+| `detect-silence` | `detectSilence` | Rileva silenzio start/end (FFmpeg) |
+| `check-files-exist` | `checkFilesExist` | Verifica esistenza file — v0.14.2 |
+| `dialog:save-project` | `saveProject` | Salva .lmp con dialog |
+| `save-project-direct` | `saveProjectDirect` | Salva .lmp su path noto |
+| `save-project-silent` | `saveProjectSilent` | Auto-backup silenzioso |
+| `dialog:load-project` | `loadProject` | Apre .lmp con dialog |
+| `export-project` | `exportProject` | Esporta progetto self-contained |
+| `show-close-dialog` | `showCloseDialog` | Dialog chiusura (IT hardcoded) |
+| `show-close-dialog-i18n` | `showCloseDialogI18n` | Dialog chiusura (label localizzate) |
+| `force-close` | `forceClose` | Chiude finestra forzato |
+
+## Feature Implementate (Complete)
+
+### Engine Audio
+- ✅ Main-Side-Heavy Architecture (v0.11.0)
+- ✅ Streaming media:// protocol (v0.11.0)
+- ✅ Transizioni Pre-Show: Gapless / Segue / Crossfade per-clip (v0.13.2)
+- ✅ Auto-Silence Detection al Drop in PRE-SHOW (v0.13.2)
+- ✅ Ducking Sidechain dinamico (duckingFactor / duckingDuration)
+- ✅ Output Device Hot-Switch
+
+### UI & Workflow
+- ✅ Waveform Editor con 4 handle drag interattivi (v0.14.1)
+  - Trim Start/End (rosso), Intro Marker (cyan), Outro Marker (arancione)
+  - Anti-stale closure via `useRef` inline update in render body
+  - Drag globale `document.addEventListener`, outer/inner container split
+  - Playhead visivo (linea bianca al `currentTime`), legenda, ruler
+- ✅ LMP Integrity Check (v0.14.2)
+  - IPC `check-files-exist` → `fs.existsSync` su tutti i path
+  - `runIntegrityCheck(): Promise<number>` in `useProjectStore`
+  - `loadProject()` resetta `isMissing: false` su tutte le clip
+  - `ClipCard`: overlay ⚠️ "FILE MANCANTE", sfondo rosso, cursor-not-allowed
+  - Doppia protezione: `handleClick` + `useAudioStore.playClip` guard
+  - `isMissing` è **runtime only**, non serializzato nel .lmp
+- ✅ Real-Time Board Cues: INTRO countdown, OUTRO pre-cue + 🚨 OUTRO alert
+- ✅ MIDI Learn Mode + binding note/CC + KeymappingModal
+- ✅ Keybind per clip (es. "KeyQ", "Numpad1")
+- ✅ Save/Load .lmp + Auto-Backup ogni 5 minuti
+- ✅ Export Progetto Self-Contained (progress modal via IPC event)
+- ✅ Internazionalizzazione i18n (IT/EN, react-i18next)
+- ✅ VU Meter, Digital Clock, Welcome Screen
+- ✅ Drag & Drop clip tra colonne + multi-selezione (Ctrl+Click)
+
+### Colonne Default (5 fisse)
+| ID | Tipo | Colore | Default NextAction |
+|----|------|--------|-------------------|
+| col-assets | asset | #10B981 Emerald | stop |
+| col-music | music | #EF4444 Red | stop |
+| col-voice | voice | #F97316 Orange | stop |
+| col-sfx | sfx | #64748B Slate | stop |
+| col-preshow | preshow | #8B5CF6 Violet | play_next |
+
+## Formato File .lmp
+
+```json
+{
+  "version": "0.14.2",
+  "timestamp": "ISO8601",
+  "project": {
+    "columns": [ /* Column[] */ ]
+  }
+}
 ```
-C:\Users\Utente\Documents\GitHub\RRLMP\
-├── .claude\
-│   ├── PROJECT_STATE.md        ← questo file
-│   ├── launch.json             ← Vite renderer config (port 5173)
-│   └── worktrees\musing-lumiere\  ← working copy attivo (git worktree)
-├── builds\
-│   └── v0.14.0\               ← exe già compilato (hotfix OOM)
-├── docs\changelogs\current\   ← changelog per versione
-└── src\                       ← source (mirror nel worktree)
+
+**Nota**: `isMissing` NON viene salvato nel .lmp (flag runtime volatile).
+
+## Debito Tecnico Aperto
+
+| Priorità | Item |
+|----------|------|
+| 🟡 Media | Testi hardcoded IT in ClipSettingsModal, GeneralSettingsModal |
+| 🟡 Media | Feedback visivo Auto-Silence in background (spinner sulla clip) |
+| 🟢 Bassa | `crossfadeDuration` usato anche per segue (nome impreciso) |
+| 🟢 Bassa | `alert()` come error handling → sostituire con toast non-blocking |
+| 🟢 Bassa | Error Boundaries React (prevenire white screen da eccezioni) |
+
+## Errori TS Pre-Esistenti (non impattano build)
+- `DebugOverlay.tsx`: import inutilizzati (TS6133)
+- `BufferPlayer.ts`: classe non implementa completamente IAudioPlayer (TS2420)
+
+## Feature Essenziali Ancora Mancanti (VISION.md §4)
+
+| # | Feature | Priorità | Effort stimato |
+|---|---------|----------|----------------|
+| ~~4.1~~ | ~~LMP Integrity Check~~ | ✅ v0.14.2 | — |
+| 4.2 | Hotkey Globale Emergency Stop (Escape globale → stopAll) | 🔴 CRITICO | 1h |
+| 4.3 | Coda Playlist Visiva (Next-Up badge PRE-SHOW) | 🟠 ALTA | 2h |
+| 4.4 | Timer On Air / Elapsed (cronometro in onda) | 🟠 ALTA | 3h |
+| 4.5 | Note/Script per clip (textarea nel settings) | 🟠 ALTA | 1 giorno |
+| 4.6 | Waveform Zoom orizzontale | 🟡 MEDIA | 3 giorni |
+| 4.7 | Pannello Keymapping Centralizzato | 🟡 MEDIA | 3 giorni |
+| 4.8 | Playlist Import M3U | 🟡 MEDIA | 2 giorni |
+| 4.9 | Column Color Picker | 🟢 BASSA | 2h |
+| 4.10 | Volume Master Fisico (MIDI CC fader lineare 0-127) | 🟢 BASSA | 2h |
+
+## Sequencer Transizioni — Logica
+
+```
+preshowTransitionType (settings, global default)
+clip.transitionType (override per-clip, se presente)
+
+onPreEnd  → avvia next clip se segue/crossfade e NO outro marker
+onOutroReached → avvia next clip (rispetta tipo transizione)
+onEnded → stopClip + eventuale loop
 ```
 
----
+## Comandi Build (da eseguire nel repo principale o worktree)
 
-## Architettura Applicazione
+```bash
+npm run build:main      # tsc -p tsconfig.main.json
+npm run build:preload   # tsc -p tsconfig.preload.json
+npx vite build          # renderer → out/renderer/
+npx electron-builder    # → builds/v{version}/Runtime Live Machine Setup {version}.exe
+# Poi copiare l'exe in C:\Users\Utente\Documents\GitHub\RRLMP\builds\v{version}\
+```
 
-**RRLMP** è un'app Electron + React + TypeScript per radio automation (broadcast audio).
+## Git Log Recente (master)
 
-### Pattern fondamentale: Main-Side-Heavy
-- **Main process** (Node.js): tutto il processing audio pesante — FFmpeg, metadata, waveform
-- **Renderer** (Chromium): solo UI React. Mai operazioni CPU/memoria intensive
-- **IPC**: `ipcMain.handle` / `ipcRenderer.invoke` via `preload/index.ts`
+```
+ea2cb1c chore: aggiungi .claude/worktrees/ a .gitignore
+4a243ef merge: integra branch claude/musing-lumiere in master (v0.13.2 → v0.14.2)
+8d29a6f chore: committa modifiche pre-sessione non salvate (v0.13.x work in progress)
+69f0789 feat: implement ClipCard component with real-time playback and marker feedback logic
+26f4ad2 chore: remove unused file from codebase
+```
 
-### File chiave
+## Prossime Sessioni — Suggerimenti Ordine Lavori
 
-| File | Ruolo |
-|------|-------|
-| `src/main/AudioProcessor.ts` | FFmpeg, metadata, waveform, detectSilence |
-| `src/main/index.ts` | IPC handlers, custom media:// protocol |
-| `src/preload/index.ts` | contextBridge — espone API a renderer |
-| `src/renderer/src/store/useAudioStore.ts` | Engine audio: playClip, stopClip, crossfade |
-| `src/renderer/src/store/useSettingsStore.ts` | Settings persistiti in localStorage |
-| `src/renderer/src/store/useProjectStore.ts` | State board, colonne, clip |
-| `src/renderer/src/types/index.ts` | Tutti i tipi TypeScript |
-| `src/renderer/src/components/layout/MainGrid.tsx` | Board principale, drag&drop |
-| `src/renderer/src/components/modals/ClipSettingsModal.tsx` | Impostazioni per-clip |
-| `src/renderer/src/components/modals/GeneralSettingsModal.tsx` | Impostazioni globali |
-
-### Custom Protocol
-`media://` — serve file audio locali con Range Request support.
-**CRITICO Windows**: il path deve avere tre slash: `media:///C:/path/to/file.mp3`
+1. **4.2 Emergency Stop hotkey** — `globalShortcut.register('Escape', stopAll)` nel main (1h, massimo impatto broadcast)
+2. **Toast system** — sostituire `alert()` con notifiche non-bloccanti (4h, prerequisito per UX professionale)
+3. **4.3 Next-Up badge** — indicatore visivo prossima clip PRE-SHOW (2h)
+4. **4.4 Timer On Air** — cronometro elapsed in diretta (3h)
+5. **Feedback Auto-Silence** — spinner/badge durante detection FFmpeg in background (1h)
 
 ---
 
-## Stato Funzionalità (v0.13.2)
-
-### ✅ Implementate e verificate
-
-#### Silence Detection (Fix critico)
-- **Manual Auto-Trim** (Clip Settings): `window.electron.detectSilence(path)` → IPC → `AudioProcessor.detectSilence()` → FFmpeg silencedetect
-- **Auto-Silence on Drop** (PRE-SHOW): dopo `loadClip()`, chiama `detectSilence` in background (non-bloccante), aggiorna `trimStart`/`trimEnd`
-- **IPC channel**: `detect-silence`
-- **Fix OOM**: prima era tutto in renderer (arrayBuffer + decodeAudioData) → crash su file grandi
-
-#### Transition System
-- **Tipi**: `gapless` (default) | `segue` (old fades, new at full) | `crossfade` (overlap bilanciato)
-- **Default globale**: `preshowTransitionType` + `crossfadeDuration` in `useSettingsStore` (localStorage: `rrlmp-settings`)
-- **Override per-clip**: `transitionType?: TransitionType` su `AudioClip`
-- **Engine**: `transitioningClips: Set<string>` (module-level) + `pendingCrossfadeFadeIn: number | null`
-- **Helper**: `applyTransitionAndPlayNext(clipId)` in `useAudioStore`
-- **UI globale**: "Pre-Show Transition" section in `GeneralSettingsModal`
-- **UI per-clip**: selettore 4 bottoni in `ClipSettingsModal` tab "General Settings"
-
-#### StreamPlayer
-- HTML5 `<audio>` + Web Audio API GainNode
-- `fadeTo(targetVolume, durationMs)`: rampa lineare
-- `updateSettings(clip)`: aggiorna fadeIn/fadeOut/markers
-- `onPreEnd` callback: triggera transizione verso prossima clip
-
-#### Ducking
-- `duckingFactor` (0-1, default 0.2) + `duckingDuration` (ms, default 500)
-- Gestito da Mixing Intelligence in `useAudioStore`
-
-#### Output Device
-- Selezione scheda audio via `AudioContext.setSinkId()` / `HTMLMediaElement.setSinkId()`
-- Hot switch (applicato immediatamente)
-
----
-
-## Cose da NON dimenticare
-
-### Errori comuni già incontrati
-
-1. **electron-builder "Cannot compute electron version"**
-   → Non usare `"^28.1.0"` (caret). Pinnare versione esatta: `"28.3.3"`
-
-2. **Build in worktree ≠ build in repo principale**
-   → Dopo `npm run build`, copiare manualmente `builds/vX.X.X/` in `C:\Users\Utente\Documents\GitHub\RRLMP\builds\`
-
-3. **Triple slash su Windows per media://**
-   → `media:///C:/...` non `media://C:/...`
-
-4. **OOM in renderer**
-   → MAI `response.arrayBuffer()` + `decodeAudioData()` nel renderer su file grandi. Sempre su main.
-
-5. **ffStream senza error handler**
-   → Aggiungere sempre `.on('error', ...)` ai stream FFmpeg o crashano silenziosamente il main process
-
-### Sessioni LLM precedenti
-
-- **Gemini** ha scritto v0.13.0 (poi crashato/persa) → recuperata da `C:\Users\Utente\.gemini\antigravity\brain\c029653b-2875-414d-898c-86cbc692dacc\walkthrough.md.resolved`
-- Reintegrata come v0.13.2 in questa sessione Claude
-
----
-
-## Versioning History (riassunto)
-
-| Versione | Contenuto chiave |
-|----------|-----------------|
-| 0.10.0–0.10.3 | Engine audio base, StreamPlayer, IPC architecture |
-| 0.11.0 | Waveform editor, marker IN/OUT, ducking |
-| 0.12.0–0.12.1 | Stability, project save/load (.lmp), ClipCard refactor |
-| 0.13.0 | **PERSA** (sessione Gemini crashata) |
-| 0.13.2 | Reintegra v0.13.0: Auto-Silence on Drop + Transition System + Fix OOM |
-| 0.14.0 | Hotfix OOM (poi rientrato in 0.13.2, numero riservato) |
-
----
-
-## Prossimi Step Suggeriti
-
-- [ ] Audit completo changelog 0.10.0→0.13.2 vs codice effettivo (verifica feature claims)
-- [ ] Build exe v0.13.2
-- [ ] Test manuale: crossfade tra 2 clip PRE-SHOW con audio reale
-- [ ] Test: auto-silence on drop su file .wav con silenzio iniziale lungo
-- [ ] Considerare: UI feedback visivo durante auto-silence in background (spinner/badge)
+*Documento aggiornato il 2026-04-07 — fine sessione v0.14.2.*
