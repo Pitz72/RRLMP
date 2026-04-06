@@ -8,8 +8,9 @@ Benvenuto nel centro documentazione di **Runtime Radio Live Machine Pro**. Quest
 
 In questa sezione sono raccolti i documenti necessari per comprendere il funzionamento interno del software e la sua evoluzione.
 
-- **[Architettura di Progetto](./ARCHITECTURE.md)**: Linee guida, modello dei processi (Main/Renderer) e strategia di stabilità audio.
-- **[Roadmap & Issue Backlog](./ROADMAP.md)**: Stato attuale dello sviluppo, criticità aperte e funzionalità pianificate per le prossime versioni.
+- **[Architettura di Progetto](./ARCHITECTURE.md)**: Linee guida, modello dei processi (Main/Renderer), strategia audio, IPC API, tipi e standard di sviluppo. *(Aggiornato a v0.13.2)*
+- **[Roadmap & Issue Backlog](./ROADMAP.md)**: Stato attuale dello sviluppo, criticità aperte e funzionalità pianificate. *(Aggiornato a v0.13.2)*
+- **[Visione Tecnica & Analisi Gap](./VISION.md)**: Analisi completa doc vs codice, debito tecnico, funzionalità da migliorare e funzionalità essenziali mancanti per il perfezionamento broadcast. *(Nuovo — v0.13.2)*
 - **Changelog (Storico Versioni)**:
   - **[Release Correnti (v0.10.x+)](./changelogs/current/)**: Dettagli sulle ultime versioni e hotfix.
   - **[Archivio Storico](./changelogs/archive/)**: Tutti i cambiamenti dalle versioni 0.0.1 in poi.
