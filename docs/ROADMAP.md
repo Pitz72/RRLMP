@@ -1,6 +1,6 @@
 # RRLMP — Roadmap & Issue Backlog
 
-Versione corrente: **0.13.2**
+Versione corrente: **0.14.2**
 Ultimo aggiornamento: 2026-04-06
 
 ---
@@ -55,7 +55,7 @@ Ultimo aggiornamento: 2026-04-06
 - [✅] **Ducking Sidechain Dinamico**: Volume reduction automatico (duckingFactor / duckingDuration configurabili). ✅ (archivio)
 - [ ] **Layout Regia 5.0**: Espansione / customizzazione griglia (colonne configurabili, rinomina colonne).
 - [ ] **Pannello Keymapping Centralizzato**: Gestione MIDI e Keyboard Bind in un pannello dedicato, separato dalle impostazioni singola clip.
-- [ ] **LMP Integrity Check**: Diagnostica all'apertura progetto per rilevare file mancanti (Clip Rosse), con opzione re-link.
+- [✅] **LMP Integrity Check**: Check automatico all'apertura progetto. Clip mancanti → rosse + ⚠️ + playback bloccato. ✅ v0.14.2
 - [ ] **Feedback Visivo Auto-Silence in Background**: Spinner / badge "analisi in corso" sulla clip durante il processo di silence detection automatico.
 
 ### 🛡️ Stabilità e Manutenibilità
@@ -85,9 +85,9 @@ Ultimo aggiornamento: 2026-04-06
 | Gravità / Tipo | Risolti | Totali | Stato |
 | --- | --- | --- | --- |
 | 🔴 Criticità (Tutte) | 4 | 4 | **100%** ✅ |
-| 🚀 Nuove Feature Core | 12 | 17 | **71%** 🚀 |
+| 🚀 Nuove Feature Core | 13 | 17 | **76%** 🚀 |
 | 🔧 Debito Tecnico | 2 | 6 | **33%** 🔧 |
-| **TOTALE PROGETTO** | **19** | **27** | **70% COMPLETATO** |
+| **TOTALE PROGETTO** | **20** | **27** | **74% COMPLETATO** |
 
 ---
 
@@ -115,6 +115,7 @@ Ultimo aggiornamento: 2026-04-06
 - **VU Meter** ✅ (archivio)
 - **Digital Clock** ✅ (archivio)
 - **Welcome Screen** ✅ (archivio)
+- **LMP Integrity Check (IPC check-files-exist + ClipCard visual state)** ✅ v0.14.2
 
 ### Stabilità
 - **CSP & White Screen Startup Fix** ✅ v0.10.3
@@ -123,4 +124,4 @@ Ultimo aggiornamento: 2026-04-06
 - **Electron pinned version (builder fix)** ✅ v0.13.2
 
 ---
-*Documento aggiornato il 2026-04-06 — versione 0.13.2.*
+*Documento aggiornato il 2026-04-06 — versione 0.14.2.*

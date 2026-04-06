@@ -22,7 +22,8 @@ if (process.contextIsolated) {
             getAudioMetadata: (filePath: string) => ipcRenderer.invoke('get-audio-metadata', filePath),
             getWaveformData: (filePath: string) => ipcRenderer.invoke('get-waveform-data', filePath),
             detectSilence: (filePath: string) => ipcRenderer.invoke('detect-silence', filePath),
-            
+            checkFilesExist: (paths: string[]) => ipcRenderer.invoke('check-files-exist', paths),
+
             // Persistence APIs
             saveProject: (content: string) => ipcRenderer.invoke('dialog:save-project', content),
             loadProject: () => ipcRenderer.invoke('dialog:load-project'),

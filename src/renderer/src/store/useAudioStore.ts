@@ -193,6 +193,12 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             const freshClip = columns.flatMap(col => col.clips).find(c => c.id === clipArg.id) || clipArg;
             const columnId = getColumnForClip(freshClip.id);
 
+            // Integrity Guard (v0.14.2): blocca playback per file mancanti
+            if (freshClip.isMissing) {
+                debugLog(`AudioStore: PlayClip bloccato — file mancante: ${freshClip.path}`, 'warn');
+                return;
+            }
+
             debugLog(`AudioStore: PlayClip ${freshClip.name} (Next: ${freshClip.nextAction}, Behavior: ${freshClip.behavior})`, 'event');
 
             // PRE-SHOW LOGIC: Stop Pre-Show if starting Show Assets

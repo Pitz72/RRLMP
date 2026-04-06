@@ -21,7 +21,7 @@ import MidiManager from '../../engine/MidiManager';
 export const GlobalControls = () => {
     const { t } = useTranslation();
     const { stopAll } = useAudioStore();
-    const { columns, isDirty, setDirty, loadProject, resetProject, currentFilePath, isMidiLearnMode, setIsMidiLearnMode } = useProjectStore();
+    const { columns, isDirty, setDirty, loadProject, resetProject, currentFilePath, isMidiLearnMode, setIsMidiLearnMode, runIntegrityCheck } = useProjectStore();
     const { globalMidiBinds, setGlobalMidiBind } = useSettingsStore();
 
     const [volume, setVolume] = useState(1.0);
@@ -331,6 +331,12 @@ export const GlobalControls = () => {
                                     loadProject(parsed.project, result.filePath);
                                     stopAll();
                                     setDirty(false);
+                                    // Integrity check (v0.14.2): verifica file su disco dopo il caricamento
+                                    runIntegrityCheck().then(missing => {
+                                        if (missing > 0) {
+                                            console.warn(`[Integrity] ${missing} file mancante/i nel progetto caricato.`);
+                                        }
+                                    });
                                 } else {
                                     alert('File LMP non valido o corrotto.');
                                 }

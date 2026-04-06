@@ -1,5 +1,5 @@
 # RRLMP — Documento di Visione Tecnica
-**Versione**: 0.14.1 | **Data**: 2026-04-07
+**Versione**: 0.14.2 | **Data**: 2026-04-06
 
 Questo documento sintetizza lo **stato reale del software** confrontato con la documentazione di progetto, identifica le aree di miglioramento prioritarie, e propone le funzionalità essenziali per il perfezionamento del software broadcast.
 
@@ -70,10 +70,8 @@ Questo documento sintetizza lo **stato reale del software** confrontato con la d
 ~~**Marker Drag & Drop Interattivi**~~
 > ✅ **Implementato in v0.14.1** — 4 handle trascinabili (Trim Start, Trim End, Intro, Outro) con drag globale document-level, anti-stale closure via ref, constraint logic, playhead visivo e legenda. Vedi `WaveformEditor.tsx`.
 
-**LMP Integrity Check**
-- *Promesso*: Diagnostica all'apertura progetto per file mancanti (Clip Rosse)
-- *Attuale*: Se un file è stato spostato/rinominato, la clip è silenziosa senza feedback
-- *Impatto*: Potenzialmente catastrofico in broadcast (clip muta in onda)
+~~**LMP Integrity Check**~~
+> ✅ **Implementato in v0.14.2** — Check automatico all'apertura progetto via IPC `check-files-exist`. Clip rosse con overlay ⚠️, playback bloccato. Vedi changelog 0.14.2.
 - *Complessità*: Bassa — controllo `fs.existsSync` per ogni path all'apertura del .lmp
 
 #### 🟡 Priorità Media
@@ -154,20 +152,9 @@ Questo documento sintetizza lo **stato reale del software** confrontato con la d
 
 ## 4. FUNZIONALITÀ ESSENZIALI MANCANTI (per perfezionamento broadcast)
 
-### 4.1 🔴 CRITICO — Clip Integrity Check
+### ~~4.1 🔴 CRITICO — Clip Integrity Check~~
 
-**Perché è essenziale**: In radio il progetto viene preparato il giorno prima e eseguito in onda il giorno dopo. Se nel mezzo qualcuno rinomina una cartella, le clip diventano mute. Non c'è nessun alert.
-
-**Implementazione**:
-```
-Al loadProject():
-  per ogni clip in ogni colonna:
-    if (!fs.existsSync(clip.path)):
-      marca clip con { isMissing: true }
-
-ClipCard: se isMissing → sfondo rosso, icona ⚠️, testo "FILE MANCANTE"
-Al play di clip mancante → toast error invece di silenziosa
-```
+> ✅ **Implementato in v0.14.2** — IPC `check-files-exist`, `runIntegrityCheck()` nello store, ClipCard con overlay ⚠️ "FILE MANCANTE" e sfondo rosso, guard doppio in `handleClick` + `playClip()`. Vedi `docs/changelogs/current/0.14.2.md`.
 
 ### 4.2 🔴 CRITICO — Hotkey Globale Emergency Stop
 
@@ -227,7 +214,7 @@ Al play di clip mancante → toast error invece di silenziosa
 
 | # | Feature | Effort | Impatto |
 |---|---------|--------|---------|
-| A1 | **LMP Integrity Check** (clip mancanti → rosse) | 2h | 🔴 Critico in broadcast |
+| ~~A1~~ | ~~**LMP Integrity Check** (clip mancanti → rosse)~~ | ~~2h~~ | ✅ Completato v0.14.2 |
 | A2 | **Toast notification system** (sostituisce alert) | 4h | 🔴 Standard professionale |
 | A3 | **Feedback Auto-Silence** (spinner sulla clip) | 1h | 🟠 UX trasparente |
 | A4 | **Global Emergency Stop hotkey** (Escape globale) | 1h | 🔴 Broadcast safety |
@@ -275,4 +262,4 @@ Per uso broadcast professionale ad alta criticità, il sistema attuale è adegua
 
 ---
 
-*Documento aggiornato il 2026-04-07 — allineato a v0.14.1 (Waveform Editor Drag & Drop Interattivo).*
+*Documento aggiornato il 2026-04-06 — allineato a v0.14.2 (LMP Integrity Check).*

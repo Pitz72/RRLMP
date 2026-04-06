@@ -1,6 +1,6 @@
 {
     "name": "runtime-live-machine",
-    "version": "0.14.1",
+    "version": "0.14.2",
     "description": "Professional Broadcast Audio Architecture",
     "main": "out/main/index.js",
     "scripts": {

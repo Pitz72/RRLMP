@@ -17,6 +17,7 @@ declare global {
             getAudioMetadata: (filePath: string) => Promise<{success: boolean, data?: any, error?: string}>;
             getWaveformData: (filePath: string) => Promise<{success: boolean, data?: any, error?: string}>;
             detectSilence: (filePath: string) => Promise<{success: boolean, data?: {trimStart: number, trimEnd: number, noSilence?: boolean}, error?: string}>;
+            checkFilesExist: (paths: string[]) => Promise<{ missing: string[] }>;
             saveProject: (content: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
             loadProject: () => Promise<{ success: boolean; data?: string; filePath?: string; error?: string }>;
             exportProject: (projectJsonString: string) => Promise<{ success: boolean; path?: string; stats?: { copied: number; skipped: number }; error?: string }>;
@@ -113,6 +114,10 @@ export interface AudioClip {
     // Transizione sequencer (v0.13.2)
     /** Override del tipo di transizione per questa clip. Se assente, usa il default globale. */
     transitionType?: TransitionType;
+
+    // Integrity (v0.14.2) — runtime only, non persistito nel .lmp
+    /** True se il file non esiste su disco al momento del caricamento progetto. */
+    isMissing?: boolean;
 }
 
 
