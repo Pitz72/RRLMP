@@ -2,6 +2,7 @@ export type MidiMessageCallback = (note: number, velocity: number, command: numb
 export type MidiStatusCallback = (supported: boolean, inputCount: number) => void;
 
 // Local interface to avoid 'any' and handle missing @types/webmidi
+// We use a safe cast below to access WebMidi API without polluting Navigator
 interface MidiEvent extends Event {
     data: Uint8Array;
 }
@@ -26,7 +27,8 @@ class MidiManager {
     private _inputCount = 0;
 
     private constructor() {
-        if ((navigator as any).requestMIDIAccess) {
+        const nav = navigator as unknown as { requestMIDIAccess?: () => Promise<any> };
+        if (nav.requestMIDIAccess) {
             this.init();
         } else {
             // M2 Fix: segnala anche visualmente che MIDI non è disponibile
@@ -44,7 +46,8 @@ class MidiManager {
 
     private async init() {
         try {
-            this.access = await (navigator as any).requestMIDIAccess();
+            const nav = navigator as unknown as { requestMIDIAccess?: () => Promise<any> };
+            this.access = await nav.requestMIDIAccess!();
             if (this.access) {
                 // Listen to existing inputs
                 this.access.inputs.forEach((input: MidiPort) => {

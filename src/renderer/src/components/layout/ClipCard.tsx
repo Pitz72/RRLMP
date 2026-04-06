@@ -87,9 +87,11 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
             onClick={handleClick}
             onContextMenu={handleContextMenu}
             className={`p-2 rounded border cursor-pointer transition-all group relative overflow-hidden select-none
-                ${isPlaying
-                    ? 'bg-zinc-800 shadow-[0_0_15px_rgba(0,0,0,0.5)]'
-                    : 'bg-zinc-900 border-zinc-800 hover:border-zinc-600'
+                ${clip.isMissing 
+                    ? 'bg-red-950/30 border-l-4 border-l-red-600 border-t-red-900 border-r-red-900 border-b-red-900'
+                    : isPlaying
+                        ? 'bg-zinc-800 shadow-[0_0_15px_rgba(0,0,0,0.5)]'
+                        : 'bg-zinc-900 border-zinc-800 hover:border-zinc-600'
                 }
                 ${isSelected ? 'ring-2 ring-blue-500 z-10' : ''}
                 ${isMidiLearnMode && isSelected ? 'ring-2 ring-cyan-400 ring-dashed' : ''} 
@@ -125,9 +127,9 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                     )}
                     <span
                         className={`font-medium truncate text-sm`}
-                        style={{ color: isPlaying ? (clip.customColor || '#4ade80') : '#e4e4e7' }}
+                        style={{ color: clip.isMissing ? '#ef4444' : (isPlaying ? (clip.customColor || '#4ade80') : '#e4e4e7') }}
                     >
-                        {clip.name}
+                        {clip.isMissing ? `⚠️ ${clip.name} (File Non Trovato)` : clip.name}
                     </span>
                 </div>
                 <div className="flex items-center gap-1">

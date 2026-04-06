@@ -49,7 +49,7 @@ export class AudioProcessor {
    * Genera i pacchetti Waveform Data (Peak Data) tramite FFmpeg + Audiowaveform proxy
    * o leggendo l'output stdout in stream. Ritorna i dati serializzati pronti al rendering.
    */
-  static async generateWaveformData(filePath: string): Promise<any> {
+  static async generateWaveformData(filePath: string): Promise<{ success: boolean; data?: number[]; error?: string }> {
     return new Promise((resolve) => {
         try {
             console.log(`[AudioProcessor] Generazione Peak Data per: ${filePath}`);
@@ -71,7 +71,7 @@ export class AudioProcessor {
                     '-c:a', 'pcm_s16le',
                     '-f', 's16le'
                 ])
-                .on('error', (err: any) => {
+                .on('error', (err: Error) => {
                     console.error('[AudioProcessor] Waveform Error:', err);
                     resolve({ success: false, error: err.message });
                 });
@@ -105,7 +105,8 @@ export class AudioProcessor {
                     for(let j = 0; j < samplesPerBar && i + j < audioBuffer.length; j++) {
                         if(audioBuffer[i + j] > max) max = audioBuffer[i + j];
                     }
-                    reducedPeaks.push(max);
+                    // Mappiamo e amplifichiamo i picchi (x2.0) per migliorare la visibilità visiva nel mini-editor
+                    reducedPeaks.push(Math.min(max * 2.0, 1.0));
                 }
 
                 console.log(`[AudioProcessor] Peak Data estratti con successo! Punti: ${reducedPeaks.length}`);

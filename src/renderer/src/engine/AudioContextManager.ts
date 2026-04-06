@@ -22,8 +22,8 @@ class AudioContextManager {
     private assetsBus: GainNode;
 
     private constructor() {
-        // GR4: Type safety improvement
-        const AudioContextClass = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext;
+        const WindowContext = window as unknown as { webkitAudioContext: typeof AudioContext };
+        const AudioContextClass = (window.AudioContext || WindowContext.webkitAudioContext) as typeof AudioContext;
         this.context = new AudioContextClass();
 
         // 1. Master Gain (Single source for destination and analysis)
@@ -101,6 +101,19 @@ class AudioContextManager {
     public setMasterVolume(value: number): void {
         const clampedValue = Math.max(0, Math.min(1, value));
         this.masterGain.gain.setTargetAtTime(clampedValue, this.context.currentTime, 0.1);
+    }
+
+    public async setOutputDevice(deviceId: string): Promise<void> {
+        // GR11: La topologia prevede routing tramite Web Audio API, non HTMLAudioElement,
+        // quindi dobbiamo impostare il sinkId sull'intero AudioContext.
+        const ctxExt = this.context as AudioContext & { setSinkId?: (id: string) => Promise<void> };
+        if (typeof ctxExt.setSinkId === 'function') {
+            try {
+                await ctxExt.setSinkId(deviceId);
+            } catch (err) {
+                console.warn(`AudioContext setSinkId failed for ${deviceId}`, err);
+            }
+        }
     }
 }
 

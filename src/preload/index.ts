@@ -56,8 +56,8 @@ if (process.contextIsolated) {
     }
 } else {
     // Fallback for non-isolated environments
-    (window as any).electron = {
-        getFilePath: (file: File) => (file as any).path || '',
+    (window as unknown as { electron: Record<string, unknown> }).electron = {
+        getFilePath: (file: File) => (file as File & { path?: string }).path || '',
         saveProject: async () => ({ success: false, error: 'Not available in non-isolated mode' }),
         loadProject: async () => ({ success: false, error: 'Not available in non-isolated mode' }),
         exportProject: async () => ({ success: false, error: 'Not available in non-isolated mode' }),

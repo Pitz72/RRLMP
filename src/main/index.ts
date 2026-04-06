@@ -168,7 +168,7 @@ ipcMain.handle('dialog:save-project', async (event, content: string) => {
 });
 
 // New: Direct Save (Overwrite)
-ipcMain.handle('save-project-direct', async (_: any, content: string, filePath: string) => {
+ipcMain.handle('save-project-direct', async (_event: Electron.IpcMainInvokeEvent, content: string, filePath: string) => {
     try {
         fs.writeFileSync(filePath, content, 'utf-8');
         return { success: true, filePath };
@@ -190,7 +190,26 @@ ipcMain.handle('dialog:load-project', async (event) => {
 
     try {
         const content = fs.readFileSync(filePaths[0], 'utf-8');
-        return { success: true, data: content, filePath: filePaths[0] };
+        try {
+            const parsed = JSON.parse(content) as any;
+            if (parsed && parsed.project && parsed.project.columns) {
+                // Diagnostica all'apertura del salvataggio: segnaliamo le clip mancanti
+                parsed.project.columns.forEach((col: any) => {
+                    col.clips.forEach((clip: any) => {
+                        let absolutePath = clip.path;
+                        // Resolve if relative or use as is
+                        if (absolutePath && !fs.existsSync(absolutePath)) {
+                            clip.isMissing = true;
+                        } else {
+                            clip.isMissing = false;
+                        }
+                    });
+                });
+            }
+            return { success: true, data: JSON.stringify(parsed), filePath: filePaths[0] };
+        } catch (e) {
+            return { success: true, data: content, filePath: filePaths[0] };
+        }
     } catch (error) {
         console.error('Load failed:', error);
         return { success: false, error: String(error) };
@@ -274,7 +293,7 @@ ipcMain.handle('export-project', async (event, projectJsonString: string) => {
     }
 });
 
-ipcMain.handle('save-project-silent', async (_: any, content: string, filePath?: string) => {
+ipcMain.handle('save-project-silent', async (_event: Electron.IpcMainInvokeEvent, content: string, filePath?: string) => {
     try {
         let targetPath = '';
         if (filePath && fs.existsSync(filePath)) {
@@ -318,13 +337,21 @@ app.whenReady().then(() => {
     protocol.handle('media', (request) => {
         try {
             const requestUrl = request.url;
-            let pathName = requestUrl.replace('media://', '');
+            // G6 Fix: Robust URI parsing for media:// protocol.
+            // Some Chromium versions might normalize media:///C:/ to media://c:/
+            // We strip all leading slashes and protocol prefix.
+            let pathName = requestUrl.replace(/^media:\/\/+/, '');
+            
+            // Handle case where path starts with a single slash (after media://)
             if (pathName.startsWith('/')) {
                 pathName = pathName.slice(1);
             }
 
             let filePath = decodeURIComponent(pathName);
+            
+            // Fix for Windows drive letters and separators
             if (process.platform === 'win32') {
+                // Ensure drive letter (c:) doesn't have a leading slash if manually added
                 filePath = filePath.replace(/\//g, '\\');
             }
 
@@ -362,10 +389,9 @@ app.whenReady().then(() => {
                 const nodeStream = fs.createReadStream(filePath, { start, end, highWaterMark: bufferSize });
                 nodeStream.on('error', (err) => console.error('[Media] ReadStream Range error:', err));
                 
-                // @ts-ignore
-                const webStream = Readable.toWeb(nodeStream);
+                const webStream = Readable.toWeb(nodeStream) as unknown as ReadableStream;
 
-                return new Response(webStream as any, {
+                return new Response(webStream, {
                     status: 206,
                     headers: {
                         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
@@ -379,10 +405,9 @@ app.whenReady().then(() => {
                 const nodeStream = fs.createReadStream(filePath, { highWaterMark: 1024 * 1024 });
                 nodeStream.on('error', (err) => console.error('[Media] ReadStream Full error:', err));
                 
-                // @ts-ignore
-                const webStream = Readable.toWeb(nodeStream);
+                const webStream = Readable.toWeb(nodeStream) as unknown as ReadableStream;
 
-                return new Response(webStream as any, {
+                return new Response(webStream, {
                     status: 200,
                     headers: {
                         'Content-Length': fileSize.toString(),

@@ -13,7 +13,7 @@ interface AudioDevice {
 }
 
 export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
-    const { outputDeviceId, setOutputDeviceId, duckingFactor, duckingDuration, setDuckingSettings } = useSettingsStore();
+    const { outputDeviceId, setOutputDeviceId, duckingFactor, duckingDuration, setDuckingSettings, defaultPreshowTransition, setDefaultPreshowTransition } = useSettingsStore();
     const updateOutputDevice = useAudioStore(s => s.updateOutputDevice);
     const [devices, setDevices] = useState<AudioDevice[]>([]);
 
@@ -109,6 +109,22 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             />
                             <p className="text-[10px] text-zinc-500 italic">
                                 Tempo di transizione del volume. Più è alto, più il mix è "morbido".
+                            </p>
+                        </div>
+                        
+                        <div className="space-y-1 mt-4">
+                            <label className="text-xs text-zinc-400">Default Continuous-Play (Pre-Show)</label>
+                            <select
+                                value={defaultPreshowTransition}
+                                onChange={(e) => setDefaultPreshowTransition(e.target.value as 'crossfade' | 'segue' | 'gapless')}
+                                className="w-full bg-zinc-900 border border-zinc-800 rounded text-xs p-1.5 text-white outline-none focus:border-emerald-500"
+                            >
+                                <option value="crossfade">Crossfade (Sfumatura Incrociata)</option>
+                                <option value="segue">Segue / Cold Start (Subito Pieno, Prec. Sfuma)</option>
+                                <option value="gapless">Gapless (Taglio Netto / No Fade)</option>
+                            </select>
+                            <p className="text-[10px] text-zinc-500 italic">
+                                Transizione automatica quando colonna Preshow passa alla clip successiva.
                             </p>
                         </div>
                     </div>

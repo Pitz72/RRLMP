@@ -12,6 +12,12 @@ export const checkForUpdates = async (currentVersion: string): Promise<UpdateInf
             return { hasUpdate: false, remoteVersion: '' };
         }
 
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            console.warn("Update check failed: Server returned non-JSON response (likely HTML error page)");
+            return { hasUpdate: false, remoteVersion: '' };
+        }
+
         const data = await response.json();
         // Assuming JSON structure: { "rrlmp": { "version": "0.8.2" } } or just { "version": "..." }
         // Adapting to a generic structure for now

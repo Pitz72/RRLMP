@@ -3,6 +3,7 @@ import { AudioClip } from '../../types';
 import { debugLog } from '../../store/useDebugStore';
 import { Wand2, Settings2, Scissors } from 'lucide-react';
 import { WaveformEditor } from '../ui/WaveformEditor';
+import { toFileUrl } from '../../utils/pathUtils';
 
 
 interface ClipSettingsModalProps {
@@ -42,6 +43,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
     const [trimEnd, setTrimEnd] = useState(clip.trimEnd || 0);
     const [introMarker, setIntroMarker] = useState(clip.introMarker || 0);
     const [outroMarker, setOutroMarker] = useState(clip.outroMarker || 0);
+    const [transitionType, setTransitionType] = useState<AudioClip['transitionType']>(clip.transitionType || 'default');
 
     // Reset state when clip changes or modal opens
     useEffect(() => {
@@ -60,6 +62,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             setTrimEnd(clip.trimEnd || 0);
             setIntroMarker(clip.introMarker || 0);
             setOutroMarker(clip.outroMarker || 0);
+            setTransitionType(clip.transitionType || 'default');
             setActiveTab('general'); // Reset tab
         }
     }, [clip, isOpen]);
@@ -82,6 +85,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             trimEnd: Number(trimEnd),
             introMarker: Number(introMarker),
             outroMarker: Number(outroMarker),
+            transitionType,
         };
         debugLog(`Saving Clip: ${clip.name} Intro=${updatedClip.introMarker} Outro=${updatedClip.outroMarker}`, 'info');
         onSave(clip.id, updatedClip);
@@ -98,14 +102,12 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
     const detectSilence = async () => {
         try {
             debugLog('Smart Trim: decoding...', 'info');
-            let fetchPath = clip.path;
-            if (!fetchPath.startsWith('http') && !fetchPath.startsWith('file:')) {
-                fetchPath = `media://${fetchPath}`; // Use our custom protocol
-            }
+            const fetchPath = toFileUrl(clip.path);
 
             const response = await fetch(fetchPath);
             const arrayBuffer = await response.arrayBuffer();
-            const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const WindowContext = window as unknown as { webkitAudioContext: typeof AudioContext };
+            const audioCtx = new (window.AudioContext || WindowContext.webkitAudioContext)();
             const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 
             const rawData = audioBuffer.getChannelData(0);
@@ -328,12 +330,27 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                         <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">Ducking Role</span>
                                         <select
                                             value={duckingRole}
-                                            onChange={(e) => setDuckingRole(e.target.value as any)}
+                                            onChange={(e) => setDuckingRole(e.target.value as 'source' | 'target' | 'none')}
                                             className="bg-zinc-900 border border-zinc-800 rounded text-xs p-1 text-white outline-none focus:border-emerald-500"
                                         >
                                             <option value="none">None</option>
                                             <option value="source">Source (Speaker)</option>
                                             <option value="target">Target (Music)</option>
+                                        </select>
+                                    </label>
+                                    <div className="h-px bg-zinc-900 my-1" />
+
+                                    <label className="flex items-center justify-between cursor-pointer group">
+                                        <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">Transition Type</span>
+                                        <select
+                                            value={transitionType}
+                                            onChange={(e) => setTransitionType(e.target.value as AudioClip['transitionType'])}
+                                            className="bg-zinc-900 border border-zinc-800 rounded text-xs p-1 text-white outline-none focus:border-emerald-500"
+                                        >
+                                            <option value="default">Global Default</option>
+                                            <option value="crossfade">Crossfade (Overlap)</option>
+                                            <option value="segue">Segue (Overlap + Fade)</option>
+                                            <option value="gapless">Gapless (Tail-to-Start)</option>
                                         </select>
                                     </label>
                                 </div>

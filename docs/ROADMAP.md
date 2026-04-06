@@ -1,6 +1,6 @@
 # RRLMP — Roadmap & Issue Backlog
 
-Versione corrente: **0.12.1**
+Versione corrente: **0.13.1**
 Ultimo aggiornamento: 2026-04-06
 
 ---
@@ -41,12 +41,12 @@ Dalle analisi tecniche e dai feedback sulla serie 0.10.x, le prossime tappe sono
 
 - [✅] **Clip Settings Redesign (Tabs)**: Riorganizzare la configurazione clip in schede separate. ✅ v0.10.0
 - [✅] **Precise Trimming & Markers UI**: Mini-editor con Waveform visiva e player locale. ✅ v0.10.0
-- [ ] **Layout Regia 5.0**: Espansione della griglia a 5 colonne.
-- [ ] **Pannello Keymapping**: Gestione centralizzata di Keybind e MIDI Bind.
+- [✅] **Layout Regia 5.0**: Espansione della griglia a 5 colonne. ✅ Completato
+- [✅] **Pannello Keymapping**: Gestione centralizzata di Keybind e MIDI Bind. ✅ v0.12.2
 
 ### 🛡️ Stabilità e Manutenibilità
 
-- [ ] **LMP Integrity Check**: Diagnostica all'apertura del progetto per rilevare file mancanti (Clip Rosse).
+- [✅] **LMP Integrity Check**: Diagnostica all'apertura del progetto per rilevare file mancanti (Clip Rosse).
 
 ---
 
@@ -61,6 +61,13 @@ Dalle analisi tecniche e dai feedback sulla serie 0.10.x, le prossime tappe sono
 ---
 
 ## ✅ Archivio Interventi Completati
+
+- **Fix Protocollo Media & Silence Detection** ✅ v0.13.1
+- **Continuous-Play & Auto-Silence Detection** ✅ v0.13.0
+- **Refactoring TypeScript (GR4)** ✅ v0.13.0
+- **LMP Project Integrity Check** ✅ v0.12.3
+- **Waveform Peak Amplification** ✅ v0.12.3
+- **Pannello Keymapping Centralizzato** ✅ v0.12.2
 
 - **Waveform Editor Integrato** ✅ v0.10.0
 - **Ducking Sidechain Dinamico** ✅ v0.10.0

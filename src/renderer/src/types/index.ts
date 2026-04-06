@@ -6,8 +6,8 @@ declare global {
     interface Window {
         electron: {
             getFilePath: (file: File) => string;
-            getAudioMetadata: (filePath: string) => Promise<{success: boolean, data?: any, error?: string}>;
-            getWaveformData: (filePath: string) => Promise<{success: boolean, data?: any, error?: string}>;
+            getAudioMetadata: (filePath: string) => Promise<{success: boolean, data?: unknown, error?: string}>;
+            getWaveformData: (filePath: string) => Promise<{success: boolean, data?: number[], error?: string}>;
             saveProject: (content: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
             loadProject: () => Promise<{ success: boolean; data?: string; filePath?: string; error?: string }>;
             exportProject: (projectJsonString: string) => Promise<{ success: boolean; path?: string; stats?: { copied: number; skipped: number }; error?: string }>;
@@ -21,7 +21,7 @@ declare global {
             }) => Promise<number>;
             forceClose: () => void;
 
-            onExportProgress: (callback: (event: any, data: { current: number; total: number; filename: string }) => void) => () => void;
+            onExportProgress: (callback: (event: unknown, data: { current: number; total: number; filename: string }) => void) => () => void;
             onCheckCloseIntent: (callback: () => void) => () => void;
         }
 
@@ -100,6 +100,12 @@ export interface AudioClip {
     trimStart?: number; 
     /** Post-play offset (stop seconds before end). Default: 0 */
     trimEnd?: number;   
+    
+    /** LMP Integrity Check: true se il file fisico non esiste su disco all'avvio */
+    isMissing?: boolean;
+
+    /** Continuous-Play: Tipo di transizione in uscita per il preshow/music */
+    transitionType?: 'default' | 'crossfade' | 'segue' | 'gapless';
 }
 
 

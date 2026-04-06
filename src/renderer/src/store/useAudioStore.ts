@@ -6,6 +6,7 @@ import AudioContextManager from '../engine/AudioContextManager';
 import { debugLog } from './useDebugStore';
 import { useProjectStore } from './useProjectStore';
 import { useSettingsStore } from './useSettingsStore';
+import { toFileUrl } from '../utils/pathUtils';
 import * as AUDIO_CONST from '../constants/audioConstants';
 
 interface ActiveClipState {
@@ -247,16 +248,22 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
                 // Sequencer Logic
                 player.onPreEnd((clipId) => {
-                    debugLog(`AudioStore: PreEnd Event for ${freshClip.name}`, 'info');
-                    const currentClip = get().activeClips[clipId]?.clip;
-                    if (!currentClip) return;
+                    // SEGUENCER LOGIC: Determiniamo quando far partire la prossima clip
+                    const transition = (freshClip.transitionType && freshClip.transitionType !== 'default')
+                        ? freshClip.transitionType
+                        : useSettingsStore.getState().defaultPreshowTransition;
 
-                    // If NO outro marker set, fallback to PreEnd for play_next
-                    if ((currentClip.outroMarker || 0) <= 0 && currentClip.nextAction === 'play_next') {
-                        const nextClip = getNextClipInColumn(currentClip.id);
-                        if (nextClip) {
-                            debugLog(`AudioStore: Sequencer Play Next (Fallback to PreEnd) -> ${nextClip.name}`, 'event');
-                            get().playClip(nextClip);
+                    if (freshClip.nextAction === 'play_next') {
+                        // Gapless: Aspetta la fine (onEnded)
+                        if (transition === 'gapless') return;
+
+                        // Segue/Crossfade: Se non c'è Outro Marker, usiamo l'inizio del FadeOut (onPreEnd)
+                        if ((freshClip.outroMarker || 0) <= 0) {
+                            const nextClip = getNextClipInColumn(freshClip.id);
+                            if (nextClip) {
+                                debugLog(`AudioStore: Sequencer Play Next (${transition} via PreEnd) -> ${nextClip.name}`, 'event');
+                                get().playClip(nextClip);
+                            }
                         }
                     }
                 });
@@ -269,12 +276,17 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 player.onOutroReached((clipId) => {
                     const currentClip = get().activeClips[clipId]?.clip;
                     if (!currentClip) return;
-                    debugLog(`🔊 Outro Reached for ${currentClip.name}`, 'info');
+                    
+                    const transition = (currentClip.transitionType && currentClip.transitionType !== 'default')
+                        ? currentClip.transitionType
+                        : useSettingsStore.getState().defaultPreshowTransition;
 
-                    if (currentClip.nextAction === 'play_next') {
+                    debugLog(`🔊 Outro Reached for ${currentClip.name} (Trans: ${transition})`, 'info');
+
+                    if (currentClip.nextAction === 'play_next' && transition !== 'gapless') {
                         const nextClip = getNextClipInColumn(currentClip.id);
                         if (nextClip) {
-                            debugLog(`AudioStore: Sequencer Play Next (via Outro Marker) -> ${nextClip.name}`, 'event');
+                            debugLog(`AudioStore: Sequencer Play Next (${transition} via Outro Marker) -> ${nextClip.name}`, 'event');
                             get().playClip(nextClip);
                         }
                     }
@@ -288,11 +300,19 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                         debugLog(`AudioStore: Looping ${freshClip.name}`, 'event');
                         setTimeout(() => get().playClip(freshClip), 50);
                     }
-                    else if (freshClip.nextAction === 'play_next' && (freshClip.fadeOut || 0) <= 0) {
+                    else if (freshClip.nextAction === 'play_next') {
+                        const transition = (freshClip.transitionType && freshClip.transitionType !== 'default')
+                            ? freshClip.transitionType
+                            : useSettingsStore.getState().defaultPreshowTransition;
+
+                        // Gapless o Fallback: Se non è ancora partita la prossima clip, falla partire ora
                         const nextClip = getNextClipInColumn(freshClip.id);
                         if (nextClip) {
-                            debugLog(`AudioStore: Play Next Fallback -> ${nextClip.name}`, 'event');
-                            setTimeout(() => get().playClip(nextClip), 50);
+                            const isNextAlreadyActive = Object.values(get().activeClips).some(ac => ac.clip.id === nextClip.id);
+                            if (!isNextAlreadyActive) {
+                                debugLog(`AudioStore: Sequencer Play Next (${transition} at End)`, 'event');
+                                setTimeout(() => get().playClip(nextClip), 20);
+                            }
                         }
                     }
                 });
@@ -324,9 +344,9 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     return newState;
                 });
 
-            } catch (error: any) {
+            } catch (error: unknown) {
                 // Standardized L2 error handling
-                const errorMsg = error.message || String(error);
+                const errorMsg = error instanceof Error ? error.message : String(error);
                 debugLog(`AudioStore: Failed to play ${freshClip.name} - ${errorMsg}`, 'error');
                 console.error("Failed to play clip:", freshClip, error);
             }
@@ -337,11 +357,52 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             try {
                 await player.load(clip.path);
                 const duration = player.getDuration();
+                
+                let trimStart = clip.trimStart || 0;
+                let trimEnd = clip.trimEnd || 0;
+
+                // AUTOMATIC SILENCE DETECTION (Specific for Pre-Show or Empty Trims)
+                const isPreshow = clip.type === 'preshow';
+                const hasNoTrim = (trimStart === 0 && trimEnd === 0);
+
+                if (isPreshow && hasNoTrim) {
+                    try {
+                        debugLog(`AudioStore: Auto-Silence Detection for ${clip.name}...`, 'info');
+                        const fetchPath = toFileUrl(clip.path);
+                        
+                        const response = await fetch(fetchPath);
+                        const arrayBuffer = await response.arrayBuffer();
+                        const ctx = AudioContextManager.getInstance().getContext();
+                        const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+                        const rawData = audioBuffer.getChannelData(0);
+                        const threshold = 0.005; // -46dB
+                        
+                        let startFrame = 0;
+                        for (let i = 0; i < rawData.length; i++) {
+                            if (Math.abs(rawData[i]) > threshold) { startFrame = i; break; }
+                        }
+                        
+                        let endFrame = rawData.length - 1;
+                        for (let i = rawData.length - 1; i >= 0; i--) {
+                            if (Math.abs(rawData[i]) > threshold) { endFrame = i; break; }
+                        }
+
+                        const Margin = 0.05;
+                        trimStart = Math.max(0, (startFrame / audioBuffer.sampleRate) - Margin);
+                        const silenceAtEnd = audioBuffer.duration - (endFrame / audioBuffer.sampleRate);
+                        trimEnd = Math.max(0, silenceAtEnd - Margin);
+                        
+                        debugLog(`AudioStore: Auto-Trim ${clip.name} -> Start: ${trimStart.toFixed(2)}s, EndCut: ${trimEnd.toFixed(2)}s`, 'event');
+                    } catch (e) {
+                        console.warn("Silence detection failed during loadClip", e);
+                    }
+                }
+
                 const { useProjectStore } = await import('./useProjectStore');
                 useProjectStore.getState().updateClip(
                     clip.type === 'asset' ? 'col-assets' : `col-${clip.type}`,
                     clip.id,
-                    { duration }
+                    { duration, trimStart, trimEnd }
                 );
                 player.cleanup();
             } catch (e) {
@@ -370,13 +431,9 @@ export const useAudioStore = create<AudioStore>((set, get) => {
         },
 
         updateOutputDevice: (deviceId: string) => {
-            debugLog(`AudioStore: Update Output Device -> ${deviceId}`, 'info');
-            const { activeClips } = get();
-            Object.values(activeClips).forEach(state => {
-                if (state.player) {
-                    state.player.setOutputDevice(deviceId);
-                }
-            });
+            debugLog(`AudioStore: Update Audio Graph Output Device -> ${deviceId}`, 'info');
+            // GR2/GR11 Fix: Il routing usa Web Audio API, cambiamo sinkId sul Context principale.
+            AudioContextManager.getInstance().setOutputDevice(deviceId);
         },
 
         stopClip: (clipId: string) => {

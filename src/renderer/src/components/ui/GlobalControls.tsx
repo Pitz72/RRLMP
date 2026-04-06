@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { useAudioStore } from '../../store/useAudioStore';
 import AudioContextManager from '../../engine/AudioContextManager';
 import { Button } from './Button';
-import { Square, Volume2, Save, FolderOpen, Settings, FilePlus, Package, Edit, Info } from 'lucide-react';
+import { Square, Volume2, Save, FolderOpen, Settings, FilePlus, Package, Edit, Info, Keyboard } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 
 import { useProjectStore } from '../../store/useProjectStore';
 import { GeneralSettingsModal } from '../modals/GeneralSettingsModal';
+import { KeymappingModal } from '../modals/KeymappingModal';
 import { VUMeter } from './VUMeter';
 import { ExportProgressModal } from '../modals/ExportProgressModal';
 import { debugLog } from '../../store/useDebugStore';
@@ -37,6 +38,7 @@ export const GlobalControls = () => {
 
     const [showSettings, setShowSettings] = useState(false);
     const [showAbout, setShowAbout] = useState(false);
+    const [showKeymapping, setShowKeymapping] = useState(false);
 
     // Export Progress State
     const [exportProgress, setExportProgress] = useState({ isOpen: false, current: 0, total: 0, filename: '' });
@@ -283,7 +285,7 @@ export const GlobalControls = () => {
                                 // Direct save preserves path, so no change needed unless we want to be safe.
                                 // But loadProject signature is clumsy.
                                 // IF result.filePath is returned, update it.
-                                loadProject({ columns, isDirty: false } as any, result.filePath);
+                                loadProject({ columns, isDirty: false } as unknown as Parameters<typeof loadProject>[0], result.filePath);
                             }
                         } else {
                             if (result.error) alert('Salvataggio fallito: ' + result.error);
@@ -308,7 +310,7 @@ export const GlobalControls = () => {
 
                         if (result.success && result.filePath) {
                             setDirty(false);
-                            loadProject({ columns, isDirty: false } as any, result.filePath);
+                            loadProject({ columns, isDirty: false } as unknown as Parameters<typeof loadProject>[0], result.filePath);
                         }
                     }}
                 >
@@ -415,6 +417,15 @@ export const GlobalControls = () => {
 
                 <Button
                     size="sm"
+                    className="bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 ml-1"
+                    title="Keybinds & MIDI Dashboard"
+                    onClick={() => setShowKeymapping(true)}
+                >
+                    <Keyboard size={16} />
+                </Button>
+
+                <Button
+                    size="sm"
                     className="bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 ml-2"
                     title={t('controls.settings')}
 
@@ -435,6 +446,7 @@ export const GlobalControls = () => {
 
             <GeneralSettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
             <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
+            <KeymappingModal isOpen={showKeymapping} onClose={() => setShowKeymapping(false)} />
             <ExportProgressModal
                 isOpen={exportProgress.isOpen}
                 current={exportProgress.current}
