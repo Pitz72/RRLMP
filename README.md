@@ -11,7 +11,7 @@ Professional Broadcast Audio Architecture built with Electron, React, and TypeSc
 
 ## Structure
 
-```
+```bash
 src/
 ├── main/                 # Electron Main Process
 ├── renderer/             # React Frontend
@@ -29,12 +29,17 @@ src/
    *Currently configured for standard build:*
    `npm run build` -> Compiles Main & Renderer -> Builds App
 
+## Documentation
+
+Per una guida completa allo sviluppo e all'uso di RRLMP, consulta il nostro **[Centro Documentazione (docs/INDEX.md)](./docs/INDEX.md)**.
+
+### Risorse Rapide
+
+- **[Architettura e Linee Guida](./docs/ARCHITECTURE.md)**: Dettagli tecnici sul motore audio "Main-Side-Heavy".
+- **[Roadmap](./docs/ROADMAP.md)**: Stato di avanzamento e criticità.
+- **[Changelog](./docs/changelogs/current/)**: Ultime modifiche e hotfix.
+- **[Manuale Utente](./manuale-utente/it/)**: Manualistica specifica per la regia.
+
 ## License
 
 ISC
-
-## Documentation
-
-Full documentation, including changelogs and technical reports, can be found in the [docs/](./docs/) directory.
-- [Changelogs](./docs/changelogs/)
-- [Technical Reports](./docs/technical_reports/)
