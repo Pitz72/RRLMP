@@ -69,14 +69,14 @@ Ultimo aggiornamento: 2026-04-06
 
 ## 🔧 Debito Tecnico Noto
 
-| Priorità | Item | Dettaglio |
-|----------|------|-----------|
-| 🔴 Alta | `wavesurfer.js` in package.json | Installato, mai importato da v0.10.7. Rimuovere. |
-| 🟡 Media | Drag & drop marker waveform | Promesso in v0.10.0, mai implementato. UX usa pulsanti. |
-| 🟡 Media | Testi hardcoded in IT nei modali | ClipSettingsModal, GeneralSettingsModal hanno testi non i18n. |
-| 🟡 Media | Feedback Auto-Silence su drop | L'operazione è silenziosa: nessun indicatore visivo mentre FFmpeg gira. |
-| 🟢 Bassa | `crossfadeDuration` usato anche per segue | Il nome della variabile è impreciso: usato per entrambi segue e crossfade. |
-| 🟢 Bassa | `alert()` come error handling | Alcuni errori usano `alert()` invece di notifiche non-bloccanti in-app. |
+| Priorità | Item | Dettaglio | Stato |
+|----------|------|-----------|-------|
+| ~~🔴 Alta~~ | ~~`wavesurfer.js` / `waveform-data` in package.json~~ | ~~Mai importati dal v0.10.7~~ | ✅ Rimossi 2026-04-06 |
+| 🟡 Media | Drag & drop marker waveform | Promesso in v0.10.0, mai implementato. UX usa pulsanti. | 📋 Aperto |
+| 🟡 Media | Testi hardcoded in IT nei modali | ClipSettingsModal, GeneralSettingsModal hanno testi non i18n. | 📋 Aperto |
+| 🟡 Media | Feedback Auto-Silence su drop | Nessun indicatore visivo mentre FFmpeg gira in background. | 📋 Aperto |
+| 🟢 Bassa | `crossfadeDuration` usato anche per segue | Nome variabile impreciso: usato per entrambi segue e crossfade. | 📋 Aperto |
+| 🟢 Bassa | `alert()` come error handling | Alcuni errori usano `alert()` invece di notifiche non-bloccanti. | 📋 Aperto |
 
 ---
 
@@ -86,8 +86,8 @@ Ultimo aggiornamento: 2026-04-06
 | --- | --- | --- | --- |
 | 🔴 Criticità (Tutte) | 4 | 4 | **100%** ✅ |
 | 🚀 Nuove Feature Core | 12 | 17 | **71%** 🚀 |
-| 🔧 Debito Tecnico | 0 | 6 | **0%** 📋 |
-| **TOTALE PROGETTO** | **16** | **27** | **59% COMPLETATO** |
+| 🔧 Debito Tecnico | 1 | 6 | **17%** 🔧 |
+| **TOTALE PROGETTO** | **17** | **27** | **63% COMPLETATO** |
 
 ---
 

@@ -42,12 +42,17 @@ Questo documento sintetizza lo **stato reale del software** confrontato con la d
 
 ### 1.2 Discrepanze Documentazione vs Codice
 
-| Claim Documentato | Versione | Realtà | Impatto |
-|------------------|----------|--------|---------|
-| "Rendering Wavesurfer.js" | 0.10.0 | Wavesurfer MAI usato dopo v0.10.7; package.json ancora lo include | Basso — nota errata aggiunta |
-| "Marker Drag & Drop visivi" | 0.10.0 | Implementati come pulsanti click-based, non drag | Medio — UX diversa |
-| "Auto-Fit Zoom (px/sec)" | 0.10.2 | La "soluzione" fu migrare a HTML5, nessun sistema di zoom esiste | Basso — risolto diversamente |
-| `isUpdatingRef` lock per Wavesurfer | 0.10.3 | Implementato ma diventato irrilevante con abbandono Wavesurfer | Nessuno |
+> ✅ **Tutte le discrepanze sotto sono state corrette il 2026-04-06.**
+> I changelog originali sono stati integrati con note errata esplicite. Le dipendenze inutilizzate sono state rimosse da `package.json`.
+
+| Claim Documentato | Versione | Realtà | Correzione Applicata |
+|------------------|----------|--------|---------------------|
+| "Rendering Wavesurfer.js" | 0.10.0 | Wavesurfer MAI usato dopo v0.10.7 | ✅ Nota errata in 0.10.0.md; rimosso da `package.json` |
+| "Marker Drag & Drop visivi" | 0.10.0 | Implementati come pulsanti click-based, non drag | ✅ Nota errata in 0.10.0.md — UX documentata correttamente |
+| Fix CSP "per wavesurfer.js" | 0.10.1 | Wavesurfer abbandonato; il fix CSP rimane valido per `<audio>` | ✅ Nota errata in 0.10.1.md — fix contestualizzato |
+| "Auto-Fit Zoom (px/sec)" | 0.10.2 | Nessun sistema zoom esiste; fix reale fu migrazione architetturale | ✅ Nota errata in 0.10.2.md — realtà documentata |
+| `isUpdatingRef` lock per Wavesurfer | 0.10.3 | Diventato irrilevante con abbandono Wavesurfer | ✅ Nota errata in 0.10.3.md |
+| `waveform-data` come dipendenza attiva | 0.10.4 | Mai importato nel codice sorgente | ✅ Rimosso da `package.json` |
 
 ---
 
@@ -91,7 +96,7 @@ Questo documento sintetizza lo **stato reale del software** confrontato con la d
 
 #### 🟢 Priorità Bassa
 
-**Pulizia `wavesurfer.js` da package.json**: 1 riga da rimuovere, 0 rischi.
+~~**Pulizia `wavesurfer.js` e `waveform-data` da package.json**~~: ✅ **Completato il 2026-04-06** — entrambe le dipendenze rimosse (mai importate dal v0.10.7).
 
 **i18n nei Modali**: Testi ancora in italiano hardcoded in ClipSettingsModal e GeneralSettingsModal.
 
@@ -240,7 +245,7 @@ Al play di clip mancante → toast error invece di silenziosa
 | C1 | **Colonne Configurabili** | 1 settimana | 🟡 Flessibilità workflow |
 | C2 | **Pannello Keymapping Centralizzato** | 3 giorni | 🟡 Gestione bind |
 | C3 | **Playlist Import M3U** | 2 giorni | 🟡 Integrazione sistemi radio |
-| C4 | **Pulizia wavesurfer.js** | 30min | 🟢 Pulizia build |
+| ~~C4~~ | ~~**Pulizia wavesurfer.js / waveform-data**~~ | ~~30min~~ | ✅ Completato 2026-04-06 |
 | C5 | **i18n modali** | 2h | 🟢 Completamento i18n |
 
 ---
