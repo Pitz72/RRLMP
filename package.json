@@ -23,8 +23,8 @@
             "build/icon.png"
         ],
         "asarUnpack": [
-            "node_modules/ffmpeg-static/**/*.exe",
-            "node_modules/ffprobe-static/**/*.exe"
+            "node_modules/ffmpeg-static/ffmpeg*",
+            "node_modules/ffprobe-static/ffprobe*"
         ],
         "win": {
             "target": "nsis",
@@ -51,7 +51,7 @@
         ]
     },
     "keywords": [],
-    "author": "Antigravity",
+    "author": "Simone Pizzi <pizzisimone1972@gmail.com>",
     "license": "ISC",
     "dependencies": {
         "@dnd-kit/core": "^6.3.1",
