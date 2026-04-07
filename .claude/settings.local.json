@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(npx vite:*)",
+      "Bash(npx electron-builder:*)",
+      "Bash(mkdir -p '/c/Users/Utente/Documents/GitHub/RRLMP/builds/v0.14.6')",
+      "Bash(cp '/c/Users/Utente/Documents/GitHub/RRLMP/.claude/worktrees/elegant-tharp/builds/v0.14.6/Runtime Live Machine Setup 0.14.6.exe' '/c/Users/Utente/Documents/GitHub/RRLMP/builds/v0.14.6/')",
+      "Bash(mkdir -p '/c/Users/Utente/Documents/GitHub/RRLMP/builds/v0.14.7')",
+      "Bash(cp '/c/Users/Utente/Documents/GitHub/RRLMP/.claude/worktrees/elegant-tharp/builds/v0.14.7/Runtime Live Machine Setup 0.14.7.exe' '/c/Users/Utente/Documents/GitHub/RRLMP/builds/v0.14.7/')",
+      "Bash(mkdir -p '/c/Users/Utente/Documents/GitHub/RRLMP/builds/v0.14.8')",
+      "Bash(cp '/c/Users/Utente/Documents/GitHub/RRLMP/.claude/worktrees/elegant-tharp/builds/v0.14.8/Runtime Live Machine Setup 0.14.8.exe' '/c/Users/Utente/Documents/GitHub/RRLMP/builds/v0.14.8/')",
+      "Bash(mkdir -p '/c/Users/Utente/Documents/GitHub/RRLMP/builds/v0.14.9')",
+      "Bash(cp '/c/Users/Utente/Documents/GitHub/RRLMP/.claude/worktrees/elegant-tharp/builds/v0.14.9/Runtime Live Machine Setup 0.14.9.exe' '/c/Users/Utente/Documents/GitHub/RRLMP/builds/v0.14.9/')"
+    ]
+  }
+}

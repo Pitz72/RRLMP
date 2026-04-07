@@ -148,19 +148,24 @@ export const MainGrid: React.FC = () => {
                 await loadClip(newClip);
 
                 // Auto-Silence Detection per la colonna Pre-Show (v0.13.2)
-                // Dopo il caricamento dei metadati, rileva automaticamente il silenzio
-                // e imposta trimStart/trimEnd senza che l'utente debba farlo manualmente.
+                // v0.14.6: feedback visivo isAnalyzing durante la detection
                 const col = columns.find(c => c.id === colId);
                 if (col?.type === 'preshow' && window.electron?.detectSilence) {
+                    updateClip(colId, newClip.id, { isAnalyzing: true });
                     window.electron.detectSilence(newClip.path).then(result => {
                         if (result.success && result.data && !result.data.noSilence) {
                             updateClip(colId, newClip.id, {
                                 trimStart: result.data.trimStart,
-                                trimEnd: result.data.trimEnd
+                                trimEnd: result.data.trimEnd,
+                                isAnalyzing: false
                             });
                             debugLog(`AutoSilence [${newClip.name}]: trimStart=${result.data.trimStart}s, trimEnd=${result.data.trimEnd}s`, 'info');
+                        } else {
+                            updateClip(colId, newClip.id, { isAnalyzing: false });
                         }
-                    }).catch(() => {/* silent fail — non blocca il workflow */});
+                    }).catch(() => {
+                        updateClip(colId, newClip.id, { isAnalyzing: false });
+                    });
                 }
             }
         }

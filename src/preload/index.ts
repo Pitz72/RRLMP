@@ -52,6 +52,12 @@ if (process.contextIsolated) {
                 title: string;
                 message: string;
             }) => ipcRenderer.invoke('show-close-dialog-i18n', labels),
+            // v0.14.3 — Emergency Stop globale
+            onEmergencyStop: (callback: () => void) => {
+                const subscription = () => callback();
+                ipcRenderer.on('emergency-stop', subscription);
+                return () => ipcRenderer.removeListener('emergency-stop', subscription);
+            },
         });
     } catch (error) {
         console.error("Context Bridge Error:", error);

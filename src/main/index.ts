@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, protocol, nativeImage, ipcMain, dialog } from 'electron';
+import { app, shell, BrowserWindow, protocol, nativeImage, ipcMain, dialog, globalShortcut } from 'electron';
 import { join } from 'path';
 import * as fs from 'fs';
 import { Readable } from 'stream';
@@ -437,9 +437,20 @@ app.whenReady().then(() => {
 
     createWindow();
 
+    // v0.14.3 — Emergency Stop globale: Escape → stopAll nel renderer
+    globalShortcut.register('Escape', () => {
+        BrowserWindow.getAllWindows().forEach(w => {
+            if (!w.isDestroyed()) w.webContents.send('emergency-stop');
+        });
+    });
+
     app.on('activate', function () {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
+});
+
+app.on('will-quit', () => {
+    globalShortcut.unregisterAll();
 });
 
 app.on('window-all-closed', () => {

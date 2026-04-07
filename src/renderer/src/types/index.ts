@@ -33,6 +33,7 @@ declare global {
 
             onExportProgress: (callback: (event: unknown, data: { current: number; total: number; filename: string }) => void) => () => void;
             onCheckCloseIntent: (callback: () => void) => () => void;
+            onEmergencyStop: (callback: () => void) => () => void;
         }
 
 
@@ -118,6 +119,14 @@ export interface AudioClip {
     // Integrity (v0.14.2) — runtime only, non persistito nel .lmp
     /** True se il file non esiste su disco al momento del caricamento progetto. */
     isMissing?: boolean;
+
+    // Auto-Silence feedback (v0.14.6) — runtime only, non persistito nel .lmp
+    /** True mentre FFmpeg sta analizzando il silenzio in background. */
+    isAnalyzing?: boolean;
+
+    // Note/Script (v0.14.4)
+    /** Testo libero: cue sheet, script, note di regia. Persistito nel .lmp. */
+    notes?: string;
 }
 
 

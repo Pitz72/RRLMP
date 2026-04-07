@@ -13,6 +13,8 @@ import { VUMeter } from './VUMeter';
 import { ExportProgressModal } from '../modals/ExportProgressModal';
 import { debugLog } from '../../store/useDebugStore';
 import { AboutModal } from '../modals/AboutModal';
+import { toast } from '../../store/useToastStore';
+import { confirm } from '../../store/useConfirmStore';
 
 
 
@@ -251,8 +253,8 @@ export const GlobalControls = () => {
                     size="sm"
                     className="bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700"
                     title={t('welcome.newProject')}
-                    onClick={() => {
-                        if (isDirty && !confirm('Nuovo Progetto: Sei sicuro? Perderai le modifiche non salvate.')) return;
+                    onClick={async () => {
+                        if (isDirty && !await confirm('Nuovo Progetto: le modifiche non salvate andranno perse. Continuare?', 'Nuovo Progetto', 'Annulla')) return;
                         stopAll();
                         resetProject();
                     }}
@@ -288,7 +290,7 @@ export const GlobalControls = () => {
                                 loadProject({ columns, isDirty: false } as unknown as Parameters<typeof loadProject>[0], result.filePath);
                             }
                         } else {
-                            if (result.error) alert('Salvataggio fallito: ' + result.error);
+                            if (result.error) toast('Salvataggio fallito: ' + result.error, 'error');
                         }
                     }}
                 >
@@ -323,7 +325,7 @@ export const GlobalControls = () => {
                     className="bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700"
                     title={t('welcome.loadProject')}
                     onClick={async () => {
-                        if (isDirty && !confirm('Hai modifiche non salvate. Caricare un nuovo progetto le sovrascriverà. Continuare?')) return;
+                        if (isDirty && !await confirm('Hai modifiche non salvate. Caricare un nuovo progetto le sovrascriverà. Continuare?', 'Carica comunque', 'Annulla')) return;
 
                         const result = await window.electron.loadProject();
                         if (result.success && result.data) {
@@ -340,11 +342,11 @@ export const GlobalControls = () => {
                                         }
                                     });
                                 } else {
-                                    alert('File LMP non valido o corrotto.');
+                                    toast('File LMP non valido o corrotto.', 'error');
                                 }
 
                             } catch (e) {
-                                alert('Errore lettura file.');
+                                toast('Errore lettura file.', 'error');
                             }
                         }
                     }}
@@ -356,7 +358,7 @@ export const GlobalControls = () => {
                     className="bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 ml-1"
                     title={t('controls.export')}
                     onClick={async () => {
-                        if (isDirty && !confirm('Si consiglia di salvare il progetto corrente prima di esportare. Continuare comunque?')) return;
+                        if (isDirty && !await confirm('Ci sono modifiche non salvate. Si consiglia di salvare prima di esportare. Continuare comunque?', 'Esporta comunque', 'Annulla')) return;
 
                         const projectData = {
                             version: __APP_VERSION__,
@@ -377,13 +379,13 @@ export const GlobalControls = () => {
                             setExportProgress(prev => ({ ...prev, isOpen: false }));
 
                             if (result.success) {
-                                alert(`Esportazione completata con successo!\nSalvato in: ${result.path}\nFile copiati: ${result.stats?.copied || 0}\nFile saltati: ${result.stats?.skipped || 0}`);
+                                toast(`Esportazione completata — ${result.stats?.copied || 0} file copiati in:\n${result.path}`, 'success', 7000);
                             } else {
-                                if (result.error) alert(`Errore durante l'esportazione: ${result.error}`);
+                                if (result.error) toast(`Errore esportazione: ${result.error}`, 'error');
                             }
                         } catch (e) {
                             setExportProgress(prev => ({ ...prev, isOpen: false }));
-                            alert('Errore chiamando Export IPC');
+                            toast('Errore chiamando Export IPC', 'error');
                         }
                     }}
 

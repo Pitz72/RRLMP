@@ -13,7 +13,7 @@ interface AudioDevice {
 }
 
 export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
-    const { outputDeviceId, setOutputDeviceId, duckingFactor, duckingDuration, setDuckingSettings, defaultPreshowTransition, setDefaultPreshowTransition } = useSettingsStore();
+    const { outputDeviceId, setOutputDeviceId, duckingFactor, duckingDuration, setDuckingSettings, defaultPreshowTransition, setDefaultPreshowTransition, crossfadeDuration, segueDuration, setPreshowTransition, setSegueDuration } = useSettingsStore();
     const updateOutputDevice = useAudioStore(s => s.updateOutputDevice);
     const [devices, setDevices] = useState<AudioDevice[]>([]);
 
@@ -125,6 +125,44 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             </select>
                             <p className="text-[10px] text-zinc-500 italic">
                                 Transizione automatica quando colonna Preshow passa alla clip successiva.
+                            </p>
+                        </div>
+
+                        <div className="space-y-2 mt-2">
+                            <div className="flex justify-between items-center">
+                                <label className="text-xs text-zinc-400">Crossfade Duration</label>
+                                <span className="text-xs font-mono text-emerald-400">{crossfadeDuration}ms</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="200"
+                                max="6000"
+                                step="100"
+                                value={crossfadeDuration}
+                                onChange={(e) => setPreshowTransition({ duration: parseInt(e.target.value) })}
+                                className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                            />
+                            <p className="text-[10px] text-zinc-500 italic">
+                                Durata fade-out + fade-in per la transizione Crossfade.
+                            </p>
+                        </div>
+
+                        <div className="space-y-2 mt-2">
+                            <div className="flex justify-between items-center">
+                                <label className="text-xs text-zinc-400">Segue Fade-Out Duration</label>
+                                <span className="text-xs font-mono text-orange-400">{segueDuration}ms</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="100"
+                                max="3000"
+                                step="100"
+                                value={segueDuration}
+                                onChange={(e) => setSegueDuration(parseInt(e.target.value))}
+                                className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                            />
+                            <p className="text-[10px] text-zinc-500 italic">
+                                Durata del fade-out della clip uscente nel Segue. La clip entrante parte subito a volume pieno.
                             </p>
                         </div>
                     </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Play, Pause, Scissors, Flag, Music } from 'lucide-react';
+import { Play, Pause, Scissors, Flag, Music, ZoomIn, ZoomOut } from 'lucide-react';
 import { toFileUrl } from '../../utils/pathUtils';
 
 type DraggingMarker = 'trimStart' | 'trimEnd' | 'intro' | 'outro' | null;
@@ -42,6 +42,8 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
     trimStartRef.current = trimStart;
     trimEndRef.current   = trimEnd;
 
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
     const [isPlaying,   setIsPlaying]   = useState(false);
     const [duration,    setDuration]    = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
@@ -49,6 +51,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
     const [peaks,       setPeaks]       = useState<number[]>([]);
     const [isAnalyzing, setIsAnalyzing] = useState(true);
     const [dragging,    setDragging]    = useState<DraggingMarker>(null);
+    const [zoom,        setZoom]        = useState(1);
 
     const fileUrl = toFileUrl(path);
 
@@ -161,6 +164,18 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
     // Posizione dell'handle Trim End: da sx = (duration - trimEnd) / duration
     const trimEndPct = duration > 0 ? Math.max(0, Math.min(100, ((duration - trimEnd) / duration) * 100)) : 100;
 
+    // ─── Zoom helpers ────────────────────────────────────────────────────────────
+    const ZOOM_STEPS = [1, 2, 3, 4, 6, 8];
+    const zoomIn  = () => setZoom(z => ZOOM_STEPS[Math.min(ZOOM_STEPS.length - 1, ZOOM_STEPS.indexOf(z) + 1)]);
+    const zoomOut = () => setZoom(z => ZOOM_STEPS[Math.max(0, ZOOM_STEPS.indexOf(z) - 1)]);
+
+    // Ruler ticks: più dettaglio con zoom alto
+    const rulerTicks = React.useMemo(() => {
+        const count = zoom <= 1 ? 3 : zoom <= 2 ? 5 : zoom <= 4 ? 9 : 13;
+        if (duration === 0) return [];
+        return Array.from({ length: count }, (_, i) => (duration * i) / (count - 1));
+    }, [zoom, duration]);
+
     // ─── Componente handle trascinabile ─────────────────────────────────────────
     const DragHandle = ({
         leftPct,
@@ -265,6 +280,25 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                     <span className="ml-auto text-[9px] text-zinc-600 italic normal-case">
                         Click → Seek &nbsp;·&nbsp; Trascina handle → Sposta marker
                     </span>
+                    <div className="flex items-center gap-1 ml-3">
+                        <button
+                            onClick={zoomOut}
+                            disabled={zoom === ZOOM_STEPS[0]}
+                            className="w-5 h-5 flex items-center justify-center rounded bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 transition-all"
+                            title="Zoom Out"
+                        >
+                            <ZoomOut size={11} className="text-zinc-400" />
+                        </button>
+                        <span className="text-[9px] font-mono text-zinc-500 w-5 text-center">{zoom}x</span>
+                        <button
+                            onClick={zoomIn}
+                            disabled={zoom === ZOOM_STEPS[ZOOM_STEPS.length - 1]}
+                            className="w-5 h-5 flex items-center justify-center rounded bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 transition-all"
+                            title="Zoom In"
+                        >
+                            <ZoomIn size={11} className="text-zinc-400" />
+                        </button>
+                    </div>
                 </div>
 
                 {/*
@@ -272,11 +306,15 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                  * così gli handle possono sporgere leggermente dai bordi visivi.
                  * INNER container: ha overflow-hidden per clippare peaks e fill areas.
                  */}
+                <div ref={scrollContainerRef} className="overflow-x-auto rounded-lg">
                 <div
                     ref={containerRef}
                     onClick={handleSeekClick}
                     className="relative h-24"
-                    style={{ cursor: dragging ? 'ew-resize' : 'pointer' }}
+                    style={{
+                        width: zoom > 1 ? `${zoom * 100}%` : '100%',
+                        cursor: dragging ? 'ew-resize' : 'pointer'
+                    }}
                 >
                     {/* ── INNER: visual layer clippato ── */}
                     <div className="absolute inset-0 bg-zinc-900 rounded-lg border border-zinc-800 overflow-hidden pointer-events-none">
@@ -393,12 +431,23 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                         show={outroMarker > 0}
                     />
                 </div>
+                </div>
 
-                {/* Ruler */}
-                <div className="flex justify-between text-[9px] text-zinc-600 font-mono">
-                    <span>0.00s</span>
-                    {duration > 0 && <span className="text-zinc-700">{(duration / 2).toFixed(1)}s</span>}
-                    <span>{duration > 0 ? duration.toFixed(2) + 's' : '—'}</span>
+                {/* Ruler — si adatta al livello di zoom */}
+                <div className="overflow-x-auto">
+                <div
+                    className="flex justify-between text-[9px] text-zinc-600 font-mono"
+                    style={{ width: zoom > 1 ? `${zoom * 100}%` : '100%' }}
+                >
+                    {rulerTicks.length > 0
+                        ? rulerTicks.map((t, i) => (
+                            <span key={i} className={i === 0 || i === rulerTicks.length - 1 ? '' : 'text-zinc-700'}>
+                                {t.toFixed(t < 10 ? 2 : 1)}s
+                            </span>
+                        ))
+                        : <><span>0.00s</span><span>—</span></>
+                    }
+                </div>
                 </div>
             </div>
 
