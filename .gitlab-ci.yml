@@ -1,0 +1,36 @@
+stages:
+  - build
+
+# Job per Linux (.AppImage e .deb)
+build_linux:
+  stage: build
+  image: node:20
+  script:
+    - npm install
+    - npm run build
+  artifacts:
+    name: "RRLMP-Linux-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - builds/v*/**/*
+    expire_in: 1 week
+  only:
+    - master
+
+# Job per macOS (.dmg)
+build_macos:
+  stage: build
+  tags:
+    - saas-macos-medium-m1
+  variables:
+    CSC_IDENTITY_AUTO_DISCOVERY: "false"
+  script:
+    - node -v
+    - npm install
+    - npm run build
+  artifacts:
+    name: "RRLMP-MacOS-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - builds/v*/**/*
+    expire_in: 1 week
+  only:
+    - master
