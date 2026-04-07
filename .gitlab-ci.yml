@@ -21,7 +21,7 @@ build_macos:
   stage: build
   image: macos-15-xcode-16
   tags:
-    - saas-macos-medium-m1
+    - macos-15-xcode-16
   variables:
     CSC_IDENTITY_AUTO_DISCOVERY: "false"
   script:
