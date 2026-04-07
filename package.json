@@ -2,6 +2,7 @@
     "name": "runtime-live-machine",
     "version": "0.14.9",
     "description": "Professional Broadcast Audio Architecture",
+    "homepage": "https://gitlab.com/pizzisimone1972/RRLMP",
     "main": "out/main/index.js",
     "scripts": {
         "dev:renderer": "vite",
