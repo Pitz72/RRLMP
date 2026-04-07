@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { AudioClip } from '../../types';
 import { debugLog } from '../../store/useDebugStore';
-import { Wand2, Settings2, Scissors } from 'lucide-react';
+import { Wand2, Settings2, Scissors, FileText } from 'lucide-react';
+import { toast } from '../../store/useToastStore';
+import { confirm } from '../../store/useConfirmStore';
 import { WaveformEditor } from '../ui/WaveformEditor';
-import { toFileUrl } from '../../utils/pathUtils';
 
 
 interface ClipSettingsModalProps {
@@ -27,7 +28,7 @@ const COLORS = [
 ];
 
 export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOpen, onClose, onSave, onDelete }) => {
-    const [activeTab, setActiveTab] = useState<'general' | 'markers'>('general');
+    const [activeTab, setActiveTab] = useState<'general' | 'markers' | 'notes'>('general');
     
     const [name, setName] = useState(clip.name);
     const [volume, setVolume] = useState(clip.volume);
@@ -44,6 +45,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
     const [introMarker, setIntroMarker] = useState(clip.introMarker || 0);
     const [outroMarker, setOutroMarker] = useState(clip.outroMarker || 0);
     const [transitionType, setTransitionType] = useState<AudioClip['transitionType']>(clip.transitionType || 'default');
+    const [notes, setNotes] = useState(clip.notes || '');
 
     // Reset state when clip changes or modal opens
     useEffect(() => {
@@ -63,6 +65,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             setIntroMarker(clip.introMarker || 0);
             setOutroMarker(clip.outroMarker || 0);
             setTransitionType(clip.transitionType || 'default');
+            setNotes(clip.notes || '');
             setActiveTab('general'); // Reset tab
         }
     }, [clip, isOpen]);
@@ -86,72 +89,40 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             introMarker: Number(introMarker),
             outroMarker: Number(outroMarker),
             transitionType,
+            notes,
         };
         debugLog(`Saving Clip: ${clip.name} Intro=${updatedClip.introMarker} Outro=${updatedClip.outroMarker}`, 'info');
         onSave(clip.id, updatedClip);
         onClose();
     };
 
-    const handleDelete = () => {
-        if (confirm('Sei sicuro di voler eliminare questa clip?')) {
+    const handleDelete = async () => {
+        if (await confirm('Eliminare questa clip?', 'Elimina', 'Annulla')) {
             onDelete(clip.id);
             onClose();
         }
     };
 
     const detectSilence = async () => {
+        if (!window.electron?.detectSilence) return;
         try {
-            debugLog('Smart Trim: decoding...', 'info');
-            const fetchPath = toFileUrl(clip.path);
-
-            const response = await fetch(fetchPath);
-            const arrayBuffer = await response.arrayBuffer();
-            const WindowContext = window as unknown as { webkitAudioContext: typeof AudioContext };
-            const audioCtx = new (window.AudioContext || WindowContext.webkitAudioContext)();
-            const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-
-            const rawData = audioBuffer.getChannelData(0);
-            const sampleRate = audioBuffer.sampleRate;
-            const threshold = 0.01; // -40dB roughly
-
-            let startFrame = 0;
-            let endFrame = rawData.length - 1;
-
-            // Find Start
-            for (let i = 0; i < rawData.length; i++) {
-                if (Math.abs(rawData[i]) > threshold) {
-                    startFrame = i;
-                    break;
-                }
-            }
-
-            // Find End
-            for (let i = rawData.length - 1; i >= 0; i--) {
-                if (Math.abs(rawData[i]) > threshold) {
-                    endFrame = i;
-                    break;
-                }
-            }
-
-            const margin = 0.1;
-            const suggestedStart = Math.max(0, (startFrame / sampleRate) - margin);
-            const suggestedEndCut = Math.max(0, audioBuffer.duration - (endFrame / sampleRate) - margin);
-
-            // Degenerate case protection
-            if (audioBuffer.duration - suggestedEndCut <= suggestedStart + 0.1) {
-                alert('Silence detection failed: The entire file appears to be silence or volume is too low.');
+            debugLog('Smart Trim: rilevamento silenzio via FFmpeg...', 'info');
+            const result = await window.electron.detectSilence(clip.path);
+            if (!result.success || !result.data) {
+                toast('Auto-Trim: errore durante l\'analisi FFmpeg.', 'error');
                 return;
             }
-
-            setTrimStart(parseFloat(suggestedStart.toFixed(3)));
-            setTrimEnd(parseFloat(suggestedEndCut.toFixed(3)));
-
-            debugLog(`Smart Trim: Start=${suggestedStart.toFixed(3)}, EndCut=${suggestedEndCut.toFixed(3)}`, 'info');
-            alert(`Silence Detected!\nTrim Start: ${suggestedStart.toFixed(3)}s\nTrim End: ${suggestedEndCut.toFixed(3)}s`);
-
+            if (result.data.noSilence) {
+                toast('Auto-Trim: nessun silenzio rilevato ai bordi del file.', 'warning');
+                return;
+            }
+            setTrimStart(parseFloat(result.data.trimStart.toFixed(3)));
+            setTrimEnd(parseFloat(result.data.trimEnd.toFixed(3)));
+            toast(`Auto-Trim applicato — Start: ${result.data.trimStart.toFixed(3)}s / End cut: ${result.data.trimEnd.toFixed(3)}s`, 'success');
+            debugLog(`Smart Trim: Start=${result.data.trimStart.toFixed(3)}, EndCut=${result.data.trimEnd.toFixed(3)}`, 'info');
         } catch (e) {
             console.error(e);
-            alert('Error analyzing audio for silence.');
+            toast('Errore durante l\'analisi del silenzio.', 'error');
         }
     };
 
@@ -176,11 +147,18 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                         >
                             <Settings2 size={16} /> General Settings
                         </button>
-                        <button 
+                        <button
                             onClick={() => setActiveTab('markers')}
                             className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'markers' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
                         >
                             <Scissors size={16} /> Trim & Markers
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('notes')}
+                            className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'notes' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
+                        >
+                            <FileText size={16} /> Notes / Script
+                            {notes && <span className="text-[9px] bg-violet-600/80 text-white px-1.5 py-0.5 rounded font-bold">●</span>}
                         </button>
                     </div>
                 </div>
@@ -431,6 +409,36 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+                    {activeTab === 'notes' && (
+                        <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-xs text-zinc-500 uppercase font-bold tracking-wider">Script / Cue Sheet / Note di Regia</p>
+                                    <p className="text-[10px] text-zinc-600 mt-0.5">Testo libero — salvato nel progetto .lmp</p>
+                                </div>
+                                {notes && (
+                                    <button
+                                        onClick={() => setNotes('')}
+                                        className="text-[10px] text-zinc-500 hover:text-red-400 border border-zinc-700 hover:border-red-500/40 rounded px-2 py-1 transition-colors"
+                                    >
+                                        Cancella
+                                    </button>
+                                )}
+                            </div>
+                            <textarea
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                placeholder="Inserisci qui lo script, le note di produzione, i cue..."
+                                rows={16}
+                                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-4 text-sm text-zinc-200 font-mono leading-relaxed resize-none focus:border-emerald-500 focus:outline-none transition-colors placeholder:text-zinc-700 custom-scrollbar"
+                                spellCheck={false}
+                            />
+                            <div className="flex justify-between text-[10px] text-zinc-600">
+                                <span>{notes.length} caratteri</span>
+                                <span>{notes.split('\n').filter(l => l.trim()).length} righe non vuote</span>
                             </div>
                         </div>
                     )}

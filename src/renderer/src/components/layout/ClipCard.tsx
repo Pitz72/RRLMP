@@ -1,7 +1,6 @@
 import React from 'react';
 import { useAudioStore } from '../../store/useAudioStore';
 import { AudioClip } from '../../types';
-
 import { useProjectStore } from '../../store/useProjectStore';
 
 interface ClipCardProps {
@@ -15,12 +14,25 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
     const activeState = useAudioStore((state) => state.activeClips[clip.id]);
     const playClip = useAudioStore((state) => state.playClip);
     const stopClip = useAudioStore((state) => state.stopClip);
+    const isFading = useAudioStore((state) => state.fadingClipIds.includes(clip.id));
     const { selectClip, selectedClipIds, clearSelection, isMidiLearnMode } = useProjectStore(); // Selection & MIDI
 
 
     const isPlaying = !!activeState;
     const isSelected = selectedClipIds.includes(clip.id); // Selection State
     const progress = activeState?.progress || 0;
+
+    // v0.14.4 — UP NEXT badge: la clip immediatamente successiva a quella in play (stessa colonna, nextAction = play_next)
+    const activeClips = useAudioStore((state) => state.activeClips);
+    const columns = useProjectStore((state) => state.columns);
+    const isNextUp = React.useMemo(() => {
+        const col = columns.find(c => c.clips.some(cl => cl.id === clip.id));
+        if (!col) return false;
+        const clipIdx = col.clips.findIndex(c => c.id === clip.id);
+        if (clipIdx <= 0) return false;
+        const prevClip = col.clips[clipIdx - 1];
+        return prevClip.nextAction === 'play_next' && !!activeClips[prevClip.id];
+    }, [columns, activeClips, clip.id]);
 
     const [currentTime, setCurrentTime] = React.useState(0);
 
@@ -125,7 +137,21 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
             <div className="relative z-10 flex gap-1 mb-1 flex-wrap">
                 {clip.behavior === 'stacco' && <span className="text-[9px] bg-purple-600/90 text-white px-1 rounded font-bold tracking-wider">STACCO</span>}
                 {clip.isLooping && <span className="text-[9px] bg-blue-600/90 text-white px-1 rounded font-bold tracking-wider">LOOP</span>}
-                {clip.nextAction === 'play_next' && <span className="text-[9px] bg-emerald-600/90 text-white px-1 rounded font-bold tracking-wider">NEXT</span>}
+                {clip.nextAction === 'play_next' && !isNextUp && <span className="text-[9px] bg-emerald-600/90 text-white px-1 rounded font-bold tracking-wider">NEXT</span>}
+                {isNextUp && <span className="text-[9px] bg-violet-500 text-white px-1.5 rounded font-bold tracking-wider animate-pulse shadow-[0_0_6px_rgba(139,92,246,0.7)]">▶ UP NEXT</span>}
+                {clip.notes && <span className="text-[9px] bg-zinc-700 text-zinc-300 px-1 rounded" title={clip.notes}>📋</span>}
+                {clip.isAnalyzing && (
+                    <span className="text-[9px] bg-amber-500/20 text-amber-400 border border-amber-500/40 px-1.5 rounded font-bold tracking-wider flex items-center gap-1">
+                        <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-ping opacity-75" />
+                        TRIM…
+                    </span>
+                )}
+                {isFading && (
+                    <span className="text-[9px] bg-violet-500/20 text-violet-300 border border-violet-500/40 px-1.5 rounded font-bold tracking-wider flex items-center gap-1 animate-pulse">
+                        <span className="inline-block w-2 h-2 rounded-full bg-violet-400" />
+                        FADE OUT
+                    </span>
+                )}
             </div>
 
             <div className="relative z-10 flex justify-between items-center mb-1">

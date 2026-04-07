@@ -20,6 +20,12 @@ interface AudioStore {
     activeClips: Record<string, ActiveClipState>;
     suppressedClips: Record<string, number>; // ID -> Original Volume
 
+    // v0.14.5 — Timer On Air
+    onAirStartTime: number | null; // timestamp ms del primo play, null quando idle
+
+    // v0.14.9 — Clip in fade-out per transizione (crossfade/segue)
+    fadingClipIds: string[];
+
     // Actions
     playClip: (clip: AudioClip) => Promise<void>;
     loadClip: (clip: AudioClip) => Promise<void>;
@@ -163,10 +169,8 @@ const getColumnForClip = (clipId: string): string | null => {
 const playGenerations = new Map<string, number>();
 
 // v0.13.2 — Transition System
-// Set di clip attualmente in fase di fade-out per una transizione (crossfade o segue).
-// La conflict resolution in playClip salta queste clip invece di stopparle bruscamente,
-// permettendo la sovrapposizione controllata.
-const transitioningClips = new Set<string>();
+// Clip in fade-out per transizione: gestito come stato Zustand (v0.14.9)
+// Esposto come fadingClipIds[] per permettere a ClipCard di mostrare il badge "FADING OUT".
 
 // Durata fadeIn da applicare alla PROSSIMA clip avviata come parte di un crossfade.
 // Viene letta una sola volta da playClip e poi azzerata (pattern one-shot).
@@ -185,6 +189,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
     return {
         activeClips: {},
         suppressedClips: {},
+        onAirStartTime: null,
+        fadingClipIds: [],
 
         playClip: async (clipArg: AudioClip) => {
             const currentStore = get();
@@ -240,7 +246,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     // v0.13.2: le clip in transizione (crossfade/segue) vengono saltate —
                     // il loro fade-out e stopClip sono già schedulati dal transition handler.
                     sameColumnClips
-                        .filter(ac => !transitioningClips.has(ac.clip.id))
+                        .filter(ac => !get().fadingClipIds.includes(ac.clip.id))
                         .forEach(ac => {
                             currentStore.stopClip(ac.clip.id);
                         });
@@ -283,7 +289,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     const nextClip = getNextClipInColumn(currentClip.id);
                     if (!nextClip) return;
 
-                    const { preshowTransitionType, crossfadeDuration } = useSettingsStore.getState();
+                    const { preshowTransitionType, crossfadeDuration, segueDuration } = useSettingsStore.getState();
                     const colId = getColumnForClip(currentClip.id);
                     // Il tipo di transizione si applica solo alla colonna preshow (per ora);
                     // per le altre colonne rimane il comportamento gapless esistente.
@@ -296,11 +302,11 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     if (effectiveType === 'crossfade') {
                         const currentPlayer = get().activeClips[clipId]?.player;
                         if (currentPlayer) {
-                            transitioningClips.add(clipId);
+                            set(state => ({ fadingClipIds: [...state.fadingClipIds, clipId] }));
                             currentPlayer.fadeTo(0, crossfadeDuration);
                             setTimeout(() => {
                                 get().stopClip(clipId);
-                                transitioningClips.delete(clipId);
+                                set(state => ({ fadingClipIds: state.fadingClipIds.filter(id => id !== clipId) }));
                             }, crossfadeDuration + 200);
                         }
                         // Imposta il fadeIn one-shot per la clip entrante
@@ -310,12 +316,13 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     } else if (effectiveType === 'segue') {
                         const currentPlayer = get().activeClips[clipId]?.player;
                         if (currentPlayer) {
-                            transitioningClips.add(clipId);
-                            currentPlayer.fadeTo(0, crossfadeDuration);
+                            set(state => ({ fadingClipIds: [...state.fadingClipIds, clipId] }));
+                            // Segue usa la propria durata (fade-out rapido, entrante a pieno volume subito)
+                            currentPlayer.fadeTo(0, segueDuration);
                             setTimeout(() => {
                                 get().stopClip(clipId);
-                                transitioningClips.delete(clipId);
-                            }, crossfadeDuration + 200);
+                                set(state => ({ fadingClipIds: state.fadingClipIds.filter(id => id !== clipId) }));
+                            }, segueDuration + 200);
                         }
                         // La clip entrante parte subito a volume pieno (nessun fade-in forzato)
                         get().playClip(nextClip);
@@ -410,6 +417,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 player.play();
 
                 set((state) => {
+                    // v0.14.5: avvia il timer On Air al primo play dopo idle
+                    const wasIdle = Object.keys(state.activeClips).length === 0;
                     const newState = {
                         activeClips: {
                             ...state.activeClips,
@@ -419,7 +428,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                                 progress: 0,
                                 clip: freshClip
                             }
-                        }
+                        },
+                        onAirStartTime: wasIdle ? Date.now() : state.onAirStartTime
                     };
                     evaluateMix(newState.activeClips);
                     return newState;
@@ -552,8 +562,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     ac.player.stop();
                     ac.player.cleanup();
                 });
-                // Reset mix (no active clips)
-                return { activeClips: {}, suppressedClips: {} };
+                // Reset mix e timer On Air
+                return { activeClips: {}, suppressedClips: {}, onAirStartTime: null, fadingClipIds: [] };
             });
         },
 

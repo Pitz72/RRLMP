@@ -10,6 +10,12 @@ import { useAudioStore } from './store/useAudioStore';
 import { useSettingsStore } from './store/useSettingsStore';
 import AudioContextManager from './engine/AudioContextManager';
 import { WelcomeScreen } from './components/modals/WelcomeScreen';
+import { OnAirTimer } from './components/ui/OnAirTimer';
+import { NoteBoard } from './components/ui/NoteBoard';
+import { ToastContainer } from './components/ui/ToastContainer';
+import { ConfirmDialog } from './components/ui/ConfirmDialog';
+import { toast } from './store/useToastStore';
+import { confirm } from './store/useConfirmStore';
 
 
 import appLogo from './assets/logo.png';
@@ -61,7 +67,7 @@ function App() {
             e.stopPropagation();
         };
 
-        const handleKeyDown = (e: KeyboardEvent) => {
+        const handleKeyDown = async (e: KeyboardEvent) => {
             // Complex Toggle: Ctrl + Shift + D
             if (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
                 useDebugStore.getState().toggle();
@@ -77,7 +83,7 @@ function App() {
                 const { selectedClipIds, removeSelectedClips } = useProjectStore.getState();
                 if (selectedClipIds.length > 0) {
                     e.preventDefault();
-                    if (confirm(`Eliminare ${selectedClipIds.length} clip selezionate?`)) {
+                    if (await confirm(`Eliminare ${selectedClipIds.length} clip selezionate?`, 'Elimina', 'Annulla')) {
                         removeSelectedClips();
                     }
                 }
@@ -116,7 +122,7 @@ function App() {
                 if (state.currentFilePath) {
                     const result = await window.electron.saveProjectDirect(json, state.currentFilePath);
                     if (result.success) window.electron.forceClose();
-                    else alert('Errore salvataggio: ' + result.error);
+                    else toast('Errore salvataggio: ' + result.error, 'error');
                 } else {
                     const result = await window.electron.saveProject(json);
                     if (result.success) window.electron.forceClose();
@@ -192,6 +198,11 @@ function App() {
 
         const unsubscribeClose = window.electron.onCheckCloseIntent(handleCloseIntent);
 
+        // v0.14.3 — Emergency Stop globale: Escape → stopAll
+        const unsubscribeEmergencyStop = window.electron.onEmergencyStop(() => {
+            useAudioStore.getState().stopAll();
+        });
+
         window.addEventListener('dragover', handleDrag);
         window.addEventListener('drop', handleDrag);
         window.addEventListener('keydown', handleKeyDown);
@@ -202,6 +213,7 @@ function App() {
             window.removeEventListener('keydown', handleKeyDown);
             if (unsubscribeClose) unsubscribeClose();
             if (unsubscribeMidi) unsubscribeMidi();
+            if (unsubscribeEmergencyStop) unsubscribeEmergencyStop();
         };
     }, []);
 
@@ -211,6 +223,8 @@ function App() {
         <div className="h-screen w-screen flex flex-col bg-black text-white select-none">
             {/* DEBUG OVERLAY */}
             <DebugOverlay />
+            <ToastContainer />
+            <ConfirmDialog />
 
             {showWelcome && (
                 <WelcomeScreen
@@ -231,10 +245,10 @@ function App() {
                                     store.setDirty(false);
                                     setShowWelcome(false);
                                 } else {
-                                    alert('File LMP non valido o corrotto.');
+                                    toast('File LMP non valido o corrotto.', 'error');
                                 }
                             } catch (e) {
-                                alert('Errore lettura file.');
+                                toast('Errore lettura file.', 'error');
                             }
                         }
                     }}
@@ -253,16 +267,17 @@ function App() {
                 </div>
 
                 <div className="flex items-center gap-4">
+                    <OnAirTimer />
                     <DigitalClock />
-                    <div className="text-xs text-zinc-500">
-                        Audio Engine: <span className="text-green-500">READY</span>
-                    </div>
                 </div>
             </header>
 
             {/* MAIN CONTENT */}
-            <div className="flex-1 overflow-hidden">
-                <MainGrid />
+            <div className="flex-1 overflow-hidden flex flex-col">
+                <div className="flex-1 overflow-hidden">
+                    <MainGrid />
+                </div>
+                <NoteBoard />
             </div>
         </div>
     );

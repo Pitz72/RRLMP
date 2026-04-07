@@ -11,15 +11,17 @@ interface SettingsState {
     duckingDuration: number; // ms
     defaultPreshowTransition: 'crossfade' | 'segue' | 'gapless'; // Effetto Continuous-Play
 
-    // Pre-Show Transition Settings (v0.13.2)
+    // Pre-Show Transition Settings (v0.13.2 / v0.14.8)
     preshowTransitionType: TransitionType;
-    crossfadeDuration: number; // ms — usato sia per crossfade che per segue
+    crossfadeDuration: number; // ms — durata fade-out + fade-in per Crossfade
+    segueDuration: number;     // ms — durata fade-out per Segue (clip entrante parte subito a pieno volume)
 
     setOutputDeviceId: (id: string) => void;
     setGlobalMidiBind: (actionKey: string, midiMessage: string) => void;
     setDuckingSettings: (updates: { factor?: number; duration?: number }) => void;
     setDefaultPreshowTransition: (transition: 'crossfade' | 'segue' | 'gapless') => void;
     setPreshowTransition: (updates: { type?: TransitionType; duration?: number }) => void;
+    setSegueDuration: (ms: number) => void;
 }
 
 
@@ -34,9 +36,10 @@ export const useSettingsStore = create<SettingsState>()(
             duckingDuration: 500,
             defaultPreshowTransition: 'crossfade',
 
-            // Defaults preshow transition (v0.13.2)
+            // Defaults preshow transition (v0.13.2 / v0.14.8)
             preshowTransitionType: 'gapless',
             crossfadeDuration: 2000,
+            segueDuration: 800,
 
             setOutputDeviceId: (id) => set({ outputDeviceId: id }),
             setGlobalMidiBind: (actionKey, midiMessage) => set((state) => ({
@@ -51,6 +54,7 @@ export const useSettingsStore = create<SettingsState>()(
                 preshowTransitionType: updates.type ?? state.preshowTransitionType,
                 crossfadeDuration: updates.duration ?? state.crossfadeDuration
             })),
+            setSegueDuration: (ms) => set({ segueDuration: ms }),
         }),
 
         {
