@@ -24,7 +24,7 @@ import MidiManager from '../../engine/MidiManager';
 export const GlobalControls = () => {
     const { t } = useTranslation();
     const { stopAll } = useAudioStore();
-    const { columns, isDirty, setDirty, loadProject, resetProject, currentFilePath, isMidiLearnMode, setIsMidiLearnMode, runIntegrityCheck } = useProjectStore();
+    const { columns, isDirty, setDirty, loadProject, resetProject, currentFilePath, isMidiLearnMode, setIsMidiLearnMode, runIntegrityCheck, updateClip } = useProjectStore();
     const { globalMidiBinds, setGlobalMidiBind } = useSettingsStore();
 
     const [volume, setVolume] = useState(1.0);
@@ -335,12 +335,35 @@ export const GlobalControls = () => {
                                     loadProject(parsed.project, result.filePath);
                                     stopAll();
                                     setDirty(false);
-                                    // Integrity check (v0.14.2): verifica file su disco dopo il caricamento
+                                    // Integrity check (v0.14.2)
                                     runIntegrityCheck().then(missing => {
-                                        if (missing > 0) {
-                                            console.warn(`[Integrity] ${missing} file mancante/i nel progetto caricato.`);
-                                        }
+                                        if (missing > 0) console.warn(`[Integrity] ${missing} file mancante/i nel progetto caricato.`);
                                     });
+                                    // Silence check (v0.14.10): chiede se analizzare le clip PRE-SHOW mai analizzate
+                                    const preshowCol = parsed.project.columns?.find((c: { type: string }) => c.type === 'preshow');
+                                    const unanalyzed = (preshowCol?.clips ?? []).filter((c: { silenceChecked?: boolean; isMissing?: boolean }) => !c.silenceChecked && !c.isMissing);
+                                    if (unanalyzed.length > 0 && window.electron?.detectSilence) {
+                                        confirm(
+                                            `${unanalyzed.length} clip PRE-SHOW non sono mai state analizzate per il silenzio automatico. Eseguire l'analisi ora?`,
+                                            'Analizza',
+                                            'Salta'
+                                        ).then(yes => {
+                                            if (!yes) return;
+                                            toast(`Analisi silenzio: ${unanalyzed.length} clip in coda…`, 'info');
+                                            unanalyzed.forEach((clip: { id: string; path: string; name: string }) => {
+                                                updateClip('col-preshow', clip.id, { isAnalyzing: true });
+                                                window.electron.detectSilence(clip.path).then(result => {
+                                                    if (result.success && result.data && !result.data.noSilence) {
+                                                        updateClip('col-preshow', clip.id, { trimStart: result.data.trimStart, trimEnd: result.data.trimEnd, isAnalyzing: false, silenceChecked: true });
+                                                    } else {
+                                                        updateClip('col-preshow', clip.id, { isAnalyzing: false, silenceChecked: true });
+                                                    }
+                                                }).catch(() => {
+                                                    updateClip('col-preshow', clip.id, { isAnalyzing: false, silenceChecked: true });
+                                                });
+                                            });
+                                        });
+                                    }
                                 } else {
                                     toast('File LMP non valido o corrotto.', 'error');
                                 }

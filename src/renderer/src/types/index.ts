@@ -124,6 +124,10 @@ export interface AudioClip {
     /** True mentre FFmpeg sta analizzando il silenzio in background. */
     isAnalyzing?: boolean;
 
+    // Silence analysis tracking (v0.14.10) — persistito nel .lmp
+    /** True se il rilevamento silenzio IPC è già stato eseguito su questa clip. */
+    silenceChecked?: boolean;
+
     // Note/Script (v0.14.4)
     /** Testo libero: cue sheet, script, note di regia. Persistito nel .lmp. */
     notes?: string;

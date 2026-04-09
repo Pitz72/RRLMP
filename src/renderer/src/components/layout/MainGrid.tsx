@@ -158,14 +158,15 @@ export const MainGrid: React.FC = () => {
                             updateClip(colId, newClip.id, {
                                 trimStart: result.data.trimStart,
                                 trimEnd: result.data.trimEnd,
-                                isAnalyzing: false
+                                isAnalyzing: false,
+                                silenceChecked: true
                             });
                             debugLog(`AutoSilence [${newClip.name}]: trimStart=${result.data.trimStart}s, trimEnd=${result.data.trimEnd}s`, 'info');
                         } else {
-                            updateClip(colId, newClip.id, { isAnalyzing: false });
+                            updateClip(colId, newClip.id, { isAnalyzing: false, silenceChecked: true });
                         }
                     }).catch(() => {
-                        updateClip(colId, newClip.id, { isAnalyzing: false });
+                        updateClip(colId, newClip.id, { isAnalyzing: false, silenceChecked: true });
                     }).finally(() => {
                         setPreshowAnalyzingCount(n => Math.max(0, n - 1));
                     });
