@@ -80,14 +80,8 @@ export const MainGrid: React.FC = () => {
             const activeTag = document.activeElement?.tagName.toLowerCase();
             if (activeTag === 'input' || activeTag === 'textarea') return;
 
-            // 3. Command Mapping
-            if (e.key === 'Escape') {
-                e.preventDefault();
-                stopAll();
-                return;
-            }
-
-            // 3.1 Custom Keybinds (Priority)
+            // 3. Custom Keybinds (Priority)
+            // Nota: Escape è gestito dal globalShortcut Electron (main process) — non serve qui.
             const allClips = columns.flatMap(col => col.clips);
             const bindMatch = allClips.find(c => c.keybind === e.code);
 

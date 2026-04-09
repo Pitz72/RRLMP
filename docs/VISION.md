@@ -63,6 +63,7 @@ Questo documento sintetizza lo **stato reale del software**, le feature implemen
 | Global MIDI bind (Stop All, Master Volume) | ≤0.9.x | |
 | Keybind per-clip (es. KeyQ, Numpad1) | ≤0.9.x | |
 | KeymappingModal potenziato | 0.14.6 | Raggruppamento per colonna, Emergency Stop entry, dot colorato |
+| Keybind globale verificata (F1–F12, Numpad) | 0.14.10 | window keydown su `e.code`, guard input/modal, F1–F5 → colonne, priorità clip su colonna |
 
 ### Persistenza & Progetto
 | Feature | Versione | Note |
@@ -110,8 +111,8 @@ Campi **runtime-only** (non serializzati): `isMissing`, `isAnalyzing`
 
 ### 🔴 Alta Priorità
 
-**Shortcut tastiera clip — verifica globale**
-Il campo `keybind` esiste su ogni clip, ma va verificato che il listener keyboard in `App.tsx` sia attivo globalmente anche senza focus su elementi specifici. In broadcast le mani sono spesso occupate — F1–F12 / Numpad devono triggare senza dover cliccare prima.
+~~**Shortcut tastiera clip — verifica globale**~~ ✅ **Verificato e chiuso in v0.14.10**
+Il listener è in `MainGrid.tsx` su `window` (non `App.tsx`). Usa `e.code` (tasto fisico). Guard corretto per input/textarea/modal. F1–F5 mappano le colonne; clip keybind ha priorità. Escape rimosso dal renderer (già gestito da `globalShortcut` Electron nel main process).
 
 ---
 
