@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAudioStore } from '../../store/useAudioStore';
 import AudioContextManager from '../../engine/AudioContextManager';
 import { Button } from './Button';
-import { Square, Volume2, Save, FolderOpen, Settings, FilePlus, Package, Edit, Info, Keyboard } from 'lucide-react';
+import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 
@@ -259,7 +259,7 @@ export const GlobalControls = () => {
                         resetProject();
                     }}
                 >
-                    <FilePlus size={16} />
+                    <FilePlus2 size={16} />
                 </Button>
                 <Button
                     size="sm"
@@ -294,7 +294,7 @@ export const GlobalControls = () => {
                         }
                     }}
                 >
-                    <Save size={16} className={isDirty ? "animate-pulse" : ""} />
+                    <FileCheck2 size={16} className={isDirty ? "animate-pulse" : ""} />
                 </Button>
 
                 <Button
@@ -316,7 +316,7 @@ export const GlobalControls = () => {
                         }
                     }}
                 >
-                    <Edit size={16} />
+                    <FileOutput size={16} />
 
                 </Button>
 
@@ -374,7 +374,7 @@ export const GlobalControls = () => {
                         }
                     }}
                 >
-                    <FolderOpen size={16} />
+                    <FolderInput size={16} />
                 </Button>
                 <Button
                     size="sm"
@@ -413,7 +413,7 @@ export const GlobalControls = () => {
                     }}
 
                 >
-                    <Package size={16} />
+                    <HardDriveDownload size={16} />
                 </Button>
 
                 <Button
@@ -449,10 +449,10 @@ export const GlobalControls = () => {
                 <Button
                     size="sm"
                     className="bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 ml-1"
-                    title="Keybinds & MIDI Dashboard"
+                    title={t('controls.keybinds')}
                     onClick={() => setShowKeymapping(true)}
                 >
-                    <Keyboard size={16} />
+                    <Command size={16} />
                 </Button>
 
                 <Button
@@ -462,7 +462,7 @@ export const GlobalControls = () => {
 
                     onClick={() => setShowSettings(true)}
                 >
-                    <Settings size={16} />
+                    <SlidersHorizontal size={16} />
                 </Button>
 
                 <Button
@@ -471,7 +471,7 @@ export const GlobalControls = () => {
                     title={t('controls.info')}
                     onClick={() => setShowAbout(true)}
                 >
-                    <Info size={16} />
+                    <BookOpen size={16} />
                 </Button>
             </div>
 

@@ -22,8 +22,12 @@
         "stopAll": "STOP ALL",
         "masterVol": "MASTER VOL",
         "midiLearn": "MIDI LEARN",
-        "info": "Info",
-        "settings": "Impostazioni"
+        "info": "Info & Aggiornamenti",
+        "settings": "Impostazioni Generali",
+        "save": "Salva Progetto",
+        "saveAs": "Salva Come…",
+        "export": "Esporta Archivio Self-Contained",
+        "keybinds": "Keybinds & MIDI Dashboard"
     },
     "modal": {
         "about": {
