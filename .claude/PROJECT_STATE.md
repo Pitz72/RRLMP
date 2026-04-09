@@ -1,16 +1,18 @@
 # RRLMP — Stato Progetto per Sessioni Claude
 
-**Aggiornato**: 2026-04-07
-**Versione corrente**: 0.14.9
-**Build verificata**: ✅ `builds/v0.14.9/Runtime Live Machine Setup 0.14.9.exe`
-**Branch attivo**: `master` (main repo) / `claude/elegant-tharp` (worktree attivo)
+**Aggiornato**: 2026-04-09
+**Versione corrente**: 0.14.12
+**Build verificata**: ✅ `builds/v0.14.12/Runtime Live Machine Setup 0.14.12.exe`
+**Branch attivo**: `master`
 
 ---
 
 ## Struttura Repository
 
 - **Repo principale**: `C:\Users\Utente\Documents\GitHub\RRLMP\`
-- **Branch attivo**: `master`
+- **Branch attivo**: `master` (unica fonte di verità)
+- **Remote origin**: GitLab — `https://gitlab.com/pizzisimone1972/RRLMP.git`
+- **Remote github**: GitHub — `https://github.com/Pitz72/RRLMP.git` (privato)
 - **Build output**: `builds/v{version}/` nel repo principale
 - **Worktree Claude**: `.claude/worktrees/` (in .gitignore — non committare)
 
@@ -39,6 +41,7 @@
 | `get-waveform-data` | `getWaveformData` | Genera dati waveform (FFmpeg) |
 | `detect-silence` | `detectSilence` | Rileva silenzio start/end (FFmpeg) |
 | `check-files-exist` | `checkFilesExist` | Verifica esistenza file — v0.14.2 |
+| `import-m3u` | `importM3u` | Importa playlist M3U → PRE-SHOW — v0.14.12 |
 | `emergency-stop` (push) | `onEmergencyStop` | Emergency Stop globale — v0.14.3 |
 | `dialog:save-project` | `saveProject` | Salva .lmp con dialog |
 | `save-project-direct` | `saveProjectDirect` | Salva .lmp su path noto |
@@ -53,9 +56,10 @@
 ### Engine Audio
 - ✅ Main-Side-Heavy Architecture (v0.11.0)
 - ✅ Streaming media:// protocol (v0.11.0)
-- ✅ Transizioni PRE-SHOW: Gapless / Segue / Crossfade per-clip (v0.13.2)
+- ✅ Transizioni PRE-SHOW: Gapless / Segue / Crossfade per-clip (v0.13.2) — **fixate v0.14.10**
 - ✅ Durate separate Crossfade (2000ms) e Segue (800ms) (v0.14.8)
-- ✅ Auto-Silence Detection al Drop in PRE-SHOW (v0.13.2)
+- ✅ Auto-Silence Detection al Drop in PRE-SHOW via IPC FFmpeg (v0.13.2, fix v0.14.10)
+- ✅ Prompt analisi silenzio al caricamento di vecchi progetti (v0.14.10)
 - ✅ Ducking Sidechain dinamico
 - ✅ Output Device Hot-Switch
 - ✅ Emergency Stop globale Escape → stopAll (v0.14.3)
@@ -69,16 +73,30 @@
 - ✅ Timer On Air (v0.14.5)
 - ✅ Badge TRIM… durante Auto-Silence (v0.14.6)
 - ✅ Badge FADE OUT durante transizioni Crossfade/Segue (v0.14.9)
+- ✅ Clip PRE-SHOW già suonate: opacity-50 visiva (v0.14.12)
 - ✅ KeymappingModal potenziato — per colonna + Emergency Stop (v0.14.6)
+- ✅ Keybind globali verificate: F1–F12, Numpad, window keydown (v0.14.11)
 - ✅ Toast Notification System — no più alert() bloccanti (v0.14.7)
 - ✅ ConfirmDialog non-bloccante promise-based (v0.14.7)
+- ✅ Import Playlist M3U/M3U8 → PRE-SHOW (v0.14.12)
+- ✅ Icone toolbar aggiornate + tooltip fixati (v0.14.11)
 - ✅ Real-Time Board Cues: INTRO countdown, OUTRO pre-cue + alert
 - ✅ MIDI Learn Mode + KeymappingModal
 - ✅ Save/Load .lmp + Auto-Backup + Export Self-Contained
 - ✅ i18n (IT/EN), VU Meter, Digital Clock, Welcome Screen
 - ✅ Drag & Drop + multi-selezione
 
+## Campi AudioClip (persistiti nel .lmp)
+
+| Campo | Tipo | Persistito | Note |
+|-------|------|-----------|------|
+| `silenceChecked` | boolean | ✅ | True se analisi IPC già eseguita |
+| `hasPlayed` | boolean | ✅ | True se clip PRE-SHOW già suonata |
+| `isMissing` | boolean | ❌ runtime | File mancante su disco |
+| `isAnalyzing` | boolean | ❌ runtime | Analisi silenzio in corso |
+
 ## Colonne Default (5 fisse)
+
 | ID | Tipo | Colore | NextAction default |
 |----|------|--------|-------------------|
 | col-assets | asset | #10B981 Emerald | stop |
@@ -90,17 +108,14 @@
 ## Formato File .lmp
 
 ```json
-{ "version": "0.14.9", "timestamp": "ISO8601", "project": { "columns": [] } }
+{ "version": "0.14.12", "timestamp": "ISO8601", "project": { "columns": [] } }
 ```
-`isMissing`, `isAnalyzing` → runtime-only, non serializzati. `notes` → persistito.
 
 ## Debito Tecnico Aperto
 
 | Priorità | Item |
 |----------|------|
-| 🔴 Alta | Shortcut tastiera clip (F1-F12/Numpad) — verifica listener globale |
-| 🟡 Media | Playlist Import M3U → PRE-SHOW (2 giorni) |
-| 🟡 Media | Preview Transizione "Test →" (4h) |
+| 🟡 Media | Preview Transizione "Test →" ultimi N sec clip corrente + inizio prossima (4h) |
 | 🟢 Bassa | Column Color Picker (2h) |
 | 🟢 Bassa | Volume Master MIDI CC fader continuo (2h) |
 | 🟢 Bassa | Badge "Auto-saved" nell'header (30min) |
@@ -111,6 +126,7 @@
 ## Errori TS Pre-Esistenti (non impattano build)
 - `DebugOverlay.tsx`: import inutilizzati (TS6133)
 - `BufferPlayer.ts`: interfaccia IAudioPlayer incompleta (TS2420)
+- `ClipSettingsModal.tsx`: tipo `'default'` non assegnabile a `TransitionType` (TS2345)
 
 ## Comandi Build
 
@@ -119,22 +135,13 @@ npm run build:main && npm run build:preload && npx vite build && npx electron-bu
 # exe → builds/v{version}/Runtime Live Machine Setup {version}.exe
 ```
 
-## Git Log Recente (master)
+## Push Multi-Remote
 
+```bash
+git push origin master   # GitLab
+git push github master   # GitHub
 ```
-2baeb36 docs: aggiorna PROJECT_STATE.md a v0.14.2
-ea2cb1c chore: aggiungi .claude/worktrees/ a .gitignore
-4a243ef merge: integra branch claude/musing-lumiere in master (v0.13.2 → v0.14.2)
-```
-
-## Prossime Sessioni — Ordine Lavori Suggerito
-
-1. **Merge worktree** `claude/elegant-tharp` → `master` (v0.14.3 → v0.14.9)
-2. **Shortcut tastiera globali** — verifica + fix listener (priorità alta)
-3. **Playlist Import M3U** → PRE-SHOW (impatto workflow reale)
-4. **Preview Transizione** — Test Crossfade/Segue prima di andare in onda
-5. **Column Color Picker** — piccolo, impatto visivo immediato
 
 ---
 
-*Documento aggiornato il 2026-04-07 — fine sessione v0.14.9.*
+*Documento aggiornato il 2026-04-09 — fine sessione v0.14.12.*
