@@ -118,8 +118,8 @@ Il listener è in `MainGrid.tsx` su `window` (non `App.tsx`). Usa `e.code` (tast
 
 ### 🟡 Media Priorità
 
-**Playlist Import M3U → colonna PRE-SHOW**
-Scope chiarito: import da sistemi scheduling radio (Zetta, RCS, Myriad) direttamente nella colonna PRE-SHOW con `nextAction: play_next`. Riduce setup da 20 minuti a 30 secondi. IPC handler + parsing M3U + mapping clip. Stimato: 2 giorni.
+~~**Playlist Import M3U → colonna PRE-SHOW**~~ ✅ **Implementato in v0.14.12**
+IPC handler `import-m3u`, parsing M3U/M3U8, path relativi/assoluti, silence detection automatica, `addClipFromPath` nel project store.
 
 **Preview Transizione**
 Pulsante "Test →" nel ClipSettingsModal che suona gli ultimi N secondi della clip corrente + i primi N della successiva. Utile per testare crossfade/segue prima di andare in onda. Stimato: 4h.

@@ -27,7 +27,8 @@
         "save": "Save Project",
         "saveAs": "Save As…",
         "export": "Export Self-Contained Archive",
-        "keybinds": "Keybinds & MIDI Dashboard"
+        "keybinds": "Keybinds & MIDI Dashboard",
+        "importM3u": "Import M3U Playlist → PRE-SHOW"
     },
     "modal": {
         "about": {

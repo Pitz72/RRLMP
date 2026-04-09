@@ -106,7 +106,9 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                     ? 'bg-red-950/60 border-red-800 cursor-not-allowed opacity-80'
                     : isPlaying
                         ? 'bg-zinc-800 shadow-[0_0_15px_rgba(0,0,0,0.5)] cursor-pointer'
-                        : 'bg-zinc-900 border-zinc-800 hover:border-zinc-600 cursor-pointer'
+                        : clip.hasPlayed && clip.type === 'preshow'
+                            ? 'bg-zinc-950 border-zinc-800/50 hover:border-zinc-600 cursor-pointer opacity-50'
+                            : 'bg-zinc-900 border-zinc-800 hover:border-zinc-600 cursor-pointer'
                 }
                 ${isSelected ? 'ring-2 ring-blue-500 z-10' : ''}
                 ${isMidiLearnMode && isSelected ? 'ring-2 ring-cyan-400 ring-dashed' : ''}

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAudioStore } from '../../store/useAudioStore';
 import AudioContextManager from '../../engine/AudioContextManager';
 import { Button } from './Button';
-import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command } from 'lucide-react';
+import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 
@@ -24,7 +24,8 @@ import MidiManager from '../../engine/MidiManager';
 export const GlobalControls = () => {
     const { t } = useTranslation();
     const { stopAll } = useAudioStore();
-    const { columns, isDirty, setDirty, loadProject, resetProject, currentFilePath, isMidiLearnMode, setIsMidiLearnMode, runIntegrityCheck, updateClip } = useProjectStore();
+    const loadClip = useAudioStore((s) => s.loadClip);
+    const { columns, isDirty, setDirty, loadProject, resetProject, currentFilePath, isMidiLearnMode, setIsMidiLearnMode, runIntegrityCheck, updateClip, addClipFromPath } = useProjectStore();
     const { globalMidiBinds, setGlobalMidiBind } = useSettingsStore();
 
     const [volume, setVolume] = useState(1.0);
@@ -375,6 +376,42 @@ export const GlobalControls = () => {
                     }}
                 >
                     <FolderInput size={16} />
+                </Button>
+                <Button
+                    size="sm"
+                    className="bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700"
+                    title={t('controls.importM3u')}
+                    onClick={async () => {
+                        if (!window.electron?.importM3u) return;
+                        const result = await window.electron.importM3u();
+                        if (!result.success || !result.paths || result.paths.length === 0) {
+                            if (result.success) toast('Nessun file audio trovato nella playlist.', 'warning');
+                            return;
+                        }
+                        const preshowColId = 'col-preshow';
+                        let added = 0;
+                        for (const filePath of result.paths) {
+                            const newClip = addClipFromPath(preshowColId, filePath);
+                            if (newClip) {
+                                added++;
+                                loadClip(newClip);
+                                // Auto-silence detection
+                                if (window.electron?.detectSilence) {
+                                    updateClip(preshowColId, newClip.id, { isAnalyzing: true });
+                                    window.electron.detectSilence(filePath).then(r => {
+                                        if (r.success && r.data && !r.data.noSilence) {
+                                            updateClip(preshowColId, newClip.id, { trimStart: r.data.trimStart, trimEnd: r.data.trimEnd, isAnalyzing: false, silenceChecked: true });
+                                        } else {
+                                            updateClip(preshowColId, newClip.id, { isAnalyzing: false, silenceChecked: true });
+                                        }
+                                    }).catch(() => updateClip(preshowColId, newClip.id, { isAnalyzing: false, silenceChecked: true }));
+                                }
+                            }
+                        }
+                        toast(`M3U importata — ${added} tracce aggiunte a PRE-SHOW`, 'success');
+                    }}
+                >
+                    <ListMusic size={16} />
                 </Button>
                 <Button
                     size="sm"

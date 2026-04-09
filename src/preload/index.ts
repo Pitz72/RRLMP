@@ -52,6 +52,8 @@ if (process.contextIsolated) {
                 title: string;
                 message: string;
             }) => ipcRenderer.invoke('show-close-dialog-i18n', labels),
+            // v0.14.12 — Import playlist M3U → PRE-SHOW
+            importM3u: () => ipcRenderer.invoke('import-m3u'),
             // v0.14.3 — Emergency Stop globale
             onEmergencyStop: (callback: () => void) => {
                 const subscription = () => callback();

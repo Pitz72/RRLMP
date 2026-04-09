@@ -225,6 +225,33 @@ ipcMain.handle('dialog:load-project', async (event) => {
     }
 });
 
+ipcMain.handle('import-m3u', async (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (!win) return { success: false };
+    const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+        title: 'Importa Playlist M3U',
+        filters: [{ name: 'Playlist M3U', extensions: ['m3u', 'm3u8'] }],
+        properties: ['openFile']
+    });
+    if (canceled || filePaths.length === 0) return { success: false };
+    try {
+        const m3uPath = filePaths[0];
+        const m3uDir = require('path').dirname(m3uPath);
+        const content = fs.readFileSync(m3uPath, 'utf-8');
+        const lines = content.split(/\r?\n/).map((l: string) => l.trim()).filter((l: string) => l && !l.startsWith('#'));
+        const AUDIO_EXTS = ['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac', '.opus', '.wma'];
+        const paths: string[] = lines
+            .map((line: string) => require('path').isAbsolute(line) ? line : require('path').resolve(m3uDir, line))
+            .filter((p: string) => {
+                const ext = require('path').extname(p).toLowerCase();
+                return AUDIO_EXTS.includes(ext) && fs.existsSync(p);
+            });
+        return { success: true, paths };
+    } catch (e) {
+        return { success: false, error: String(e) };
+    }
+});
+
 ipcMain.handle('export-project', async (event, projectJsonString: string) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     if (!win) return { success: false };

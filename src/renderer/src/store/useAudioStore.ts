@@ -499,6 +499,15 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                         );
 
                     evaluateMix(newActiveClips);
+
+                    // v0.14.12: marca come suonata le clip PRE-SHOW a fine riproduzione
+                    if (active.clip.type === 'preshow') {
+                        const colId = getColumnForClip(clipId);
+                        if (colId) {
+                            useProjectStore.getState().updateClip(colId, clipId, { hasPlayed: true });
+                        }
+                    }
+
                     return { activeClips: newActiveClips, suppressedClips: newSuppressedClips };
                 }
                 return state;

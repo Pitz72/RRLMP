@@ -34,6 +34,7 @@ declare global {
             onExportProgress: (callback: (event: unknown, data: { current: number; total: number; filename: string }) => void) => () => void;
             onCheckCloseIntent: (callback: () => void) => () => void;
             onEmergencyStop: (callback: () => void) => () => void;
+            importM3u: () => Promise<{ success: boolean; paths?: string[]; error?: string }>;
         }
 
 
@@ -127,6 +128,10 @@ export interface AudioClip {
     // Silence analysis tracking (v0.14.10) — persistito nel .lmp
     /** True se il rilevamento silenzio IPC è già stato eseguito su questa clip. */
     silenceChecked?: boolean;
+
+    // Played tracking (v0.14.12) — persistito nel .lmp
+    /** True se la clip è già stata suonata almeno una volta nella sessione corrente. */
+    hasPlayed?: boolean;
 
     // Note/Script (v0.14.4)
     /** Testo libero: cue sheet, script, note di regia. Persistito nel .lmp. */

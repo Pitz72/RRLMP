@@ -55,6 +55,7 @@ interface ProjectState {
 
     resetProject: () => void;
     addClip: (columnId: string, file: File) => AudioClip | undefined;
+    addClipFromPath: (columnId: string, filePath: string) => AudioClip | undefined;
     removeClip: (columnId: string, clipId: string) => void;
     updateClip: (columnId: string, clipId: string, updates: Partial<AudioClip>) => void;
     loadProject: (state: ProjectState, filePath?: string) => void; // Added filePath
@@ -141,6 +142,40 @@ export const useProjectStore = create<ProjectState>((set) => ({
             })
         }));
 
+        return createdClip;
+    },
+
+    addClipFromPath: (columnId, filePath) => {
+        let createdClip: AudioClip | undefined;
+        const fileName = filePath.split(/[\\/]/).pop() || filePath;
+        const name = fileName.replace(/\.[^/.]+$/, '');
+        set((state) => ({
+            isDirty: true,
+            columns: state.columns.map((col) => {
+                if (col.id !== columnId) return col;
+                const newClip: AudioClip = {
+                    id: crypto.randomUUID(),
+                    name,
+                    path: filePath,
+                    type: col.type,
+                    color: col.color,
+                    volume: 1.0,
+                    pan: 0,
+                    isLooping: false,
+                    isPlaying: false,
+                    duration: 0,
+                    currentTime: 0,
+                    nextAction: (col.type === 'preshow') ? 'play_next' : 'stop',
+                    behavior: 'normal',
+                    duckingRole: (col.type === 'voice') ? 'source' :
+                        (col.type === 'music' || col.type === 'preshow') ? 'target' : 'none',
+                    fadeIn: 0,
+                    fadeOut: (col.type === 'preshow') ? 0 : (col.type === 'asset' ? 500 : 0)
+                };
+                createdClip = newClip;
+                return { ...col, clips: [...col.clips, newClip] };
+            })
+        }));
         return createdClip;
     },
 
