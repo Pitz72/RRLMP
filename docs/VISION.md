@@ -121,8 +121,10 @@ Il listener è in `MainGrid.tsx` su `window` (non `App.tsx`). Usa `e.code` (tast
 ~~**Playlist Import M3U → colonna PRE-SHOW**~~ ✅ **Implementato in v0.14.12**
 IPC handler `import-m3u`, parsing M3U/M3U8, path relativi/assoluti, silence detection automatica, `addClipFromPath` nel project store.
 
-~~**Preview Transizione**~~ ✅ **Implementato in v0.15.0**
+~~**Preview Transizione**~~ ✅ **Implementato in v0.15.0** — ⚠️ **Da raffinare**
 Pulsante "Test →" nel ClipSettingsModal (tab General, visibile solo per clip PRE-SHOW con una prossima clip). Riproduce gli ultimi secondi della clip corrente così la transizione (crossfade/segue/gapless) scatta naturalmente.
+
+**Problema noto**: una volta avviato il test, non è possibile fermarlo dall'interno del modal. L'utente deve chiudere il modal e stoppare la clip manualmente (click Stop sulla ClipCard) oppure premere Escape (Emergency Stop globale). Da aggiungere nella prossima sessione: pulsante "Stop" dedicato nel modal che chiama `stopClip(clip.id)`, e gestione del caso in cui il modal si chiude mentre il test è in corso.
 
 ---
 
