@@ -68,6 +68,7 @@ export const MainGrid: React.FC = () => {
 
     const [editingClip, setEditingClip] = useState<AudioClip | null>(null);
     const [activeId, setActiveId] = useState<string | null>(null);
+    const [preshowAnalyzingCount, setPreshowAnalyzingCount] = useState(0);
 
     // GLOBAL HOTKEYS
     React.useEffect(() => {
@@ -147,11 +148,11 @@ export const MainGrid: React.FC = () => {
             if (newClip) {
                 await loadClip(newClip);
 
-                // Auto-Silence Detection per la colonna Pre-Show (v0.13.2)
-                // v0.14.6: feedback visivo isAnalyzing durante la detection
+                // Auto-Silence Detection per la colonna Pre-Show via IPC (v0.13.2, fix v0.14.10)
                 const col = columns.find(c => c.id === colId);
                 if (col?.type === 'preshow' && window.electron?.detectSilence) {
                     updateClip(colId, newClip.id, { isAnalyzing: true });
+                    setPreshowAnalyzingCount(n => n + 1);
                     window.electron.detectSilence(newClip.path).then(result => {
                         if (result.success && result.data && !result.data.noSilence) {
                             updateClip(colId, newClip.id, {
@@ -165,6 +166,8 @@ export const MainGrid: React.FC = () => {
                         }
                     }).catch(() => {
                         updateClip(colId, newClip.id, { isAnalyzing: false });
+                    }).finally(() => {
+                        setPreshowAnalyzingCount(n => Math.max(0, n - 1));
                     });
                 }
             }
@@ -266,6 +269,12 @@ export const MainGrid: React.FC = () => {
                         onNativeDrop={handleNativeDrop}
                         onNativeDragOver={handleNativeDragOver}
                     >
+                        {col.type === 'preshow' && preshowAnalyzingCount > 0 && (
+                            <div className="mx-2 mb-1 px-2 py-1.5 bg-amber-950/60 border border-amber-500/40 rounded text-amber-300 text-[10px] flex items-center gap-2">
+                                <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                                <span>Rilevamento silenzio… {preshowAnalyzingCount} {preshowAnalyzingCount === 1 ? 'file' : 'file'} in analisi</span>
+                            </div>
+                        )}
                         <SortableContext
                             items={col.clips.map(c => c.id)}
                             strategy={verticalListSortingStrategy}

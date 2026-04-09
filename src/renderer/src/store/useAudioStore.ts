@@ -6,7 +6,6 @@ import AudioContextManager from '../engine/AudioContextManager';
 import { debugLog } from './useDebugStore';
 import { useProjectStore } from './useProjectStore';
 import { useSettingsStore } from './useSettingsStore';
-import { toFileUrl } from '../utils/pathUtils';
 import * as AUDIO_CONST from '../constants/audioConstants';
 
 interface ActiveClipState {
@@ -202,7 +201,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
             // Integrity Guard (v0.14.2): blocca playback per file mancanti
             if (freshClip.isMissing) {
-                debugLog(`AudioStore: PlayClip bloccato — file mancante: ${freshClip.path}`, 'warn');
+                debugLog(`AudioStore: PlayClip bloccato — file mancante: ${freshClip.path}`, 'error');
                 return;
             }
 
@@ -289,13 +288,11 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     const nextClip = getNextClipInColumn(currentClip.id);
                     if (!nextClip) return;
 
-                    const { preshowTransitionType, crossfadeDuration, segueDuration } = useSettingsStore.getState();
+                    const { defaultPreshowTransition, crossfadeDuration, segueDuration } = useSettingsStore.getState();
                     const colId = getColumnForClip(currentClip.id);
-                    // Il tipo di transizione si applica solo alla colonna preshow (per ora);
-                    // per le altre colonne rimane il comportamento gapless esistente.
                     const isPreshow = colId === 'col-preshow';
                     const effectiveType = currentClip.transitionType
-                        || (isPreshow ? preshowTransitionType : 'gapless');
+                        ?? (isPreshow ? defaultPreshowTransition : 'gapless');
 
                     debugLog(`AudioStore: Transition [${effectiveType}] ${currentClip.name} → ${nextClip.name}`, 'event');
 
@@ -336,24 +333,11 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
                 // Sequencer Logic
                 player.onPreEnd((clipId) => {
-                    // SEGUENCER LOGIC: Determiniamo quando far partire la prossima clip
-                    const transition = (freshClip.transitionType && freshClip.transitionType !== 'default')
-                        ? freshClip.transitionType
-                        : useSettingsStore.getState().defaultPreshowTransition;
-
-                    if (freshClip.nextAction === 'play_next') {
-                        // Gapless: Aspetta la fine (onEnded)
-                        if (transition === 'gapless') return;
-
-                        // Segue/Crossfade: Se non c'è Outro Marker, usiamo l'inizio del FadeOut (onPreEnd)
-                        if ((freshClip.outroMarker || 0) <= 0) {
-                            const nextClip = getNextClipInColumn(freshClip.id);
-                            if (nextClip) {
-                                debugLog(`AudioStore: Sequencer Play Next (${transition} via PreEnd) -> ${nextClip.name}`, 'event');
-                                get().playClip(nextClip);
-                            }
-                        }
-                    }
+                    // Gapless: la clip termina naturalmente, onEnded gestirà il play_next
+                    if (freshClip.nextAction !== 'play_next') return;
+                    // Se c'è un Outro Marker, onOutroReached gestirà la transizione
+                    if ((freshClip.outroMarker || 0) > 0) return;
+                    applyTransitionAndPlayNext(clipId);
                 });
 
                 player.onIntroReached((clipId) => {
@@ -364,19 +348,9 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 player.onOutroReached((clipId) => {
                     const currentClip = get().activeClips[clipId]?.clip;
                     if (!currentClip) return;
-                    
-                    const transition = (currentClip.transitionType && currentClip.transitionType !== 'default')
-                        ? currentClip.transitionType
-                        : useSettingsStore.getState().defaultPreshowTransition;
-
-                    debugLog(`🔊 Outro Reached for ${currentClip.name} (Trans: ${transition})`, 'info');
-
-                    if (currentClip.nextAction === 'play_next' && transition !== 'gapless') {
-                        const nextClip = getNextClipInColumn(currentClip.id);
-                        if (nextClip) {
-                            debugLog(`AudioStore: Sequencer Play Next (${transition} via Outro Marker) -> ${nextClip.name}`, 'event');
-                            get().playClip(nextClip);
-                        }
+                    debugLog(`🔊 Outro Reached for ${currentClip.name}`, 'info');
+                    if (currentClip.nextAction === 'play_next') {
+                        applyTransitionAndPlayNext(clipId);
                     }
                 });
 
@@ -389,9 +363,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                         setTimeout(() => get().playClip(freshClip), 50);
                     }
                     else if (freshClip.nextAction === 'play_next') {
-                        const transition = (freshClip.transitionType && freshClip.transitionType !== 'default')
-                            ? freshClip.transitionType
-                            : useSettingsStore.getState().defaultPreshowTransition;
+                        const transition = freshClip.transitionType
+                            ?? useSettingsStore.getState().defaultPreshowTransition;
 
                         // Gapless o Fallback: Se non è ancora partita la prossima clip, falla partire ora
                         const nextClip = getNextClipInColumn(freshClip.id);
@@ -412,6 +385,18 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     debugLog(`AudioStore: Load obsoleto scartato per ${freshClip.name} (gen ${generation})`, 'info');
                     player.cleanup();
                     return;
+                }
+
+                // v0.14.10: imposta fadeOut dinamico per PRE-SHOW così onPreEnd scatta
+                // al momento giusto per crossfade/segue (crossfadeDuration o segueDuration ms prima della fine).
+                if (freshClip.type === 'preshow' && freshClip.nextAction === 'play_next' && (freshClip.outroMarker || 0) <= 0) {
+                    const { defaultPreshowTransition, crossfadeDuration, segueDuration } = useSettingsStore.getState();
+                    const transType = freshClip.transitionType ?? defaultPreshowTransition;
+                    if (transType === 'crossfade') {
+                        player.updateSettings({ ...freshClip, fadeOut: crossfadeDuration });
+                    } else if (transType === 'segue') {
+                        player.updateSettings({ ...freshClip, fadeOut: segueDuration });
+                    }
                 }
 
                 player.play();
@@ -448,46 +433,10 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             try {
                 await player.load(clip.path);
                 const duration = player.getDuration();
-                
-                let trimStart = clip.trimStart || 0;
-                let trimEnd = clip.trimEnd || 0;
-
-                // AUTOMATIC SILENCE DETECTION (Specific for Pre-Show or Empty Trims)
-                const isPreshow = clip.type === 'preshow';
-                const hasNoTrim = (trimStart === 0 && trimEnd === 0);
-
-                if (isPreshow && hasNoTrim) {
-                    try {
-                        debugLog(`AudioStore: Auto-Silence Detection for ${clip.name}...`, 'info');
-                        const fetchPath = toFileUrl(clip.path);
-                        
-                        const response = await fetch(fetchPath);
-                        const arrayBuffer = await response.arrayBuffer();
-                        const ctx = AudioContextManager.getInstance().getContext();
-                        const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-                        const rawData = audioBuffer.getChannelData(0);
-                        const threshold = 0.005; // -46dB
-                        
-                        let startFrame = 0;
-                        for (let i = 0; i < rawData.length; i++) {
-                            if (Math.abs(rawData[i]) > threshold) { startFrame = i; break; }
-                        }
-                        
-                        let endFrame = rawData.length - 1;
-                        for (let i = rawData.length - 1; i >= 0; i--) {
-                            if (Math.abs(rawData[i]) > threshold) { endFrame = i; break; }
-                        }
-
-                        const Margin = 0.05;
-                        trimStart = Math.max(0, (startFrame / audioBuffer.sampleRate) - Margin);
-                        const silenceAtEnd = audioBuffer.duration - (endFrame / audioBuffer.sampleRate);
-                        trimEnd = Math.max(0, silenceAtEnd - Margin);
-                        
-                        debugLog(`AudioStore: Auto-Trim ${clip.name} -> Start: ${trimStart.toFixed(2)}s, EndCut: ${trimEnd.toFixed(2)}s`, 'event');
-                    } catch (e) {
-                        console.warn("Silence detection failed during loadClip", e);
-                    }
-                }
+                // Silence detection for PRE-SHOW is handled via IPC in MainGrid.tsx (handleNativeDrop).
+                // loadClip saves only the duration; trimStart/trimEnd come from the IPC result.
+                const trimStart = clip.trimStart || 0;
+                const trimEnd = clip.trimEnd || 0;
 
                 const { useProjectStore } = await import('./useProjectStore');
                 useProjectStore.getState().updateClip(
