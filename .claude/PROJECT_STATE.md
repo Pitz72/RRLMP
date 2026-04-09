@@ -1,8 +1,8 @@
 # RRLMP — Stato Progetto per Sessioni Claude
 
 **Aggiornato**: 2026-04-09
-**Versione corrente**: 0.14.12
-**Build verificata**: ✅ `builds/v0.14.12/Runtime Live Machine Setup 0.14.12.exe`
+**Versione corrente**: 0.15.0
+**Build verificata**: ❌ (non ancora buildata)
 **Branch attivo**: `master`
 
 ---
@@ -79,6 +79,7 @@
 - ✅ Toast Notification System — no più alert() bloccanti (v0.14.7)
 - ✅ ConfirmDialog non-bloccante promise-based (v0.14.7)
 - ✅ Import Playlist M3U/M3U8 → PRE-SHOW (v0.14.12)
+- ✅ Preview Transizione PRE-SHOW: pulsante "Test →" nel ClipSettingsModal (v0.15.0)
 - ✅ Icone toolbar aggiornate + tooltip fixati (v0.14.11)
 - ✅ Real-Time Board Cues: INTRO countdown, OUTRO pre-cue + alert
 - ✅ MIDI Learn Mode + KeymappingModal
@@ -108,14 +109,14 @@
 ## Formato File .lmp
 
 ```json
-{ "version": "0.14.12", "timestamp": "ISO8601", "project": { "columns": [] } }
+{ "version": "0.15.0", "timestamp": "ISO8601", "project": { "columns": [] } }
 ```
 
 ## Debito Tecnico Aperto
 
 | Priorità | Item |
 |----------|------|
-| 🟡 Media | Preview Transizione "Test →" ultimi N sec clip corrente + inizio prossima (4h) |
+| ✅ Done | Preview Transizione "Test →" — implementata in v0.15.0 |
 | 🟢 Bassa | Column Color Picker (2h) |
 | 🟢 Bassa | Volume Master MIDI CC fader continuo (2h) |
 | 🟢 Bassa | Badge "Auto-saved" nell'header (30min) |
@@ -144,4 +145,4 @@ git push github master   # GitHub
 
 ---
 
-*Documento aggiornato il 2026-04-09 — fine sessione v0.14.12.*
+*Documento aggiornato il 2026-04-09 — fine sessione v0.15.0.*

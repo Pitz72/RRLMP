@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { AudioClip } from '../../types';
 import { debugLog } from '../../store/useDebugStore';
-import { Wand2, Settings2, Scissors, FileText } from 'lucide-react';
+import { Wand2, Settings2, Scissors, FileText, PlayCircle } from 'lucide-react';
 import { toast } from '../../store/useToastStore';
 import { confirm } from '../../store/useConfirmStore';
 import { WaveformEditor } from '../ui/WaveformEditor';
+import { useAudioStore } from '../../store/useAudioStore';
+import { useProjectStore } from '../../store/useProjectStore';
 
 
 interface ClipSettingsModalProps {
@@ -28,6 +30,17 @@ const COLORS = [
 ];
 
 export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOpen, onClose, onSave, onDelete }) => {
+    const previewTransition = useAudioStore(s => s.previewTransition);
+    const columns = useProjectStore(s => s.columns);
+
+    const hasNextClip = useMemo(() => {
+        if (clip.type !== 'preshow') return false;
+        const col = columns.find(c => c.clips.some(cl => cl.id === clip.id));
+        if (!col) return false;
+        const idx = col.clips.findIndex(cl => cl.id === clip.id);
+        return idx >= 0 && idx < col.clips.length - 1;
+    }, [clip.id, clip.type, columns]);
+
     const [activeTab, setActiveTab] = useState<'general' | 'markers' | 'notes'>('general');
     
     const [name, setName] = useState(clip.name);
@@ -331,6 +344,20 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                             <option value="gapless">Gapless (Tail-to-Start)</option>
                                         </select>
                                     </label>
+
+                                    {hasNextClip && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm text-zinc-400">Preview Transition</span>
+                                            <button
+                                                onClick={() => previewTransition(clip)}
+                                                className="flex items-center gap-1.5 px-3 py-1 bg-violet-600 hover:bg-violet-500 text-white text-xs rounded font-medium transition-colors"
+                                                title="Riproduce gli ultimi secondi di questa clip — la transizione scatta naturalmente"
+                                            >
+                                                <PlayCircle size={13} />
+                                                Test →
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

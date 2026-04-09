@@ -31,6 +31,7 @@ interface AudioStore {
     playColumn: (colIndex: number) => Promise<void>;
     updateOutputDevice: (deviceId: string) => void;
     stopClip: (clipId: string) => void;
+    previewTransition: (clip: AudioClip) => Promise<void>;
     stopAll: () => void;
 
     // Internal loop
@@ -523,6 +524,43 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 // Reset mix e timer On Air
                 return { activeClips: {}, suppressedClips: {}, onAirStartTime: null, fadingClipIds: [] };
             });
+        },
+
+        // v0.15.0 — Preview Transizione
+        // Riproduce gli ultimi N secondi della clip corrente così la transizione
+        // (crossfade/segue/gapless) scatta naturalmente, permettendo di testare
+        // il punto di giunzione senza aspettare tutta la durata della canzone.
+        previewTransition: async (clip: AudioClip) => {
+            const nextClip = getNextClipInColumn(clip.id);
+            if (!nextClip) return;
+
+            const { defaultPreshowTransition, crossfadeDuration, segueDuration } = useSettingsStore.getState();
+            const transType = clip.transitionType ?? defaultPreshowTransition;
+
+            // Quanti secondi prima della fine vogliamo far scattare la preview
+            // (durata transizione + 3 secondi di ascolto pre-fade)
+            const fadeSec = transType === 'crossfade' ? crossfadeDuration / 1000
+                : transType === 'segue' ? segueDuration / 1000
+                : 0;
+            const previewLead = fadeSec + 3;
+
+            const effectiveDuration = (clip.duration || 0) - (clip.trimEnd || 0);
+            const seekTo = Math.max(clip.trimStart || 0, effectiveDuration - previewLead);
+
+            // Se già in play: seek diretto
+            const alreadyActive = get().activeClips[clip.id];
+            if (alreadyActive) {
+                alreadyActive.player.seek(seekTo);
+                return;
+            }
+
+            // Altrimenti: avvia la clip e poi seek appena il player è pronto
+            await get().playClip(clip);
+            // Piccolo delay per lasciar caricare il player prima del seek
+            setTimeout(() => {
+                const active = get().activeClips[clip.id];
+                if (active) active.player.seek(seekTo);
+            }, 200);
         },
 
         _syncProgress: () => {

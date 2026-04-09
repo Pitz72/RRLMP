@@ -121,8 +121,8 @@ Il listener è in `MainGrid.tsx` su `window` (non `App.tsx`). Usa `e.code` (tast
 ~~**Playlist Import M3U → colonna PRE-SHOW**~~ ✅ **Implementato in v0.14.12**
 IPC handler `import-m3u`, parsing M3U/M3U8, path relativi/assoluti, silence detection automatica, `addClipFromPath` nel project store.
 
-**Preview Transizione**
-Pulsante "Test →" nel ClipSettingsModal che suona gli ultimi N secondi della clip corrente + i primi N della successiva. Utile per testare crossfade/segue prima di andare in onda. Stimato: 4h.
+~~**Preview Transizione**~~ ✅ **Implementato in v0.15.0**
+Pulsante "Test →" nel ClipSettingsModal (tab General, visibile solo per clip PRE-SHOW con una prossima clip). Riproduce gli ultimi secondi della clip corrente così la transizione (crossfade/segue/gapless) scatta naturalmente.
 
 ---
 
