@@ -1,5 +1,5 @@
 # RRLMP — Documento di Visione Tecnica
-**Versione**: 0.14.9 | **Data**: 2026-04-07
+**Versione**: 0.15.0 | **Data**: 2026-04-10
 
 Questo documento sintetizza lo **stato reale del software**, le feature implementate sessione per sessione, e il backlog prioritizzato per le prossime sessioni di sviluppo.
 
@@ -116,6 +116,14 @@ Il listener è in `MainGrid.tsx` su `window` (non `App.tsx`). Usa `e.code` (tast
 
 ---
 
+**Drop da OS file manager a posizione precisa** — Bug UX: quando si trascina un file audio dall'explorer di sistema nell'applicazione, la clip viene sempre inserita in fondo alla colonna, ignorando il punto di rilascio.
+
+**Causa**: il gestore `onDrop` del file OS chiama `addClip(columnId, file)` senza passare un indice di inserimento. Il drag & drop tra clip esistenti già gestisce correttamente l'inserimento per indice — è lo stesso meccanismo da riutilizzare.
+
+**Soluzione**: nel gestore `onDrop` di `MainGrid.tsx`, calcolare l'indice di inserimento dal Y-coordinate dell'evento drop relativo alle ClipCard presenti nella colonna, quindi chiamare `addClipAtIndex(columnId, file, index)` (nuova variant di `addClip` in `useProjectStore`). Stimato: 3h.
+
+---
+
 ### 🟡 Media Priorità
 
 ~~**Playlist Import M3U → colonna PRE-SHOW**~~ ✅ **Implementato in v0.14.12**
@@ -125,6 +133,97 @@ IPC handler `import-m3u`, parsing M3U/M3U8, path relativi/assoluti, silence dete
 Pulsante "Test →" nel ClipSettingsModal (tab General, visibile solo per clip PRE-SHOW con una prossima clip). Riproduce gli ultimi secondi della clip corrente così la transizione (crossfade/segue/gapless) scatta naturalmente.
 
 **Problema noto**: una volta avviato il test, non è possibile fermarlo dall'interno del modal. L'utente deve chiudere il modal e stoppare la clip manualmente (click Stop sulla ClipCard) oppure premere Escape (Emergency Stop globale). Da aggiungere nella prossima sessione: pulsante "Stop" dedicato nel modal che chiama `stopClip(clip.id)`, e gestione del caso in cui il modal si chiude mentre il test è in corso.
+
+---
+
+### 🟡 Media Priorità — Nuovi Item (2026-04-10)
+
+---
+
+**Master Chain Audio (Sound Processing broadcast-grade)**
+
+Attualmente ogni clip ha un volume normalizzato manualmente. Brani con dinamiche diverse (musica classica vs elettronica) suonano a volume disomogeneo. La soluzione non è normalizzare i file ma processare l'uscita master in tempo reale, come fa una vera console radio.
+
+**Architettura proposta** (Web Audio API, tutto nel renderer):
+
+```
+[ClipGainNode] → [Bus Gains] → [HPF 30Hz] → [DynamicsCompressor] → [BrickwallLimiter] → destination
+```
+
+1. **High-Pass Filter (HPF)** — `BiquadFilterNode` tipo `highpass` a 30Hz. Taglia il rumore sub-bass DC che non si sente ma consuma headroom.
+2. **Dynamics Compressor** — `DynamicsCompressorNode` con parametri broadcast:
+   - `threshold: -18dB`, `ratio: 4:1`, `knee: 6dB`, `attack: 10ms`, `release: 200ms`
+   - Effetto: compatta la dinamica, uniforma i volumi percepiti. È l'effetto "suono radio FM".
+3. **Brickwall Limiter** — secondo `DynamicsCompressorNode` configurato come limiter:
+   - `threshold: -1dB`, `ratio: 20:1`, `knee: 0`, `attack: 1ms`, `release: 100ms`
+   - Garantisce che il segnale finale non superi mai -1dBFS. Nessuna distorsione hardware.
+
+**Inserimento**: `AudioContextManager` già espone il master gain node — basta inserire questi 3 nodi a monte del `destination`. Zero impatto sull'architettura esistente.
+
+**UI**: toggle on/off in `GeneralSettingsModal` ("Master Limiter") + preset broadcaste parametri avanzati per utenti esperti. Stimato: 6h.
+
+---
+
+**Smart Mic — Auto-Ducking da input hardware**
+
+Il presentatore parla nel microfono → la musica si abbassa automaticamente → quando smette → la musica risale. Zero click, zero distrazione.
+
+**Architettura proposta**:
+
+```
+[getUserMedia()] → [AnalyserNode (monitor only)] → NOT routed to output
+                        ↓
+              [Noise Gate Logic in JS]
+                  threshold: -25dB
+                  attack hold: 100ms
+                  release hold: 1500ms
+                        ↓
+              [isMicActive: boolean]
+                        ↓
+              [evaluateMix() esistente] ← riutilizza il ducking già presente
+```
+
+**Dettagli tecnici**:
+- Il segnale del microfono **non** viene mai mandato in uscita (nessun echo/feedback). Va solo all'`AnalyserNode` interno.
+- Il noise gate usa due soglie: **-25dBFS per 100ms** per attivare, **-35dBFS per 1500ms** per rilasciare. Evita attivazioni da colpi di tosse o rumori ambientali.
+- `isMicActive` si integra nel sistema ducking esistente: le colonne con `duckingRole: 'target'` vengono abbassate automaticamente come se una clip `source` stesse andando in play.
+- **Permission Electron**: `getUserMedia()` richiede il flag `--enable-features=WebRTC` e `session.defaultSession.setPermissionRequestHandler()` nel main process.
+
+**UI**:
+- Pulsante `[🎤 ARM]` nell'header. Se disattivo: microfono ignorato. Se attivo (rosso pulsante): microfono monitorato.
+- VU meter verticale del livello mic a fianco del pulsante ARM (visibile solo quando armato) per diagnostica.
+- Menu "Audio Input Device" in `GeneralSettingsModal` (analogo all'output device già presente).
+
+Stimato: 10h (include gestione permessi Electron + VU meter + integrazione ducking).
+
+---
+
+**Session Recording**
+
+Possibilità di registrare l'intera sessione broadcast su file audio per archivio o revisione.
+
+**Architettura proposta**: catturare il master bus Web Audio API tramite `MediaRecorder` (tutto nel renderer, nessun IPC con FFmpeg).
+
+```
+AudioContext.createMediaStreamDestination()
+        ↓
+[MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' })]
+        ↓
+[chunks[]] → Blob → IPC → main process → writeFile()
+```
+
+**Perché non FFmpeg**: la registrazione con FFmpeg del device audio fisico è platform-dependent (diverso su Windows/Linux/macOS) e cattura tutto il sistema, non solo il software. Con `MediaStreamDestination` si cattura esattamente il master bus del progetto — indipendente dal dispositivo di output selezionato.
+
+**Funzionalità**:
+- Pulsante `[⏺ REC]` nell'header (rosso pulsante quando attivo).
+- Timer durata registrazione.
+- Al click Stop: dialogo salvataggio file `.webm` (Opus) o conversione in `.wav` via FFmpeg IPC se si vuole compatibilità universale.
+- Nome file default: `RRLMP_Recording_YYYY-MM-DD_HH-MM.webm`.
+- Possibilità di avviare/fermare la registrazione indipendentemente dalla riproduzione.
+
+**Limitazione nota**: `MediaRecorder` su Chromium Electron produce WebM/Opus — qualità broadcast-grade ma non WAV nativo. La conversione post-registrazione via FFmpeg è immediata se richiesta.
+
+Stimato: 8h.
 
 ---
 
@@ -151,4 +250,4 @@ Pulsante "Test →" nel ClipSettingsModal (tab General, visibile solo per clip P
 
 ---
 
-*Documento aggiornato il 2026-04-07 — allineato a v0.14.9.*
+*Documento aggiornato il 2026-04-10 — allineato a v0.15.0. Aggiunti: Master Chain Audio, Smart Mic Auto-Ducking, Session Recording, Drop posizione precisa.*
