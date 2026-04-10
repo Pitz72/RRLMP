@@ -9,10 +9,18 @@ interface ColumnHeaderProps {
     column: Column;
 }
 
+// Palette 30 colori — 5 righe x 6 colonne
+// Riga 1: Rossi / Caldi
+// Riga 2: Gialli / Verdi
+// Riga 3: Blu / Freddi
+// Riga 4: Viola / Rosa
+// Riga 5: Neutri / Speciali
 const COLUMN_COLORS = [
-    '#10B981', '#22C55E', '#EF4444', '#F97316', '#F59E0B',
-    '#8B5CF6', '#3B82F6', '#06B6D4', '#EC4899', '#64748B',
-    '#A78BFA', '#FB923C',
+    '#EF4444', '#F97316', '#F59E0B', '#FB923C', '#DC2626', '#B45309',
+    '#84CC16', '#22C55E', '#10B981', '#14B8A6', '#65A30D', '#059669',
+    '#06B6D4', '#3B82F6', '#6366F1', '#0EA5E9', '#1D4ED8', '#0369A1',
+    '#8B5CF6', '#A855F7', '#EC4899', '#F43F5E', '#7C3AED', '#BE185D',
+    '#64748B', '#78716C', '#9CA3AF', '#D97706', '#A78BFA', '#FBBF24',
 ];
 
 export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
@@ -90,7 +98,7 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
                 {!isDeadAirWarning && (
                     <button
                         onClick={() => setShowPicker(v => !v)}
-                        className="w-3.5 h-3.5 rounded-full border border-white/20 hover:border-white/60 transition-all shrink-0 shadow-sm"
+                        className="w-4 h-4 rounded-full border-2 border-white/30 hover:border-white/80 hover:scale-125 transition-all shrink-0 shadow-md"
                         style={{ backgroundColor: effectiveColor }}
                         title="Cambia colore colonna"
                     />
@@ -98,28 +106,29 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
 
                 {/* Color Picker Popover */}
                 {showPicker && (
-                    <div className="absolute top-6 right-0 z-50 bg-zinc-900 border border-zinc-700 rounded-lg shadow-2xl p-3 animate-in fade-in zoom-in-95 duration-150">
-                        <p className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-2">Colore Colonna</p>
-                        <div className="grid grid-cols-4 gap-1.5">
+                    <div className="absolute top-7 right-0 z-50 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl p-4 animate-in fade-in zoom-in-95 duration-150" style={{ width: '220px' }}>
+                        <p className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-3">Colore Colonna</p>
+                        <div className="grid grid-cols-6 gap-2">
                             {COLUMN_COLORS.map(c => (
                                 <button
                                     key={c}
                                     onClick={() => { setColumnColor(column.id, c); setShowPicker(false); }}
-                                    className="w-6 h-6 rounded-full border-2 transition-transform hover:scale-110"
+                                    className="w-7 h-7 rounded-full transition-all hover:scale-125 hover:shadow-lg focus:outline-none"
                                     style={{
                                         backgroundColor: c,
-                                        borderColor: effectiveColor === c ? 'white' : 'transparent'
+                                        boxShadow: effectiveColor === c ? `0 0 0 2px white, 0 0 0 4px ${c}` : undefined
                                     }}
+                                    title={c}
                                 />
                             ))}
                         </div>
                         {/* Reset al colore di default */}
-                        {column.customColor && (
+                        {column.customColor && column.customColor !== column.color && (
                             <button
                                 onClick={() => { setColumnColor(column.id, column.color); setShowPicker(false); }}
-                                className="mt-2 w-full text-[9px] text-zinc-500 hover:text-zinc-300 transition-colors"
+                                className="mt-3 w-full text-[9px] text-zinc-500 hover:text-zinc-200 transition-colors py-1 border border-zinc-800 hover:border-zinc-600 rounded"
                             >
-                                ↺ Ripristina default
+                                ↺ Ripristina colore originale
                             </button>
                         )}
                     </div>

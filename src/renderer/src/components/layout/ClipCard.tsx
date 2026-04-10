@@ -128,7 +128,7 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                 ${isMidiLearnMode && !isSelected ? 'border-dashed border-cyan-800 opacity-80' : ''}
             `}
             style={{
-                borderColor: clip.isMissing ? undefined : (isPlaying ? (clip.customColor || '#22c55e') : undefined)
+                borderColor: clip.isMissing ? undefined : (isPlaying ? (clip.customColor || clip.color) : undefined)
             }}
         >
             {/* Progress Bar Background */}
@@ -136,7 +136,7 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                 className="absolute left-0 top-0 bottom-0 transition-all duration-100 ease-linear pointer-events-none opacity-20"
                 style={{
                     width: `${progress * 100}%`,
-                    backgroundColor: clip.customColor || '#ffffff'
+                    backgroundColor: clip.customColor || clip.color
                 }}
             />
 
@@ -174,12 +174,12 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                     {isPlaying && (
                         <div
                             className="w-2 h-2 rounded-full animate-pulse"
-                            style={{ backgroundColor: clip.customColor || '#22c55e' }}
+                            style={{ backgroundColor: clip.customColor || clip.color }}
                         />
                     )}
                     <span
                         className={`font-medium truncate text-sm`}
-                        style={{ color: clip.isMissing ? '#ef4444' : (isPlaying ? (clip.customColor || '#4ade80') : lightenHex(clip.color)) }}
+                        style={{ color: clip.isMissing ? '#ef4444' : (isPlaying ? (clip.customColor || lightenHex(clip.color, 0.4)) : lightenHex(clip.color)) }}
                     >
                         {clip.isMissing ? `⚠️ ${clip.name} (File Non Trovato)` : clip.name}
                     </span>
