@@ -3,6 +3,19 @@ import { useAudioStore } from '../../store/useAudioStore';
 import { AudioClip } from '../../types';
 import { useProjectStore } from '../../store/useProjectStore';
 
+// Schiarisce un colore hex miscelando verso il bianco (amount 0..1, 1 = bianco puro)
+const lightenHex = (hex: string, amount = 0.65): string => {
+    if (!hex || hex.length < 4) return hex;
+    const h = hex.startsWith('#') ? hex : `#${hex}`;
+    const r = parseInt(h.slice(1, 3), 16);
+    const g = parseInt(h.slice(3, 5), 16);
+    const b = parseInt(h.slice(5, 7), 16);
+    const nr = Math.round(r + (255 - r) * amount);
+    const ng = Math.round(g + (255 - g) * amount);
+    const nb = Math.round(b + (255 - b) * amount);
+    return `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
+};
+
 interface ClipCardProps {
     clip: AudioClip;
     onEdit: (clip: AudioClip) => void;
@@ -166,7 +179,7 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                     )}
                     <span
                         className={`font-medium truncate text-sm`}
-                        style={{ color: clip.isMissing ? '#ef4444' : (isPlaying ? (clip.customColor || '#4ade80') : (clip.color + 'aa')) }}
+                        style={{ color: clip.isMissing ? '#ef4444' : (isPlaying ? (clip.customColor || '#4ade80') : lightenHex(clip.color)) }}
                     >
                         {clip.isMissing ? `⚠️ ${clip.name} (File Non Trovato)` : clip.name}
                     </span>

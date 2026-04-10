@@ -22,6 +22,12 @@ import appLogo from './assets/logo.png';
 
 function App() {
     const [showWelcome, setShowWelcome] = useState(true);
+    const masterChain = useSettingsStore((s) => s.masterChain);
+
+    // v0.16.2 — Sincronizzazione Master Chain con AudioContextManager
+    useEffect(() => {
+        AudioContextManager.getInstance().applyMasterChainSettings(masterChain);
+    }, [masterChain]);
 
     // GR5 Fix: Ripristino dispositivo audio all'avvio.
     // useSettingsStore persiste outputDeviceId in localStorage tramite Zustand persist.

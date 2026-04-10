@@ -32,12 +32,13 @@ interface SortableColumnProps {
     column: Column;
     children: React.ReactNode;
     onNativeDrop: (e: React.DragEvent, colId: string) => void;
-    onNativeDragOver: (e: React.DragEvent) => void;
+    onNativeDragOver: (e: React.DragEvent, colId: string) => void;
+    onNativeDragLeave: (e: React.DragEvent) => void;
 }
 
 import { ColumnHeader } from './ColumnHeader';
 
-const SortableColumn: React.FC<SortableColumnProps> = ({ column, children, onNativeDrop, onNativeDragOver }) => {
+const SortableColumn: React.FC<SortableColumnProps> = ({ column, children, onNativeDrop, onNativeDragOver, onNativeDragLeave }) => {
     const { setNodeRef } = useDroppable({
         id: column.id,
     });
@@ -47,7 +48,8 @@ const SortableColumn: React.FC<SortableColumnProps> = ({ column, children, onNat
             ref={setNodeRef}
             className="flex-1 flex flex-col border-r border-zinc-800 min-w-[200px]"
             onDrop={(e) => onNativeDrop(e, column.id)}
-            onDragOver={onNativeDragOver}
+            onDragOver={(e) => onNativeDragOver(e, column.id)}
+            onDragLeave={onNativeDragLeave}
         >
             <ColumnHeader column={column} />
             <div className="flex-1 overflow-y-auto p-2 space-y-2 scrollbar-thin scrollbar-thumb-zinc-700">
@@ -69,6 +71,8 @@ export const MainGrid: React.FC = () => {
     const [editingClip, setEditingClip] = useState<AudioClip | null>(null);
     const [activeId, setActiveId] = useState<string | null>(null);
     const [preshowAnalyzingCount, setPreshowAnalyzingCount] = useState(0);
+    // Drop indicator: colonna + indice di inserimento durante il drag da OS
+    const [dropIndicator, setDropIndicator] = useState<{ colId: string; index: number } | null>(null);
 
     // GLOBAL HOTKEYS
     React.useEffect(() => {
@@ -149,6 +153,8 @@ export const MainGrid: React.FC = () => {
             }
         }
 
+        setDropIndicator(null);
+
         for (const file of files) {
             const newClip = addClipAtIndex(colId, file, insertIndex);
             insertIndex++; // ogni file inserito sposta l'array di 1
@@ -182,8 +188,27 @@ export const MainGrid: React.FC = () => {
         }
     };
 
-    const handleNativeDragOver = (e: React.DragEvent) => {
+    const handleNativeDragOver = (e: React.DragEvent, colId: string) => {
         e.preventDefault();
+        // Calcola l'indice di inserimento in tempo reale per il drop indicator
+        const clipEls = e.currentTarget.querySelectorAll('[data-clip-id]');
+        let insertIndex = clipEls.length;
+        for (let i = 0; i < clipEls.length; i++) {
+            const rect = clipEls[i].getBoundingClientRect();
+            if (e.clientY < rect.top + rect.height / 2) {
+                insertIndex = i;
+                break;
+            }
+        }
+        setDropIndicator({ colId, index: insertIndex });
+    };
+
+    const handleNativeDragLeave = (e: React.DragEvent) => {
+        // Cancella l'indicatore solo se il puntatore esce davvero dalla colonna
+        // (non quando transita tra figli interni)
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            setDropIndicator(null);
+        }
     };
 
     const handleSaveClip = (clipId: string, updates: Partial<AudioClip>) => {
@@ -276,6 +301,7 @@ export const MainGrid: React.FC = () => {
                         column={col}
                         onNativeDrop={handleNativeDrop}
                         onNativeDragOver={handleNativeDragOver}
+                        onNativeDragLeave={handleNativeDragLeave}
                     >
                         {col.type === 'preshow' && preshowAnalyzingCount > 0 && (
                             <div className="mx-2 mb-1 px-2 py-1.5 bg-amber-950/60 border border-amber-500/40 rounded text-amber-300 text-[10px] flex items-center gap-2">
@@ -287,13 +313,20 @@ export const MainGrid: React.FC = () => {
                             items={col.clips.map(c => c.id)}
                             strategy={verticalListSortingStrategy}
                         >
-                            {col.clips.map((clip) => (
-                                <SortableClip
-                                    key={clip.id}
-                                    clip={clip}
-                                    onEdit={(clip) => setEditingClip(clip)}
-                                />
+                            {col.clips.map((clip, idx) => (
+                                <React.Fragment key={clip.id}>
+                                    {dropIndicator?.colId === col.id && dropIndicator.index === idx && (
+                                        <div className="h-0.5 rounded mx-0.5 shadow-[0_0_8px_rgba(96,165,250,0.9)] pointer-events-none" style={{ backgroundColor: '#60a5fa' }} />
+                                    )}
+                                    <SortableClip
+                                        clip={clip}
+                                        onEdit={(clip) => setEditingClip(clip)}
+                                    />
+                                </React.Fragment>
                             ))}
+                            {dropIndicator?.colId === col.id && dropIndicator.index === col.clips.length && (
+                                <div className="h-0.5 rounded mx-0.5 shadow-[0_0_8px_rgba(96,165,250,0.9)] pointer-events-none" style={{ backgroundColor: '#60a5fa' }} />
+                            )}
                         </SortableContext>
 
                         {col.clips.length === 0 && (

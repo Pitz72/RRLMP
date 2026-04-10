@@ -1,8 +1,8 @@
 # RRLMP — Stato Progetto per Sessioni Claude
 
 **Aggiornato**: 2026-04-10
-**Versione corrente**: 0.16.1
-**Build verificata**: ✅ `builds/v0.16.1/Runtime Live Machine Setup 0.16.1.exe` (locale, non in git — builds/ è in .gitignore)
+**Versione corrente**: 0.16.2
+**Build verificata**: ✅ `builds/v0.16.2/Runtime Live Machine Setup 0.16.2.exe` (locale, non in git — builds/ è in .gitignore)
 **Branch attivo**: `master`
 
 ---
@@ -85,10 +85,13 @@
 - ✅ Drop da OS file manager a posizione precisa: `addClipAtIndex`, `data-clip-id`, indice da `clientY` (v0.15.x)
 - ✅ Badge "Auto-saved": appare 3s dopo ogni auto-backup riuscito (v0.16.0)
 - ✅ Column Color Picker: `customColor` su Column, picker nel ColumnHeader, persistito nel .lmp (v0.16.1)
-- ✅ Testo clip idle tinto con colore colonna (`clip.color + 'aa'`, ~67% opacity) (v0.16.1)
+- ✅ Testo clip idle tinto con colore colonna (`lightenHex(clip.color)`, ~65% blend verso bianco) (v0.16.1/v0.16.2)
 - ✅ Dialog chiusura uniforme: custom React a 3 pulsanti (Salva / Non Salvare / Annulla) (v0.16.1)
 - ✅ i18n ClipSettingsModal: tab, ducking role, transition type, delete confirm (v0.16.1)
 - ✅ i18n GeneralSettingsModal: titolo, output device, mixing, durate, done (v0.16.1)
+- ✅ Drop indicator: linea blu luminosa nella colonna durante drag da OS (v0.16.2)
+- ✅ Master Chain Audio: HPF 80Hz + Compressore broadcast + Limiter brickwall sul master bus (v0.16.2)
+- ✅ Master Chain Settings: persisted in useSettingsStore, controlli in GeneralSettingsModal (v0.16.2)
 - ✅ Icone toolbar aggiornate + tooltip fixati (v0.14.11)
 - ✅ Real-Time Board Cues: INTRO countdown, OUTRO pre-cue + alert
 - ✅ MIDI Learn Mode + KeymappingModal
@@ -125,7 +128,7 @@
 ## Formato File .lmp
 
 ```json
-{ "version": "0.16.1", "timestamp": "ISO8601", "project": { "columns": [] } }
+{ "version": "0.16.2", "timestamp": "ISO8601", "project": { "columns": [] } }
 ```
 
 ## Debito Tecnico Aperto
@@ -133,7 +136,7 @@
 | Priorità | Item |
 |----------|------|
 | 🟡 Media | Preview Transizione: aggiungere pulsante Stop nel ClipSettingsModal (2h) |
-| 🟡 Media | Master Chain Audio: HPF + DynamicsCompressor + BrickwallLimiter in AudioContextManager (6h) |
+| ✅ Done | Master Chain Audio: implementato in v0.16.2 |
 | 🟡 Media | Smart Mic Auto-Ducking: getUserMedia → AnalyserNode → noise gate → evaluateMix (10h) |
 | 🟡 Media | Session Recording: MediaRecorder sul master bus → WebM/Opus → IPC writeFile (8h) |
 | 🟢 Bassa | Error Boundaries React (1h) |
@@ -159,4 +162,4 @@ git push github master   # GitHub
 
 ---
 
-*Documento aggiornato il 2026-04-10 — fine sessione v0.16.1.*
+*Documento aggiornato il 2026-04-10 — fine sessione v0.16.2.*

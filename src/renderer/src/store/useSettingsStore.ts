@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { TransitionType } from '../types';
+import { MasterChainSettings, DEFAULT_MASTER_CHAIN } from '../engine/AudioContextManager';
 
 interface SettingsState {
     outputDeviceId: string;
@@ -19,6 +20,9 @@ interface SettingsState {
     crossfadeDuration: number; // ms — durata fade-out + fade-in per Crossfade
     segueDuration: number;     // ms — durata fade-out per Segue (clip entrante parte subito a pieno volume)
 
+    // Master Chain (v0.16.2)
+    masterChain: MasterChainSettings;
+
     setOutputDeviceId: (id: string) => void;
     setGlobalMidiBind: (actionKey: string, midiMessage: string) => void;
     setMasterVolume: (v: number) => void;
@@ -26,6 +30,7 @@ interface SettingsState {
     setDefaultPreshowTransition: (transition: 'crossfade' | 'segue' | 'gapless') => void;
     setPreshowTransition: (updates: { type?: TransitionType; duration?: number }) => void;
     setSegueDuration: (ms: number) => void;
+    setMasterChain: (updates: Partial<MasterChainSettings>) => void;
 }
 
 
@@ -35,6 +40,7 @@ export const useSettingsStore = create<SettingsState>()(
             outputDeviceId: 'default',
             globalMidiBinds: {},
             masterVolume: 1.0,
+            masterChain: { ...DEFAULT_MASTER_CHAIN },
 
             // Defaults mixing
             duckingFactor: 0.2,
@@ -61,6 +67,9 @@ export const useSettingsStore = create<SettingsState>()(
                 crossfadeDuration: updates.duration ?? state.crossfadeDuration
             })),
             setSegueDuration: (ms) => set({ segueDuration: ms }),
+            setMasterChain: (updates) => set((state) => ({
+                masterChain: { ...state.masterChain, ...updates }
+            })),
         }),
 
         {
