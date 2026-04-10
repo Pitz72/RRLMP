@@ -1,5 +1,5 @@
 {
-    "name": "runtime-live-machine",
+    "name": "runtime-live-machine-pro",
     "version": "0.17.0",
     "description": "Professional Broadcast Audio Architecture",
     "homepage": "https://gitlab.com/pizzisimone1972/RRLMP",
@@ -14,7 +14,7 @@
     },
     "build": {
         "appId": "com.antigravity.rrlmp",
-        "productName": "Runtime Live Machine",
+        "productName": "Runtime Live Machine Pro",
         "directories": {
             "output": "builds/v${version}"
         },
@@ -40,7 +40,7 @@
                 "AppImage",
                 "deb"
             ],
-            "icon": "build/icon.png"
+            "icon": "build/icons"
         },
         "fileAssociations": [
             {

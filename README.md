@@ -1,5 +1,7 @@
 # Runtime Live Machine Pro
 
+![Runtime Live Machine Pro](docs/assets/banner.png)
+
 **Professional broadcast audio playout software for radio, live events, and stage productions.**
 
 Built with Electron + React + TypeScript. Designed for operators who need rock-solid reliability under pressure.

@@ -263,7 +263,7 @@ function App() {
             <header className="h-12 bg-zinc-900 border-b border-zinc-800 flex items-center px-4 justify-between shrink-0">
                 <div className="flex items-center gap-2">
                     <img src={appLogo} alt="Logo" className="h-8 w-auto mr-2" />
-                    <h1 className="font-bold text-lg tracking-tight">Runtime <span className="text-zinc-500 font-normal">Live Machine</span></h1>
+                    <h1 className="font-bold text-lg tracking-tight">Runtime <span className="text-zinc-500 font-normal">Live Machine</span> <span className="text-cyan-500 font-bold text-sm">PRO</span></h1>
 
                     {/* GLOBAL CONTROLS */}
 

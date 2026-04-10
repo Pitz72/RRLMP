@@ -1,6 +1,6 @@
 {
     "welcome": {
-        "title": "Runtime Live Machine",
+        "title": "Runtime Live Machine Pro",
         "slogan": "On Air. Al Tuo Controllo.",
         "description": "Automazione broadcast professionale per programmi radiofonici. Gestisci musica, clip, voce, SFX e transizioni — tutto in un unico posto.",
         "selectLanguage": "Lingua dell'Interfaccia",
@@ -35,7 +35,7 @@
     },
     "modal": {
         "about": {
-            "title": "Runtime Live Machine",
+            "title": "Runtime Live Machine Pro",
             "description": "Professional Broadcast Audio Architecture",
             "manual": "Manuale Online"
         },

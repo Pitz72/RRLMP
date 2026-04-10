@@ -118,3 +118,6 @@ builds/
 dist/
 release/
 .claude/worktrees/
+
+# Source graphic assets (raw files, not for repo)
+IMPORT/
