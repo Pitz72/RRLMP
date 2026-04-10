@@ -62,6 +62,8 @@ interface ProjectState {
     loadProject: (state: ProjectState, filePath?: string) => void; // Added filePath
     moveClip: (sourceColId: string, destColId: string, oldIndex: number, newIndex: number) => void;
 
+    setColumnColor: (columnId: string, color: string) => void;
+
     /** Verifica l'esistenza su disco di tutti i file delle clip. Imposta isMissing. Ritorna il numero di file mancanti. */
     runIntegrityCheck: () => Promise<number>;
 
@@ -101,6 +103,13 @@ export const useProjectStore = create<ProjectState>((set) => ({
     })),
 
     resetProject: () => set({ columns: JSON.parse(JSON.stringify(DEFAULT_COLUMNS)), isDirty: false, currentFilePath: null, isMidiLearnMode: false }),
+
+    setColumnColor: (columnId, color) => set((state) => ({
+        isDirty: true,
+        columns: state.columns.map((col) =>
+            col.id === columnId ? { ...col, customColor: color } : col
+        )
+    })),
 
 
 

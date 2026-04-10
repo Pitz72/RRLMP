@@ -229,7 +229,11 @@ Stimato: 8h.
 
 ### 🟢 Bassa Priorità
 
-**Column Color Picker** — `customColor` esiste per le clip, manca per la colonna stessa. Stimato: 2h.
+~~**Column Color Picker**~~ ✅ **Implementato in v0.16.1**
+`customColor` aggiunto a `Column`, persistito nel .lmp. Picker con 12 colori nel ColumnHeader, ripristino al default. Testo clip idle tinto con colore colonna (opacità ~67%).
+
+~~**i18n modali**~~ ✅ **Implementato in v0.16.1**
+`ClipSettingsModal` e `GeneralSettingsModal` ora usano `react-i18next`. Aggiunte chiavi in `it.json` e `en.json` per tab, etichette ducking, transizioni, dialog conferma.
 
 ~~**Volume Master MIDI CC fader continuo**~~ ✅ **Implementato in v0.16.0**
 `masterVolume` ora persiste in `useSettingsStore` (localStorage). Lo slider UI segue il fader MIDI in tempo reale. Il volume sopravvive al riavvio.
@@ -252,4 +256,4 @@ Badge "✓ Auto-saved" verde, fade-in/out in 3 secondi dopo ogni auto-backup riu
 
 ---
 
-*Documento aggiornato il 2026-04-10 — allineato a v0.16.0.*
+*Documento aggiornato il 2026-04-10 — allineato a v0.16.1.*

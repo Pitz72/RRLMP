@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { AudioClip } from '../../types';
 import { debugLog } from '../../store/useDebugStore';
 import { Wand2, Settings2, Scissors, FileText, PlayCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { toast } from '../../store/useToastStore';
 import { confirm } from '../../store/useConfirmStore';
 import { WaveformEditor } from '../ui/WaveformEditor';
@@ -30,6 +31,7 @@ const COLORS = [
 ];
 
 export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOpen, onClose, onSave, onDelete }) => {
+    const { t } = useTranslation();
     const previewTransition = useAudioStore(s => s.previewTransition);
     const columns = useProjectStore(s => s.columns);
 
@@ -110,7 +112,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
     };
 
     const handleDelete = async () => {
-        if (await confirm('Eliminare questa clip?', 'Elimina', 'Annulla')) {
+        if (await confirm(t('modal.clip.deleteConfirm'), t('modal.clip.deleteLabel'), t('modal.dialog.cancel', 'Annulla'))) {
             onDelete(clip.id);
             onClose();
         }
@@ -158,19 +160,19 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                             onClick={() => setActiveTab('general')}
                             className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'general' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
                         >
-                            <Settings2 size={16} /> General Settings
+                            <Settings2 size={16} /> {t('modal.clip.tab.general')}
                         </button>
                         <button
                             onClick={() => setActiveTab('markers')}
                             className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'markers' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
                         >
-                            <Scissors size={16} /> Trim & Markers
+                            <Scissors size={16} /> {t('modal.clip.tab.markers')}
                         </button>
                         <button
                             onClick={() => setActiveTab('notes')}
                             className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'notes' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
                         >
-                            <FileText size={16} /> Notes / Script
+                            <FileText size={16} /> {t('modal.clip.tab.notes')}
                             {notes && <span className="text-[9px] bg-violet-600/80 text-white px-1.5 py-0.5 rounded font-bold">●</span>}
                         </button>
                     </div>
@@ -318,36 +320,36 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                     <div className="h-px bg-zinc-900 my-1" />
 
                                     <label className="flex items-center justify-between cursor-pointer group">
-                                        <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">Ducking Role</span>
+                                        <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">{t('modal.clip.duckingRole')}</span>
                                         <select
                                             value={duckingRole}
                                             onChange={(e) => setDuckingRole(e.target.value as 'source' | 'target' | 'none')}
                                             className="bg-zinc-900 border border-zinc-800 rounded text-xs p-1 text-white outline-none focus:border-emerald-500"
                                         >
-                                            <option value="none">None</option>
-                                            <option value="source">Source (Speaker)</option>
-                                            <option value="target">Target (Music)</option>
+                                            <option value="none">{t('modal.clip.duck.none')}</option>
+                                            <option value="source">{t('modal.clip.duck.source')}</option>
+                                            <option value="target">{t('modal.clip.duck.target')}</option>
                                         </select>
                                     </label>
                                     <div className="h-px bg-zinc-900 my-1" />
 
                                     <label className="flex items-center justify-between cursor-pointer group">
-                                        <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">Transition Type</span>
+                                        <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">{t('modal.clip.transitionType')}</span>
                                         <select
                                             value={transitionType}
                                             onChange={(e) => setTransitionType(e.target.value as AudioClip['transitionType'])}
                                             className="bg-zinc-900 border border-zinc-800 rounded text-xs p-1 text-white outline-none focus:border-emerald-500"
                                         >
-                                            <option value="default">Global Default</option>
-                                            <option value="crossfade">Crossfade (Overlap)</option>
-                                            <option value="segue">Segue (Overlap + Fade)</option>
-                                            <option value="gapless">Gapless (Tail-to-Start)</option>
+                                            <option value="default">{t('modal.clip.trans.default')}</option>
+                                            <option value="crossfade">{t('modal.clip.trans.crossfade')}</option>
+                                            <option value="segue">{t('modal.clip.trans.segue')}</option>
+                                            <option value="gapless">{t('modal.clip.trans.gapless')}</option>
                                         </select>
                                     </label>
 
                                     {hasNextClip && (
                                         <div className="flex items-center justify-between">
-                                            <span className="text-sm text-zinc-400">Preview Transition</span>
+                                            <span className="text-sm text-zinc-400">{t('modal.clip.previewTransition')}</span>
                                             <button
                                                 onClick={() => previewTransition(clip)}
                                                 className="flex items-center gap-1.5 px-3 py-1 bg-violet-600 hover:bg-violet-500 text-white text-xs rounded font-medium transition-colors"

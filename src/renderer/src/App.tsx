@@ -15,7 +15,7 @@ import { NoteBoard } from './components/ui/NoteBoard';
 import { ToastContainer } from './components/ui/ToastContainer';
 import { ConfirmDialog } from './components/ui/ConfirmDialog';
 import { toast } from './store/useToastStore';
-import { confirm } from './store/useConfirmStore';
+import { confirm, confirmThree } from './store/useConfirmStore';
 
 
 import appLogo from './assets/logo.png';
@@ -97,19 +97,15 @@ function App() {
                 return;
             }
 
-            // M1 Fix: usa il dialog i18n con stringhe localizzate invece di hardcoded IT
-            const { t } = await import('i18next');
-            const response = await (window.electron.showCloseDialogI18n
-                ? window.electron.showCloseDialogI18n({
-                    btnSave: t('dialog.save', 'Salva'),
-                    btnDiscard: t('dialog.discard', 'Non Salvare'),
-                    btnCancel: t('dialog.cancel', 'Annulla'),
-                    title: t('dialog.unsavedTitle', 'Modifiche non salvate'),
-                    message: t('dialog.unsavedMessage', 'Ci sono modifiche non salvate. Cosa vuoi fare?'),
-                })
-                : window.electron.showCloseDialog()); // fallback legacy
+            // v0.16.1: dialog completamente custom (non più nativo Windows)
+            const response = await confirmThree(
+                'Ci sono modifiche non salvate. Cosa vuoi fare?',
+                'Salva',
+                'Non Salvare',
+                'Annulla'
+            );
 
-            if (response === 0) { // SAVE
+            if (response === 'confirm') { // SAVE
                 // Logic mostly duplicated from controls, strictly we should reuse but imports are tricky with closure.
                 // We'll reimplement cleanly.
                 const projectData = {
@@ -128,10 +124,10 @@ function App() {
                     if (result.success) window.electron.forceClose();
                     // If canceled, do nothing
                 }
-            } else if (response === 1) { // DON'T SAVE
+            } else if (response === 'third') { // DON'T SAVE
                 window.electron.forceClose();
             }
-            // Response 2 = CANCEL (Do nothing)
+            // 'cancel' = Annulla (non chiudere)
         };
 
 

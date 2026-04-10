@@ -37,10 +37,46 @@
             "manual": "Online Manual"
         },
         "settings": {
-            "title": "General Settings"
+            "title": "General Settings",
+            "outputDevice": "Audio Output Device",
+            "systemDefault": "System Default",
+            "mixingIntelligence": "Mixing Intelligence",
+            "duckingReduction": "Ducking Reduction",
+            "duckingSpeed": "Ducking Fade Speed",
+            "defaultTransition": "Default Continuous-Play Transition (Pre-Show)",
+            "crossfadeDuration": "Crossfade Duration",
+            "segueDuration": "Segue Fade-Out Duration",
+            "done": "DONE"
         },
         "clip": {
-            "title": "Clip Settings"
+            "title": "Clip Settings",
+            "tab": {
+                "general": "General",
+                "markers": "Markers & Trim",
+                "notes": "Notes"
+            },
+            "duckingRole": "Ducking Role",
+            "duck": {
+                "none": "None",
+                "source": "Source (Speaker)",
+                "target": "Target (Music)"
+            },
+            "transitionType": "Transition Type",
+            "trans": {
+                "default": "Global Default",
+                "crossfade": "Crossfade (Overlap)",
+                "segue": "Segue (Overlap + Fade)",
+                "gapless": "Gapless (Tail-to-Start)"
+            },
+            "previewTransition": "Preview Transition",
+            "deleteConfirm": "Delete this clip?",
+            "deleteLabel": "Delete"
+        },
+        "dialog": {
+            "unsaved": "There are unsaved changes. What do you want to do?",
+            "save": "Save",
+            "discard": "Don't Save",
+            "cancel": "Cancel"
         }
     }
 }

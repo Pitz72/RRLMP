@@ -144,6 +144,7 @@ export interface Column {
     title: string;
     type: ClipType;
     clips: AudioClip[];
-    color: string; // Colore base della colonna
-    isLocked: boolean; // Impedisce modifiche accidentali
+    color: string;          // Colore base della colonna (immutabile, default)
+    customColor?: string;   // Override colore scelto dall'utente (v0.16.1)
+    isLocked: boolean;      // Impedisce modifiche accidentali
 }

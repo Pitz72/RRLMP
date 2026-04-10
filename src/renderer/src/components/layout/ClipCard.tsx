@@ -166,7 +166,7 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                     )}
                     <span
                         className={`font-medium truncate text-sm`}
-                        style={{ color: clip.isMissing ? '#ef4444' : (isPlaying ? (clip.customColor || '#4ade80') : '#e4e4e7') }}
+                        style={{ color: clip.isMissing ? '#ef4444' : (isPlaying ? (clip.customColor || '#4ade80') : (clip.color + 'aa')) }}
                     >
                         {clip.isMissing ? `⚠️ ${clip.name} (File Non Trovato)` : clip.name}
                     </span>

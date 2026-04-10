@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useAudioStore } from '../../store/useAudioStore';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
     isOpen: boolean;
@@ -13,6 +14,7 @@ interface AudioDevice {
 }
 
 export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
+    const { t } = useTranslation();
     const { outputDeviceId, setOutputDeviceId, duckingFactor, duckingDuration, setDuckingSettings, defaultPreshowTransition, setDefaultPreshowTransition, crossfadeDuration, segueDuration, setPreshowTransition, setSegueDuration } = useSettingsStore();
     const updateOutputDevice = useAudioStore(s => s.updateOutputDevice);
     const [devices, setDevices] = useState<AudioDevice[]>([]);
@@ -43,20 +45,20 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
             <div className="bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                 <div className="bg-zinc-800 p-4 border-b border-zinc-700 flex justify-between items-center">
-                    <h2 className="text-lg font-bold text-white">General Settings</h2>
+                    <h2 className="text-lg font-bold text-white">{t('modal.settings.title')}</h2>
                     <button onClick={onClose} className="text-zinc-400 hover:text-white">&times;</button>
                 </div>
-                
+
                 <div className="p-6 space-y-6">
                     {/* AUDIO OUTPUT */}
                     <div>
-                        <label className="block text-xs uppercase text-zinc-500 font-bold mb-1">Audio Output Device</label>
+                        <label className="block text-xs uppercase text-zinc-500 font-bold mb-1">{t('modal.settings.outputDevice')}</label>
                         <select
                             value={outputDeviceId}
                             onChange={handleChange}
                             className="w-full bg-zinc-950 border border-zinc-700 rounded p-2 text-sm text-white focus:border-blue-500 outline-none"
                         >
-                            <option value="default">System Default</option>
+                            <option value="default">{t('modal.settings.systemDefault')}</option>
                             {devices.map(d => (
                                 <option key={d.deviceId} value={d.deviceId}>
                                     {d.label}
@@ -72,11 +74,11 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
                     {/* MIXING INTELLIGENCE */}
                     <div className="space-y-4">
-                        <h3 className="text-xs uppercase text-emerald-500 font-bold tracking-wider">Mixing Intelligence</h3>
-                        
+                        <h3 className="text-xs uppercase text-emerald-500 font-bold tracking-wider">{t('modal.settings.mixingIntelligence')}</h3>
+
                         <div className="space-y-2">
                             <div className="flex justify-between items-center">
-                                <label className="text-xs text-zinc-400">Ducking Reduction</label>
+                                <label className="text-xs text-zinc-400">{t('modal.settings.duckingReduction')}</label>
                                 <span className="text-xs font-mono text-emerald-400">{Math.round(duckingFactor * 100)}%</span>
                             </div>
                             <input 
@@ -95,7 +97,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
                         <div className="space-y-2">
                             <div className="flex justify-between items-center">
-                                <label className="text-xs text-zinc-400">Ducking Fade Speed</label>
+                                <label className="text-xs text-zinc-400">{t('modal.settings.duckingSpeed')}</label>
                                 <span className="text-xs font-mono text-emerald-400">{duckingDuration}ms</span>
                             </div>
                             <input 
@@ -113,7 +115,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         </div>
                         
                         <div className="space-y-1 mt-4">
-                            <label className="text-xs text-zinc-400">Default Continuous-Play (Pre-Show)</label>
+                            <label className="text-xs text-zinc-400">{t('modal.settings.defaultTransition')}</label>
                             <select
                                 value={defaultPreshowTransition}
                                 onChange={(e) => setDefaultPreshowTransition(e.target.value as 'crossfade' | 'segue' | 'gapless')}
@@ -130,7 +132,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
                         <div className="space-y-2 mt-2">
                             <div className="flex justify-between items-center">
-                                <label className="text-xs text-zinc-400">Crossfade Duration</label>
+                                <label className="text-xs text-zinc-400">{t('modal.settings.crossfadeDuration')}</label>
                                 <span className="text-xs font-mono text-emerald-400">{crossfadeDuration}ms</span>
                             </div>
                             <input
@@ -149,7 +151,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
                         <div className="space-y-2 mt-2">
                             <div className="flex justify-between items-center">
-                                <label className="text-xs text-zinc-400">Segue Fade-Out Duration</label>
+                                <label className="text-xs text-zinc-400">{t('modal.settings.segueDuration')}</label>
                                 <span className="text-xs font-mono text-orange-400">{segueDuration}ms</span>
                             </div>
                             <input
@@ -173,7 +175,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         onClick={onClose}
                         className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-sm shadow-lg shadow-emerald-500/20"
                     >
-                        DONE
+                        {t('modal.settings.done')}
                     </button>
                 </div>
             </div>

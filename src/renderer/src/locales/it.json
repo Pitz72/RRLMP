@@ -37,10 +37,46 @@
             "manual": "Manuale Online"
         },
         "settings": {
-            "title": "Impostazioni Generali"
+            "title": "Impostazioni Generali",
+            "outputDevice": "Dispositivo Audio di Uscita",
+            "systemDefault": "Sistema Predefinito",
+            "mixingIntelligence": "Mixing Intelligence",
+            "duckingReduction": "Riduzione Ducking",
+            "duckingSpeed": "Velocità Fade Ducking",
+            "defaultTransition": "Transizione Default Continuous-Play (Pre-Show)",
+            "crossfadeDuration": "Durata Crossfade",
+            "segueDuration": "Durata Fade-Out Segue",
+            "done": "FATTO"
         },
         "clip": {
-            "title": "Impostazioni Clip"
+            "title": "Impostazioni Clip",
+            "tab": {
+                "general": "Generale",
+                "markers": "Marker & Trim",
+                "notes": "Note"
+            },
+            "duckingRole": "Ruolo Ducking",
+            "duck": {
+                "none": "Nessuno",
+                "source": "Sorgente (Speaker)",
+                "target": "Target (Musica)"
+            },
+            "transitionType": "Tipo Transizione",
+            "trans": {
+                "default": "Default Globale",
+                "crossfade": "Crossfade (Sovrapposizione)",
+                "segue": "Segue (Sovrapposizione + Fade)",
+                "gapless": "Gapless (Coda-a-Inizio)"
+            },
+            "previewTransition": "Anteprima Transizione",
+            "deleteConfirm": "Eliminare questa clip?",
+            "deleteLabel": "Elimina"
+        },
+        "dialog": {
+            "unsaved": "Ci sono modifiche non salvate. Cosa vuoi fare?",
+            "save": "Salva",
+            "discard": "Non Salvare",
+            "cancel": "Annulla"
         }
     }
 }
