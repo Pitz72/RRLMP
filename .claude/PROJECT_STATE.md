@@ -1,8 +1,8 @@
 # RRLMP — Stato Progetto per Sessioni Claude
 
-**Aggiornato**: 2026-04-09
-**Versione corrente**: 0.16.0
-**Build verificata**: ✅ `builds/v0.16.0/Runtime Live Machine Setup 0.16.0.exe` (locale, non in git)
+**Aggiornato**: 2026-04-10
+**Versione corrente**: 0.16.1
+**Build verificata**: ✅ `builds/v0.16.1/Runtime Live Machine Setup 0.16.1.exe` (locale, non in git — builds/ è in .gitignore)
 **Branch attivo**: `master`
 
 ---
@@ -13,7 +13,7 @@
 - **Branch attivo**: `master` (unica fonte di verità)
 - **Remote origin**: GitLab — `https://gitlab.com/pizzisimone1972/RRLMP.git`
 - **Remote github**: GitHub — `https://github.com/Pitz72/RRLMP.git` (privato)
-- **Build output**: `builds/v{version}/` nel repo principale
+- **Build output**: `builds/v{version}/` nel repo principale (in .gitignore — non committare l'exe, supera 100MB)
 - **Worktree Claude**: `.claude/worktrees/` (in .gitignore — non committare)
 
 ## Stack Tecnologico
@@ -48,8 +48,9 @@
 | `save-project-silent` | `saveProjectSilent` | Auto-backup silenzioso |
 | `dialog:load-project` | `loadProject` | Apre .lmp con dialog |
 | `export-project` | `exportProject` | Esporta progetto self-contained |
-| `show-close-dialog-i18n` | `showCloseDialogI18n` | Dialog chiusura localizzato |
 | `force-close` | `forceClose` | Chiude finestra forzato |
+
+> ⚠️ `show-close-dialog-i18n` rimosso in v0.16.1 — sostituito da dialog React custom (`confirmThree`)
 
 ## Feature Implementate (Complete)
 
@@ -63,6 +64,8 @@
 - ✅ Ducking Sidechain dinamico
 - ✅ Output Device Hot-Switch
 - ✅ Emergency Stop globale Escape → stopAll (v0.14.3)
+- ✅ Preview Transizione PRE-SHOW: pulsante "Test →" nel ClipSettingsModal (v0.15.0) ⚠️ da raffinare (manca Stop nel modal)
+- ✅ Volume Master MIDI reattivo: `masterVolume` in `useSettingsStore` (persistito), slider segue fader CC (v0.16.0)
 
 ### UI & Workflow
 - ✅ Waveform Editor interattivo: 4 handle drag, playhead, Auto-Trim IPC (v0.14.1)
@@ -73,22 +76,25 @@
 - ✅ Timer On Air (v0.14.5)
 - ✅ Badge TRIM… durante Auto-Silence (v0.14.6)
 - ✅ Badge FADE OUT durante transizioni Crossfade/Segue (v0.14.9)
-- ✅ Clip PRE-SHOW già suonate: opacity-50 visiva (v0.14.12)
+- ✅ Clip PRE-SHOW già suonate: opacity-50 visiva — campo `hasPlayed` (v0.14.12)
 - ✅ KeymappingModal potenziato — per colonna + Emergency Stop (v0.14.6)
 - ✅ Keybind globali verificate: F1–F12, Numpad, window keydown (v0.14.11)
 - ✅ Toast Notification System — no più alert() bloccanti (v0.14.7)
-- ✅ ConfirmDialog non-bloccante promise-based (v0.14.7)
+- ✅ ConfirmDialog non-bloccante promise-based — esteso a 3 pulsanti in v0.16.1 (v0.14.7)
 - ✅ Import Playlist M3U/M3U8 → PRE-SHOW (v0.14.12)
-- ✅ Preview Transizione PRE-SHOW: pulsante "Test →" nel ClipSettingsModal (v0.15.0)
-- ✅ Drop da OS a posizione precisa: addClipAtIndex, data-clip-id, calcolo indice da clientY (v0.15.x)
-- ✅ Volume Master MIDI reattivo: masterVolume in useSettingsStore, slider segue fader CC (v0.16.0)
+- ✅ Drop da OS file manager a posizione precisa: `addClipAtIndex`, `data-clip-id`, indice da `clientY` (v0.15.x)
 - ✅ Badge "Auto-saved": appare 3s dopo ogni auto-backup riuscito (v0.16.0)
+- ✅ Column Color Picker: `customColor` su Column, picker nel ColumnHeader, persistito nel .lmp (v0.16.1)
+- ✅ Testo clip idle tinto con colore colonna (`clip.color + 'aa'`, ~67% opacity) (v0.16.1)
+- ✅ Dialog chiusura uniforme: custom React a 3 pulsanti (Salva / Non Salvare / Annulla) (v0.16.1)
+- ✅ i18n ClipSettingsModal: tab, ducking role, transition type, delete confirm (v0.16.1)
+- ✅ i18n GeneralSettingsModal: titolo, output device, mixing, durate, done (v0.16.1)
 - ✅ Icone toolbar aggiornate + tooltip fixati (v0.14.11)
 - ✅ Real-Time Board Cues: INTRO countdown, OUTRO pre-cue + alert
 - ✅ MIDI Learn Mode + KeymappingModal
 - ✅ Save/Load .lmp + Auto-Backup + Export Self-Contained
 - ✅ i18n (IT/EN), VU Meter, Digital Clock, Welcome Screen
-- ✅ Drag & Drop + multi-selezione
+- ✅ Drag & Drop tra colonne + multi-selezione
 
 ## Campi AudioClip (persistiti nel .lmp)
 
@@ -98,6 +104,13 @@
 | `hasPlayed` | boolean | ✅ | True se clip PRE-SHOW già suonata |
 | `isMissing` | boolean | ❌ runtime | File mancante su disco |
 | `isAnalyzing` | boolean | ❌ runtime | Analisi silenzio in corso |
+
+## Campi Column (persistiti nel .lmp)
+
+| Campo | Tipo | Persistito | Note |
+|-------|------|-----------|------|
+| `color` | string | ✅ | Colore base (immutabile, default) |
+| `customColor` | string? | ✅ | Override colore utente (v0.16.1) |
 
 ## Colonne Default (5 fisse)
 
@@ -112,31 +125,29 @@
 ## Formato File .lmp
 
 ```json
-{ "version": "0.15.0", "timestamp": "ISO8601", "project": { "columns": [] } }
+{ "version": "0.16.1", "timestamp": "ISO8601", "project": { "columns": [] } }
 ```
 
 ## Debito Tecnico Aperto
 
 | Priorità | Item |
 |----------|------|
-| ✅ Done | Preview Transizione "Test →" — implementata in v0.15.0 |
-| 🟢 Bassa | Column Color Picker (2h) |
-| 🟢 Bassa | Volume Master MIDI CC fader continuo (2h) |
-| 🟢 Bassa | Badge "Auto-saved" nell'header (30min) |
-| 🟢 Bassa | i18n modali (testi IT hardcoded) (2h) |
+| 🟡 Media | Preview Transizione: aggiungere pulsante Stop nel ClipSettingsModal (2h) |
+| 🟡 Media | Master Chain Audio: HPF + DynamicsCompressor + BrickwallLimiter in AudioContextManager (6h) |
+| 🟡 Media | Smart Mic Auto-Ducking: getUserMedia → AnalyserNode → noise gate → evaluateMix (10h) |
+| 🟡 Media | Session Recording: MediaRecorder sul master bus → WebM/Opus → IPC writeFile (8h) |
 | 🟢 Bassa | Error Boundaries React (1h) |
 | ⏸️ Sospesa | Colonne Configurabili (fuori scope) |
 
 ## Errori TS Pre-Esistenti (non impattano build)
 - `DebugOverlay.tsx`: import inutilizzati (TS6133)
 - `BufferPlayer.ts`: interfaccia IAudioPlayer incompleta (TS2420)
-- `ClipSettingsModal.tsx`: tipo `'default'` non assegnabile a `TransitionType` (TS2345)
 
 ## Comandi Build
 
 ```bash
 npm run build:main && npm run build:preload && npx vite build && npx electron-builder
-# exe → builds/v{version}/Runtime Live Machine Setup {version}.exe
+# exe → builds/v{version}/Runtime Live Machine Setup {version}.exe (NON committare — >100MB)
 ```
 
 ## Push Multi-Remote
@@ -148,4 +159,4 @@ git push github master   # GitHub
 
 ---
 
-*Documento aggiornato il 2026-04-10 — fine sessione v0.16.0.*
+*Documento aggiornato il 2026-04-10 — fine sessione v0.16.1.*

@@ -116,11 +116,8 @@ Il listener è in `MainGrid.tsx` su `window` (non `App.tsx`). Usa `e.code` (tast
 
 ---
 
-**Drop da OS file manager a posizione precisa** — Bug UX: quando si trascina un file audio dall'explorer di sistema nell'applicazione, la clip viene sempre inserita in fondo alla colonna, ignorando il punto di rilascio.
-
-**Causa**: il gestore `onDrop` del file OS chiama `addClip(columnId, file)` senza passare un indice di inserimento. Il drag & drop tra clip esistenti già gestisce correttamente l'inserimento per indice — è lo stesso meccanismo da riutilizzare.
-
-**Soluzione**: nel gestore `onDrop` di `MainGrid.tsx`, calcolare l'indice di inserimento dal Y-coordinate dell'evento drop relativo alle ClipCard presenti nella colonna, quindi chiamare `addClipAtIndex(columnId, file, index)` (nuova variant di `addClip` in `useProjectStore`). Stimato: 3h.
+~~**Drop da OS file manager a posizione precisa**~~ ✅ **Implementato in v0.15.x**
+`addClipAtIndex(columnId, file, index)` in `useProjectStore` con `splice`. `SortableClip` espone `data-clip-id`. `handleNativeDrop` in `MainGrid` calcola l'indice dal `clientY` confrontando il midpoint Y di ogni card. Drop multiplo incrementa l'indice progressivamente.
 
 ---
 
