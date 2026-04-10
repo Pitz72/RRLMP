@@ -1,6 +1,90 @@
 {
     "welcome": {
+        "title": "Runtime Live Machine Pro",
+        "slogan": "Antenne. Sous Contrôle.",
+        "description": "Automatisation broadcast professionnelle pour émissions de radio. Gérez musique, clips, voix, SFX et transitions — tout en un seul endroit.",
+        "selectLanguage": "Langue de l'interface",
         "newProject": "Nouveau Projet",
-        "loadProject": "Charger Projet"
+        "loadProject": "Charger un Projet",
+        "manual": "Manuel en ligne (Bientôt disponible)",
+        "version": "v{{version}}",
+        "checking": "Vérification des mises à jour...",
+        "latest": "✅ Version la plus récente",
+        "updateAvailable": "⬇️ Mise à jour disponible v{{version}}",
+        "developedBy": "Développé par Simone Pizzi avec Gemini 3.0",
+        "copyright": "© 2026 Runtime Radio"
+    },
+    "columns": {
+        "assets": "ÉLÉMENTS ÉMISSION",
+        "music": "MUSIQUES ÉPISODE",
+        "voice": "VOIX / ENREGISTREMENTS",
+        "sfx": "SFX / CARTWALL",
+        "preshow": "PRÉ-ÉMISSION"
+    },
+    "controls": {
+        "stopAll": "TOUT ARRÊTER",
+        "masterVol": "VOL. MASTER",
+        "midiLearn": "APPRENTISSAGE MIDI",
+        "info": "Infos & Mises à jour",
+        "settings": "Paramètres généraux",
+        "save": "Enregistrer le projet",
+        "saveAs": "Enregistrer sous…",
+        "export": "Exporter l'archive autonome",
+        "keybinds": "Raccourcis & tableau MIDI",
+        "importM3u": "Importer playlist M3U → PRÉ-ÉMISSION"
+    },
+    "modal": {
+        "about": {
+            "title": "Runtime Live Machine Pro",
+            "description": "Architecture audio broadcast professionnelle",
+            "manual": "Manuel en ligne"
+        },
+        "settings": {
+            "title": "Paramètres généraux",
+            "tab": {
+                "output": "Sortie & Mix",
+                "chain": "Chaîne Master",
+                "language": "Langue"
+            },
+            "outputDevice": "Périphérique de sortie audio",
+            "systemDefault": "Système par défaut",
+            "mixingIntelligence": "Intelligence de mixage",
+            "duckingReduction": "Réduction de ducking",
+            "duckingSpeed": "Vitesse de fondu ducking",
+            "defaultTransition": "Transition continue par défaut",
+            "crossfadeDuration": "Durée du crossfade",
+            "segueDuration": "Durée du fondu enchaîné",
+            "done": "TERMINÉ"
+        },
+        "clip": {
+            "title": "Paramètres du clip",
+            "tab": {
+                "general": "Général",
+                "markers": "Marqueurs & Trim",
+                "notes": "Notes"
+            },
+            "duckingRole": "Rôle de ducking",
+            "duck": {
+                "none": "Aucun",
+                "source": "Source (Présentateur)",
+                "target": "Cible (Musique)"
+            },
+            "transitionType": "Type de transition",
+            "trans": {
+                "default": "Défaut global",
+                "crossfade": "Crossfade (Chevauchement)",
+                "segue": "Enchaîné (Chevauchement + Fondu)",
+                "gapless": "Sans coupure (Queue-à-début)"
+            },
+            "previewTransition": "Aperçu de la transition",
+            "deleteConfirm": "Supprimer ce clip ?",
+            "deleteLabel": "Supprimer"
+        },
+        "dialog": {
+            "unsaved": "Il y a des modifications non sauvegardées. Que voulez-vous faire ?",
+            "save": "Enregistrer",
+            "discard": "Ne pas enregistrer",
+            "cancel": "Annuler"
+        }
     }
 }

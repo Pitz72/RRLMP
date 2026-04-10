@@ -1,5 +1,5 @@
 # RRLMP — Documento di Visione Tecnica
-**Versione**: 0.17.0 | **Data**: 2026-04-10
+**Versione**: 1.0.0 | **Data**: 2026-04-10
 
 Questo documento sintetizza lo **stato reale del software**, le feature implementate sessione per sessione, e il backlog prioritizzato per le prossime sessioni di sviluppo.
 
@@ -58,6 +58,7 @@ Questo documento sintetizza lo **stato reale del software**, le feature implemen
 | Badge Auto-saved | 0.16.0 | Fade-in/out 3s |
 | WelcomeScreen redesign orizzontale | 0.16.5 | 720px, 2 pannelli, slogan, bandiere |
 | ARM Button + VU Mic | 0.17.0 | Pulsante ARM nell'header con mini VU meter 8 barre. Tre stati: off/armato silenzio/armato voce |
+| Rebranding "Runtime Live Machine Pro" + nuovo logo | 1.0.0 | Logo 5 barre VU + play triangle. Badge PRO nell'header. Banner nel README. |
 
 ### Clip Settings Modal
 | Feature | Versione | Note |
@@ -84,7 +85,7 @@ Questo documento sintetizza lo **stato reale del software**, le feature implemen
 | Save As / Direct Save | ≤0.9.x | |
 | Auto-Backup ogni 5 min | 0.10.3 | Silenzioso |
 | Export Self-Contained (copia file) | ≤0.9.x | Progress IPC |
-| Internazionalizzazione i18n (IT/EN) | ≤0.9.x | react-i18next |
+| Internazionalizzazione i18n (8 lingue complete) | 1.0.0 | react-i18next — IT, EN, FR, DE, ES, PT, RU, ZH |
 | VU Meter, Digital Clock, Welcome Screen | ≤0.9.x | |
 | Drag & Drop clip tra colonne | ≤0.9.x | |
 | Multi-selezione Ctrl+Click + Delete | ≤0.9.x | |
@@ -218,4 +219,4 @@ Badge "✓ Auto-saved" verde, fade-in/out in 3 secondi dopo ogni auto-backup riu
 
 ---
 
-*Documento aggiornato il 2026-04-10 — allineato a v0.17.0.*
+*Documento aggiornato il 2026-04-10 — allineato a v1.0.0.*

@@ -1,6 +1,6 @@
 # RRLMP — Roadmap & Issue Backlog
 
-Versione corrente: **0.17.0**
+Versione corrente: **1.0.0**
 Ultimo aggiornamento: 2026-04-10
 
 ---
@@ -53,7 +53,7 @@ Ultimo aggiornamento: 2026-04-10
 - [✅] **Precise Trimming & Markers UI**: Mini-editor con Waveform visiva e player locale. ✅ v0.10.7
 - [✅] **Real-Time Board Cues**: Countdown Intro (`INTRO: -Xs`), pre-cue Outro (`OUTRO IN: -Xs`), alert finale (`🚨 OUTRO`). ✅ v0.12.0–v0.12.1
 - [✅] **MIDI Learn Mode**: Mapping note MIDI/CC a clip e azioni globali (Stop All, Master Volume). Countdown 15s, badge controller, Escape. ✅ (archivio)
-- [✅] **Internazionalizzazione (i18n)**: react-i18next, supporto IT/EN e multi-lingua. ✅ (archivio)
+- [✅] **Internazionalizzazione (i18n)**: react-i18next, 8 lingue complete — IT, EN, FR, DE, ES, PT, RU, ZH. ✅ v1.0.0
 - [✅] **Export Progetto (self-contained)**: Copia file audio + .lmp in cartella esportata con progress modal. ✅ (archivio)
 - [✅] **Save/Load .lmp / Auto-Backup**: Persistenza progetto, salvataggio diretto, auto-backup ogni 5 minuti. ✅ (archivio)
 - [✅] **Output Device Switching**: Selezione scheda audio hot-switch. ✅ (archivio)
@@ -95,9 +95,9 @@ Ultimo aggiornamento: 2026-04-10
 | Gravità / Tipo | Risolti | Totali | Stato |
 | --- | --- | --- | --- |
 | 🔴 Criticità (Tutte) | 4 | 4 | **100%** ✅ |
-| 🚀 Nuove Feature Core | 25 | 27 | **93%** 🚀 |
+| 🚀 Nuove Feature Core | 26 | 27 | **96%** 🚀 |
 | 🔧 Debito Tecnico | 5 | 6 | **83%** 🔧 |
-| **TOTALE PROGETTO** | **34** | **37** | **92% COMPLETATO** |
+| **TOTALE PROGETTO** | **35** | **37** | **95% COMPLETATO** |
 
 ---
 
@@ -144,5 +144,9 @@ Ultimo aggiornamento: 2026-04-10
 ### v0.17.0
 - **Smart Mic Auto-Ducking** ✅ v0.17.0
 
+### v1.0.0 — Major Release
+- **i18n Completa** — Tutte e 8 le lingue (FR, DE, ES, PT, RU, ZH) portate da stub a 89+ chiavi complete ✅ v1.0.0
+- **Rebranding "Runtime Live Machine Pro"** — Nuovo logo (5 barre VU + play triangle), badge PRO nell'header, banner nel README ✅ v1.0.0
+
 ---
-*Documento aggiornato il 2026-04-10 — versione 0.17.0.*
+*Documento aggiornato il 2026-04-10 — versione 1.0.0.*

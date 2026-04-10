@@ -101,7 +101,7 @@ src/
     │   ├── layout/         # MainGrid, ClipCard, NoteBoard
     │   ├── modals/         # ClipSettingsModal, GeneralSettingsModal, KeymappingModal
     │   └── ui/             # WaveformEditor, ToastContainer, ConfirmDialog, OnAirTimer
-    └── i18n/               # Translation files (IT/EN)
+    └── i18n/               # Translation files (IT, EN, FR, DE, ES, PT, RU, ZH)
 ```
 
 ---
@@ -115,9 +115,9 @@ src/
 
 ## Current Version
 
-**v0.17.0** — *Feature Release: Smart Mic — Auto-Ducking da Input Hardware*
+**v1.0.0** — *Major Release: Runtime Live Machine Pro — i18n completa (8 lingue) + rebranding*
 
-See [`docs/changelogs/current/0.17.0.md`](./docs/changelogs/current/0.17.0.md) for details.
+See [`docs/changelogs/current/1.0.0.md`](./docs/changelogs/current/1.0.0.md) for details.
 
 ---
 

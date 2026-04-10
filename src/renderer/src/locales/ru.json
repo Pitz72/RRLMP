@@ -1,6 +1,90 @@
 {
     "welcome": {
+        "title": "Runtime Live Machine Pro",
+        "slogan": "В Эфире. Под Контролем.",
+        "description": "Профессиональная автоматизация вещания для радиопередач. Управляйте музыкой, клипами, голосом, SFX и переходами — всё в одном месте.",
+        "selectLanguage": "Язык интерфейса",
         "newProject": "Новый проект",
-        "loadProject": "Загрузить проект"
+        "loadProject": "Загрузить проект",
+        "manual": "Онлайн-руководство (Скоро)",
+        "version": "v{{version}}",
+        "checking": "Проверка обновлений...",
+        "latest": "✅ Последняя версия",
+        "updateAvailable": "⬇️ Доступно обновление v{{version}}",
+        "developedBy": "Разработано Simone Pizzi совместно с Gemini 3.0",
+        "copyright": "© 2026 Runtime Radio"
+    },
+    "columns": {
+        "assets": "РЕСУРСЫ ЭФИРА",
+        "music": "МУЗЫКА ВЫПУСКА",
+        "voice": "ГОЛОС / ЗАПИСИ",
+        "sfx": "SFX / КАРТВОЛ",
+        "preshow": "PRE-SHOW"
+    },
+    "controls": {
+        "stopAll": "СТОП ВСЁ",
+        "masterVol": "МАСТЕР ГР.",
+        "midiLearn": "MIDI ОБУЧЕНИЕ",
+        "info": "Инфо и обновления",
+        "settings": "Общие настройки",
+        "save": "Сохранить проект",
+        "saveAs": "Сохранить как…",
+        "export": "Экспорт автономного архива",
+        "keybinds": "Горячие клавиши & панель MIDI",
+        "importM3u": "Импорт плейлиста M3U → PRE-SHOW"
+    },
+    "modal": {
+        "about": {
+            "title": "Runtime Live Machine Pro",
+            "description": "Профессиональная архитектура аудиовещания",
+            "manual": "Онлайн-руководство"
+        },
+        "settings": {
+            "title": "Общие настройки",
+            "tab": {
+                "output": "Выход & Микс",
+                "chain": "Мастер-цепь",
+                "language": "Язык"
+            },
+            "outputDevice": "Устройство аудиовыхода",
+            "systemDefault": "Системное умолчание",
+            "mixingIntelligence": "Интеллект микширования",
+            "duckingReduction": "Уровень подавления",
+            "duckingSpeed": "Скорость затухания",
+            "defaultTransition": "Переход по умолчанию",
+            "crossfadeDuration": "Длительность кроссфейда",
+            "segueDuration": "Длительность затухания сегуэ",
+            "done": "ГОТОВО"
+        },
+        "clip": {
+            "title": "Настройки клипа",
+            "tab": {
+                "general": "Основное",
+                "markers": "Маркеры & Обрезка",
+                "notes": "Заметки"
+            },
+            "duckingRole": "Роль в подавлении",
+            "duck": {
+                "none": "Нет",
+                "source": "Источник (Диктор)",
+                "target": "Цель (Музыка)"
+            },
+            "transitionType": "Тип перехода",
+            "trans": {
+                "default": "Глобальный по умолчанию",
+                "crossfade": "Кроссфейд (Наложение)",
+                "segue": "Сегуэ (Наложение + затухание)",
+                "gapless": "Без паузы (Конец-в-начало)"
+            },
+            "previewTransition": "Предпросмотр перехода",
+            "deleteConfirm": "Удалить этот клип?",
+            "deleteLabel": "Удалить"
+        },
+        "dialog": {
+            "unsaved": "Есть несохранённые изменения. Что вы хотите сделать?",
+            "save": "Сохранить",
+            "discard": "Не сохранять",
+            "cancel": "Отмена"
+        }
     }
 }

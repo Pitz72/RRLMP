@@ -1,6 +1,90 @@
 {
     "welcome": {
+        "title": "Runtime Live Machine Pro",
+        "slogan": "在播出。掌控一切。",
+        "description": "面向广播节目的专业自动化系统。在一个界面中管理音乐、片段、人声、音效与转场。",
+        "selectLanguage": "界面语言",
         "newProject": "新建项目",
-        "loadProject": "加载项目"
+        "loadProject": "加载项目",
+        "manual": "在线手册（即将推出）",
+        "version": "v{{version}}",
+        "checking": "正在检查更新...",
+        "latest": "✅ 已是最新版本",
+        "updateAvailable": "⬇️ 发现新版本 v{{version}}",
+        "developedBy": "由 Simone Pizzi 与 Gemini 3.0 共同开发",
+        "copyright": "© 2026 Runtime Radio"
+    },
+    "columns": {
+        "assets": "节目素材",
+        "music": "本期音乐",
+        "voice": "人声 / 录音",
+        "sfx": "音效 / 播出板",
+        "preshow": "预播节目"
+    },
+    "controls": {
+        "stopAll": "全部停止",
+        "masterVol": "主音量",
+        "midiLearn": "MIDI 学习",
+        "info": "信息与更新",
+        "settings": "常规设置",
+        "save": "保存项目",
+        "saveAs": "另存为…",
+        "export": "导出独立存档",
+        "keybinds": "快捷键与 MIDI 面板",
+        "importM3u": "导入 M3U 播放列表 → 预播节目"
+    },
+    "modal": {
+        "about": {
+            "title": "Runtime Live Machine Pro",
+            "description": "专业广播音频架构",
+            "manual": "在线手册"
+        },
+        "settings": {
+            "title": "常规设置",
+            "tab": {
+                "output": "输出与混音",
+                "chain": "主处理链",
+                "language": "语言"
+            },
+            "outputDevice": "音频输出设备",
+            "systemDefault": "系统默认",
+            "mixingIntelligence": "智能混音",
+            "duckingReduction": "回避压缩量",
+            "duckingSpeed": "回避淡入淡出速度",
+            "defaultTransition": "默认连续播放转场",
+            "crossfadeDuration": "交叉淡化时长",
+            "segueDuration": "衔接淡出时长",
+            "done": "完成"
+        },
+        "clip": {
+            "title": "片段设置",
+            "tab": {
+                "general": "常规",
+                "markers": "标记与裁剪",
+                "notes": "备注"
+            },
+            "duckingRole": "回避角色",
+            "duck": {
+                "none": "无",
+                "source": "来源（播音员）",
+                "target": "目标（音乐）"
+            },
+            "transitionType": "转场类型",
+            "trans": {
+                "default": "全局默认",
+                "crossfade": "交叉淡化（重叠）",
+                "segue": "衔接（重叠+淡出）",
+                "gapless": "无缝衔接（首尾相连）"
+            },
+            "previewTransition": "预览转场",
+            "deleteConfirm": "删除此片段？",
+            "deleteLabel": "删除"
+        },
+        "dialog": {
+            "unsaved": "有未保存的更改，您希望如何处理？",
+            "save": "保存",
+            "discard": "不保存",
+            "cancel": "取消"
+        }
     }
 }

@@ -1,4 +1,4 @@
-# Architecture & Development Reference (v0.17.0)
+# Architecture & Development Reference (v1.0.0)
 
 Ultimo aggiornamento: 2026-04-10
 
@@ -228,6 +228,15 @@ Permission handler in main/index.ts: `session.defaultSession.setPermissionReques
 
 - **Libreria**: `react-i18next` + `i18next-browser-languagedetector`
 - **Lingue supportate**: 8 lingue con bandiere SVG — IT, EN, FR, ES, DE, PT, RU, ZH-CN
+- **File locale**: tutti e 8 i file JSON sono completi (89+ chiavi ciascuno) da v1.0.0
+  - `en.json` ✅ completo (≤0.9.x)
+  - `it.json` ✅ completo (≤0.9.x)
+  - `fr.json` ✅ completo (v1.0.0)
+  - `de.json` ✅ completo (v1.0.0)
+  - `es.json` ✅ completo (v1.0.0)
+  - `pt.json` ✅ completo (v1.0.0)
+  - `ru.json` ✅ completo (v1.0.0)
+  - `zh.json` ✅ completo (v1.0.0)
 - **Utilizzo**: `useTranslation()` hook + `t('key')` nei componenti
 - **Language switcher**: presente in WelcomeScreen (bandiere dirette) e in GeneralSettingsModal (tab Lingua, da v0.16.5)
 - **Copertura**: ClipSettingsModal e GeneralSettingsModal completamente i18n da v0.16.1

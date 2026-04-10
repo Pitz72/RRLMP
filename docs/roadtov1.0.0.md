@@ -1,5 +1,8 @@
 # RRLMP — Road to v1.0.0
-**Data**: 2026-04-10 | **Versione corrente**: 0.16.5
+
+> **v1.0.0 RILASCIATA — 2026-04-10**
+
+**Data**: 2026-04-10 | **Versione corrente**: 1.0.0
 
 Questo documento analizza ogni feature in attesa di valutazione per la v1.0.0: stato reale, dettagli tecnici, difficoltà stimata e classificazione di priorità. Serve come base per decidere cosa entra nella release stabile e in quale ordine affrontarlo.
 
@@ -30,38 +33,22 @@ Questo documento analizza ogni feature in attesa di valutazione per la v1.0.0: s
 
 ## 1. i18n Completa — Traduzioni Lingue Extra
 
-**Priorità**: 🔴 BLOCCANTE | **Difficoltà**: ⭐⭐ per lingua
+**Priorità**: ✅ FATTO v1.0.0 | **Difficoltà**: ⭐⭐ per lingua
 
 ### Stato reale
 
-Questo è il problema più urgente e più **sottovalutato** in termini di impatto utente.
+✅ **Completata in v1.0.0.** Tutte e 8 le lingue portate a 89+ chiavi complete.
 
-L'architettura i18n è completa e funzionante (react-i18next, file JSON per lingua, language switcher con bandiere in WelcomeScreen e GeneralSettingsModal). **Ma le traduzioni effettive sono quasi inesistenti**:
-
-| Lingua | Chiavi presenti | Chiavi totali necessarie | Stato |
-|--------|----------------|--------------------------|-------|
-| 🇮🇹 Italiano | ~90/90 | ~90 | ✅ Completo |
-| 🇬🇧 English | ~90/90 | ~90 | ✅ Completo |
-| 🇫🇷 Français | **2/90** | ~90 | ❌ Quasi vuoto |
-| 🇩🇪 Deutsch | **2/90** | ~90 | ❌ Quasi vuoto |
-| 🇪🇸 Español | **2/90** | ~90 | ❌ Quasi vuoto |
-| 🇵🇹 Português | **2/90** | ~90 | ❌ Quasi vuoto |
-| 🇷🇺 Русский | **2/90** | ~90 | ❌ Quasi vuoto |
-| 🇨🇳 中文 | **2/90** | ~90 | ❌ Quasi vuoto |
-
-Le 2 chiavi presenti nelle lingue incomplete sono solo `welcome.newProject` e `welcome.loadProject`. Tutto il resto — colonne, controlli, modali, clip settings, dialogs — cade in fallback inglese. Un utente che seleziona il tedesco vede l'interfaccia quasi interamente in inglese.
-
-### Cosa va fatto
-
-Per ogni lingua (×6): tradurre tutte le ~90 chiavi partendo da `en.json` come template. Aggiungere anche le nuove chiavi introdotte in v0.16.x che mancano anche in alcune lingue (`slogan`, `description`, `selectLanguage`, `modal.settings.tab.*`).
-
-### Tecnica
-
-Nessuna modifica al codice. Solo file JSON. L'architettura i18n regge già tutto: fallback chain, rilevamento lingua browser, persistenza scelta utente. Con assistenza AI (GPT/Claude per traduzione + revisione madrelingua) stimato **4–6h per lingua** inclusa revisione terminologia broadcast.
-
-### Perché è BLOCCANTE
-
-Offrire un language switcher con 8 bandiere e poi mostrare l'interfaccia in inglese per 6 di esse è peggio che non averle. Un software v1.0.0 con internazionalizzazione dichiarata deve averla funzionante.
+| Lingua | Chiavi presenti | Stato |
+|--------|----------------|-------|
+| 🇮🇹 Italiano | ~90/90 | ✅ Completo |
+| 🇬🇧 English | ~90/90 | ✅ Completo |
+| 🇫🇷 Français | ~90/90 | ✅ Completo v1.0.0 |
+| 🇩🇪 Deutsch | ~90/90 | ✅ Completo v1.0.0 |
+| 🇪🇸 Español | ~90/90 | ✅ Completo v1.0.0 |
+| 🇵🇹 Português | ~90/90 | ✅ Completo v1.0.0 |
+| 🇷🇺 Русский | ~90/90 | ✅ Completo v1.0.0 |
+| 🇨🇳 中文 | ~90/90 | ✅ Completo v1.0.0 |
 
 ---
 
@@ -320,7 +307,7 @@ Vedi sezione 4 per il dettaglio completo.
 
 | # | Feature | Priorità | Difficoltà | Stima |
 |---|---------|----------|------------|-------|
-| 1 | **i18n Completa** (6 lingue ×~90 chiavi) | 🔴 BLOCCANTE | ⭐⭐ per lingua | ~30h totali |
+| 1 | **i18n Completa** (6 lingue ×~90 chiavi) | ✅ FATTO v1.0.0 | ⭐⭐ per lingua | 0h |
 | 2 | **Session Recording** (singola traccia WAV) | 🟡 IMPORTANTE | ⭐⭐⭐ | 8–12h |
 | — | Smart Mic Auto-Ducking | ✅ FATTO v0.17.0 | — | 0h |
 | 4 | **Test Audio Engine** (copertura minima) | 🟡 IMPORTANTE | ⭐⭐⭐⭐ | 20–30h |
@@ -328,7 +315,7 @@ Vedi sezione 4 per il dettaglio completo.
 | — | Feedback Auto-Silence | ✅ FATTO | — | 0h |
 | — | Native Audio Module | ⏸️ SOSPESA | ⭐⭐⭐⭐⭐ | ~50h |
 
-**Stima totale per v1.0.0** (priorità 1–4): **~55–75h di sviluppo**
+**Stima totale rimanente post-v1.0.0** (priorità 2–4): **~28–42h di sviluppo**
 
 ---
 
@@ -342,4 +329,4 @@ Vedi sezione 4 per il dettaglio completo.
 
 ---
 
-*Documento creato il 2026-04-10 — versione 0.16.5*
+*Documento creato il 2026-04-10 — aggiornato al 2026-04-10 — v1.0.0 RILASCIATA*
