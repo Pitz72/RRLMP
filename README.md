@@ -22,12 +22,14 @@ It replaces the chaotic "play from folder" workflow with a structured, visual bo
 - **Transition engine for all columns** — crossfade/segue/gapless now available for Music and Assets columns, not only PRE-SHOW
 - **Auto-Silence Detection** — drop a file into PRE-SHOW and the app automatically detects and trims leading/trailing silence via FFmpeg
 - **Ducking Sidechain** — voice columns can automatically duck music columns
+- **Smart Mic Auto-Ducking** — hardware microphone monitoring via Web Audio API (USB mic, Rødecaster, any audio input). Voice detected by noise gate → automatic music ducking, no button required. Fully opt-in.
 - **Master Chain Audio** — broadcast-grade processing on master bus: HPF 80Hz, Dynamics Compressor (-18dBFS, 4:1), Brickwall Limiter (-1dBFS). Configurable in Settings.
 - **Output Device Hot-Switch** — change audio output device without restarting
 - **Emergency Stop** — global `Escape` key (via Electron `globalShortcut`) stops all playback instantly, even when the app is not focused
 
 ### Board & Workflow
 - **5 fixed columns**: Assets, Music, Voice, SFX, PRE-SHOW — each with configurable behavior, color-coded, keybind-mapped
+- **Smart Mic ARM button** — arm/disarm microphone monitoring from the header with real-time mini VU meter
 - **Column color customization** — each column has its own color picker (30 colors), persisted in project
 - **Real-Time Board Cues** — INTRO countdown (`INTRO: -5s`) and OUTRO pre-cue alert on each ClipCard
 - **UP NEXT badge** — dynamically shows which clip fires next in the queue
@@ -111,9 +113,9 @@ src/
 
 ## Current Version
 
-**v0.16.5** — *UI & UX Release: Preview Stop · Settings Tab · Welcome Redesign*
+**v0.17.0** — *Feature Release: Smart Mic — Auto-Ducking da Input Hardware*
 
-See [`docs/changelogs/current/0.16.5.md`](./docs/changelogs/current/0.16.5.md) for details.
+See [`docs/changelogs/current/0.17.0.md`](./docs/changelogs/current/0.17.0.md) for details.
 
 ---
 

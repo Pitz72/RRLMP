@@ -152,6 +152,8 @@ Il problema centrale: **Web Audio API non esiste in Node.js**. `AudioContext`, `
 
 ## 5. Smart Mic — Auto-Ducking da Input Hardware
 
+> ✅ **Implementato in v0.17.0** — MicManager.ts, noise gate, ARM button, VU meter, settings tab.
+
 **Priorità**: 🟡 IMPORTANTE | **Difficoltà**: ⭐⭐⭐⭐
 
 ### Stato reale
@@ -320,13 +322,13 @@ Vedi sezione 4 per il dettaglio completo.
 |---|---------|----------|------------|-------|
 | 1 | **i18n Completa** (6 lingue ×~90 chiavi) | 🔴 BLOCCANTE | ⭐⭐ per lingua | ~30h totali |
 | 2 | **Session Recording** (singola traccia WAV) | 🟡 IMPORTANTE | ⭐⭐⭐ | 8–12h |
-| 3 | **Smart Mic Auto-Ducking** | 🟡 IMPORTANTE | ⭐⭐⭐⭐ | 12–16h |
+| — | Smart Mic Auto-Ducking | ✅ FATTO v0.17.0 | — | 0h |
 | 4 | **Test Audio Engine** (copertura minima) | 🟡 IMPORTANTE | ⭐⭐⭐⭐ | 20–30h |
 | 5 | **Advanced Markers Pre-Calcolati** | 🟢 NICE-TO-HAVE | ⭐⭐⭐ | 8–12h |
 | — | Feedback Auto-Silence | ✅ FATTO | — | 0h |
 | — | Native Audio Module | ⏸️ SOSPESA | ⭐⭐⭐⭐⭐ | ~50h |
 
-**Stima totale per v1.0.0** (priorità 1–4): **~70–90h di sviluppo**
+**Stima totale per v1.0.0** (priorità 1–4): **~55–75h di sviluppo**
 
 ---
 

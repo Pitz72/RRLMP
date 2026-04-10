@@ -1,4 +1,4 @@
-# Architecture & Development Reference (v0.16.5)
+# Architecture & Development Reference (v0.17.0)
 
 Ultimo aggiornamento: 2026-04-10
 
@@ -74,6 +74,8 @@ useDebugStore        → Log transitori per overlay debug in-app
 - `fadingClipIds: string[]` (Zustand state, reattivo) — clip in fade-out per transizione
 - `previewingClipIds: string[]` — clip in modalità preview transizione (hasPlayed protetto)
 - `stopPreviewTransition(clipId)` — ferma i clip in preview
+- `isMicActive: boolean` — true quando il noise gate rileva voce dal microfono hardware (v0.17.0)
+- `setMicActive(active)` — aggiorna `_isMicActiveGlobal` e re-valuta `evaluateMix()` (v0.17.0)
 - `pendingCrossfadeFadeIn: number | null` (module-level) — one-shot per fade-in clip entrante
 
 #### useSettingsStore
@@ -83,6 +85,9 @@ useDebugStore        → Log transitori per overlay debug in-app
 - `crossfadeDuration: number` (default 2000ms)
 - `segueDuration: number` (default 800ms)
 - `masterChain: MasterChainSettings` — HPF+Compressor+Limiter config, persistito
+- `micInputDeviceId: string` (default 'default') — device audioinput selezionato
+- `micThresholdDb: number` (default -30) — soglia noise gate in dBFS
+- `micEnabled: boolean` (default false) — abilitazione Smart Mic
 - Persistito in localStorage con chiave `rrlmp-settings`
 
 ---
@@ -196,6 +201,26 @@ Esposta da `src/preload/index.ts` via `contextBridge`:
 - **Global Bind**: `globalMidiBinds` in `useSettingsStore` (es. `"stopAll": "NOTE:36"`)
 - **MIDI Learn Mode**: 15s countdown, Escape per uscire, badge controller connessi
 - **Supported**: Note On (command 144) e CC (command 176)
+
+---
+
+## 7b. MicManager (v0.17.0)
+
+File: `src/renderer/src/engine/MicManager.ts` — Singleton, pattern identico a MidiManager.
+
+Flusso:
+```
+getUserMedia({ echoCancellation: false }) → MediaStreamAudioSourceNode
+    → AnalyserNode (fftSize=1024) [MAI connesso all'output]
+    → getFloatTimeDomainData() ogni 40ms → RMS → dBFS
+    → Noise Gate: attivazione -30dBFS/80ms, rilascio -42dBFS/1500ms (isteresi 12dB)
+    → activityListeners → useAudioStore.setMicActive()
+    → levelListeners → GlobalControls VU meter
+```
+
+Il contesto AudioContext usato è quello di AudioContextManager (nessun contesto aggiuntivo).
+
+Permission handler in main/index.ts: `session.defaultSession.setPermissionRequestHandler` approva automaticamente i permessi `'media'` (richiesto per getUserMedia microfono in Electron 28).
 
 ---
 

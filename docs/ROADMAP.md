@@ -1,6 +1,6 @@
 # RRLMP — Roadmap & Issue Backlog
 
-Versione corrente: **0.16.5**
+Versione corrente: **0.17.0**
 Ultimo aggiornamento: 2026-04-10
 
 ---
@@ -43,6 +43,7 @@ Ultimo aggiornamento: 2026-04-10
 - [✅] **Fix Ducking Bug** — la base musicale parte al volume duckato corretto (evaluateMix con newClipId). ✅ v0.16.4
 - [✅] **Transizioni per Music e Assets** — crossfade/segue/gapless non più solo PRE-SHOW. ✅ v0.16.4
 - [✅] **Metadati ID3 su clip Music** — artist/title estratti in loadClip(), visualizzati in ClipCard. ✅ v0.16.4
+- [✅] **Smart Mic Auto-Ducking** — MicManager.ts, noise gate, integrazione evaluateMix, ARM button UI. ✅ v0.17.0
 - [ ] **Native Audio Module**: Investigare moduli nativi C++/Rust per playback ultra-stabile su file WAV 24-bit / 96kHz.
 - [ ] **Advanced Markers Pre-Calcolati**: Ottimizzare marker da metadati pre-calcolati nel Main (metadata embedding in .lmp).
 
@@ -94,9 +95,9 @@ Ultimo aggiornamento: 2026-04-10
 | Gravità / Tipo | Risolti | Totali | Stato |
 | --- | --- | --- | --- |
 | 🔴 Criticità (Tutte) | 4 | 4 | **100%** ✅ |
-| 🚀 Nuove Feature Core | 24 | 26 | **92%** 🚀 |
+| 🚀 Nuove Feature Core | 25 | 27 | **93%** 🚀 |
 | 🔧 Debito Tecnico | 5 | 6 | **83%** 🔧 |
-| **TOTALE PROGETTO** | **33** | **36** | **92% COMPLETATO** |
+| **TOTALE PROGETTO** | **34** | **37** | **92% COMPLETATO** |
 
 ---
 
@@ -140,5 +141,8 @@ Ultimo aggiornamento: 2026-04-10
 - **Fix ducking bug, Transizioni per Music e Assets, Metadati ID3, Error Boundaries React, rimozione wavesurfer.js** ✅ v0.16.4
 - **Preview Transizione con Stop button, GeneralSettingsModal a 3 tab, WelcomeScreen redesign orizzontale** ✅ v0.16.5
 
+### v0.17.0
+- **Smart Mic Auto-Ducking** ✅ v0.17.0
+
 ---
-*Documento aggiornato il 2026-04-10 — versione 0.16.5.*
+*Documento aggiornato il 2026-04-10 — versione 0.17.0.*

@@ -1,5 +1,5 @@
 # RRLMP — Documento di Visione Tecnica
-**Versione**: 0.16.5 | **Data**: 2026-04-10
+**Versione**: 0.17.0 | **Data**: 2026-04-10
 
 Questo documento sintetizza lo **stato reale del software**, le feature implementate sessione per sessione, e il backlog prioritizzato per le prossime sessioni di sviluppo.
 
@@ -22,6 +22,7 @@ Questo documento sintetizza lo **stato reale del software**, le feature implemen
 | Fix ducking bug (base musicale parte al volume corretto) | 0.16.4 | evaluateMix(newClipId) + fadeTo duration=0 |
 | Transizioni Crossfade/Segue/Gapless estese a Music e Assets | 0.16.4 | Guard type=preshow rimosso |
 | Master Chain Audio (HPF + Compressor + Limiter) | 0.16.2 | Sul master bus, persisted in useSettingsStore |
+| Smart Mic Auto-Ducking | 0.17.0 | MicManager.ts: getUserMedia → AnalyserNode monitor-only → noise gate → evaluateMix(). Opt-in via ARM button |
 
 ### Waveform Editor
 | Feature | Versione | Note |
@@ -56,6 +57,7 @@ Questo documento sintetizza lo **stato reale del software**, le feature implemen
 | Import Playlist M3U → PRE-SHOW | 0.14.12 | auto-silence detection |
 | Badge Auto-saved | 0.16.0 | Fade-in/out 3s |
 | WelcomeScreen redesign orizzontale | 0.16.5 | 720px, 2 pannelli, slogan, bandiere |
+| ARM Button + VU Mic | 0.17.0 | Pulsante ARM nell'header con mini VU meter 8 barre. Tre stati: off/armato silenzio/armato voce |
 
 ### Clip Settings Modal
 | Feature | Versione | Note |
@@ -154,37 +156,7 @@ HPF 80Hz + Compressor broadcast + Limiter -1dBFS. UI in GeneralSettingsModal (ta
 
 ---
 
-**Smart Mic — Auto-Ducking da input hardware**
-
-Il presentatore parla nel microfono → la musica si abbassa automaticamente → quando smette → la musica risale. Zero click, zero distrazione.
-
-**Architettura proposta**:
-
-```
-[getUserMedia()] → [AnalyserNode (monitor only)] → NOT routed to output
-                        ↓
-              [Noise Gate Logic in JS]
-                  threshold: -25dB
-                  attack hold: 100ms
-                  release hold: 1500ms
-                        ↓
-              [isMicActive: boolean]
-                        ↓
-              [evaluateMix() esistente] ← riutilizza il ducking già presente
-```
-
-**Dettagli tecnici**:
-- Il segnale del microfono **non** viene mai mandato in uscita (nessun echo/feedback). Va solo all'`AnalyserNode` interno.
-- Il noise gate usa due soglie: **-25dBFS per 100ms** per attivare, **-35dBFS per 1500ms** per rilasciare. Evita attivazioni da colpi di tosse o rumori ambientali.
-- `isMicActive` si integra nel sistema ducking esistente: le colonne con `duckingRole: 'target'` vengono abbassate automaticamente come se una clip `source` stesse andando in play.
-- **Permission Electron**: `getUserMedia()` richiede il flag `--enable-features=WebRTC` e `session.defaultSession.setPermissionRequestHandler()` nel main process.
-
-**UI**:
-- Pulsante `[🎤 ARM]` nell'header. Se disattivo: microfono ignorato. Se attivo (rosso pulsante): microfono monitorato.
-- VU meter verticale del livello mic a fianco del pulsante ARM (visibile solo quando armato) per diagnostica.
-- Menu "Audio Input Device" in `GeneralSettingsModal` (analogo all'output device già presente).
-
-Stimato: 10h (include gestione permessi Electron + VU meter + integrazione ducking).
+~~**Smart Mic — Auto-Ducking da Input Hardware**~~ ✅ **Implementato in v0.17.0** — MicManager singleton, noise gate con isteresi, integrazione evaluateMix, UI ARM button + VU meter, selettore device in Settings.
 
 ---
 
@@ -246,4 +218,4 @@ Badge "✓ Auto-saved" verde, fade-in/out in 3 secondi dopo ogni auto-backup riu
 
 ---
 
-*Documento aggiornato il 2026-04-10 — allineato a v0.16.5.*
+*Documento aggiornato il 2026-04-10 — allineato a v0.17.0.*
