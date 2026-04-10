@@ -66,10 +66,12 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
         duckingFactor, duckingDuration, setDuckingSettings,
         defaultPreshowTransition, setDefaultPreshowTransition,
         crossfadeDuration, segueDuration, setPreshowTransition, setSegueDuration,
-        masterChain, setMasterChain
+        masterChain, setMasterChain,
+        micInputDeviceId, micThresholdDb, micEnabled, setMicSettings
     } = useSettingsStore();
     const updateOutputDevice = useAudioStore(s => s.updateOutputDevice);
     const [devices, setDevices] = useState<AudioDevice[]>([]);
+    const [inputDevices, setInputDevices] = useState<AudioDevice[]>([]);
     const [activeTab, setActiveTab] = useState<SettingsTab>('output');
 
     useEffect(() => {
@@ -82,6 +84,13 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         label: d.label || `Device ${d.deviceId.substring(0, 5)}...`
                     }));
                 setDevices(audioOuts);
+                const audioIns = devs
+                    .filter(d => d.kind === 'audioinput')
+                    .map(d => ({
+                        deviceId: d.deviceId,
+                        label: d.label || `Input ${d.deviceId.substring(0, 5)}...`
+                    }));
+                setInputDevices(audioIns);
             });
         }
     }, [isOpen]);
@@ -149,6 +158,50 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     ))}
                                 </select>
                                 <p className="text-[10px] text-zinc-600 mt-1">Seleziona la scheda audio (es. Rødecaster). L'audio si sposta immediatamente.</p>
+                            </section>
+
+                            <div className="h-px bg-zinc-800" />
+
+                            {/* SMART MIC — Audio Input */}
+                            <section className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-[10px] uppercase text-red-400 font-bold tracking-wider">Smart Mic — Auto-Ducking</h3>
+                                    <Toggle
+                                        enabled={micEnabled}
+                                        onToggle={() => setMicSettings({ enabled: !micEnabled })}
+                                        labelOn="Abilitato"
+                                        labelOff="Off"
+                                    />
+                                </div>
+                                <p className="text-[10px] text-zinc-600 italic">Il microfono monitora il parlato e abbassa automaticamente la musica, senza passare da una clip voce.</p>
+
+                                <div className={`space-y-3 transition-opacity ${micEnabled ? '' : 'opacity-40 pointer-events-none'}`}>
+                                    <div>
+                                        <span className="text-xs text-zinc-400 block mb-1">Dispositivo di Input</span>
+                                        <select
+                                            value={micInputDeviceId}
+                                            onChange={e => setMicSettings({ inputDeviceId: e.target.value })}
+                                            className="w-full bg-zinc-950 border border-zinc-700 rounded p-2 text-sm text-white focus:border-red-500 outline-none"
+                                        >
+                                            <option value="default">Microfono Predefinito</option>
+                                            {inputDevices.map(d => (
+                                                <option key={d.deviceId} value={d.deviceId}>{d.label}</option>
+                                            ))}
+                                        </select>
+                                        <p className="text-[10px] text-zinc-600 mt-1">Microfono USB, Rødecaster, Zoom LiveTrak, Focusrite ecc. appaiono qui automaticamente.</p>
+                                    </div>
+                                    <LabeledSlider
+                                        label="Soglia Attivazione Noise Gate"
+                                        value={micThresholdDb}
+                                        min={-60} max={-10} step={1}
+                                        display={`${micThresholdDb} dBFS`}
+                                        accent="accent-red-500"
+                                        onChange={v => setMicSettings({ thresholdDb: v })}
+                                    />
+                                    <p className="text-[10px] text-zinc-600 -mt-2 italic">
+                                        Voce sopra questa soglia per 80ms → ducking attivo. Rilascio a {micThresholdDb - 12} dBFS per 1.5s. Default: -30 dBFS.
+                                    </p>
+                                </div>
                             </section>
 
                             <div className="h-px bg-zinc-800" />

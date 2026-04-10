@@ -23,6 +23,11 @@ interface SettingsState {
     // Master Chain (v0.16.2)
     masterChain: MasterChainSettings;
 
+    // Smart Mic (v0.17.0)
+    micInputDeviceId: string;        // 'default' o deviceId specifico
+    micThresholdDb: number;          // soglia di attivazione noise gate (dBFS), default -30
+    micEnabled: boolean;             // se false, il mic non viene armato anche se disponibile
+
     setOutputDeviceId: (id: string) => void;
     setGlobalMidiBind: (actionKey: string, midiMessage: string) => void;
     setMasterVolume: (v: number) => void;
@@ -31,6 +36,7 @@ interface SettingsState {
     setPreshowTransition: (updates: { type?: TransitionType; duration?: number }) => void;
     setSegueDuration: (ms: number) => void;
     setMasterChain: (updates: Partial<MasterChainSettings>) => void;
+    setMicSettings: (updates: { inputDeviceId?: string; thresholdDb?: number; enabled?: boolean }) => void;
 }
 
 
@@ -52,6 +58,11 @@ export const useSettingsStore = create<SettingsState>()(
             crossfadeDuration: 2000,
             segueDuration: 800,
 
+            // Smart Mic defaults (v0.17.0)
+            micInputDeviceId: 'default',
+            micThresholdDb: -30,
+            micEnabled: false,
+
             setOutputDeviceId: (id) => set({ outputDeviceId: id }),
             setGlobalMidiBind: (actionKey, midiMessage) => set((state) => ({
                 globalMidiBinds: { ...state.globalMidiBinds, [actionKey]: midiMessage }
@@ -69,6 +80,11 @@ export const useSettingsStore = create<SettingsState>()(
             setSegueDuration: (ms) => set({ segueDuration: ms }),
             setMasterChain: (updates) => set((state) => ({
                 masterChain: { ...state.masterChain, ...updates }
+            })),
+            setMicSettings: (updates) => set((state) => ({
+                micInputDeviceId: updates.inputDeviceId ?? state.micInputDeviceId,
+                micThresholdDb:   updates.thresholdDb   ?? state.micThresholdDb,
+                micEnabled:       updates.enabled       ?? state.micEnabled,
             })),
         }),
 

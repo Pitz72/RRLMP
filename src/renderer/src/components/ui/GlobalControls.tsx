@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAudioStore } from '../../store/useAudioStore';
 import AudioContextManager from '../../engine/AudioContextManager';
+import MicManager from '../../engine/MicManager';
 import { Button } from './Button';
-import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic, Check } from 'lucide-react';
+import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic, Check, Mic, MicOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 
@@ -26,10 +27,17 @@ export const GlobalControls = () => {
     const { stopAll } = useAudioStore();
     const loadClip = useAudioStore((s) => s.loadClip);
     const { columns, isDirty, setDirty, loadProject, resetProject, currentFilePath, isMidiLearnMode, setIsMidiLearnMode, runIntegrityCheck, updateClip, addClipFromPath } = useProjectStore();
-    const { globalMidiBinds, setGlobalMidiBind, masterVolume, setMasterVolume: setStoredVolume } = useSettingsStore();
+    const { globalMidiBinds, setGlobalMidiBind, masterVolume, setMasterVolume: setStoredVolume, micInputDeviceId, micThresholdDb, micEnabled } = useSettingsStore();
+    const setMicActive = useAudioStore(s => s.setMicActive);
+    const isMicActive = useAudioStore(s => s.isMicActive);
 
     const [pendingBind, setPendingBind] = useState<string | null>(null); // 'stopAll' | 'masterVolume'
     const [showAutoSaved, setShowAutoSaved] = useState(false);
+
+    // Smart Mic state (v0.17.0)
+    const [isArmed, setIsArmed] = useState(false);
+    const [micLevel, setMicLevel] = useState(-100);
+    const micArmingRef = useRef(false); // evita doppio arm in StrictMode
 
     // M2 Fix: stato MIDI per badge visivo
     const [midiInputCount, setMidiInputCount] = useState(0);
@@ -172,6 +180,51 @@ export const GlobalControls = () => {
         AudioContextManager.getInstance().setMasterVolume(masterVolume);
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+    // v0.17.0 — Smart Mic: gestisce arm/disarm e i listener di livello e attività
+    const handleArmToggle = async () => {
+        const mic = MicManager.getInstance();
+        if (isArmed) {
+            mic.disarm();
+            setIsArmed(false);
+            setMicLevel(-100);
+            setMicActive(false);
+        } else {
+            if (micArmingRef.current) return;
+            micArmingRef.current = true;
+            try {
+                await mic.arm(micInputDeviceId, micThresholdDb);
+                setIsArmed(true);
+            } catch (e) {
+                console.error('[SmartMic] Arm failed:', e);
+                micArmingRef.current = false;
+                return;
+            }
+            micArmingRef.current = false;
+        }
+    };
+
+    // Sottoscrive ai livelli e agli eventi di attività una volta armato
+    useEffect(() => {
+        if (!isArmed) return;
+        const mic = MicManager.getInstance();
+        const unsubLevel    = mic.addLevelListener(db => setMicLevel(db));
+        const unsubActivity = mic.addActivityListener(active => setMicActive(active));
+        return () => {
+            unsubLevel();
+            unsubActivity();
+        };
+    }, [isArmed]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Disarma il mic se micEnabled viene disattivato dalle impostazioni
+    useEffect(() => {
+        if (!micEnabled && isArmed) {
+            MicManager.getInstance().disarm();
+            setIsArmed(false);
+            setMicLevel(-100);
+            setMicActive(false);
+        }
+    }, [micEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
 
 
@@ -187,6 +240,50 @@ export const GlobalControls = () => {
 
     return (
         <div className="flex items-center gap-4 border-l border-zinc-800 pl-4 ml-4">
+
+            {/* SMART MIC — ARM button + mini VU (v0.17.0) */}
+            <div className="flex items-center gap-1.5 border-r border-zinc-800 pr-4 mr-2">
+                <button
+                    onClick={handleArmToggle}
+                    title={isArmed ? 'Disarma microfono' : 'Arma microfono (Smart Ducking)'}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-bold transition-all ${
+                        isArmed
+                            ? isMicActive
+                                ? 'bg-red-500 text-white shadow-lg shadow-red-500/40 animate-pulse'
+                                : 'bg-red-900/60 text-red-400 border border-red-700'
+                            : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-300 border border-zinc-700'
+                    }`}
+                >
+                    {isArmed ? <Mic size={13} /> : <MicOff size={13} />}
+                    <span>ARM</span>
+                </button>
+
+                {/* Mini VU mic — 8 barre verticali, visibile solo quando armato */}
+                {isArmed && (
+                    <div className="flex items-end gap-px h-5" title={`${micLevel.toFixed(1)} dBFS`}>
+                        {Array.from({ length: 8 }).map((_, i) => {
+                            // Mappa le 8 barre da -60dBFS (bar 0) a -10dBFS (bar 7)
+                            const barThreshold = -60 + i * 6.25;
+                            const isLit = micLevel >= barThreshold;
+                            const isRed = i >= 6;
+                            const isYellow = i === 5;
+                            return (
+                                <div
+                                    key={i}
+                                    className={`w-1 rounded-sm transition-all duration-75 ${
+                                        isLit
+                                            ? isRed    ? 'bg-red-500'
+                                            : isYellow ? 'bg-yellow-400'
+                                                       : 'bg-emerald-400'
+                                            : 'bg-zinc-700'
+                                    }`}
+                                    style={{ height: `${40 + i * 7}%` }}
+                                />
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
 
             {/* VU METER */}
             <VUMeter />

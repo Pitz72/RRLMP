@@ -28,6 +28,9 @@ interface AudioStore {
     // v0.16.5 — Preview Transition: set di clip ID avviate in modalità preview
     previewingClipIds: string[];
 
+    // v0.17.0 — Smart Mic: il microfono hardware è rilevato come voce attiva
+    isMicActive: boolean;
+
     // Actions
     playClip: (clip: AudioClip) => Promise<void>;
     loadClip: (clip: AudioClip) => Promise<void>;
@@ -37,6 +40,7 @@ interface AudioStore {
     previewTransition: (clip: AudioClip) => Promise<void>;
     stopPreviewTransition: (clipId: string) => void;
     stopAll: () => void;
+    setMicActive: (active: boolean) => void;
 
     // Internal loop
     _syncProgress: () => void;
@@ -77,7 +81,8 @@ const evaluateMix = (activeClips: Record<string, ActiveClipState>, newClipId?: s
     const { duckingFactor, duckingDuration } = useSettingsStore.getState();
 
     // 1. ANALYSIS: Scan for high-priority types currently playing
-    const isVoiceActive = activeValues.some(c => c.clip.type === 'voice');
+    // v0.17.0: isMicActive (Smart Mic) ha la stessa priorità di una clip voice
+    const isVoiceActive = activeValues.some(c => c.clip.type === 'voice') || _isMicActiveGlobal;
     const isMusicActive = activeValues.some(c => c.clip.type === 'music');
     // Active Stacco defined as: An asset that is playing and has behavior 'stacco'
     const activeStacco = activeValues.find(c =>
@@ -188,6 +193,11 @@ const playGenerations = new Map<string, number>();
 // Viene letta una sola volta da playClip e poi azzerata (pattern one-shot).
 let pendingCrossfadeFadeIn: number | null = null;
 
+// v0.17.0 — Smart Mic: stato globale microfono, aggiornato da setMicActive().
+// Variabile module-level (come pendingCrossfadeFadeIn) per essere accessibile
+// da evaluateMix() che è definita fuori dal create() callback.
+let _isMicActiveGlobal = false;
+
 export const useAudioStore = create<AudioStore>((set, get) => {
 
     // G8 Fix: setInterval condizionale — chiama _syncProgress solo se ci sono
@@ -204,6 +214,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
         onAirStartTime: null,
         fadingClipIds: [],
         previewingClipIds: [],
+        isMicActive: false,
 
         playClip: async (clipArg: AudioClip) => {
             const currentStore = get();
@@ -624,6 +635,15 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
             // Svuota completamente il set preview dopo lo stop
             set({ previewingClipIds: [] });
+        },
+
+        // v0.17.0 — Smart Mic: aggiorna lo stato mic e re-valuta il mix
+        setMicActive: (active: boolean) => {
+            _isMicActiveGlobal = active;
+            set({ isMicActive: active });
+            // Re-valuta il mix con il nuovo stato mic (ducking immediato)
+            const { activeClips } = get();
+            evaluateMix(activeClips);
         },
 
         _syncProgress: () => {

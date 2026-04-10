@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, protocol, nativeImage, ipcMain, dialog, globalShortcut } from 'electron';
+import { app, shell, BrowserWindow, protocol, nativeImage, ipcMain, dialog, globalShortcut, session } from 'electron';
 import { join } from 'path';
 import * as fs from 'fs';
 import { Readable } from 'stream';
@@ -463,6 +463,17 @@ app.whenReady().then(() => {
     if (process.platform === 'win32') app.setAppUserModelId('com.electron');
 
     createWindow();
+
+    // v0.17.0 — Smart Mic: approva automaticamente i permessi getUserMedia (audio)
+    // Electron 28 richiede che il main process approvi esplicitamente le richieste
+    // di accesso ai dispositivi media dal renderer (getUserMedia per microfono).
+    session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
+        if (permission === 'media') {
+            callback(true); // approva sempre l'accesso audio/video richiesto dall'app
+        } else {
+            callback(false);
+        }
+    });
 
     // v0.14.3 — Emergency Stop globale: Escape → stopAll nel renderer
     globalShortcut.register('Escape', () => {
