@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAudioStore } from '../../store/useAudioStore';
 import AudioContextManager from '../../engine/AudioContextManager';
 import { Button } from './Button';
-import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic } from 'lucide-react';
+import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 
@@ -26,10 +26,10 @@ export const GlobalControls = () => {
     const { stopAll } = useAudioStore();
     const loadClip = useAudioStore((s) => s.loadClip);
     const { columns, isDirty, setDirty, loadProject, resetProject, currentFilePath, isMidiLearnMode, setIsMidiLearnMode, runIntegrityCheck, updateClip, addClipFromPath } = useProjectStore();
-    const { globalMidiBinds, setGlobalMidiBind } = useSettingsStore();
+    const { globalMidiBinds, setGlobalMidiBind, masterVolume, setMasterVolume: setStoredVolume } = useSettingsStore();
 
-    const [volume, setVolume] = useState(1.0);
     const [pendingBind, setPendingBind] = useState<string | null>(null); // 'stopAll' | 'masterVolume'
+    const [showAutoSaved, setShowAutoSaved] = useState(false);
 
     // M2 Fix: stato MIDI per badge visivo
     const [midiInputCount, setMidiInputCount] = useState(0);
@@ -89,6 +89,8 @@ export const GlobalControls = () => {
 
                     if (result.success) {
                         debugLog(`Auto-backup completed: ${result.path?.split(/[\\/]/).pop()}`, 'info');
+                        setShowAutoSaved(true);
+                        setTimeout(() => setShowAutoSaved(false), 3000);
                     } else {
                         debugLog(`Auto-backup failed: ${result.error}`, 'error');
                     }
@@ -165,18 +167,17 @@ export const GlobalControls = () => {
         return () => window.removeEventListener('keydown', handleEsc);
     }, [isMidiLearnMode]);
 
-    // Initial sync
+    // Initial sync: applica il volume persistito allo store → AudioContextManager all'avvio
     useEffect(() => {
-        const mgr = AudioContextManager.getInstance();
-        setVolume(mgr.getOutput().gain.value);
-    }, []);
+        AudioContextManager.getInstance().setMasterVolume(masterVolume);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 
 
 
     const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newVal = parseFloat(e.target.value);
-        setVolume(newVal);
+        setStoredVolume(newVal);
         AudioContextManager.getInstance().setMasterVolume(newVal);
     };
 
@@ -209,7 +210,7 @@ export const GlobalControls = () => {
                         min="0"
                         max="1"
                         step="0.01"
-                        value={volume}
+                        value={masterVolume}
                         onChange={handleVolumeChange}
                         disabled={isMidiLearnMode} // Disable slider dragging in learn mode to prevent conflicts? Or allow? Prompt says "Rendi cliccabile".
                         className={`h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-white hover:accent-emerald-400 w-full ${isMidiLearnMode ? 'pointer-events-none' : ''}`}
@@ -510,6 +511,14 @@ export const GlobalControls = () => {
                 >
                     <BookOpen size={16} />
                 </Button>
+
+                {/* AUTO-SAVED BADGE (v0.16.0) — appare 3s dopo ogni auto-backup riuscito */}
+                <span
+                    className={`flex items-center gap-1 text-[10px] font-medium text-emerald-400 ml-2 transition-opacity duration-500 ${showAutoSaved ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                >
+                    <Check size={11} strokeWidth={2.5} />
+                    Auto-saved
+                </span>
             </div>
 
             <GeneralSettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />

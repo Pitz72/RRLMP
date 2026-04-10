@@ -6,6 +6,9 @@ interface SettingsState {
     outputDeviceId: string;
     globalMidiBinds: Record<string, string>;
 
+    // Master Volume (v0.16.0) — persisted so it survives restarts; synced with AudioContextManager
+    masterVolume: number; // 0.0 to 1.0
+
     // Mixing Settings
     duckingFactor: number; // 0.0 to 1.0
     duckingDuration: number; // ms
@@ -18,6 +21,7 @@ interface SettingsState {
 
     setOutputDeviceId: (id: string) => void;
     setGlobalMidiBind: (actionKey: string, midiMessage: string) => void;
+    setMasterVolume: (v: number) => void;
     setDuckingSettings: (updates: { factor?: number; duration?: number }) => void;
     setDefaultPreshowTransition: (transition: 'crossfade' | 'segue' | 'gapless') => void;
     setPreshowTransition: (updates: { type?: TransitionType; duration?: number }) => void;
@@ -30,6 +34,7 @@ export const useSettingsStore = create<SettingsState>()(
         (set) => ({
             outputDeviceId: 'default',
             globalMidiBinds: {},
+            masterVolume: 1.0,
 
             // Defaults mixing
             duckingFactor: 0.2,
@@ -45,6 +50,7 @@ export const useSettingsStore = create<SettingsState>()(
             setGlobalMidiBind: (actionKey, midiMessage) => set((state) => ({
                 globalMidiBinds: { ...state.globalMidiBinds, [actionKey]: midiMessage }
             })),
+            setMasterVolume: (v) => set({ masterVolume: Math.max(0, Math.min(1, v)) }),
             setDuckingSettings: (updates) => set((state) => ({
                 duckingFactor: updates.factor ?? state.duckingFactor,
                 duckingDuration: updates.duration ?? state.duckingDuration

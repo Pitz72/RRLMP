@@ -231,9 +231,11 @@ Stimato: 8h.
 
 **Column Color Picker** — `customColor` esiste per le clip, manca per la colonna stessa. Stimato: 2h.
 
-**Volume Master MIDI CC fader continuo** — CC 0–127 → gain lineare 0.0–1.0. Già bindabile come global, non come fader analogico continuo. Stimato: 2h.
+~~**Volume Master MIDI CC fader continuo**~~ ✅ **Implementato in v0.16.0**
+`masterVolume` ora persiste in `useSettingsStore` (localStorage). Lo slider UI segue il fader MIDI in tempo reale. Il volume sopravvive al riavvio.
 
-**Badge "Auto-saved" nell'header** — Feedback visivo dell'auto-backup ogni 5 min: `💾 Auto-saved` che appare per 3 secondi. Stimato: 30min.
+~~**Badge "Auto-saved" nell'header**~~ ✅ **Implementato in v0.16.0**
+Badge "✓ Auto-saved" verde, fade-in/out in 3 secondi dopo ogni auto-backup riuscito. Implementato con stato locale `showAutoSaved` in `GlobalControls`.
 
 **i18n modali** — Testi IT hardcoded in ClipSettingsModal e GeneralSettingsModal. Stimato: 2h.
 
@@ -250,4 +252,4 @@ Stimato: 8h.
 
 ---
 
-*Documento aggiornato il 2026-04-10 — allineato a v0.15.0. Aggiunti: Master Chain Audio, Smart Mic Auto-Ducking, Session Recording, Drop posizione precisa.*
+*Documento aggiornato il 2026-04-10 — allineato a v0.16.0.*

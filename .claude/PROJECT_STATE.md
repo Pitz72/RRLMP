@@ -1,8 +1,8 @@
 # RRLMP — Stato Progetto per Sessioni Claude
 
 **Aggiornato**: 2026-04-09
-**Versione corrente**: 0.15.0
-**Build verificata**: ❌ (non ancora buildata)
+**Versione corrente**: 0.16.0
+**Build verificata**: ✅ `builds/v0.16.0/Runtime Live Machine Setup 0.16.0.exe` (locale, non in git)
 **Branch attivo**: `master`
 
 ---
@@ -80,6 +80,9 @@
 - ✅ ConfirmDialog non-bloccante promise-based (v0.14.7)
 - ✅ Import Playlist M3U/M3U8 → PRE-SHOW (v0.14.12)
 - ✅ Preview Transizione PRE-SHOW: pulsante "Test →" nel ClipSettingsModal (v0.15.0)
+- ✅ Drop da OS a posizione precisa: addClipAtIndex, data-clip-id, calcolo indice da clientY (v0.15.x)
+- ✅ Volume Master MIDI reattivo: masterVolume in useSettingsStore, slider segue fader CC (v0.16.0)
+- ✅ Badge "Auto-saved": appare 3s dopo ogni auto-backup riuscito (v0.16.0)
 - ✅ Icone toolbar aggiornate + tooltip fixati (v0.14.11)
 - ✅ Real-Time Board Cues: INTRO countdown, OUTRO pre-cue + alert
 - ✅ MIDI Learn Mode + KeymappingModal
@@ -145,4 +148,4 @@ git push github master   # GitHub
 
 ---
 
-*Documento aggiornato il 2026-04-09 — fine sessione v0.15.0.*
+*Documento aggiornato il 2026-04-10 — fine sessione v0.16.0.*

@@ -157,6 +157,7 @@ function App() {
                 if (globalAction === 'masterVolume') {
                     const vol = Math.min(1.0, velocity / 127);
                     AudioContextManager.getInstance().setMasterVolume(vol);
+                    useSettingsStore.getState().setMasterVolume(vol); // v0.16.0: slider UI segue il fader MIDI
                     return;
                 }
             }

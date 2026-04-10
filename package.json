@@ -1,6 +1,6 @@
 {
     "name": "runtime-live-machine",
-    "version": "0.15.0",
+    "version": "0.16.0",
     "description": "Professional Broadcast Audio Architecture",
     "homepage": "https://gitlab.com/pizzisimone1972/RRLMP",
     "main": "out/main/index.js",
