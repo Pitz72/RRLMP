@@ -1,5 +1,5 @@
 # RRLMP — Documento di Visione Tecnica
-**Versione**: 0.15.0 | **Data**: 2026-04-10
+**Versione**: 0.16.5 | **Data**: 2026-04-10
 
 Questo documento sintetizza lo **stato reale del software**, le feature implementate sessione per sessione, e il backlog prioritizzato per le prossime sessioni di sviluppo.
 
@@ -19,6 +19,9 @@ Questo documento sintetizza lo **stato reale del software**, le feature implemen
 | Output Device Hot-Switch | ≤0.9.x | setSinkId() |
 | Sequencer play_next (colonna PRE-SHOW) | ≤0.9.x | |
 | Emergency Stop globale (Escape → stopAll) | 0.14.3 | globalShortcut Electron |
+| Fix ducking bug (base musicale parte al volume corretto) | 0.16.4 | evaluateMix(newClipId) + fadeTo duration=0 |
+| Transizioni Crossfade/Segue/Gapless estese a Music e Assets | 0.16.4 | Guard type=preshow rimosso |
+| Master Chain Audio (HPF + Compressor + Limiter) | 0.16.2 | Sul master bus, persisted in useSettingsStore |
 
 ### Waveform Editor
 | Feature | Versione | Note |
@@ -47,6 +50,12 @@ Questo documento sintetizza lo **stato reale del software**, le feature implemen
 | LMP Integrity Check (clip mancanti → rosse) | 0.14.2 | check-files-exist IPC |
 | Toast Notification System (no più alert()) | 0.14.7 | useToastStore + useConfirmStore |
 | ConfirmDialog non-bloccante | 0.14.7 | Promise-based, audio continua |
+| Drop Indicator (linea blu glow inserimento) | 0.16.2 | Durante drag da OS |
+| Column Color Picker esteso | 0.16.1–0.16.3 | 30 colori, customColor su Column |
+| Testo clip schiarito (lightenHex) | 0.16.2 | 65% blend verso bianco |
+| Import Playlist M3U → PRE-SHOW | 0.14.12 | auto-silence detection |
+| Badge Auto-saved | 0.16.0 | Fade-in/out 3s |
+| WelcomeScreen redesign orizzontale | 0.16.5 | 720px, 2 pannelli, slogan, bandiere |
 
 ### Clip Settings Modal
 | Feature | Versione | Note |
@@ -54,6 +63,7 @@ Questo documento sintetizza lo **stato reale del software**, le feature implemen
 | Tab General: volume, behavior, ducking, transizione | ≤0.9.x | |
 | Tab Trim & Markers: WaveformEditor + manual inputs | 0.14.1 | |
 | Tab Notes / Script: textarea monospace, contatori | 0.14.4 | Persistito nel .lmp |
+| Preview Transizione con Stop button | 0.16.5 | hasPlayed protetto da previewingClipIds |
 
 ### MIDI & Keybinding
 | Feature | Versione | Note |
@@ -98,12 +108,16 @@ Tutti i processi FFmpeg (silence detection, waveform generation, metadata) giran
 ### Formato .lmp
 ```json
 {
-  "version": "0.14.9",
+  "version": "0.16.5",
   "timestamp": "ISO8601",
   "project": { "columns": [ /* Column[] */ ] }
 }
 ```
 Campi **runtime-only** (non serializzati): `isMissing`, `isAnalyzing`
+
+Campi aggiuntivi su `AudioClip` (v0.16.4):
+- `artist?: string` — metadato ID3 artist estratto da music-metadata
+- `title?: string` — metadato ID3 title estratto da music-metadata
 
 ---
 
@@ -126,10 +140,8 @@ Il listener è in `MainGrid.tsx` su `window` (non `App.tsx`). Usa `e.code` (tast
 ~~**Playlist Import M3U → colonna PRE-SHOW**~~ ✅ **Implementato in v0.14.12**
 IPC handler `import-m3u`, parsing M3U/M3U8, path relativi/assoluti, silence detection automatica, `addClipFromPath` nel project store.
 
-~~**Preview Transizione**~~ ✅ **Implementato in v0.15.0** — ⚠️ **Da raffinare**
-Pulsante "Test →" nel ClipSettingsModal (tab General, visibile solo per clip PRE-SHOW con una prossima clip). Riproduce gli ultimi secondi della clip corrente così la transizione (crossfade/segue/gapless) scatta naturalmente.
-
-**Problema noto**: una volta avviato il test, non è possibile fermarlo dall'interno del modal. L'utente deve chiudere il modal e stoppare la clip manualmente (click Stop sulla ClipCard) oppure premere Escape (Emergency Stop globale). Da aggiungere nella prossima sessione: pulsante "Stop" dedicato nel modal che chiama `stopClip(clip.id)`, e gestione del caso in cui il modal si chiude mentre il test è in corso.
+~~**Preview Transizione**~~ ✅ **Completato in v0.16.5**
+Pulsante Stop rosso nel modal. Clip in anteprima non marcate hasPlayed (previewingClipIds[] nel store).
 
 ---
 
@@ -137,27 +149,8 @@ Pulsante "Test →" nel ClipSettingsModal (tab General, visibile solo per clip P
 
 ---
 
-**Master Chain Audio (Sound Processing broadcast-grade)**
-
-Attualmente ogni clip ha un volume normalizzato manualmente. Brani con dinamiche diverse (musica classica vs elettronica) suonano a volume disomogeneo. La soluzione non è normalizzare i file ma processare l'uscita master in tempo reale, come fa una vera console radio.
-
-**Architettura proposta** (Web Audio API, tutto nel renderer):
-
-```
-[ClipGainNode] → [Bus Gains] → [HPF 30Hz] → [DynamicsCompressor] → [BrickwallLimiter] → destination
-```
-
-1. **High-Pass Filter (HPF)** — `BiquadFilterNode` tipo `highpass` a 30Hz. Taglia il rumore sub-bass DC che non si sente ma consuma headroom.
-2. **Dynamics Compressor** — `DynamicsCompressorNode` con parametri broadcast:
-   - `threshold: -18dB`, `ratio: 4:1`, `knee: 6dB`, `attack: 10ms`, `release: 200ms`
-   - Effetto: compatta la dinamica, uniforma i volumi percepiti. È l'effetto "suono radio FM".
-3. **Brickwall Limiter** — secondo `DynamicsCompressorNode` configurato come limiter:
-   - `threshold: -1dB`, `ratio: 20:1`, `knee: 0`, `attack: 1ms`, `release: 100ms`
-   - Garantisce che il segnale finale non superi mai -1dBFS. Nessuna distorsione hardware.
-
-**Inserimento**: `AudioContextManager` già espone il master gain node — basta inserire questi 3 nodi a monte del `destination`. Zero impatto sull'architettura esistente.
-
-**UI**: toggle on/off in `GeneralSettingsModal` ("Master Limiter") + preset broadcaste parametri avanzati per utenti esperti. Stimato: 6h.
+~~**Master Chain Audio**~~ ✅ **Implementato in v0.16.2**
+HPF 80Hz + Compressor broadcast + Limiter -1dBFS. UI in GeneralSettingsModal (tab Master Chain da v0.16.5).
 
 ---
 
@@ -240,7 +233,7 @@ Badge "✓ Auto-saved" verde, fade-in/out in 3 secondi dopo ogni auto-backup riu
 
 **i18n modali** — Testi IT hardcoded in ClipSettingsModal e GeneralSettingsModal. Stimato: 2h.
 
-**Error Boundaries React** — Prevenire white screen da eccezioni non gestite nei componenti. Stimato: 1h.
+~~**Error Boundaries React**~~ ✅ **Implementato in v0.16.4**
 
 ---
 
@@ -253,4 +246,4 @@ Badge "✓ Auto-saved" verde, fade-in/out in 3 secondi dopo ogni auto-backup riu
 
 ---
 
-*Documento aggiornato il 2026-04-10 — allineato a v0.16.1.*
+*Documento aggiornato il 2026-04-10 — allineato a v0.16.5.*

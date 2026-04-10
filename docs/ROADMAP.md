@@ -1,7 +1,7 @@
 # RRLMP — Roadmap & Issue Backlog
 
-Versione corrente: **0.14.2**
-Ultimo aggiornamento: 2026-04-06
+Versione corrente: **0.16.5**
+Ultimo aggiornamento: 2026-04-10
 
 ---
 
@@ -39,6 +39,10 @@ Ultimo aggiornamento: 2026-04-06
 - [✅] **Sistema Transizioni Pre-Show**: Gapless / Segue / Crossfade con override per-clip. ✅ v0.13.2
 - [✅] **Auto-Silence Detection al Drop**: Silence detection automatica al drag di file nel PRE-SHOW. ✅ v0.13.2
 - [✅] **Marker Drag & Drop Visivo**: Handle trascinabili per Trim Start/End, Intro, Outro con drag globale e anti-stale ref pattern. ✅ v0.14.1
+- [✅] **Master Chain Audio** — HPF + Compressor broadcast + Limiter brickwall sul master bus. ✅ v0.16.2
+- [✅] **Fix Ducking Bug** — la base musicale parte al volume duckato corretto (evaluateMix con newClipId). ✅ v0.16.4
+- [✅] **Transizioni per Music e Assets** — crossfade/segue/gapless non più solo PRE-SHOW. ✅ v0.16.4
+- [✅] **Metadati ID3 su clip Music** — artist/title estratti in loadClip(), visualizzati in ClipCard. ✅ v0.16.4
 - [ ] **Native Audio Module**: Investigare moduli nativi C++/Rust per playback ultra-stabile su file WAV 24-bit / 96kHz.
 - [ ] **Advanced Markers Pre-Calcolati**: Ottimizzare marker da metadati pre-calcolati nel Main (metadata embedding in .lmp).
 
@@ -54,15 +58,20 @@ Ultimo aggiornamento: 2026-04-06
 - [✅] **Output Device Switching**: Selezione scheda audio hot-switch. ✅ (archivio)
 - [✅] **Ducking Sidechain Dinamico**: Volume reduction automatico (duckingFactor / duckingDuration configurabili). ✅ (archivio)
 - [ ] **Layout Regia 5.0**: Espansione / customizzazione griglia (colonne configurabili, rinomina colonne).
-- [ ] **Pannello Keymapping Centralizzato**: Gestione MIDI e Keyboard Bind in un pannello dedicato, separato dalle impostazioni singola clip.
+- [✅] **Pannello Keymapping Centralizzato** ✅ v0.14.6+
 - [✅] **LMP Integrity Check**: Check automatico all'apertura progetto. Clip mancanti → rosse + ⚠️ + playback bloccato. ✅ v0.14.2
-- [ ] **Feedback Visivo Auto-Silence in Background**: Spinner / badge "analisi in corso" sulla clip durante il processo di silence detection automatico.
+- [✅] **Feedback Visivo Auto-Silence** — badge TRIM… su ClipCard durante analisi (isAnalyzing). ✅ v0.14.6
+- [✅] **Drop OS a posizione precisa** ✅ v0.15.x
+- [✅] **Preview Transizione con Stop** — pulsante Stop + hasPlayed protetto. ✅ v0.16.5
+- [✅] **Column Color Picker** — 30 colori, customColor persistito. ✅ v0.16.1–0.16.3
+- [✅] **WelcomeScreen redesign** — layout orizzontale, slogan, bandiere. ✅ v0.16.5
+- [✅] **GeneralSettingsModal a Tab** — 3 tab con Language switcher. ✅ v0.16.5
 
 ### 🛡️ Stabilità e Manutenibilità
 
-- [ ] **Rimozione wavesurfer.js da package.json**: Dipendenza installata ma mai usata dal v0.10.7. Da rimuovere per pulizia build.
-- [ ] **i18n Estensione Modali**: Alcuni testi nei modali (ClipSettings, GeneralSettings) ancora hardcoded in italiano.
-- [ ] **Error Boundaries React**: Aggiungere error boundary per prevenire white screen da eccezioni non gestite nel renderer.
+- [✅] **Rimozione wavesurfer.js** ✅ v0.16.4
+- [✅] **i18n Estensione Modali** ✅ v0.16.1
+- [✅] **Error Boundaries React** ✅ v0.16.4
 - [ ] **Test Audio Engine**: Nessun test automatizzato sull'engine. Considerare test di integrazione per playClip/stopClip/transition.
 
 ---
@@ -73,10 +82,10 @@ Ultimo aggiornamento: 2026-04-06
 |----------|------|-----------|-------|
 | ~~🔴 Alta~~ | ~~`wavesurfer.js` / `waveform-data` in package.json~~ | ~~Mai importati dal v0.10.7~~ | ✅ Rimossi 2026-04-06 |
 | ~~🟡 Media~~ | ~~Drag & drop marker waveform~~ | ~~Promesso in v0.10.0, mai implementato~~ | ✅ Implementato v0.14.1 |
-| 🟡 Media | Testi hardcoded in IT nei modali | ClipSettingsModal, GeneralSettingsModal hanno testi non i18n. | 📋 Aperto |
+| ~~🟡 Media~~ | ~~Testi hardcoded in IT nei modali~~ | ~~ClipSettingsModal, GeneralSettingsModal hanno testi non i18n.~~ | ✅ Risolti in v0.16.1 |
 | 🟡 Media | Feedback Auto-Silence su drop | Nessun indicatore visivo mentre FFmpeg gira in background. | 📋 Aperto |
-| 🟢 Bassa | `crossfadeDuration` usato anche per segue | Nome variabile impreciso: usato per entrambi segue e crossfade. | 📋 Aperto |
-| 🟢 Bassa | `alert()` come error handling | Alcuni errori usano `alert()` invece di notifiche non-bloccanti. | 📋 Aperto |
+| ~~🟢 Bassa~~ | ~~`crossfadeDuration` usato anche per segue~~ | ~~Nome variabile impreciso: usato per entrambi segue e crossfade.~~ | ✅ Risolto con `segueDuration` separata in v0.14.8 |
+| ~~🟢 Bassa~~ | ~~`alert()` come error handling~~ | ~~Alcuni errori usano `alert()` invece di notifiche non-bloccanti.~~ | ✅ Toast + ConfirmDialog in v0.14.7 |
 
 ---
 
@@ -85,9 +94,9 @@ Ultimo aggiornamento: 2026-04-06
 | Gravità / Tipo | Risolti | Totali | Stato |
 | --- | --- | --- | --- |
 | 🔴 Criticità (Tutte) | 4 | 4 | **100%** ✅ |
-| 🚀 Nuove Feature Core | 13 | 17 | **76%** 🚀 |
-| 🔧 Debito Tecnico | 2 | 6 | **33%** 🔧 |
-| **TOTALE PROGETTO** | **20** | **27** | **74% COMPLETATO** |
+| 🚀 Nuove Feature Core | 24 | 26 | **92%** 🚀 |
+| 🔧 Debito Tecnico | 5 | 6 | **83%** 🔧 |
+| **TOTALE PROGETTO** | **33** | **36** | **92% COMPLETATO** |
 
 ---
 
@@ -123,5 +132,13 @@ Ultimo aggiornamento: 2026-04-06
 - **music-metadata downgrade CJS-safe** ✅ v0.11.1
 - **Electron pinned version (builder fix)** ✅ v0.13.2
 
+### v0.16.x — UI & UX Release
+- **Volume Master MIDI reattivo + Badge Auto-saved** ✅ v0.16.0
+- **Column Color Picker (12 → 30 colori), ConfirmDialog Promise-based, i18n ClipSettingsModal + GeneralSettingsModal** ✅ v0.16.1
+- **Testo clip schiarito (lightenHex), Drop Indicator, Master Chain Audio (HPF+Compressor+Limiter)** ✅ v0.16.2
+- **Fix colori clip PRE-SHOW in play, Color Picker esteso a 30 colori, GeneralSettingsModal redesign orizzontale** ✅ v0.16.3
+- **Fix ducking bug, Transizioni per Music e Assets, Metadati ID3, Error Boundaries React, rimozione wavesurfer.js** ✅ v0.16.4
+- **Preview Transizione con Stop button, GeneralSettingsModal a 3 tab, WelcomeScreen redesign orizzontale** ✅ v0.16.5
+
 ---
-*Documento aggiornato il 2026-04-06 — versione 0.14.2.*
+*Documento aggiornato il 2026-04-10 — versione 0.16.5.*

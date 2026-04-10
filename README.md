@@ -19,19 +19,23 @@ It replaces the chaotic "play from folder" workflow with a structured, visual bo
 ### Audio Engine
 - **Main-Side-Heavy Architecture** — FFmpeg runs in the Node.js main process. The renderer never loads audio files into memory. No OOM crashes, even on large files.
 - **Streaming via custom `media://` protocol** — files are streamed, not buffered. Works on files of any size.
-- **PRE-SHOW transition engine** — per-clip transition modes: Gapless, Segue, and Crossfade with independently configurable durations
+- **Transition engine for all columns** — crossfade/segue/gapless now available for Music and Assets columns, not only PRE-SHOW
 - **Auto-Silence Detection** — drop a file into PRE-SHOW and the app automatically detects and trims leading/trailing silence via FFmpeg
 - **Ducking Sidechain** — voice columns can automatically duck music columns
+- **Master Chain Audio** — broadcast-grade processing on master bus: HPF 80Hz, Dynamics Compressor (-18dBFS, 4:1), Brickwall Limiter (-1dBFS). Configurable in Settings.
 - **Output Device Hot-Switch** — change audio output device without restarting
 - **Emergency Stop** — global `Escape` key (via Electron `globalShortcut`) stops all playback instantly, even when the app is not focused
 
 ### Board & Workflow
 - **5 fixed columns**: Assets, Music, Voice, SFX, PRE-SHOW — each with configurable behavior, color-coded, keybind-mapped
+- **Column color customization** — each column has its own color picker (30 colors), persisted in project
 - **Real-Time Board Cues** — INTRO countdown (`INTRO: -5s`) and OUTRO pre-cue alert on each ClipCard
 - **UP NEXT badge** — dynamically shows which clip fires next in the queue
 - **FADE OUT badge** — violet pulsing indicator on the outgoing clip during Crossfade/Segue transitions
+- **Drop indicator** — glowing blue line shows exact insert position when dragging files from OS
 - **Timer On Air** — elapsed time counter since first play of the session
 - **NoteBoard** — when a clip with notes goes live, a panel appears at the bottom of the screen showing the director's script. Auto-shows and auto-hides.
+- **Preview Transition** — test any crossfade/segue/gapless transition from ClipSettingsModal with a dedicated Stop button
 - **Toast Notification System** — no blocking `alert()` dialogs. All notifications are non-intrusive toasts. Confirm dialogs are Promise-based — audio keeps playing while you decide.
 
 ### Waveform Editor
@@ -46,7 +50,7 @@ It replaces the chaotic "play from folder" workflow with a structured, visual bo
 - **LMP Integrity Check** — on project load, all file paths are verified. Missing files are flagged red instantly.
 - **Export Self-Contained** — copies all audio files alongside the project for archiving or transfer
 - **MIDI Learn** + per-clip keybindings (F1-F12, Numpad, custom keys)
-- **i18n** — Italian and English UI
+- **i18n** — UI available in 8 languages: Italian, English, French, German, Spanish, Portuguese, Russian, Chinese
 
 ---
 
@@ -107,9 +111,9 @@ src/
 
 ## Current Version
 
-**v0.14.9** — *FADE OUT visual indicator during transitions*
+**v0.16.5** — *UI & UX Release: Preview Stop · Settings Tab · Welcome Redesign*
 
-See [`docs/changelogs/current/0.14.9.md`](./docs/changelogs/current/0.14.9.md) for details.
+See [`docs/changelogs/current/0.16.5.md`](./docs/changelogs/current/0.16.5.md) for details.
 
 ---
 

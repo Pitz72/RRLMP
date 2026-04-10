@@ -1,6 +1,6 @@
-# Architecture & Development Reference (v0.13.2)
+# Architecture & Development Reference (v0.16.5)
 
-Ultimo aggiornamento: 2026-04-06
+Ultimo aggiornamento: 2026-04-10
 
 ---
 
@@ -69,9 +69,11 @@ useDebugStore        → Log transitori per overlay debug in-app
 - `activeClips: Record<string, ActiveClip>` — player attivi per clip ID
 - `playClip(clip)` — start + conflict resolution (stop same-column clips, skip transitioning)
 - `stopClip(id)` / `stopAll()` — stop con fade-out se configurato
-- `evaluateMix()` — ducking sidechain (source → ducka i target)
+- `evaluateMix(activeClips, newClipId?)` — ducking sidechain (source → ducka i target); il newClipId riceve fadeTo istantaneo
 - `applyTransitionAndPlayNext(clipId)` — orchestrazione Gapless/Segue/Crossfade
-- `transitioningClips: Set<string>` (module-level) — clip in fade-out per transizione
+- `fadingClipIds: string[]` (Zustand state, reattivo) — clip in fade-out per transizione
+- `previewingClipIds: string[]` — clip in modalità preview transizione (hasPlayed protetto)
+- `stopPreviewTransition(clipId)` — ferma i clip in preview
 - `pendingCrossfadeFadeIn: number | null` (module-level) — one-shot per fade-in clip entrante
 
 #### useSettingsStore
@@ -79,6 +81,8 @@ useDebugStore        → Log transitori per overlay debug in-app
 - `duckingFactor` (default 0.2) + `duckingDuration` (default 500ms)
 - `preshowTransitionType: TransitionType` (default `'gapless'`)
 - `crossfadeDuration: number` (default 2000ms)
+- `segueDuration: number` (default 800ms)
+- `masterChain: MasterChainSettings` — HPF+Compressor+Limiter config, persistito
 - Persistito in localStorage con chiave `rrlmp-settings`
 
 ---
@@ -97,7 +101,9 @@ Metodi chiave:
 - `updateSettings(clip)` — aggiorna fadeIn/fadeOut/markers runtime
 - `getCurrentTime()` — posizione corrente in secondi
 
-### Sistema di Transizioni (v0.13.2)
+### Sistema di Transizioni (v0.13.2 — esteso a tutti i tipi in v0.16.4)
+
+Disponibile per tutti i clip con `play_next`, non più solo colonna PRE-SHOW. Il guard `type=preshow` è stato rimosso in v0.16.4.
 
 ```
 applyTransitionAndPlayNext(clipId)
@@ -106,19 +112,19 @@ applyTransitionAndPlayNext(clipId)
 │
 ├── GAPLESS: playClip(nextClip) immediato (taglio netto)
 │
-├── SEGUE:   transitioningClips.add(clipId)
+├── SEGUE:   fadingClipIds.push(clipId)
 │           fadeTo(0, duration) su clip corrente
 │           setTimeout(stopClip, duration)
 │           playClip(nextClip) immediato a volume pieno
 │
-└── CROSSFADE: transitioningClips.add(clipId)
+└── CROSSFADE: fadingClipIds.push(clipId)
               fadeTo(0, duration) su clip corrente
               setTimeout(stopClip, duration)
               pendingCrossfadeFadeIn = duration
               playClip(nextClip) → updateSettings applica fadeIn override
 ```
 
-Conflict resolution in `playClip`: le clip in `transitioningClips` vengono **saltate** invece di essere stoppate bruscamente.
+Conflict resolution in `playClip`: le clip in `fadingClipIds` vengono **saltate** invece di essere stoppate bruscamente.
 
 ---
 
@@ -142,7 +148,24 @@ class AudioProcessor {
 
 ---
 
-## 5. IPC API (window.electron)
+## 5. Master Chain (v0.16.2)
+
+Topology:
+
+```
+masterGain → HPF (BiquadFilterNode highpass 80Hz) → Compressor (DynamicsCompressorNode) → Limiter (DynamicsCompressorNode 20:1) → destination + splitter → analysers
+```
+
+Parametri broadcast:
+- **HPF**: `type: 'highpass'`, `frequency: 80Hz` — taglia rumore sub-bass DC
+- **Compressor**: `threshold: -18dBFS`, `ratio: 4:1`, `knee: 6dB`, `attack: 10ms`, `release: 200ms`
+- **Limiter**: `threshold: -1dBFS`, `ratio: 20:1`, `knee: 0`, `attack: 1ms`, `release: 100ms`
+
+Persisted via `MasterChainSettings` in `useSettingsStore`. UI configurabile nel tab "Master Chain" di `GeneralSettingsModal` (da v0.16.5).
+
+---
+
+## 6. IPC API (window.electron)
 
 Esposta da `src/preload/index.ts` via `contextBridge`:
 
@@ -164,7 +187,7 @@ Esposta da `src/preload/index.ts` via `contextBridge`:
 
 ---
 
-## 6. Sistema MIDI
+## 7. Sistema MIDI
 
 - **`MidiManager`** (`src/renderer/src/engine/MidiManager.ts`): Singleton, Web MIDI API
   - `addListener(cb)` — sottoscrizione a note MIDI in ingresso
@@ -176,21 +199,22 @@ Esposta da `src/preload/index.ts` via `contextBridge`:
 
 ---
 
-## 7. Internazionalizzazione (i18n)
+## 8. Internazionalizzazione (i18n)
 
 - **Libreria**: `react-i18next` + `i18next-browser-languagedetector`
-- **Lingue documentate**: IT, EN, FR, ES, DE, PT, RU, ZH-CN
+- **Lingue supportate**: 8 lingue con bandiere SVG — IT, EN, FR, ES, DE, PT, RU, ZH-CN
 - **Utilizzo**: `useTranslation()` hook + `t('key')` nei componenti
-- **Gap noto**: Alcuni testi nei modali (ClipSettingsModal, GeneralSettingsModal) ancora hardcoded in italiano.
+- **Language switcher**: presente in WelcomeScreen (bandiere dirette) e in GeneralSettingsModal (tab Lingua, da v0.16.5)
+- **Copertura**: ClipSettingsModal e GeneralSettingsModal completamente i18n da v0.16.1
 
 ---
 
-## 8. Formato File .lmp
+## 9. Formato File .lmp
 
 Formato JSON:
 ```json
 {
-  "version": "0.13.2",
+  "version": "0.16.5",
   "timestamp": 1234567890,
   "project": {
     "columns": [/* Column[] */]
@@ -202,7 +226,7 @@ Formato JSON:
 
 ---
 
-## 9. Tipi Core
+## 10. Tipi Core
 
 ```typescript
 type ClipType = 'asset' | 'music' | 'voice' | 'sfx' | 'preshow'
@@ -227,24 +251,36 @@ interface AudioClip {
     transitionType?: TransitionType
     // Bindings
     keybind?, midiBind?, customColor?
+    // Testo / Note
+    notes?: string
+    // Metadati ID3 (v0.16.4)
+    artist?: string
+    title?: string
+    // Stato runtime (non serializzati nel .lmp)
+    hasPlayed?: boolean
+    silenceChecked?: boolean
+    isMissing?: boolean
+    isAnalyzing?: boolean
 }
 ```
 
 ---
 
-## 10. Colonne Predefinite
+## 11. Colonne Predefinite
 
-| ID | Titolo | Tipo | Behavior Default |
-|----|--------|------|-----------------|
-| `col-assets` | SHOW ASSETS | `asset` | stop, duckingRole: none, locked |
-| `col-music` | CANZONI DELL'EPISODIO | `music` | stop, fadeOut: 2000ms, duckingRole: target |
-| `col-voice` | VOCI / PREREGISTRAZIONI | `voice` | stop, duckingRole: source |
-| `col-sfx` | SFX / CARTWALL | `sfx` | stop, duckingRole: none |
-| `col-preshow` | PRE-SHOW | `preshow` | play_next, fadeOut: 0 (gapless default), duckingRole: target |
+| ID | Titolo | Tipo | Behavior Default | customColor? |
+|----|--------|------|-----------------|--------------|
+| `col-assets` | SHOW ASSETS | `asset` | stop, duckingRole: none, locked | ✅ (v0.16.1) |
+| `col-music` | CANZONI DELL'EPISODIO | `music` | stop, fadeOut: 2000ms, duckingRole: target | ✅ (v0.16.1) |
+| `col-voice` | VOCI / PREREGISTRAZIONI | `voice` | stop, duckingRole: source | ✅ (v0.16.1) |
+| `col-sfx` | SFX / CARTWALL | `sfx` | stop, duckingRole: none | ✅ (v0.16.1) |
+| `col-preshow` | PRE-SHOW | `preshow` | play_next, fadeOut: 0 (gapless default), duckingRole: target | ✅ (v0.16.1) |
+
+`customColor?: string` — colore hex personalizzato per il ColumnHeader. Persistito nel .lmp. Il color picker offre 30 colori (5×6 grid) + ripristino default (v0.16.3).
 
 ---
 
-## 11. Terminologia
+## 12. Terminologia
 
 - **Clip**: L'unità audio fondamentale.
 - **Column**: Contenitore verticale di clip (logica playlist).
@@ -259,7 +295,7 @@ interface AudioClip {
 
 ---
 
-## 12. Standard di Sviluppo
+## 13. Standard di Sviluppo
 
 ### TypeScript
 - Strict mode attivo
