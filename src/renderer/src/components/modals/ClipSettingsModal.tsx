@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { AudioClip } from '../../types';
 import { debugLog } from '../../store/useDebugStore';
-import { Wand2, Settings2, Scissors, FileText, PlayCircle } from 'lucide-react';
+import { Wand2, Settings2, Scissors, FileText, PlayCircle, StopCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from '../../store/useToastStore';
 import { confirm } from '../../store/useConfirmStore';
@@ -33,6 +33,9 @@ const COLORS = [
 export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOpen, onClose, onSave, onDelete }) => {
     const { t } = useTranslation();
     const previewTransition = useAudioStore(s => s.previewTransition);
+    const stopPreviewTransition = useAudioStore(s => s.stopPreviewTransition);
+    const previewingClipIds = useAudioStore(s => s.previewingClipIds);
+    const isPreviewingThisClip = previewingClipIds.includes(clip.id);
     const columns = useProjectStore(s => s.columns);
 
     const hasNextClip = useMemo(() => {
@@ -349,14 +352,27 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                     {hasNextClip && (
                                         <div className="flex items-center justify-between">
                                             <span className="text-sm text-zinc-400">{t('modal.clip.previewTransition')}</span>
-                                            <button
-                                                onClick={() => previewTransition(clip)}
-                                                className="flex items-center gap-1.5 px-3 py-1 bg-violet-600 hover:bg-violet-500 text-white text-xs rounded font-medium transition-colors"
-                                                title="Riproduce gli ultimi secondi di questa clip — la transizione scatta naturalmente"
-                                            >
-                                                <PlayCircle size={13} />
-                                                Test →
-                                            </button>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => previewTransition(clip)}
+                                                    className={`flex items-center gap-1.5 px-3 py-1 text-white text-xs rounded font-medium transition-colors ${isPreviewingThisClip ? 'bg-violet-800 cursor-default opacity-60' : 'bg-violet-600 hover:bg-violet-500'}`}
+                                                    title="Riproduce gli ultimi secondi di questa clip — la transizione scatta naturalmente"
+                                                    disabled={isPreviewingThisClip}
+                                                >
+                                                    <PlayCircle size={13} />
+                                                    Test →
+                                                </button>
+                                                {isPreviewingThisClip && (
+                                                    <button
+                                                        onClick={() => stopPreviewTransition(clip.id)}
+                                                        className="flex items-center gap-1.5 px-3 py-1 bg-red-700 hover:bg-red-600 text-white text-xs rounded font-medium transition-colors"
+                                                        title="Ferma l'anteprima"
+                                                    >
+                                                        <StopCircle size={13} />
+                                                        Stop
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     )}
                                 </div>

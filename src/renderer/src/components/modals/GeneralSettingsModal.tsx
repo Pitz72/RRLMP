@@ -3,6 +3,7 @@ import { useSettingsStore } from '../../store/useSettingsStore';
 import { useAudioStore } from '../../store/useAudioStore';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_MASTER_CHAIN } from '../../engine/AudioContextManager';
+import { FlagIcon } from '../ui/FlagIcon';
 
 interface Props {
     isOpen: boolean;
@@ -13,6 +14,19 @@ interface AudioDevice {
     deviceId: string;
     label: string;
 }
+
+type SettingsTab = 'output' | 'chain' | 'language';
+
+const LANGUAGES = [
+    { code: 'en', label: 'English' },
+    { code: 'it', label: 'Italiano' },
+    { code: 'fr', label: 'Français' },
+    { code: 'de', label: 'Deutsch' },
+    { code: 'es', label: 'Español' },
+    { code: 'pt', label: 'Português' },
+    { code: 'ru', label: 'Русский' },
+    { code: 'zh', label: '中文' },
+];
 
 // Toggle switch riutilizzabile
 const Toggle: React.FC<{ enabled: boolean; onToggle: () => void; labelOn?: string; labelOff?: string }> = ({
@@ -46,7 +60,7 @@ const LabeledSlider: React.FC<{
 );
 
 export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const {
         outputDeviceId, setOutputDeviceId,
         duckingFactor, duckingDuration, setDuckingSettings,
@@ -56,6 +70,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
     } = useSettingsStore();
     const updateOutputDevice = useAudioStore(s => s.updateOutputDevice);
     const [devices, setDevices] = useState<AudioDevice[]>([]);
+    const [activeTab, setActiveTab] = useState<SettingsTab>('output');
 
     useEffect(() => {
         if (isOpen) {
@@ -79,9 +94,15 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
     if (!isOpen) return null;
 
+    const tabs: { id: SettingsTab; label: string; icon: string }[] = [
+        { id: 'output', label: t('modal.settings.tab.output'), icon: '🎚️' },
+        { id: 'chain', label: t('modal.settings.tab.chain'), icon: '⛓️' },
+        { id: 'language', label: t('modal.settings.tab.language'), icon: '🌐' },
+    ];
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col" style={{ maxHeight: '90vh' }}>
+            <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col" style={{ maxHeight: '88vh' }}>
 
                 {/* HEADER */}
                 <div className="bg-zinc-800 px-6 py-4 border-b border-zinc-700 flex justify-between items-center shrink-0">
@@ -89,11 +110,29 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     <button onClick={onClose} className="text-zinc-400 hover:text-white text-xl leading-none w-8 h-8 flex items-center justify-center rounded hover:bg-zinc-700 transition-colors">&times;</button>
                 </div>
 
-                {/* BODY — 2 colonne */}
-                <div className="flex-1 overflow-y-auto min-h-0">
-                    <div className="grid grid-cols-2 divide-x divide-zinc-800">
+                {/* TAB BAR */}
+                <div className="flex border-b border-zinc-800 bg-zinc-900 shrink-0 px-2 pt-2 gap-1">
+                    {tabs.map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors border-b-2 -mb-px ${
+                                activeTab === tab.id
+                                    ? 'border-emerald-500 text-white bg-zinc-800'
+                                    : 'border-transparent text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50'
+                            }`}
+                        >
+                            <span>{tab.icon}</span>
+                            <span>{tab.label}</span>
+                        </button>
+                    ))}
+                </div>
 
-                        {/* ── COLONNA SINISTRA: Mix & Output ── */}
+                {/* BODY */}
+                <div className="flex-1 overflow-y-auto min-h-0">
+
+                    {/* ── TAB: Output & Mix ── */}
+                    {activeTab === 'output' && (
                         <div className="p-6 space-y-6">
 
                             {/* AUDIO OUTPUT */}
@@ -139,7 +178,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
                             <div className="h-px bg-zinc-800" />
 
-                            {/* TRANSIZIONI PRE-SHOW */}
+                            {/* TRANSIZIONI */}
                             <section className="space-y-4">
                                 <h3 className="text-[10px] uppercase text-emerald-500 font-bold tracking-wider">{t('modal.settings.defaultTransition')}</h3>
 
@@ -152,7 +191,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     <option value="segue">Segue / Cold Start (Subito Pieno, Prec. Sfuma)</option>
                                     <option value="gapless">Gapless (Taglio Netto / No Fade)</option>
                                 </select>
-                                <p className="text-[10px] text-zinc-600 -mt-2 italic">Transizione automatica tra clip PRE-SHOW consecutive.</p>
+                                <p className="text-[10px] text-zinc-600 -mt-2 italic">Transizione automatica tra clip consecutive con play_next.</p>
 
                                 <LabeledSlider
                                     label={t('modal.settings.crossfadeDuration')}
@@ -171,17 +210,21 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 />
                             </section>
                         </div>
+                    )}
 
-                        {/* ── COLONNA DESTRA: Master Chain ── */}
+                    {/* ── TAB: Master Chain ── */}
+                    {activeTab === 'chain' && (
                         <div className="p-6 space-y-5">
                             <div className="flex items-center justify-between">
-                                <h3 className="text-[10px] uppercase text-sky-400 font-bold tracking-wider">Master Chain</h3>
+                                <div>
+                                    <h3 className="text-[10px] uppercase text-sky-400 font-bold tracking-wider">Master Chain</h3>
+                                    <p className="text-[10px] text-zinc-600 mt-0.5 italic">Pipeline broadcast-grade: HPF → Compressore → Limiter brickwall sul master bus.</p>
+                                </div>
                                 <div className="flex items-center gap-2">
                                     <span className="text-xs text-zinc-400">{masterChain.enabled ? 'Attiva' : 'Bypass'}</span>
                                     <Toggle enabled={masterChain.enabled} onToggle={() => setMasterChain({ enabled: !masterChain.enabled })} />
                                 </div>
                             </div>
-                            <p className="text-[10px] text-zinc-600 -mt-3 italic">Pipeline broadcast-grade: HPF → Compressore → Limiter brickwall sul master bus.</p>
 
                             {/* HPF */}
                             <div className={`space-y-3 p-3 bg-zinc-950/50 rounded-lg border border-zinc-800 transition-opacity ${masterChain.enabled ? '' : 'opacity-40 pointer-events-none'}`}>
@@ -248,8 +291,39 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 ↺ Ripristina default Master Chain
                             </button>
                         </div>
+                    )}
 
-                    </div>
+                    {/* ── TAB: Lingua / Language ── */}
+                    {activeTab === 'language' && (
+                        <div className="p-6 space-y-5">
+                            <div>
+                                <h3 className="text-[10px] uppercase text-violet-400 font-bold tracking-wider mb-1">{t('modal.settings.tab.language')}</h3>
+                                <p className="text-[10px] text-zinc-600 italic">Seleziona la lingua dell'interfaccia. La modifica è immediata.</p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                {LANGUAGES.map((lng) => {
+                                    const isActive = i18n.language === lng.code || i18n.language.startsWith(lng.code);
+                                    return (
+                                        <button
+                                            key={lng.code}
+                                            onClick={() => i18n.changeLanguage(lng.code)}
+                                            className={`flex items-center gap-3 px-4 py-3 rounded-lg border transition-all text-left ${
+                                                isActive
+                                                    ? 'border-violet-500 bg-violet-500/10 text-white'
+                                                    : 'border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 hover:bg-zinc-800'
+                                            }`}
+                                        >
+                                            <FlagIcon code={lng.code} className="rounded-sm shadow-sm flex-shrink-0" />
+                                            <span className="text-sm font-medium">{lng.label}</span>
+                                            {isActive && <span className="ml-auto text-violet-400 text-xs">✓</span>}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
                 </div>
 
                 {/* FOOTER */}

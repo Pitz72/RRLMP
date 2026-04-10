@@ -25,6 +25,9 @@ interface AudioStore {
     // v0.14.9 — Clip in fade-out per transizione (crossfade/segue)
     fadingClipIds: string[];
 
+    // v0.16.5 — Preview Transition: set di clip ID avviate in modalità preview
+    previewingClipIds: string[];
+
     // Actions
     playClip: (clip: AudioClip) => Promise<void>;
     loadClip: (clip: AudioClip) => Promise<void>;
@@ -32,6 +35,7 @@ interface AudioStore {
     updateOutputDevice: (deviceId: string) => void;
     stopClip: (clipId: string) => void;
     previewTransition: (clip: AudioClip) => Promise<void>;
+    stopPreviewTransition: (clipId: string) => void;
     stopAll: () => void;
 
     // Internal loop
@@ -199,6 +203,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
         suppressedClips: {},
         onAirStartTime: null,
         fadingClipIds: [],
+        previewingClipIds: [],
 
         playClip: async (clipArg: AudioClip) => {
             const currentStore = get();
@@ -296,6 +301,12 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
                     const nextClip = getNextClipInColumn(currentClip.id);
                     if (!nextClip) return;
+
+                    // v0.16.5: se la clip corrente è in preview, anche la clip successiva
+                    // viene tracciata come preview (hasPlayed non deve essere settato).
+                    if (get().previewingClipIds.includes(clipId)) {
+                        set(state => ({ previewingClipIds: [...state.previewingClipIds, nextClip.id] }));
+                    }
 
                     const { defaultPreshowTransition, crossfadeDuration, segueDuration } = useSettingsStore.getState();
                     const colId = getColumnForClip(currentClip.id);
@@ -528,14 +539,18 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     evaluateMix(newActiveClips);
 
                     // v0.14.12: marca come suonata le clip PRE-SHOW a fine riproduzione
-                    if (active.clip.type === 'preshow') {
+                    // v0.16.5: skip se la clip era in modalità preview (non deve diventare grigia)
+                    const isPreviewClip = state.previewingClipIds.includes(clipId);
+                    if (active.clip.type === 'preshow' && !isPreviewClip) {
                         const colId = getColumnForClip(clipId);
                         if (colId) {
                             useProjectStore.getState().updateClip(colId, clipId, { hasPlayed: true });
                         }
                     }
 
-                    return { activeClips: newActiveClips, suppressedClips: newSuppressedClips };
+                    const newPreviewingClipIds = state.previewingClipIds.filter(id => id !== clipId);
+
+                    return { activeClips: newActiveClips, suppressedClips: newSuppressedClips, previewingClipIds: newPreviewingClipIds };
                 }
                 return state;
             });
@@ -556,6 +571,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
         // Riproduce gli ultimi N secondi della clip corrente così la transizione
         // (crossfade/segue/gapless) scatta naturalmente, permettendo di testare
         // il punto di giunzione senza aspettare tutta la durata della canzone.
+        // v0.16.5: traccia l'ID in previewingClipIds → hasPlayed non viene settato.
         previewTransition: async (clip: AudioClip) => {
             const nextClip = getNextClipInColumn(clip.id);
             if (!nextClip) return;
@@ -573,6 +589,13 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             const effectiveDuration = (clip.duration || 0) - (clip.trimEnd || 0);
             const seekTo = Math.max(clip.trimStart || 0, effectiveDuration - previewLead);
 
+            // Marca il clip come "in preview" PRIMA di avviarlo
+            set(state => ({
+                previewingClipIds: state.previewingClipIds.includes(clip.id)
+                    ? state.previewingClipIds
+                    : [...state.previewingClipIds, clip.id]
+            }));
+
             // Se già in play: seek diretto
             const alreadyActive = get().activeClips[clip.id];
             if (alreadyActive) {
@@ -587,6 +610,20 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 const active = get().activeClips[clip.id];
                 if (active) active.player.seek(seekTo);
             }, 200);
+        },
+
+        // v0.16.5 — Ferma tutti i clip attualmente in modalità preview
+        stopPreviewTransition: (clipId: string) => {
+            const { previewingClipIds, activeClips } = get();
+            // Ferma la clip richiesta + tutte le clip in preview attualmente attive
+            const toStop = previewingClipIds.filter(id => activeClips[id]);
+            // Assicuriamoci di includere anche il clipId esplicitamente passato
+            if (!toStop.includes(clipId) && activeClips[clipId]) toStop.push(clipId);
+
+            toStop.forEach(id => get().stopClip(id));
+
+            // Svuota completamente il set preview dopo lo stop
+            set({ previewingClipIds: [] });
         },
 
         _syncProgress: () => {

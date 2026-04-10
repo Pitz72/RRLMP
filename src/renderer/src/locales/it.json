@@ -1,6 +1,9 @@
 {
     "welcome": {
         "title": "Runtime Live Machine",
+        "slogan": "On Air. Al Tuo Controllo.",
+        "description": "Automazione broadcast professionale per programmi radiofonici. Gestisci musica, clip, voce, SFX e transizioni — tutto in un unico posto.",
+        "selectLanguage": "Lingua dell'Interfaccia",
         "newProject": "Nuovo Progetto",
         "loadProject": "Carica Progetto",
         "manual": "Manuale Online (Presto Disponibile)",
@@ -38,12 +41,17 @@
         },
         "settings": {
             "title": "Impostazioni Generali",
+            "tab": {
+                "output": "Output & Mix",
+                "chain": "Master Chain",
+                "language": "Lingua"
+            },
             "outputDevice": "Dispositivo Audio di Uscita",
             "systemDefault": "Sistema Predefinito",
             "mixingIntelligence": "Mixing Intelligence",
             "duckingReduction": "Riduzione Ducking",
             "duckingSpeed": "Velocità Fade Ducking",
-            "defaultTransition": "Transizione Default Continuous-Play (Pre-Show)",
+            "defaultTransition": "Transizione Default Continuous-Play",
             "crossfadeDuration": "Durata Crossfade",
             "segueDuration": "Durata Fade-Out Segue",
             "done": "FATTO"
