@@ -62,7 +62,13 @@ const getBusForType = (type: string) => {
  * 3. MUSIC: Standard background, ducks when Voice or Stacco is active.
  * 4. ASSETS: Beds/Jingles that duck on voice or mute on music dominance.
  */
-const evaluateMix = (activeClips: Record<string, ActiveClipState>) => {
+/**
+ * newClipId (opzionale) — ID della clip appena avviata.
+ * Per quella clip il gain viene applicato istantaneamente (duration=0) per evitare
+ * il glitch "parte a pieno volume poi scende" quando il ducking è attivo.
+ * Per tutte le altre clip già in play si usa duckingDuration (smooth).
+ */
+const evaluateMix = (activeClips: Record<string, ActiveClipState>, newClipId?: string) => {
     const activeValues = Object.values(activeClips);
     const { duckingFactor, duckingDuration } = useSettingsStore.getState();
 
@@ -120,8 +126,10 @@ const evaluateMix = (activeClips: Record<string, ActiveClipState>) => {
             if (isVoiceActive) targetVolume = clip.volume * 0.5;
         }
 
-        // APPLY: Smooth transition to target volume
-        player.fadeTo(targetVolume, duckingDuration);
+        // APPLY: istantaneo per la clip appena avviata (evita glitch ducking),
+        // smooth per le clip già in play.
+        const applyDuration = (newClipId && clip.id === newClipId) ? 0 : duckingDuration;
+        player.fadeTo(targetVolume, applyDuration);
     });
 };
 
@@ -388,9 +396,10 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     return;
                 }
 
-                // v0.14.10: imposta fadeOut dinamico per PRE-SHOW così onPreEnd scatta
+                // v0.14.10: imposta fadeOut dinamico per clip con play_next così onPreEnd scatta
                 // al momento giusto per crossfade/segue (crossfadeDuration o segueDuration ms prima della fine).
-                if (freshClip.type === 'preshow' && freshClip.nextAction === 'play_next' && (freshClip.outroMarker || 0) <= 0) {
+                // v0.16.4: esteso a Music e Assets (rimosso guard type === 'preshow')
+                if (freshClip.nextAction === 'play_next' && (freshClip.outroMarker || 0) <= 0) {
                     const { defaultPreshowTransition, crossfadeDuration, segueDuration } = useSettingsStore.getState();
                     const transType = freshClip.transitionType ?? defaultPreshowTransition;
                     if (transType === 'crossfade') {
@@ -417,7 +426,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                         },
                         onAirStartTime: wasIdle ? Date.now() : state.onAirStartTime
                     };
-                    evaluateMix(newState.activeClips);
+                    evaluateMix(newState.activeClips, freshClip.id);
                     return newState;
                 });
 
@@ -439,11 +448,28 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 const trimStart = clip.trimStart || 0;
                 const trimEnd = clip.trimEnd || 0;
 
+                // v0.16.4: estrai metadati ID3 (artist, title) se la clip è di tipo music
+                let artist: string | undefined;
+                let title: string | undefined;
+                if (clip.type === 'music' && !clip.artist && !clip.title) {
+                    try {
+                        const meta = await window.electron.getAudioMetadata(clip.path);
+                        if (meta.success && meta.data) {
+                            const data = meta.data as Record<string, unknown>;
+                            const tags = (data.common as Record<string, unknown>) || {};
+                            if (typeof tags.artist === 'string' && tags.artist) artist = tags.artist;
+                            if (typeof tags.title === 'string' && tags.title) title = tags.title;
+                        }
+                    } catch {
+                        // non fatale: i tag ID3 sono opzionali
+                    }
+                }
+
                 const { useProjectStore } = await import('./useProjectStore');
                 useProjectStore.getState().updateClip(
                     clip.type === 'asset' ? 'col-assets' : `col-${clip.type}`,
                     clip.id,
-                    { duration, trimStart, trimEnd }
+                    { duration, trimStart, trimEnd, ...(artist !== undefined ? { artist } : {}), ...(title !== undefined ? { title } : {}) }
                 );
                 player.cleanup();
             } catch (e) {

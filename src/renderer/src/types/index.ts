@@ -129,6 +129,12 @@ export interface AudioClip {
     /** True se il rilevamento silenzio IPC è già stato eseguito su questa clip. */
     silenceChecked?: boolean;
 
+    // Audio metadata (v0.16.4) — estratti da tag ID3/Vorbis, persistiti nel .lmp
+    /** Artista/Autore dal tag ID3 */
+    artist?: string;
+    /** Titolo dal tag ID3 (distinto da clip.name che è il filename) */
+    title?: string;
+
     // Played tracking (v0.14.12) — persistito nel .lmp
     /** True se la clip è già stata suonata almeno una volta nella sessione corrente. */
     hasPlayed?: boolean;

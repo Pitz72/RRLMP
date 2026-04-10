@@ -181,8 +181,17 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                         className={`font-medium truncate text-sm`}
                         style={{ color: clip.isMissing ? '#ef4444' : (isPlaying ? (clip.customColor || lightenHex(clip.color, 0.4)) : lightenHex(clip.color)) }}
                     >
-                        {clip.isMissing ? `⚠️ ${clip.name} (File Non Trovato)` : clip.name}
+                        {clip.isMissing ? `⚠️ ${clip.name} (File Non Trovato)` : (clip.title || clip.name)}
                     </span>
+                    {/* v0.16.4: artista (solo clip music con tag ID3) */}
+                    {clip.type === 'music' && clip.artist && (
+                        <span
+                            className="text-[10px] truncate leading-tight"
+                            style={{ color: lightenHex(clip.color, 0.6) + 'bb' }}
+                        >
+                            {clip.artist}
+                        </span>
+                    )}
                 </div>
                 <div className="flex items-center gap-1">
                     {clip.midiBind && (

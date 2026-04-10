@@ -294,7 +294,12 @@ export class StreamPlayer implements IAudioPlayer {
         const now = ctx.currentTime;
 
         this.volumeGainNode.gain.cancelScheduledValues(now);
-        this.volumeGainNode.gain.setValueAtTime(this.volumeGainNode.gain.value, now);
-        this.volumeGainNode.gain.linearRampToValueAtTime(volume, now + (duration / 1000));
+        if (duration <= 0) {
+            // Istantaneo — evita linearRamp con durata zero che può causare glitch
+            this.volumeGainNode.gain.setValueAtTime(volume, now);
+        } else {
+            this.volumeGainNode.gain.setValueAtTime(this.volumeGainNode.gain.value, now);
+            this.volumeGainNode.gain.linearRampToValueAtTime(volume, now + (duration / 1000));
+        }
     }
 }

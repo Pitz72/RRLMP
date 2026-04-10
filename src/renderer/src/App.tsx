@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { MainGrid } from './components/layout/MainGrid';
 import DebugOverlay from './components/debug/DebugOverlay';
 import { useDebugStore } from './store/useDebugStore';
@@ -278,7 +279,9 @@ function App() {
             {/* MAIN CONTENT */}
             <div className="flex-1 overflow-hidden flex flex-col">
                 <div className="flex-1 overflow-hidden">
-                    <MainGrid />
+                    <ErrorBoundary zone="MainGrid">
+                        <MainGrid />
+                    </ErrorBoundary>
                 </div>
                 <NoteBoard />
             </div>

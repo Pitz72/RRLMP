@@ -36,7 +36,6 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
     const columns = useProjectStore(s => s.columns);
 
     const hasNextClip = useMemo(() => {
-        if (clip.type !== 'preshow') return false;
         const col = columns.find(c => c.clips.some(cl => cl.id === clip.id));
         if (!col) return false;
         const idx = col.clips.findIndex(cl => cl.id === clip.id);
