@@ -27,7 +27,7 @@ export const SortableClip: React.FC<SortableClipProps> = ({ clip, onEdit }) => {
     };
 
     return (
-        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners} data-clip-id={clip.id}>
             <ClipCard clip={clip} onEdit={onEdit} />
         </div>
     );

@@ -55,6 +55,7 @@ interface ProjectState {
 
     resetProject: () => void;
     addClip: (columnId: string, file: File) => AudioClip | undefined;
+    addClipAtIndex: (columnId: string, file: File, insertIndex: number) => AudioClip | undefined;
     addClipFromPath: (columnId: string, filePath: string) => AudioClip | undefined;
     removeClip: (columnId: string, clipId: string) => void;
     updateClip: (columnId: string, clipId: string, updates: Partial<AudioClip>) => void;
@@ -139,6 +140,47 @@ export const useProjectStore = create<ProjectState>((set) => ({
                 createdClip = newClip;
 
                 return { ...col, clips: [...col.clips, newClip] };
+            })
+        }));
+
+        return createdClip;
+    },
+
+    addClipAtIndex: (columnId, file, insertIndex) => {
+        let createdClip: AudioClip | undefined;
+
+        set((state) => ({
+            isDirty: true,
+            columns: state.columns.map((col) => {
+                if (col.id !== columnId) return col;
+
+                const newClip: AudioClip = {
+                    id: crypto.randomUUID(),
+                    name: file.name.replace(/\.[^/.]+$/, ""),
+                    path: window.electron ? window.electron.getFilePath(file) : '',
+                    type: col.type,
+                    color: col.color,
+                    volume: 1.0,
+                    pan: 0,
+                    isLooping: false,
+                    isPlaying: false,
+                    duration: 0,
+                    currentTime: 0,
+                    nextAction: (col.type === 'preshow') ? 'play_next' : 'stop',
+                    behavior: 'normal',
+                    duckingRole: (col.type === 'voice') ? 'source' :
+                        (col.type === 'music' || col.type === 'preshow') ? 'target' : 'none',
+                    fadeIn: 0,
+                    fadeOut: (col.type === 'music') ? 2000 :
+                        (col.type === 'preshow') ? 0 :
+                            (col.type === 'asset' ? 500 : 0)
+                };
+                createdClip = newClip;
+
+                const clips = [...col.clips];
+                const clampedIndex = Math.max(0, Math.min(insertIndex, clips.length));
+                clips.splice(clampedIndex, 0, newClip);
+                return { ...col, clips };
             })
         }));
 

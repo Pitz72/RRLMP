@@ -59,7 +59,7 @@ const SortableColumn: React.FC<SortableColumnProps> = ({ column, children, onNat
 
 
 export const MainGrid: React.FC = () => {
-    const { columns, addClip, updateClip, removeClip, moveClip } = useProjectStore();
+    const { columns, addClip, addClipAtIndex, updateClip, removeClip, moveClip } = useProjectStore();
     const { loadClip, playColumn, stopAll } = useAudioStore((state) => ({
         loadClip: state.loadClip,
         playColumn: state.playColumn,
@@ -137,8 +137,21 @@ export const MainGrid: React.FC = () => {
             return ext && SUPPORTED_AUDIO_EXTENSIONS.includes(ext);
         });
 
+        // Calcola l'indice di inserimento dal punto di drop (Y) rispetto alle clip esistenti.
+        // Ogni SortableClip ha data-clip-id, li interroghiamo per trovare il "slot" corretto.
+        const clipEls = e.currentTarget.querySelectorAll('[data-clip-id]');
+        let insertIndex = clipEls.length; // default: in fondo
+        for (let i = 0; i < clipEls.length; i++) {
+            const rect = clipEls[i].getBoundingClientRect();
+            if (e.clientY < rect.top + rect.height / 2) {
+                insertIndex = i;
+                break;
+            }
+        }
+
         for (const file of files) {
-            const newClip = addClip(colId, file);
+            const newClip = addClipAtIndex(colId, file, insertIndex);
+            insertIndex++; // ogni file inserito sposta l'array di 1
             if (newClip) {
                 await loadClip(newClip);
 
