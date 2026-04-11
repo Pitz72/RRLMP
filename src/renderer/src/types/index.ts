@@ -35,6 +35,9 @@ declare global {
             onCheckCloseIntent: (callback: () => void) => () => void;
             onEmergencyStop: (callback: () => void) => () => void;
             importM3u: () => Promise<{ success: boolean; paths?: string[]; error?: string }>;
+            // v1.0.0+ — Session Recording
+            showSaveDialogRecording: (defaultName: string) => Promise<{ canceled: boolean; filePath?: string }>;
+            saveRecording: (arrayBuffer: ArrayBuffer, path: string) => Promise<{ success: boolean; path?: string; size?: number; error?: string }>;
         }
 
 

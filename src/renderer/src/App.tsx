@@ -12,6 +12,7 @@ import { useSettingsStore } from './store/useSettingsStore';
 import AudioContextManager from './engine/AudioContextManager';
 import { WelcomeScreen } from './components/modals/WelcomeScreen';
 import { OnAirTimer } from './components/ui/OnAirTimer';
+import { RecordingButton } from './components/ui/RecordingButton';
 import { NoteBoard } from './components/ui/NoteBoard';
 import { ToastContainer } from './components/ui/ToastContainer';
 import { ConfirmDialog } from './components/ui/ConfirmDialog';
@@ -271,6 +272,7 @@ function App() {
                 </div>
 
                 <div className="flex items-center gap-4">
+                    <RecordingButton />
                     <OnAirTimer />
                     <DigitalClock />
                 </div>

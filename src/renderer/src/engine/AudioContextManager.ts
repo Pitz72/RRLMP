@@ -144,6 +144,11 @@ class AudioContextManager {
     public getSfxBus(): GainNode { return this.sfxBus; }
     public getAssetsBus(): GainNode { return this.assetsBus; }
 
+    /** Restituisce l'ultimo nodo della catena master (Limiter), utile per il tap point della registrazione. */
+    public getMasterOutput(): AudioNode {
+        return this.limiter;
+    }
+
     public async resume(): Promise<void> {
         if (this.context.state === 'suspended') {
             await this.context.resume();

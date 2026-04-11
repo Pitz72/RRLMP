@@ -27,6 +27,13 @@ interface SettingsState {
     micInputDeviceId: string;        // 'default' o deviceId specifico
     micThresholdDb: number;          // soglia di attivazione noise gate (dBFS), default -30
     micEnabled: boolean;             // se false, il mic non viene armato anche se disponibile
+    micMixEnabled: boolean;          // se true, la voce entra nel master bus (canale mix)
+    micVolume: number;               // guadagno del canale mix (0.0 a 1.0), default 0.8
+    micBypassProcessing: boolean;    // se true, invia a destination saltando la catena master
+
+    // Session Recording (v1.0.0+)
+    recordingFormat: 'webm' | 'wav';
+    recordingBitrate: number;        // bps, default 320000
 
     setOutputDeviceId: (id: string) => void;
     setGlobalMidiBind: (actionKey: string, midiMessage: string) => void;
@@ -36,7 +43,15 @@ interface SettingsState {
     setPreshowTransition: (updates: { type?: TransitionType; duration?: number }) => void;
     setSegueDuration: (ms: number) => void;
     setMasterChain: (updates: Partial<MasterChainSettings>) => void;
-    setMicSettings: (updates: { inputDeviceId?: string; thresholdDb?: number; enabled?: boolean }) => void;
+    setMicSettings: (updates: { 
+        inputDeviceId?: string; 
+        thresholdDb?: number; 
+        enabled?: boolean;
+        mixEnabled?: boolean;
+        volume?: number;
+        bypassProcessing?: boolean;
+    }) => void;
+    setRecordingSettings: (updates: { format?: 'webm' | 'wav'; bitrate?: number }) => void;
 }
 
 
@@ -62,6 +77,13 @@ export const useSettingsStore = create<SettingsState>()(
             micInputDeviceId: 'default',
             micThresholdDb: -30,
             micEnabled: false,
+            micMixEnabled: false,
+            micVolume: 0.8,
+            micBypassProcessing: false,
+
+            // Recording defaults
+            recordingFormat: 'webm',
+            recordingBitrate: 320000,
 
             setOutputDeviceId: (id) => set({ outputDeviceId: id }),
             setGlobalMidiBind: (actionKey, midiMessage) => set((state) => ({
@@ -85,6 +107,13 @@ export const useSettingsStore = create<SettingsState>()(
                 micInputDeviceId: updates.inputDeviceId ?? state.micInputDeviceId,
                 micThresholdDb:   updates.thresholdDb   ?? state.micThresholdDb,
                 micEnabled:       updates.enabled       ?? state.micEnabled,
+                micMixEnabled:    updates.mixEnabled    ?? state.micMixEnabled,
+                micVolume:        updates.volume        ?? state.micVolume,
+                micBypassProcessing: updates.bypassProcessing ?? state.micBypassProcessing,
+            })),
+            setRecordingSettings: (updates) => set((state) => ({
+                recordingFormat: updates.format ?? state.recordingFormat,
+                recordingBitrate: updates.bitrate ?? state.recordingBitrate,
             })),
         }),
 

@@ -367,6 +367,32 @@ ipcMain.handle('save-project-silent', async (_event: Electron.IpcMainInvokeEvent
     }
 });
 
+// --- SESSION RECORDING IPC (v1.x) ---
+
+ipcMain.handle('show-save-dialog-recording', async (event, defaultName: string) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (!win) return { canceled: true };
+    return await dialog.showSaveDialog(win, {
+        title: 'Seleziona dove salvare la registrazione',
+        defaultPath: defaultName,
+        filters: [
+            { name: 'Audio WebM (Opus)', extensions: ['webm'] },
+            { name: 'Tutti i file', extensions: ['*'] }
+        ]
+    });
+});
+
+ipcMain.handle('save-recording', async (_event, arrayBuffer: ArrayBuffer, outputPath: string) => {
+    try {
+        const buffer = Buffer.from(arrayBuffer);
+        await fs.promises.writeFile(outputPath, buffer);
+        return { success: true, path: outputPath, size: buffer.length };
+    } catch (error) {
+        console.error('Save recording failed:', error);
+        return { success: false, error: String(error) };
+    }
+});
+
 
 app.whenReady().then(() => {
     // Handle media:// protocol

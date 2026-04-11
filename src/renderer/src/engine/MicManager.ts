@@ -27,6 +27,7 @@ class MicManager {
     private analyser: AnalyserNode | null = null;
     private audioCtx: AudioContext | null = null;
     private source: MediaStreamAudioSourceNode | null = null;
+    private micGain: GainNode | null = null;
     private pollHandle: ReturnType<typeof setInterval> | null = null;
 
     private activityListeners: MicActivityCallback[] = [];
@@ -35,6 +36,11 @@ class MicManager {
     private _isArmed = false;
     private _isMicActive = false;
     private _currentLevel = -100; // dBFS
+
+    // Routing state (v1.0.0+)
+    private _mixEnabled = false;
+    private _bypassProcessing = false;
+    private _volume = 0.8;
 
     // Noise gate state machine
     private _activationTimer: ReturnType<typeof setTimeout> | null = null;
@@ -70,12 +76,19 @@ class MicManager {
      * Arma il microfono: richiede accesso a getUserMedia e inizia il monitoraggio.
      * @param deviceId  ID dispositivo audio di input (default = 'default')
      * @param threshold Soglia di attivazione in dBFS (default = activationThresholdDb)
+     * @param mixOptions Opzioni opzionali per il mix (volume, enable, bypass)
      */
-    public async arm(deviceId = 'default', threshold?: number): Promise<void> {
-        if (this._isArmed) this.disarm(); // reset se già armato con device diverso
+    public async arm(deviceId = 'default', threshold?: number, mixOptions?: { enabled: boolean, volume: number, bypass: boolean }): Promise<void> {
+        if (this._isArmed) this._cleanup(); // reset se già armato
 
         if (threshold !== undefined) this.activationThresholdDb = threshold;
         this.releaseThresholdDb = this.activationThresholdDb - 12; // isteresi fissa 12dB
+
+        if (mixOptions) {
+            this._mixEnabled = mixOptions.enabled;
+            this._volume = mixOptions.volume;
+            this._bypassProcessing = mixOptions.bypass;
+        }
 
         try {
             const constraints: MediaStreamConstraints = {
@@ -92,7 +105,8 @@ class MicManager {
 
             // Usa il contesto AudioContext già esistente dell'app (evita un secondo context)
             const { default: AudioContextManager } = await import('./AudioContextManager');
-            this.audioCtx = AudioContextManager.getInstance().getContext();
+            const manager = AudioContextManager.getInstance();
+            this.audioCtx = manager.getContext();
 
             this.analyser = this.audioCtx.createAnalyser();
             this.analyser.fftSize = MicManager.FFT_SIZE;
@@ -100,19 +114,68 @@ class MicManager {
 
             this.source = this.audioCtx.createMediaStreamSource(this.stream);
             this.source.connect(this.analyser);
-            // ⚠️ NON connettere analyser → destination → nessun output del mic
+
+            // v1.0.0+ — Routing al mix master
+            this.micGain = this.audioCtx.createGain();
+            this.micGain.gain.value = this._mixEnabled ? this._volume : 0;
+            
+            this.source.connect(this.micGain);
+            
+            if (this._mixEnabled) {
+                this._connectToMix();
+            }
 
             this._isArmed = true;
             this._isMicActive = false;
             this._currentLevel = -100;
 
             this.pollHandle = setInterval(() => this._poll(), MicManager.POLL_INTERVAL_MS);
-            console.log('[MicManager] Armed —', deviceId);
+            console.log('[MicManager] Armed —', deviceId, 'Mix:', this._mixEnabled ? 'ON' : 'OFF');
 
         } catch (err) {
             console.error('[MicManager] arm() failed:', err);
             this._cleanup();
             throw err;
+        }
+    }
+
+    private async _connectToMix() {
+        if (!this.micGain || !this.audioCtx) return;
+        
+        const { default: AudioContextManager } = await import('./AudioContextManager');
+        const manager = AudioContextManager.getInstance();
+
+        try { this.micGain.disconnect(); } catch { /* noop */ }
+
+        if (this._bypassProcessing) {
+            // Direct to hardware output (Zero latency, no master effects)
+            this.micGain.connect(this.audioCtx.destination);
+        } else {
+            // Through Master Chain (HPF + Comp + Limiter)
+            this.micGain.connect(manager.getOutput());
+        }
+    }
+
+    /** Aggiorna i parametri di mix a caldo senza riavviare il monitoraggio. */
+    public async updateMixSettings(options: { enabled?: boolean, volume?: number, bypass?: boolean }) {
+        if (options.enabled !== undefined) this._mixEnabled = options.enabled;
+        if (options.volume !== undefined) this._volume = options.volume;
+        
+        const bypassChanged = options.bypass !== undefined && options.bypass !== this._bypassProcessing;
+        if (options.bypass !== undefined) this._bypassProcessing = options.bypass;
+
+        if (this._isArmed && this.micGain) {
+            // Applica volume (rampa fluida 50ms)
+            const targetGain = this._mixEnabled ? this._volume : 0;
+            this.micGain.gain.setTargetAtTime(targetGain, this.audioCtx!.currentTime, 0.05);
+
+            // Se il bypass è cambiato, ricollega il nodo
+            if (bypassChanged && this._mixEnabled) {
+                this._connectToMix();
+            } else if (this._mixEnabled && !this.micGain.numberOfOutputs) {
+                // Se abilitato ma non connesso (es. era disabilitato all'arm)
+                this._connectToMix();
+            }
         }
     }
 
@@ -145,6 +208,10 @@ class MicManager {
         if (this.source) {
             try { this.source.disconnect(); } catch { /* noop */ }
             this.source = null;
+        }
+        if (this.micGain) {
+            try { this.micGain.disconnect(); } catch { /* noop */ }
+            this.micGain = null;
         }
         if (this.analyser) {
             try { this.analyser.disconnect(); } catch { /* noop */ }

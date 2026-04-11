@@ -27,7 +27,8 @@ export const GlobalControls = () => {
     const { stopAll } = useAudioStore();
     const loadClip = useAudioStore((s) => s.loadClip);
     const { columns, isDirty, setDirty, loadProject, resetProject, currentFilePath, isMidiLearnMode, setIsMidiLearnMode, runIntegrityCheck, updateClip, addClipFromPath } = useProjectStore();
-    const { globalMidiBinds, setGlobalMidiBind, masterVolume, setMasterVolume: setStoredVolume, micInputDeviceId, micThresholdDb, micEnabled } = useSettingsStore();
+    const { globalMidiBinds, setGlobalMidiBind, masterVolume, setMasterVolume: setStoredVolume, 
+        micInputDeviceId, micThresholdDb, micEnabled, micMixEnabled, micVolume, micBypassProcessing, setMicSettings } = useSettingsStore();
     const setMicActive = useAudioStore(s => s.setMicActive);
     const isMicActive = useAudioStore(s => s.isMicActive);
 
@@ -192,7 +193,12 @@ export const GlobalControls = () => {
             if (micArmingRef.current) return;
             micArmingRef.current = true;
             try {
-                await mic.arm(micInputDeviceId, micThresholdDb);
+                // Passa le opzioni di mix all'arm (v1.0.0+)
+                await mic.arm(micInputDeviceId, micThresholdDb, {
+                    enabled: micMixEnabled,
+                    volume: micVolume,
+                    bypass: micBypassProcessing
+                });
                 setIsArmed(true);
             } catch (e) {
                 console.error('[SmartMic] Arm failed:', e);
@@ -202,6 +208,17 @@ export const GlobalControls = () => {
             micArmingRef.current = false;
         }
     };
+
+    // v1.0.0+ — Sincronizza le impostazioni di mix a caldo quando cambiano nello store
+    useEffect(() => {
+        if (isArmed) {
+            MicManager.getInstance().updateMixSettings({
+                enabled: micMixEnabled,
+                volume: micVolume,
+                bypass: micBypassProcessing
+            });
+        }
+    }, [isArmed, micMixEnabled, micVolume, micBypassProcessing]);
 
     // Sottoscrive ai livelli e agli eventi di attività una volta armato
     useEffect(() => {
@@ -234,6 +251,12 @@ export const GlobalControls = () => {
         AudioContextManager.getInstance().setMasterVolume(newVal);
     };
 
+    const handleMicVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newVal = parseFloat(e.target.value);
+        setMicSettings({ volume: newVal });
+        // L'useEffect sopra si occuperà di chiamare MicManager.updateMixSettings
+    };
+
     const handleStopAll = () => {
         stopAll();
     };
@@ -241,28 +264,33 @@ export const GlobalControls = () => {
     return (
         <div className="flex items-center gap-4 border-l border-zinc-800 pl-4 ml-4">
 
-            {/* SMART MIC — ARM button + mini VU (v0.17.0) */}
-            <div className="flex items-center gap-1.5 border-r border-zinc-800 pr-4 mr-2">
-                <button
-                    onClick={handleArmToggle}
-                    title={isArmed ? 'Disarma microfono' : 'Arma microfono (Smart Ducking)'}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-bold transition-all ${
-                        isArmed
-                            ? isMicActive
-                                ? 'bg-red-500 text-white shadow-lg shadow-red-500/40 animate-pulse'
-                                : 'bg-red-900/60 text-red-400 border border-red-700'
-                            : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-300 border border-zinc-700'
-                    }`}
-                >
-                    {isArmed ? <Mic size={13} /> : <MicOff size={13} />}
-                    <span>ARM</span>
-                </button>
+            {/* SMART MIC — ARM button + mini VU + Mic Mix Vol (v1.0.0+) */}
+            <div className="flex items-center gap-3 border-r border-zinc-800 pr-4 mr-2">
+                <div className="flex flex-col gap-1">
+                    <button
+                        onClick={handleArmToggle}
+                        title={isArmed ? 'Disarma microfono' : 'Arma microfono (Smart Ducking + Mix Input)'}
+                        className={`flex items-center justify-center gap-1.5 px-2.5 py-1 rounded text-[10px] font-bold transition-all ${
+                            isArmed
+                                ? isMicActive
+                                    ? 'bg-red-500 text-white shadow-lg shadow-red-500/40 animate-pulse'
+                                    : 'bg-red-900/60 text-red-400 border border-red-700'
+                                : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-300 border border-zinc-700'
+                        }`}
+                    >
+                        {isArmed ? <Mic size={12} /> : <MicOff size={12} />}
+                        <span>ARM</span>
+                    </button>
+                    {/* Badge indicatore Mix attivo */}
+                    {isArmed && micMixEnabled && (
+                        <span className="text-[8px] text-center font-bold text-emerald-500 uppercase tracking-tighter">On Mix</span>
+                    )}
+                </div>
 
-                {/* Mini VU mic — 8 barre verticali, visibile solo quando armato */}
-                {isArmed && (
-                    <div className="flex items-end gap-px h-5" title={`${micLevel.toFixed(1)} dBFS`}>
-                        {Array.from({ length: 8 }).map((_, i) => {
-                            // Mappa le 8 barre da -60dBFS (bar 0) a -10dBFS (bar 7)
+                {/* Mini VU mic — 8 barre verticali */}
+                <div className="flex items-end gap-px h-6 w-10" title={`${micLevel.toFixed(1)} dBFS`}>
+                    {isArmed ? (
+                        Array.from({ length: 8 }).map((_, i) => {
                             const barThreshold = -60 + i * 6.25;
                             const isLit = micLevel >= barThreshold;
                             const isRed = i >= 6;
@@ -280,7 +308,28 @@ export const GlobalControls = () => {
                                     style={{ height: `${40 + i * 7}%` }}
                                 />
                             );
-                        })}
+                        })
+                    ) : (
+                        <div className="w-full h-px bg-zinc-800 self-center" />
+                    )}
+                </div>
+
+                {/* Mic Volume Slider (visibile solo se armato) */}
+                {isArmed && (
+                    <div className="flex flex-col w-20 animate-in fade-in slide-in-from-left-2">
+                        <div className="flex justify-between items-center mb-0.5">
+                            <span className="text-[9px] text-zinc-500 font-bold uppercase">Mic Vol</span>
+                            <span className="text-[9px] text-red-400 font-mono">{Math.round(micVolume * 100)}%</span>
+                        </div>
+                        <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value={micVolume}
+                            onChange={handleMicVolumeChange}
+                            className="h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-red-500 hover:accent-red-400 w-full"
+                        />
                     </div>
                 )}
             </div>

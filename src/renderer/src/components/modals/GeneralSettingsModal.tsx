@@ -67,7 +67,8 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
         defaultPreshowTransition, setDefaultPreshowTransition,
         crossfadeDuration, segueDuration, setPreshowTransition, setSegueDuration,
         masterChain, setMasterChain,
-        micInputDeviceId, micThresholdDb, micEnabled, setMicSettings
+        micInputDeviceId, micThresholdDb, micEnabled, micMixEnabled, micVolume, micBypassProcessing, setMicSettings,
+        recordingFormat, setRecordingSettings
     } = useSettingsStore();
     const updateOutputDevice = useAudioStore(s => s.updateOutputDevice);
     const [devices, setDevices] = useState<AudioDevice[]>([]);
@@ -202,6 +203,82 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         Voce sopra questa soglia per 80ms → ducking attivo. Rilascio a {micThresholdDb - 12} dBFS per 1.5s. Default: -30 dBFS.
                                     </p>
                                 </div>
+
+                                {/* v1.0.0+ — MIC MIX CHANNEL */}
+                                <div className="p-3 bg-red-950/20 border border-red-900/40 rounded-lg space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-bold text-red-400">Canale Mix Microfono</span>
+                                            <span className="bg-red-500 text-white text-[8px] px-1 rounded font-black">NEW</span>
+                                        </div>
+                                        <Toggle
+                                            enabled={micMixEnabled}
+                                            onToggle={() => setMicSettings({ mixEnabled: !micMixEnabled })}
+                                            labelOn="In Mix"
+                                            labelOff="Mute"
+                                        />
+                                    </div>
+                                    <p className="text-[10px] text-zinc-400 italic">Invia la voce dell'operatore direttamente al master bus dell'applicazione.</p>
+
+                                    <div className={`space-y-3 transition-opacity ${micMixEnabled ? '' : 'opacity-40 pointer-events-none'}`}>
+                                        <LabeledSlider
+                                            label="Volume Microfono"
+                                            value={micVolume}
+                                            min={0} max={1} step={0.01}
+                                            display={`${Math.round(micVolume * 100)}%`}
+                                            accent="accent-red-500"
+                                            onChange={v => setMicSettings({ volume: v })}
+                                        />
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xs text-zinc-400">Bypass Master Chain</span>
+                                            <Toggle
+                                                enabled={micBypassProcessing}
+                                                onToggle={() => setMicSettings({ bypassProcessing: !micBypassProcessing })}
+                                            />
+                                        </div>
+                                        <p className="text-[10px] text-zinc-500 italic -mt-1">
+                                            {micBypassProcessing 
+                                                ? "⚠️ Voce raw all'uscita (zero latenza, no effetti)." 
+                                                : "✨ Voce processata (HPF + Compressor + Limiter)."}
+                                        </p>
+                                    </div>
+
+                                    {/* FEEDBACK WARNING */}
+                                    <div className="p-2 bg-yellow-500/10 border border-yellow-500/30 rounded text-[9px] text-yellow-200 flex gap-2">
+                                        <span className="shrink-0">⚠️</span>
+                                        <span>
+                                            <strong>RISCHIO FEEDBACK:</strong> Se usi le casse, l'audio del mic potrebbe rientrare nel mix creando fischi. 
+                                            Usa sempre le <strong>cuffie</strong> se il canale Mix è attivo.
+                                        </span>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <div className="h-px bg-zinc-800" />
+
+                            {/* SESSION RECORDING (v1.0.0+) */}
+                            <section className="space-y-3">
+                                <h3 className="text-[10px] uppercase text-zinc-500 font-bold tracking-wider mb-3">Session Recording</h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <span className="text-xs text-zinc-400 block mb-1">Formato predefinito</span>
+                                        <select
+                                            value={recordingFormat}
+                                            onChange={e => setRecordingSettings({ format: e.target.value as 'webm' | 'wav' })}
+                                            className="w-full bg-zinc-950 border border-zinc-700 rounded p-2 text-xs text-white focus:border-emerald-500 outline-none"
+                                        >
+                                            <option value="webm">WebM / Opus (Broadcast Quality)</option>
+                                            <option value="wav">WAV (Raw / Lossless)</option>
+                                        </select>
+                                    </div>
+                                    <div className="flex flex-col justify-end">
+                                        <span className="text-[10px] text-zinc-500 uppercase font-bold">Bitrate</span>
+                                        <span className="text-sm font-mono text-emerald-400">320 kbps</span>
+                                    </div>
+                                </div>
+                                <p className="text-[10px] text-zinc-600 italic">
+                                    La registrazione cattura tutto ciò che senti in uscita, inclusi microfono (se armato e in mix) ed effetti master.
+                                </p>
                             </section>
 
                             <div className="h-px bg-zinc-800" />
