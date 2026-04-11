@@ -126,7 +126,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
                     name: file.name.replace(/\.[^/.]+$/, ""), // Rimuove estensione
                     path: window.electron ? window.electron.getFilePath(file) : '', // Secure Path Retrieval
                     type: col.type,
-                    color: col.color,
+                    color: col.customColor || col.color,
                     volume: 1.0,
                     pan: 0,
                     isLooping: false,
@@ -168,7 +168,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
                     name: file.name.replace(/\.[^/.]+$/, ""),
                     path: window.electron ? window.electron.getFilePath(file) : '',
                     type: col.type,
-                    color: col.color,
+                    color: col.customColor || col.color,
                     volume: 1.0,
                     pan: 0,
                     isLooping: false,
@@ -209,7 +209,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
                     name,
                     path: filePath,
                     type: col.type,
-                    color: col.color,
+                    color: col.customColor || col.color,
                     volume: 1.0,
                     pan: 0,
                     isLooping: false,

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import appLogo from '../../assets/logo.png';
 import { X, BookOpen, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { checkForUpdates } from '../../utils/updateChecker';
+import { checkForUpdates, UpdateInfo } from '../../utils/updateChecker';
+import { UpdateModal } from './UpdateModal';
 
 // APP_VERSION injected by Vite
 
@@ -16,15 +17,17 @@ interface AboutModalProps {
 export const AboutModal = ({ isOpen, onClose }: AboutModalProps) => {
     const { t } = useTranslation();
     const [updateStatus, setUpdateStatus] = useState<'checking' | 'available' | 'latest' | 'error'>('checking');
-    const [remoteVer, setRemoteVer] = useState('');
+    const [updateInfo, setUpdateInfo] = useState<UpdateInfo>({ hasUpdate: false, remoteVersion: '' });
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
             setUpdateStatus('checking');
             checkForUpdates(__APP_VERSION__).then((info) => {
+                setUpdateInfo(info);
                 if (info.hasUpdate) {
                     setUpdateStatus('available');
-                    setRemoteVer(info.remoteVersion);
+                    setShowUpdateModal(true);
                 } else {
                     setUpdateStatus('latest');
                 }
@@ -35,6 +38,13 @@ export const AboutModal = ({ isOpen, onClose }: AboutModalProps) => {
     if (!isOpen) return null;
 
     return (
+        <>
+        <UpdateModal
+            isOpen={showUpdateModal}
+            info={updateInfo}
+            currentVersion={__APP_VERSION__}
+            onClose={() => setShowUpdateModal(false)}
+        />
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
             <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-[400px] shadow-2xl relative" onClick={e => e.stopPropagation()}>
 
@@ -57,7 +67,14 @@ export const AboutModal = ({ isOpen, onClose }: AboutModalProps) => {
                         {updateStatus === 'checking' && <RefreshCw size={12} className="text-zinc-600 animate-spin" />}
 
                         {updateStatus === 'latest' && <span className="text-[10px] text-emerald-500 border border-emerald-500/30 px-1.5 rounded bg-emerald-500/10">{t('welcome.latest')}</span>}
-                        {updateStatus === 'available' && <span className="text-[10px] text-amber-500 border border-amber-500/30 px-1.5 rounded bg-amber-500/10 animate-pulse">{t('welcome.updateAvailable', { version: remoteVer })}</span>}
+                        {updateStatus === 'available' && (
+                            <button
+                                onClick={() => setShowUpdateModal(true)}
+                                className="text-[10px] text-amber-500 border border-amber-500/30 px-1.5 rounded bg-amber-500/10 animate-pulse hover:bg-amber-500/20 transition-colors"
+                            >
+                                {t('welcome.updateAvailable', { version: updateInfo.remoteVersion })}
+                            </button>
+                        )}
                         {updateStatus === 'error' && <span className="text-[10px] text-red-900">OFFLINE</span>}
                     </div>
 
@@ -85,5 +102,6 @@ export const AboutModal = ({ isOpen, onClose }: AboutModalProps) => {
                 </div>
             </div>
         </div>
+        </>
     );
 };

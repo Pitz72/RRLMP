@@ -494,6 +494,11 @@ ipcMain.handle('delete-temp-recording', async (_event, path: string) => {
     }
 });
 
+// Apre un URL nel browser di sistema (usato dall'update checker)
+ipcMain.handle('open-external', async (_event, url: string) => {
+    await shell.openExternal(url);
+});
+
 
 app.whenReady().then(() => {
     // Handle media:// protocol
@@ -501,21 +506,26 @@ app.whenReady().then(() => {
         try {
             const requestUrl = request.url;
             // G6 Fix: Robust URI parsing for media:// protocol.
-            // Some Chromium versions might normalize media:///C:/ to media://c:/
-            // We strip all leading slashes and protocol prefix.
+            // Strip protocol prefix, leaving the raw path component.
             let pathName = requestUrl.replace(/^media:\/\/+/, '');
-            
-            // Handle case where path starts with a single slash (after media://)
-            if (pathName.startsWith('/')) {
-                pathName = pathName.slice(1);
-            }
 
             let filePath = decodeURIComponent(pathName);
-            
-            // Fix for Windows drive letters and separators
+
             if (process.platform === 'win32') {
-                // Ensure drive letter (c:) doesn't have a leading slash if manually added
+                // Windows: remove any accidental leading slash before drive letter (C:/)
+                // media:///C:/... → after strip → /C:/... → remove leading /
+                if (filePath.match(/^\/[A-Za-z]:\//)) {
+                    filePath = filePath.slice(1);
+                }
                 filePath = filePath.replace(/\//g, '\\');
+            } else {
+                // macOS / Linux: paths are absolute and start with /
+                // media:///Users/... → after strip → /Users/...
+                // media:///home/... → /home/...
+                // Ensure the leading slash is present (it should be, but guard against edge cases)
+                if (!filePath.startsWith('/')) {
+                    filePath = '/' + filePath;
+                }
             }
 
             // DIAGNOSTICS: Log the file being requested

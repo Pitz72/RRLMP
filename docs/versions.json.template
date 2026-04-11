@@ -1,0 +1,19 @@
+{
+    "version": "1.2.0",
+    "releaseDate": "2026-04-11",
+    "releaseNotes": "- Fix: aggiornamento dinamico colori clip\n- Fix: compatibilità macOS/Linux (percorsi media, entitlements microfono)\n- Nuovo: auto-updater con dialog prominente e download per OS\n- Nuovo: modal esportazione registrazione (WAV/FLAC/MP3/OGG/WEBM)\n- Migliorata: impostazioni generali con 5 tab tematiche",
+    "platforms": {
+        "win32": {
+            "url": "https://ecosystem.mruntimeradio.com/updates/rlmp/Runtime-Live-Machine-Pro-Setup-1.2.0.exe",
+            "filename": "Runtime-Live-Machine-Pro-Setup-1.2.0.exe"
+        },
+        "darwin": {
+            "url": "https://ecosystem.mruntimeradio.com/updates/rlmp/Runtime-Live-Machine-Pro-1.2.0.dmg",
+            "filename": "Runtime-Live-Machine-Pro-1.2.0.dmg"
+        },
+        "linux": {
+            "url": "https://ecosystem.mruntimeradio.com/updates/rlmp/Runtime-Live-Machine-Pro-1.2.0.AppImage",
+            "filename": "Runtime-Live-Machine-Pro-1.2.0.AppImage"
+        }
+    }
+}

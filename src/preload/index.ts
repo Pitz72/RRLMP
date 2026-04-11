@@ -60,6 +60,9 @@ if (process.contextIsolated) {
                 ipcRenderer.on('emergency-stop', subscription);
                 return () => ipcRenderer.removeListener('emergency-stop', subscription);
             },
+            // Utilities
+            openExternal: (url: string) => ipcRenderer.invoke('open-external', url),
+            getPlatform: () => process.platform,
             // v1.1.3 — Session Recording (fix preload mismatch)
             showSaveDialogRecording: (defaultName: string, format: string) => ipcRenderer.invoke('show-save-dialog-recording', defaultName, format),
             saveRecordingBuffer: (arrayBuffer: ArrayBuffer) => ipcRenderer.invoke('save-recording-buffer', arrayBuffer),

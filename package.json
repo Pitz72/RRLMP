@@ -33,7 +33,11 @@
         },
         "mac": {
             "target": "dmg",
-            "icon": "build/icon.png"
+            "icon": "build/icon.png",
+            "entitlementsInherit": "build/entitlements.mac.plist",
+            "extendInfo": {
+                "NSMicrophoneUsageDescription": "Runtime Live Machine Pro richiede l'accesso al microfono per Smart Mic Auto-Ducking e il Canale Mix."
+            }
         },
         "linux": {
             "target": [

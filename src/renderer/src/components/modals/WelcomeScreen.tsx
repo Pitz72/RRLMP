@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import appLogo from '../../assets/logo.png';
-import { checkForUpdates } from '../../utils/updateChecker';
+import { checkForUpdates, UpdateInfo } from '../../utils/updateChecker';
 import { useTranslation } from 'react-i18next';
 import { FlagIcon } from '../ui/FlagIcon';
+import { UpdateModal } from './UpdateModal';
 
 interface WelcomeScreenProps {
     onNewProject: () => void;
@@ -23,13 +24,15 @@ const LANGUAGES = [
 export const WelcomeScreen = ({ onNewProject, onLoadProject }: WelcomeScreenProps) => {
     const { t, i18n } = useTranslation();
     const [updateStatus, setUpdateStatus] = useState<'checking' | 'available' | 'latest' | 'error'>('checking');
-    const [remoteVer, setRemoteVer] = useState('');
+    const [updateInfo, setUpdateInfo] = useState<UpdateInfo>({ hasUpdate: false, remoteVersion: '' });
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
 
     useEffect(() => {
         checkForUpdates(__APP_VERSION__).then((info) => {
+            setUpdateInfo(info);
             if (info.hasUpdate) {
                 setUpdateStatus('available');
-                setRemoteVer(info.remoteVersion);
+                setShowUpdateModal(true);
             } else {
                 setUpdateStatus('latest');
             }
@@ -43,6 +46,13 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject }: WelcomeScreenProp
     const currentLang = i18n.language?.slice(0, 2) || 'en';
 
     return (
+        <>
+        <UpdateModal
+            isOpen={showUpdateModal}
+            info={updateInfo}
+            currentVersion={__APP_VERSION__}
+            onClose={() => setShowUpdateModal(false)}
+        />
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md">
             <div className="bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl flex overflow-hidden" style={{ width: 720, maxHeight: '90vh' }}>
 
@@ -74,7 +84,14 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject }: WelcomeScreenProp
                         </span>
                         {updateStatus === 'checking' && <span className="text-xs text-zinc-500 animate-pulse">{t('welcome.checking')}</span>}
                         {updateStatus === 'latest' && <span className="text-xs text-emerald-500 font-medium">{t('welcome.latest')}</span>}
-                        {updateStatus === 'available' && <span className="text-xs text-amber-500 font-bold animate-bounce">{t('welcome.updateAvailable', { version: remoteVer })}</span>}
+                        {updateStatus === 'available' && (
+                            <button
+                                onClick={() => setShowUpdateModal(true)}
+                                className="text-xs text-amber-500 font-bold animate-bounce hover:text-amber-400 transition-colors"
+                            >
+                                {t('welcome.updateAvailable', { version: updateInfo.remoteVersion })}
+                            </button>
+                        )}
                     </div>
 
                     {/* ACTIONS */}
@@ -136,5 +153,6 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject }: WelcomeScreenProp
 
             </div>
         </div>
+        </>
     );
 };
