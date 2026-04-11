@@ -1,7 +1,7 @@
 # RRLMP — Roadmap & Issue Backlog
 
-Versione corrente: **1.0.0** (Major Release)
-Ultimo aggiornamento: 2026-04-10
+Versione corrente: **1.2.0**
+Ultimo aggiornamento: 2026-04-11
 
 ---
 
@@ -31,9 +31,8 @@ Ultimo aggiornamento: 2026-04-10
 
 ### 🟡 Priorità Alta (Prossimi Step)
 
-- [ ] **Session Recording (Master Mix)**
-  - Registrazione dell'output broadcast direttamente su file.
-  - **Stato**: Analisi tecnica completata. Vedere sezione [Specifiche Tecniche](#-specifiche-tecniche-future).
+- [✅] **Session Recording (Master Mix)** — **COMPLETATO in v1.1.x–v1.2.0**
+  - Export WAV/FLAC/MP3/OGG/WEBM con selezione bitrate e bit depth. Bug IPC critici risolti.
 - [ ] **Test Audio Engine (Copertura)**
   - Implementazione di Vitest + @testing-library/react per testare `useAudioStore` e `evaluateMix`.
 - [ ] **Advanced Markers Pre-Calcolati**
@@ -80,7 +79,14 @@ Ultimo aggiornamento: 2026-04-10
 
 ## ✅ Archivio Interventi Completati
 
-### v1.0.0 — Major Release
+### v1.2.0 — Recording · UI Redesign · Dynamic Colors (2026-04-11)
+- **Session Recording completo**: Export WAV/FLAC/MP3/OGG/WEBM con modal selezione formato/bitrate/bit-depth.
+- **Fix critico recording**: 3 bug IPC che impedivano il salvataggio WAV (type mismatch, preload incompleto, argomento mancante).
+- **Settings Modal redesign**: 5 tab tematiche (Generali/Audio & Mix/Microfono/Registrazione/Master Chain), 75vw×80vh.
+- **Colori clip dinamici**: le clip seguono il colore corrente della colonna in tempo reale.
+- **Feedback warning dismissable**: checkbox per utenti con cuffie/mixer professionale.
+
+### v1.0.0 — Major Release (2026-04-10)
 - **i18n Completa**: 8 lingue localizzate al 100%.
 - **Rebranding Pro**: Nuovo logo, badge PRO, nuova Welcome Screen.
 - **Master Chain Audio**: HPF + Compressor + Limiter sul master bus.
@@ -88,4 +94,4 @@ Ultimo aggiornamento: 2026-04-10
 - **Waveform Editor**: Zoom 1x-8x e handle drag & drop.
 
 ---
-*Documento aggiornato il 2026-04-10 — allineato a v1.0.0.*
+*Documento aggiornato il 2026-04-11 — allineato a v1.2.0.*

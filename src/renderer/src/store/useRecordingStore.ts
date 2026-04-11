@@ -11,7 +11,7 @@ interface RecordingState {
 
     startRecording: () => Promise<void>;
     stopRecording: () => Promise<void>;
-    exportRecording: (format: 'wav' | 'webm') => Promise<{ success: boolean; path?: string; error?: string }>;
+    exportRecording: (options: { format: 'wav' | 'mp3' | 'flac' | 'ogg' | 'webm'; bitrate?: number; sampleDepth?: 16 | 24 | 32 }) => Promise<{ success: boolean; path?: string; error?: string }>;
     cancelExport: () => Promise<void>;
     reset: () => void;
 }
@@ -62,11 +62,14 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
         }
 
         try {
-            const tempPath = await recorder.stop();
+            // stop() ritorna ArrayBuffer — lo salviamo su disco via IPC per ottenere un path
+            const arrayBuffer = await recorder.stop();
+            const saveResult = await window.electron.saveRecordingBuffer(arrayBuffer);
+            if (!saveResult.success) throw new Error(saveResult.error || 'Failed to save buffer');
             set({
                 isRecording: false,
                 startTime: null,
-                tempPath: tempPath,
+                tempPath: saveResult.path,
                 timerIntervalId: null
             });
         } catch (error) {
@@ -75,11 +78,10 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
         }
     },
 
-    exportRecording: async (format: 'wav' | 'webm') => {
+    exportRecording: async ({ format, bitrate, sampleDepth }) => {
         const { tempPath } = get();
         if (!tempPath) return { success: false, error: 'No recording to export' };
 
-        // 1. Chiedi all'utente dove salvare
         const now = new Date();
         const dateStr = now.toISOString().split('T')[0];
         const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-');
@@ -93,11 +95,10 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
         set({ isConverting: true });
 
         try {
-            // 2. Avvia conversione via IPC
             const convResult = await window.electron.convertRecording(
-                tempPath, 
-                result.filePath, 
-                { format, bitrate: 320000 }
+                tempPath,
+                result.filePath,
+                { format, bitrate, sampleDepth }
             );
 
             if (convResult.success) {

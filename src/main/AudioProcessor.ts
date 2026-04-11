@@ -131,14 +131,14 @@ export class AudioProcessor {
                 * con monitoraggio del progresso.
                 */
                 static async convertAudio(
-                inputPath: string, 
-                outputPath: string, 
-                options: { bitrate?: number, format?: string } = {},
+                inputPath: string,
+                outputPath: string,
+                options: { bitrate?: number; format?: string; sampleDepth?: 16 | 24 | 32 } = {},
                 onProgress?: (progress: number) => void
                 ): Promise<{ success: boolean; error?: string }> {
                 return new Promise((resolve) => {
                 try {
-                console.log(`[AudioProcessor] Conversione: ${inputPath} -> ${outputPath}`);
+                console.log(`[AudioProcessor] Conversione: ${inputPath} -> ${outputPath} (format=${options.format})`);
 
                 const command = ffmpeg(inputPath)
                 .output(outputPath)
@@ -156,14 +156,25 @@ export class AudioProcessor {
                 resolve({ success: true });
                 });
 
-                if (options.bitrate) {
-                command.audioBitrate(options.bitrate / 1000); // fluent-ffmpeg aspetta kbps
-                }
+                const fmt = options.format || 'webm';
 
-                if (options.format === 'wav') {
-                command.toFormat('wav').audioCodec('pcm_s16le');
-                } else if (options.format === 'webm') {
-                command.toFormat('webm').audioCodec('libopus');
+                if (fmt === 'wav') {
+                    const depth = options.sampleDepth || 16;
+                    const codec = depth === 32 ? 'pcm_f32le' : depth === 24 ? 'pcm_s24le' : 'pcm_s16le';
+                    command.toFormat('wav').audioCodec(codec);
+                } else if (fmt === 'mp3') {
+                    command.toFormat('mp3').audioCodec('libmp3lame');
+                    if (options.bitrate) command.audioBitrate(options.bitrate / 1000);
+                } else if (fmt === 'flac') {
+                    const depth = options.sampleDepth || 16;
+                    command.toFormat('flac').audioCodec('flac')
+                        .outputOptions([`-sample_fmt ${depth === 24 ? 's32' : 's16'}`]);
+                } else if (fmt === 'ogg') {
+                    command.toFormat('ogg').audioCodec('libvorbis');
+                    if (options.bitrate) command.audioBitrate(options.bitrate / 1000);
+                } else if (fmt === 'webm') {
+                    command.toFormat('webm').audioCodec('libopus');
+                    if (options.bitrate) command.audioBitrate(options.bitrate / 1000);
                 }
 
                 command.run();

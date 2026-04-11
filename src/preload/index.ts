@@ -60,9 +60,11 @@ if (process.contextIsolated) {
                 ipcRenderer.on('emergency-stop', subscription);
                 return () => ipcRenderer.removeListener('emergency-stop', subscription);
             },
-            // v1.0.0+ — Session Recording
-            showSaveDialogRecording: (defaultName: string) => ipcRenderer.invoke('show-save-dialog-recording', defaultName),
-            saveRecording: (arrayBuffer: ArrayBuffer, path: string) => ipcRenderer.invoke('save-recording', arrayBuffer, path),
+            // v1.1.3 — Session Recording (fix preload mismatch)
+            showSaveDialogRecording: (defaultName: string, format: string) => ipcRenderer.invoke('show-save-dialog-recording', defaultName, format),
+            saveRecordingBuffer: (arrayBuffer: ArrayBuffer) => ipcRenderer.invoke('save-recording-buffer', arrayBuffer),
+            convertRecording: (inputPath: string, outputPath: string, options: { format?: string; bitrate?: number; sampleDepth?: number }) => ipcRenderer.invoke('convert-recording', inputPath, outputPath, options),
+            deleteTempRecording: (path: string) => ipcRenderer.invoke('delete-temp-recording', path),
         });
     } catch (error) {
         console.error("Context Bridge Error:", error);
