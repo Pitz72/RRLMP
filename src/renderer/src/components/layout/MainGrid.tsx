@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     DndContext,
     DragOverlay,
@@ -37,6 +37,7 @@ interface SortableColumnProps {
 }
 
 import { ColumnHeader } from './ColumnHeader';
+import { toast } from '../../store/useToastStore';
 
 const SortableColumn: React.FC<SortableColumnProps> = ({ column, children, onNativeDrop, onNativeDragOver, onNativeDragLeave }) => {
     const { setNodeRef } = useDroppable({
@@ -61,7 +62,7 @@ const SortableColumn: React.FC<SortableColumnProps> = ({ column, children, onNat
 
 
 export const MainGrid: React.FC = () => {
-    const { columns, addClip, addClipAtIndex, updateClip, removeClip, moveClip } = useProjectStore();
+    const { columns, addClip, addClipAtIndex, updateClip, removeClip, moveClip, currentFilePath } = useProjectStore();
     const { loadClip, playColumn, stopAll } = useAudioStore((state) => ({
         loadClip: state.loadClip,
         playColumn: state.playColumn,
@@ -71,6 +72,7 @@ export const MainGrid: React.FC = () => {
     const [editingClip, setEditingClip] = useState<AudioClip | null>(null);
     const [activeId, setActiveId] = useState<string | null>(null);
     const [preshowAnalyzingCount, setPreshowAnalyzingCount] = useState(0);
+    const [musicAnalyzingCount, setMusicAnalyzingCount] = useState(0);
     // Drop indicator: colonna + indice di inserimento durante il drag da OS
     const [dropIndicator, setDropIndicator] = useState<{ colId: string; index: number } | null>(null);
 
@@ -113,6 +115,47 @@ export const MainGrid: React.FC = () => {
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [editingClip, playColumn, stopAll, columns]); // Added columns to dependency
+
+    // AUTO-SILENCE DETECTION BATCH — colonna Music al caricamento progetto
+    useEffect(() => {
+        if (!currentFilePath) return;
+        const freshColumns = useProjectStore.getState().columns;
+        const musicCol = freshColumns.find(c => c.type === 'music');
+        if (!musicCol) return;
+
+        const unanalyzed = musicCol.clips.filter(c => !c.silenceChecked && !c.isMissing);
+        if (unanalyzed.length === 0 || !window.electron?.detectSilence) return;
+
+        setMusicAnalyzingCount(unanalyzed.length);
+        let processed = 0;
+        let optimized = 0;
+
+        unanalyzed.forEach(clip => {
+            updateClip('col-music', clip.id, { isAnalyzing: true });
+            window.electron.detectSilence(clip.path).then(result => {
+                if (result.success && result.data && !result.data.noSilence) {
+                    updateClip('col-music', clip.id, {
+                        trimStart: result.data.trimStart,
+                        trimEnd: result.data.trimEnd,
+                        isAnalyzing: false,
+                        silenceChecked: true
+                    });
+                    optimized++;
+                } else {
+                    updateClip('col-music', clip.id, { isAnalyzing: false, silenceChecked: true });
+                }
+                processed++;
+                setMusicAnalyzingCount(n => Math.max(0, n - 1));
+                if (processed === unanalyzed.length && optimized > 0) {
+                    toast(`Silenzio rimosso automaticamente da ${optimized} canzon${optimized === 1 ? 'e' : 'i'}.`, 'success');
+                }
+            }).catch(() => {
+                updateClip('col-music', clip.id, { isAnalyzing: false, silenceChecked: true });
+                processed++;
+                setMusicAnalyzingCount(n => Math.max(0, n - 1));
+            });
+        });
+    }, [currentFilePath]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Sensors
     const sensors = useSensors(
@@ -161,11 +204,13 @@ export const MainGrid: React.FC = () => {
             if (newClip) {
                 await loadClip(newClip);
 
-                // Auto-Silence Detection per la colonna Pre-Show via IPC (v0.13.2, fix v0.14.10)
+                // Auto-Silence Detection per colonna Pre-Show e Music (v0.13.2, fix v0.14.10, v1.2.4)
                 const col = columns.find(c => c.id === colId);
-                if (col?.type === 'preshow' && window.electron?.detectSilence) {
+                if ((col?.type === 'preshow' || col?.type === 'music') && window.electron?.detectSilence) {
+                    const isPreshow = col.type === 'preshow';
                     updateClip(colId, newClip.id, { isAnalyzing: true });
-                    setPreshowAnalyzingCount(n => n + 1);
+                    if (isPreshow) setPreshowAnalyzingCount(n => n + 1);
+                    else setMusicAnalyzingCount(n => n + 1);
                     window.electron.detectSilence(newClip.path).then(result => {
                         if (result.success && result.data && !result.data.noSilence) {
                             updateClip(colId, newClip.id, {
@@ -181,7 +226,8 @@ export const MainGrid: React.FC = () => {
                     }).catch(() => {
                         updateClip(colId, newClip.id, { isAnalyzing: false, silenceChecked: true });
                     }).finally(() => {
-                        setPreshowAnalyzingCount(n => Math.max(0, n - 1));
+                        if (isPreshow) setPreshowAnalyzingCount(n => Math.max(0, n - 1));
+                        else setMusicAnalyzingCount(n => Math.max(0, n - 1));
                     });
                 }
             }
@@ -306,7 +352,13 @@ export const MainGrid: React.FC = () => {
                         {col.type === 'preshow' && preshowAnalyzingCount > 0 && (
                             <div className="mx-2 mb-1 px-2 py-1.5 bg-amber-950/60 border border-amber-500/40 rounded text-amber-300 text-[10px] flex items-center gap-2">
                                 <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
-                                <span>Rilevamento silenzio… {preshowAnalyzingCount} {preshowAnalyzingCount === 1 ? 'file' : 'file'} in analisi</span>
+                                <span>Rilevamento silenzio… {preshowAnalyzingCount} file in analisi</span>
+                            </div>
+                        )}
+                        {col.type === 'music' && musicAnalyzingCount > 0 && (
+                            <div className="mx-2 mb-1 px-2 py-1.5 bg-red-950/60 border border-red-500/40 rounded text-red-300 text-[10px] flex items-center gap-2">
+                                <span className="inline-block w-2 h-2 rounded-full bg-red-400 animate-pulse shrink-0" />
+                                <span>Rilevamento silenzio… {musicAnalyzingCount} canzon{musicAnalyzingCount === 1 ? 'e' : 'i'} in analisi</span>
                             </div>
                         )}
                         <SortableContext

@@ -1,6 +1,6 @@
 # RUNTIME LIVE MACHINE PRO — Piano Post-Release
 
-> **Base**: v1.2.2 — Data documento: 2026-04-11 — **Ultimo aggiornamento**: 2026-04-11 (v1.2.3 hotfix)
+> **Base**: v1.2.2 — Data documento: 2026-04-11 — **Ultimo aggiornamento**: 2026-04-11 (v1.2.4)
 > **Legenda**: ✅ Fatto · ⬜ Da fare · 🔄 In corso · ❌ Non fare / Sospeso · ❓ Da chiarire
 
 ---
@@ -51,38 +51,37 @@
 
 **Domanda originale**: Se un file va in loop ma ha una coda silenziosa, il rilevamento del silenzio tiene conto del loop? Quando riparte dall'inizio, la coda viene "saltata"?
 
-**Analisi**: La silence detection attuale imposta i punti `Intro` e `Outro` (cue points). Per un file in loop, la logica dovrebbe:
+**Analisi**: La silence detection imposta `trimStart`/`trimEnd` (non cue points). Per un file in loop:
 
-1. Rilevare il silenzio iniziale (Intro point)
-2. Rilevare il silenzio finale / coda (Outro point)
-3. Il loop dovrebbe girare tra Intro e Outro, escludendo la coda
+1. `StreamPlayer.ontimeupdate`: quando `currentTime >= duration - trimEnd` → `onEndedCallback`
+2. `useAudioStore.onEnded` + `nextAction === 'loop'`: `stopClip` → `playClip`
+3. `player.play()` → seek a `trimStart`
 
-**Stato attuale**: Da verificare se il playback in loop rispetta l'Outro point o se suona fino alla fine del file.
+Il loop cicla esattamente tra `trimStart` e `duration - trimEnd` — il silenzio iniziale e finale viene saltato.
+
+**Risultato**: comportamento già corretto. Nessuna modifica necessaria.
 
 ### Piano · #03
 
-- ⬜ Verificare in `useAudioStore` / engine di playback: il loop rispetta `outroTime` come punto di fine loop?
-- ⬜ Se no: implementare — quando `loopEnabled = true`, il loop riparte da `introTime` alla fine del segmento `outroTime`
-- ⬜ Documentare il comportamento nel tooltip del campo Loop in `ClipSettingsModal`
+- ✅ Verificato in `StreamPlayer.ts` e `useAudioStore.ts`: il loop rispetta `trimStart` (start) e `trimEnd` (end offset) impostati dalla silence detection
+- ❌ `introMarker`/`outroMarker` non sono usati per i loop — non serve implementarlo (silence detection usa Trim, non Cue Points)
 
 ---
 
 ## 04 · [QUESTION] La Silence Detection modifica il Trim In/Out o solo le Cue Point?
 
-**Domanda originale**: Il rilevamento del silenzio dovrebbe modificare il trim in/out del brano, non farlo fare a mano all'utente.
-
-**Analisi**: Distinzione importante:
+**Risposta**: La silence detection imposta **Trim** (`trimStart`/`trimEnd`) — hard cut. Questo è il comportamento corretto e definitivo.
 
 - **Trim In/Out (hard cut)**: taglia il file — il materiale escluso non viene mai letto
-- **Intro/Outro cue points (soft cue)**: il file è intero ma la transizione parte/finisce ai punti impostati
+- **Intro/Outro cue points (soft cue)**: usati solo per le transizioni `play_next` / `onOutroReached`
 
-La silence detection attuale imposta i cue points Intro/Outro. La domanda è se dovrebbe anche impostare il Trim (e quindi escludere definitivamente il silenzio iniziale/finale dal file).
+**Decisione**: ✅ Silence detection usa Trim. `introMarker`/`outroMarker` restano cue points separati.
 
 ### Piano · #04
 
-- ❓ Decidere con Simone: silence detection deve agire su **Trim** (hard) o su **Cue Points** (soft)?
-- ⬜ Una volta deciso, documentare nel tooltip "Auto-Silence Detection" in UI
-- ⬜ Se si decide per il Trim: verificare che il Waveform Editor aggiorni i handle di conseguenza
+- ✅ Confermato: `detectSilence` → `trimStart` + `trimEnd` (hard)
+- ✅ Waveform Editor aggiorna i handle al cambio di `trimStart`/`trimEnd` — già funzionante
+- ❌ Nessuna ulteriore azione richiesta
 
 ---
 
@@ -96,10 +95,11 @@ La silence detection attuale imposta i cue points Intro/Outro. La domanda è se 
 
 ### Piano · #05
 
-- ⬜ Identificare dove viene gestito il drop su colonna PRE-SHOW e la chiamata auto-silence
-- ⬜ Replicare la stessa logica per la colonna Music, con flag: `if (!clip.introTime && !clip.outroTime)`
-- ⬜ Al caricamento di un progetto esistente: scansionare le clip Music prive di cue points e triggerare silence detection in batch (non bloccante — in background con toast)
-- ⬜ Aggiungere opzione nelle settings per abilitare/disabilitare questo comportamento automatico
+- ✅ Identificato in `MainGrid.tsx`: logica drop PRE-SHOW alla riga `col?.type === 'preshow'`
+- ✅ Replicata per Music (`col?.type === 'music'`) con condizione `!silenceChecked` — le impostazioni manuali non vengono sovrascritte
+- ✅ Batch scan al caricamento progetto: `useEffect` su `currentFilePath` in `MainGrid.tsx` — legge le clip Music senza `silenceChecked`, analizza in background, mostra toast al termine
+- ✅ Indicatore visivo "N canzoni in analisi" nella colonna Music (rosso, coerente con colore colonna)
+- ⬜ Aggiungere opzione nelle Settings per abilitare/disabilitare il comportamento automatico (futuro)
 
 ---
 
@@ -199,12 +199,11 @@ La silence detection attuale imposta i cue points Intro/Outro. La domanda è se 
 
 ### Piano · #11
 
-- ⬜ In `main.ts` handler `convert-recording`: parsare output FFmpeg stderr per estrarre `time=` (posizione attuale) e durata totale
-- ⬜ Inviare progress via `mainWindow.webContents.send('recording-export-progress', { percent })` durante la conversione
-- ⬜ In `preload.ts`: esporre `onExportProgress(callback)` via contextBridge
-- ⬜ In `useRecordingStore`: aggiungere stato `exportProgress: number | null`
-- ⬜ In `RecordingExportModal.tsx`: mostrare barra progresso (0–100%) quando `exportProgress !== null`
-- ⬜ Gestire il caso in cui FFmpeg non riporta la durata (progress indeterminato → spinner)
+- ✅ `main.ts` handler `convert-recording`: già inviava `export-progress` tramite callback `AudioProcessor.convertAudio`
+- ✅ `preload/index.ts`: `onExportProgress(callback)` già esposto via contextBridge
+- ✅ `RecordingExportModal.tsx`: `useEffect` sottoscrive `onExportProgress` quando `isConverting = true`; mostra vista dedicata con spinner + percentuale + barra progresso
+- ✅ Al termine conversione (`isConverting → false`): `useEffect` cleanup + reset progress
+- ✅ Caso senza durata: spinner mostrato fino alla prima percentuale ricevuta (indeterminato = `null`, non mostra la barra)
 
 ---
 
@@ -243,12 +242,12 @@ Se `mixEnabled = true`, il microfono passa per il master chain con `micVolume` (
 | 10 | BRANDING | 🟢 Bassa (quickfix) | — | ✅ v1.2.3 |
 | 12 | BUG | 🔴 Alta | — | ✅ v1.2.3 |
 | 08 | ENHANCEMENT | 🟡 Media | — | ✅ v1.2.3 |
-| 11 | FEATURE | 🟡 Media | — | ⬜ |
-| 09 | QUESTION | ❓ Analisi prima | — | ⬜ |
-| 03 | QUESTION | ❓ Analisi prima | — | ⬜ |
-| 04 | QUESTION | ❓ Decidere con Simone | — | ⬜ |
-| 05 | FEATURE | 🟡 Media | Dopo #04 | ⬜ |
-| 06 | FEATURE | 🔵 Bassa | Scelta approccio | ⬜ |
+| 03 | QUESTION | ❓ Analisi | — | ✅ v1.2.4 (verificato OK, no fix) |
+| 04 | QUESTION | ❓ Decidere | — | ✅ v1.2.4 (deciso: Trim) |
+| 05 | FEATURE | 🟡 Media | Dopo #04 | ✅ v1.2.4 |
+| 11 | FEATURE | 🟡 Media | — | ✅ v1.2.4 |
+| 09 | QUESTION | ❓ Analisi prima | — | ⬜ prossime versioni |
+| 06 | FEATURE | 🔵 Bassa | Scelta approccio | ⬜ prossime versioni |
 
 ---
 

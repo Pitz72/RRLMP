@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FileAudio, FileVideo, XCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { FileAudio, FileVideo, XCircle, Loader2 } from 'lucide-react';
 import { useRecordingStore } from '../../store/useRecordingStore';
 import { toast } from '../../store/useToastStore';
 
@@ -31,10 +31,24 @@ const BITRATE_OPTIONS = [128000, 192000, 256000, 320000];
 const DEPTH_OPTIONS: Array<16 | 24 | 32> = [16, 24, 32];
 
 export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
-    const { exportRecording, cancelExport } = useRecordingStore();
+    const { exportRecording, cancelExport, isConverting } = useRecordingStore();
     const [format, setFormat] = useState<ExportFormat>('wav');
     const [bitrate, setBitrate] = useState(320000);
     const [sampleDepth, setSampleDepth] = useState<16 | 24 | 32>(24);
+    const [exportProgress, setExportProgress] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (!isConverting) {
+            setExportProgress(null);
+            return;
+        }
+        const unsub = window.electron.onExportProgress((_event, data) => {
+            if (data.total > 0) {
+                setExportProgress(Math.round((data.current / data.total) * 100));
+            }
+        });
+        return unsub;
+    }, [isConverting]);
 
     const selectedFmt = FORMAT_OPTIONS.find(f => f.id === format)!;
 
@@ -59,6 +73,34 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
         await cancelExport();
         onClose();
     };
+
+    if (isConverting) {
+        return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                    <div className="bg-zinc-800 px-5 py-4 border-b border-zinc-700">
+                        <h2 className="text-sm font-bold text-white">Esporta Registrazione</h2>
+                        <p className="text-[10px] text-zinc-500 mt-0.5">Conversione audio in corso…</p>
+                    </div>
+                    <div className="p-6 flex flex-col items-center gap-4">
+                        <Loader2 size={28} className="text-emerald-400 animate-spin" />
+                        <p className="text-sm text-zinc-300 font-medium">
+                            {exportProgress !== null ? `Conversione… ${exportProgress}%` : 'Conversione in corso…'}
+                        </p>
+                        {exportProgress !== null && (
+                            <div className="w-full bg-zinc-700 rounded-full h-2 overflow-hidden">
+                                <div
+                                    className="bg-emerald-500 h-2 rounded-full transition-all duration-300"
+                                    style={{ width: `${exportProgress}%` }}
+                                />
+                            </div>
+                        )}
+                        <p className="text-[10px] text-zinc-600">Non chiudere la finestra durante la conversione.</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
