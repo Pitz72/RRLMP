@@ -26,13 +26,13 @@ export class AudioRecorder {
 
         const manager = AudioContextManager.getInstance();
         const ctx = manager.getContext();
-        const masterOutput = manager.getMasterOutput();
 
         this.destinationNode = ctx.createMediaStreamDestination();
-        masterOutput.connect(this.destinationNode);
-        
+        // v1.2.2: tap sul recordingBus (limiter output + mic diretto se mixEnabled=false)
+        manager.getRecordingBus().connect(this.destinationNode);
+
         this.isInitialized = true;
-        console.log('[AudioRecorder] Initialized and connected to Master Output');
+        console.log('[AudioRecorder] Initialized and connected to RecordingBus');
     }
 
     public start(): void {

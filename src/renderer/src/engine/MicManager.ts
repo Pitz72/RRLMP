@@ -46,11 +46,14 @@ class MicManager {
     private _activationTimer: ReturnType<typeof setTimeout> | null = null;
     private _releaseTimer: ReturnType<typeof setTimeout> | null = null;
 
+    // v1.2.2 — Nodo dedicato per la registrazione (indipendente dal mix monitoring)
+    private micRecordingGain: GainNode | null = null;
+
     // Configurable noise gate parameters
     public activationThresholdDb = -30;  // sopra questa soglia per holdMs → active
     public releaseThresholdDb    = -42;  // sotto questa soglia per holdMs → inactive (isteresi)
-    public activationHoldMs      = 80;   // ms per cui il segnale deve superare la soglia
-    public releaseHoldMs         = 1500; // ms di silenzio prima del rilascio
+    public activationHoldMs      = 10;   // ms per cui il segnale deve superare la soglia (broadcast: reattivo)
+    public releaseHoldMs         = 200;  // ms di silenzio prima del rilascio (broadcast: evita pompa ma resta veloce)
 
     private static readonly POLL_INTERVAL_MS = 40; // ~25fps
     private static readonly FFT_SIZE          = 1024;
@@ -110,20 +113,30 @@ class MicManager {
 
             this.analyser = this.audioCtx.createAnalyser();
             this.analyser.fftSize = MicManager.FFT_SIZE;
-            this.analyser.smoothingTimeConstant = 0.25;
+            this.analyser.smoothingTimeConstant = 0.1; // basso: risposta rapida per il gate
 
             this.source = this.audioCtx.createMediaStreamSource(this.stream);
             this.source.connect(this.analyser);
 
-            // v1.0.0+ — Routing al mix master
+            // v1.0.0+ — Routing al mix master (monitoring)
             this.micGain = this.audioCtx.createGain();
             this.micGain.gain.value = this._mixEnabled ? this._volume : 0;
-            
+
             this.source.connect(this.micGain);
-            
+
             if (this._mixEnabled) {
                 this._connectToMix();
             }
+
+            // v1.2.2 — Routing al recording bus (sempre attivo quando armato)
+            // gain = 0 se mixEnabled (il mic arriva al recording già via master chain)
+            // gain = 1 se mixEnabled = false (Rodecaster/hardware monitor: mic solo nel recording)
+            const { default: AudioContextManager } = await import('./AudioContextManager');
+            const acmForRec = AudioContextManager.getInstance();
+            this.micRecordingGain = this.audioCtx.createGain();
+            this.micRecordingGain.gain.value = this._mixEnabled ? 0 : 1;
+            this.source.connect(this.micRecordingGain);
+            this.micRecordingGain.connect(acmForRec.getRecordingBus());
 
             this._isArmed = true;
             this._isMicActive = false;
@@ -165,16 +178,21 @@ class MicManager {
         if (options.bypass !== undefined) this._bypassProcessing = options.bypass;
 
         if (this._isArmed && this.micGain) {
-            // Applica volume (rampa fluida 50ms)
+            // Applica volume monitoring (rampa fluida 50ms)
             const targetGain = this._mixEnabled ? this._volume : 0;
             this.micGain.gain.setTargetAtTime(targetGain, this.audioCtx!.currentTime, 0.05);
 
-            // Se il bypass è cambiato, ricollega il nodo
+            // Se il bypass è cambiato, ricollega il nodo monitoring
             if (bypassChanged && this._mixEnabled) {
                 this._connectToMix();
             } else if (this._mixEnabled && !this.micGain.numberOfOutputs) {
-                // Se abilitato ma non connesso (es. era disabilitato all'arm)
                 this._connectToMix();
+            }
+
+            // v1.2.2 — Aggiorna il recording gain: diretto se non in monitoring mix
+            if (this.micRecordingGain) {
+                const recGain = this._mixEnabled ? 0 : 1;
+                this.micRecordingGain.gain.setTargetAtTime(recGain, this.audioCtx!.currentTime, 0.05);
             }
         }
     }
@@ -212,6 +230,10 @@ class MicManager {
         if (this.micGain) {
             try { this.micGain.disconnect(); } catch { /* noop */ }
             this.micGain = null;
+        }
+        if (this.micRecordingGain) {
+            try { this.micRecordingGain.disconnect(); } catch { /* noop */ }
+            this.micRecordingGain = null;
         }
         if (this.analyser) {
             try { this.analyser.disconnect(); } catch { /* noop */ }

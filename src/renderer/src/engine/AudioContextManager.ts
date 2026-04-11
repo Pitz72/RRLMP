@@ -47,6 +47,7 @@ class AudioContextManager {
     private analyserL: AnalyserNode;
     private analyserR: AnalyserNode;
     private splitter: ChannelSplitterNode;
+    private recordingBus: GainNode; // v1.2.2 — tap point per recording (clips + mic direct)
 
     // Buses
     private musicBus: GainNode;
@@ -94,12 +95,17 @@ class AudioContextManager {
         this.analyserL.smoothingTimeConstant = 0.8;
         this.analyserR.smoothingTimeConstant = 0.8;
 
-        // --- Wiring: masterGain → HPF → Compressor → Limiter → destination + splitter ---
+        // v1.2.2 — Recording bus: riceve il segnale dal limiter + mic diretto (quando mixEnabled=false)
+        this.recordingBus = this.context.createGain();
+        this.recordingBus.gain.value = 1.0;
+
+        // --- Wiring: masterGain → HPF → Compressor → Limiter → destination + splitter + recordingBus ---
         this.masterGain.connect(this.hpf);
         this.hpf.connect(this.compressor);
         this.compressor.connect(this.limiter);
         this.limiter.connect(this.context.destination);
         this.limiter.connect(this.splitter);
+        this.limiter.connect(this.recordingBus);
         this.splitter.connect(this.analyserL, 0);
         this.splitter.connect(this.analyserR, 1);
 
@@ -144,9 +150,17 @@ class AudioContextManager {
     public getSfxBus(): GainNode { return this.sfxBus; }
     public getAssetsBus(): GainNode { return this.assetsBus; }
 
-    /** Restituisce l'ultimo nodo della catena master (Limiter), utile per il tap point della registrazione. */
+    /** Restituisce l'ultimo nodo della catena master (Limiter), utile per il tap point della registrazione.
+     * @deprecated Usa getRecordingBus() per il tap della registrazione (include mic diretto).
+     */
     public getMasterOutput(): AudioNode {
         return this.limiter;
+    }
+
+    /** v1.2.2 — Recording bus: mix di limiter output + mic diretto (quando mixEnabled=false).
+     * Questo è il punto di tap corretto per AudioRecorder. */
+    public getRecordingBus(): GainNode {
+        return this.recordingBus;
     }
 
     public async resume(): Promise<void> {

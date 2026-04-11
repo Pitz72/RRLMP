@@ -76,7 +76,7 @@ const getBusForType = (type: string) => {
  * il glitch "parte a pieno volume poi scende" quando il ducking è attivo.
  * Per tutte le altre clip già in play si usa duckingDuration (smooth).
  */
-const evaluateMix = (activeClips: Record<string, ActiveClipState>, newClipId?: string) => {
+const evaluateMix = (activeClips: Record<string, ActiveClipState>, newClipId?: string, overrideDuration?: number) => {
     const activeValues = Object.values(activeClips);
     const { duckingFactor, duckingDuration } = useSettingsStore.getState();
 
@@ -136,8 +136,8 @@ const evaluateMix = (activeClips: Record<string, ActiveClipState>, newClipId?: s
         }
 
         // APPLY: istantaneo per la clip appena avviata (evita glitch ducking),
-        // smooth per le clip già in play.
-        const applyDuration = (newClipId && clip.id === newClipId) ? 0 : duckingDuration;
+        // smooth per le clip già in play. overrideDuration usato per mic-ducking rapido.
+        const applyDuration = (newClipId && clip.id === newClipId) ? 0 : (overrideDuration ?? duckingDuration);
         player.fadeTo(targetVolume, applyDuration);
     });
 };
@@ -641,9 +641,9 @@ export const useAudioStore = create<AudioStore>((set, get) => {
         setMicActive: (active: boolean) => {
             _isMicActiveGlobal = active;
             set({ isMicActive: active });
-            // Re-valuta il mix con il nuovo stato mic (ducking immediato)
+            // Re-valuta il mix con ramp rapido (60ms) — il mic ducking deve sentirsi immediato
             const { activeClips } = get();
-            evaluateMix(activeClips);
+            evaluateMix(activeClips, undefined, 60);
         },
 
         _syncProgress: () => {
