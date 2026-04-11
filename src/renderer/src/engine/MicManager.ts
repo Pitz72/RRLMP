@@ -53,7 +53,7 @@ class MicManager {
     public activationThresholdDb = -30;  // sopra questa soglia per holdMs → active
     public releaseThresholdDb    = -42;  // sotto questa soglia per holdMs → inactive (isteresi)
     public activationHoldMs      = 10;   // ms per cui il segnale deve superare la soglia (broadcast: reattivo)
-    public releaseHoldMs         = 600;  // ms di silenzio prima del rilascio — BBC R&D: 600-800ms per release naturale
+    public releaseHoldMs         = 200;  // ms di silenzio prima del rilascio (il timing corto va bene — la sfumatura è gestita dal ramp di evaluateMix)
 
     private static readonly POLL_INTERVAL_MS = 40; // ~25fps
     private static readonly FFT_SIZE          = 1024;
@@ -130,11 +130,12 @@ class MicManager {
 
             // v1.2.2 — Routing al recording bus (sempre attivo quando armato)
             // gain = 0 se mixEnabled (il mic arriva al recording già via master chain)
-            // gain = 3 se mixEnabled = false (Rodecaster/hardware monitor: mic solo nel recording,
-            //   boost +9.5dB per compensare il livello raw basso del segnale USB diretto)
+            // gain = _volume * 8 se mixEnabled=false (Rodecaster/hardware monitor):
+            //   boost scalabile dallo slider "Mic Vol" (+14dB a default 0.8, +18dB a 1.0)
+            //   per compensare il livello raw basso del segnale USB diretto vs. audio processato
             // Riusa 'manager' già dichiarato sopra — nessun import duplicato
             this.micRecordingGain = this.audioCtx.createGain();
-            this.micRecordingGain.gain.value = this._mixEnabled ? 0 : 3;
+            this.micRecordingGain.gain.value = this._mixEnabled ? 0 : (this._volume * 8);
             this.source.connect(this.micRecordingGain);
             this.micRecordingGain.connect(manager.getRecordingBus());
 
@@ -189,9 +190,9 @@ class MicManager {
                 this._connectToMix();
             }
 
-            // v1.2.2 — Aggiorna il recording gain: diretto se non in monitoring mix
+            // v1.2.2 — Aggiorna il recording gain: segue _volume quando non in monitoring mix
             if (this.micRecordingGain) {
-                const recGain = this._mixEnabled ? 0 : 3; // +9.5dB boost per segnale raw
+                const recGain = this._mixEnabled ? 0 : (this._volume * 8); // scalato dallo slider Mic Vol
                 this.micRecordingGain.gain.setTargetAtTime(recGain, this.audioCtx!.currentTime, 0.05);
             }
         }

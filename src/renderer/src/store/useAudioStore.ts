@@ -641,9 +641,10 @@ export const useAudioStore = create<AudioStore>((set, get) => {
         setMicActive: (active: boolean) => {
             _isMicActiveGlobal = active;
             set({ isMicActive: active });
-            // Re-valuta il mix con ramp rapido (60ms) — il mic ducking deve sentirsi immediato
             const { activeClips } = get();
-            evaluateMix(activeClips, undefined, 60);
+            // Duck-down (mic attivo): ramp 60ms — deve sentirsi immediato, nessun lag
+            // Duck-up (mic silenzioso): ramp 400ms — sfumatura graduale, evita lo scalino netto
+            evaluateMix(activeClips, undefined, active ? 60 : 400);
         },
 
         _syncProgress: () => {
