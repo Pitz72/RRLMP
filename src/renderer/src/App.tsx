@@ -31,6 +31,31 @@ function App() {
         AudioContextManager.getInstance().applyMasterChainSettings(masterChain);
     }, [masterChain]);
 
+    // v1.2.3 — Apertura diretta file .lmp da doppio click / file association OS
+    useEffect(() => {
+        const unsub = window.electron.onOpenFile(async (filePath: string) => {
+            try {
+                const result = await window.electron.loadProjectFromPath(filePath);
+                if (result.success && result.data) {
+                    const parsed = JSON.parse(result.data);
+                    if (parsed.project && parsed.project.columns) {
+                        useProjectStore.getState().loadProject(parsed.project, filePath);
+                        useAudioStore.getState().stopAll();
+                        useProjectStore.getState().setDirty(false);
+                        setShowWelcome(false);
+                    } else {
+                        toast('File LMP non valido o corrotto.', 'error');
+                    }
+                } else {
+                    toast('Impossibile aprire il file: ' + (result.error ?? 'errore sconosciuto'), 'error');
+                }
+            } catch (e) {
+                toast('Errore lettura file LMP.', 'error');
+            }
+        });
+        return unsub;
+    }, []);
+
     // GR5 Fix: Ripristino dispositivo audio all'avvio.
     // useSettingsStore persiste outputDeviceId in localStorage tramite Zustand persist.
     // Senza questo useEffect, il dispositivo salvato viene ignorato al riavvio:

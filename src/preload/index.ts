@@ -63,6 +63,13 @@ if (process.contextIsolated) {
             // Utilities
             openExternal: (url: string) => ipcRenderer.invoke('open-external', url),
             getPlatform: () => process.platform,
+            // v1.2.3 — Apertura diretta file .lmp da doppio click / file association OS
+            loadProjectFromPath: (filePath: string) => ipcRenderer.invoke('load-project-path', filePath),
+            onOpenFile: (callback: (filePath: string) => void) => {
+                const subscription = (_event: IpcRendererEvent, filePath: string) => callback(filePath);
+                ipcRenderer.on('open-file', subscription);
+                return () => ipcRenderer.removeListener('open-file', subscription);
+            },
             // v1.1.3 — Session Recording (fix preload mismatch)
             showSaveDialogRecording: (defaultName: string, format: string) => ipcRenderer.invoke('show-save-dialog-recording', defaultName, format),
             saveRecordingBuffer: (arrayBuffer: ArrayBuffer) => ipcRenderer.invoke('save-recording-buffer', arrayBuffer),

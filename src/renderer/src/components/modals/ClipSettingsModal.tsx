@@ -18,16 +18,13 @@ interface ClipSettingsModalProps {
     onDelete: (clipId: string) => void;
 }
 
-const COLORS = [
-    '#EF4444', // Red
-    '#F97316', // Orange
-    '#F59E0B', // Amber
-    '#10B981', // Emerald
-    '#06B6D4', // Cyan
-    '#3B82F6', // Blue
-    '#8B5CF6', // Violet
-    '#EC4899', // Pink
-    '#64748B', // Slate
+// 30 colori — stessa palette di ColumnHeader (5 righe x 6 colonne)
+const COLUMN_COLORS = [
+    '#EF4444', '#F97316', '#F59E0B', '#FB923C', '#DC2626', '#B45309',
+    '#84CC16', '#22C55E', '#10B981', '#14B8A6', '#65A30D', '#059669',
+    '#06B6D4', '#3B82F6', '#6366F1', '#0EA5E9', '#1D4ED8', '#0369A1',
+    '#8B5CF6', '#A855F7', '#EC4899', '#F43F5E', '#7C3AED', '#BE185D',
+    '#64748B', '#78716C', '#9CA3AF', '#D97706', '#A78BFA', '#FBBF24',
 ];
 
 export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOpen, onClose, onSave, onDelete }) => {
@@ -38,12 +35,14 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
     const isPreviewingThisClip = previewingClipIds.includes(clip.id);
     const columns = useProjectStore(s => s.columns);
 
+    const clipColumn = useMemo(() => columns.find(c => c.clips.some(cl => cl.id === clip.id)), [clip.id, columns]);
+    const effectiveDisplayColor = customColor ?? clipColumn?.customColor ?? clipColumn?.color ?? '#3B82F6';
+
     const hasNextClip = useMemo(() => {
-        const col = columns.find(c => c.clips.some(cl => cl.id === clip.id));
-        if (!col) return false;
-        const idx = col.clips.findIndex(cl => cl.id === clip.id);
-        return idx >= 0 && idx < col.clips.length - 1;
-    }, [clip.id, clip.type, columns]);
+        if (!clipColumn) return false;
+        const idx = clipColumn.clips.findIndex(cl => cl.id === clip.id);
+        return idx >= 0 && idx < clipColumn.clips.length - 1;
+    }, [clip.id, clipColumn]);
 
     const [activeTab, setActiveTab] = useState<'general' | 'markers' | 'notes'>('general');
     
@@ -52,7 +51,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
     const [isLooping, setIsLooping] = useState(clip.isLooping);
     const [nextAction, setNextAction] = useState<AudioClip['nextAction']>(clip.nextAction);
     const [duckingRole, setDuckingRole] = useState<AudioClip['duckingRole']>(clip.duckingRole);
-    const [customColor, setCustomColor] = useState(clip.customColor || clip.color);
+    const [customColor, setCustomColor] = useState<string | null>(clip.customColor ?? null);
     const [behavior, setBehavior] = useState<AudioClip['behavior']>(clip.behavior || 'normal');
     const [fadeIn, setFadeIn] = useState(clip.fadeIn || 0);
     const [fadeOut, setFadeOut] = useState(clip.fadeOut || 0);
@@ -72,7 +71,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             setIsLooping(clip.isLooping || false);
             setNextAction(clip.nextAction || 'stop');
             setDuckingRole(clip.duckingRole || 'none');
-            setCustomColor(clip.customColor || clip.color);
+            setCustomColor(clip.customColor ?? null);
             setFadeIn(clip.fadeIn || 0);
             setFadeOut(clip.fadeOut || 0);
             setBehavior(clip.behavior || 'normal');
@@ -96,7 +95,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             isLooping,
             nextAction,
             duckingRole,
-            customColor,
+            customColor: customColor ?? undefined,
             fadeIn: Number(fadeIn),
             fadeOut: Number(fadeOut),
             behavior,
@@ -152,7 +151,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                 <div className="border-b border-zinc-800 bg-zinc-950/50 rounded-t-lg">
                     <div className="p-4 flex justify-between items-center border-b border-zinc-800">
                         <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: customColor }}></span>
+                            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: effectiveDisplayColor }}></span>
                             {clip.name}
                         </h2>
                         <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">✕</button>
@@ -201,15 +200,29 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                 {/* COLORS */}
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Color Label</label>
-                                    <div className="flex flex-wrap gap-2 bg-zinc-950 p-2 rounded border border-zinc-800">
-                                        {COLORS.map((c) => (
+                                    <div className="space-y-2 bg-zinc-950 p-2 rounded border border-zinc-800">
+                                        <div className="grid grid-cols-6 gap-1.5">
+                                            {COLUMN_COLORS.map((c) => (
+                                                <button
+                                                    key={c}
+                                                    onClick={() => setCustomColor(c)}
+                                                    className="w-7 h-7 rounded-full transition-all hover:scale-125 hover:shadow-lg focus:outline-none"
+                                                    style={{
+                                                        backgroundColor: c,
+                                                        boxShadow: customColor === c ? `0 0 0 2px white, 0 0 0 4px ${c}` : undefined
+                                                    }}
+                                                    title={c}
+                                                />
+                                            ))}
+                                        </div>
+                                        {customColor && (
                                             <button
-                                                key={c}
-                                                onClick={() => setCustomColor(c)}
-                                                className={`w-6 h-6 rounded-full transition-transform hover:scale-110 ${customColor === c ? 'ring-2 ring-white scale-110' : ''}`}
-                                                style={{ backgroundColor: c }}
-                                            />
-                                        ))}
+                                                onClick={() => setCustomColor(null)}
+                                                className="w-full text-[10px] text-zinc-500 hover:text-zinc-200 transition-colors py-1 border border-zinc-800 hover:border-zinc-600 rounded"
+                                            >
+                                                ↺ Eredita colore dalla colonna
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
 

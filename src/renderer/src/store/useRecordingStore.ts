@@ -85,7 +85,7 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
         const now = new Date();
         const dateStr = now.toISOString().split('T')[0];
         const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-');
-        const defaultName = `RRLMP_REC_${dateStr}_${timeStr}.${format}`;
+        const defaultName = `RLMP_REC_${dateStr}_${timeStr}.${format}`;
 
         const result = await window.electron.showSaveDialogRecording(defaultName, format);
         if (result.canceled || !result.filePath) {

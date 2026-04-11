@@ -34,6 +34,9 @@ declare global {
             onExportProgress: (callback: (event: unknown, data: { current: number; total: number; filename: string }) => void) => () => void;
             onCheckCloseIntent: (callback: () => void) => () => void;
             onEmergencyStop: (callback: () => void) => () => void;
+            // v1.2.3 — Apertura diretta file .lmp da file association OS
+            loadProjectFromPath: (filePath: string) => Promise<{ success: boolean; data?: string; filePath?: string; error?: string }>;
+            onOpenFile: (callback: (filePath: string) => void) => () => void;
             importM3u: () => Promise<{ success: boolean; paths?: string[]; error?: string }>;
             // v1.1.1+ — Session Recording (Chunk-based)
             startRecording: () => Promise<{ success: boolean; path?: string; error?: string }>;

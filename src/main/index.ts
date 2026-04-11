@@ -15,7 +15,25 @@ protocol.registerSchemesAsPrivileged([
     { scheme: 'media', privileges: { secure: true, supportFetchAPI: true, stream: true } }
 ]);
 
-function createWindow(): void {
+// v1.2.3 — Supporto apertura file .lmp da file association OS
+// mainWindow a livello modulo per consentire l'accesso dall'handler open-file (macOS)
+let mainWindowRef: BrowserWindow | null = null;
+// pendingOpenFilePath: il file può arrivare PRIMA che la finestra sia pronta (macOS)
+let pendingOpenFilePath: string | null = null;
+
+// macOS: app.on('open-file') deve essere registrato PRIMA di app.whenReady()
+// altrimenti l'evento viene perso se il file è aperto mentre l'app non è ancora avviata
+app.on('open-file', (event, filePath) => {
+    event.preventDefault();
+    if (!filePath.endsWith('.lmp')) return;
+    if (mainWindowRef && !mainWindowRef.isDestroyed()) {
+        mainWindowRef.webContents.send('open-file', filePath);
+    } else {
+        pendingOpenFilePath = filePath;
+    }
+});
+
+function createWindow(initialFilePath?: string): void {
     // Create the browser window.
     const iconPath = join(__dirname, '../../build/icon.png');
     const appIcon = nativeImage.createFromPath(iconPath);
@@ -39,8 +57,21 @@ function createWindow(): void {
 
     mainWindow.maximize(); // Start Maximized
 
+    mainWindowRef = mainWindow;
+
     mainWindow.on('ready-to-show', () => {
         mainWindow.show();
+        // v1.2.3 — Apertura diretta file .lmp da doppio click / file association OS
+        // Windows: path da process.argv; macOS: path da pendingOpenFilePath (open-file event)
+        const fileToOpen = initialFilePath ?? pendingOpenFilePath;
+        if (fileToOpen && fs.existsSync(fileToOpen)) {
+            mainWindow.webContents.send('open-file', fileToOpen);
+        }
+        pendingOpenFilePath = null;
+    });
+
+    mainWindow.on('closed', () => {
+        mainWindowRef = null;
     });
 
     // CLOSING HANDSHAKE
@@ -499,6 +530,30 @@ ipcMain.handle('open-external', async (_event, url: string) => {
     await shell.openExternal(url);
 });
 
+// v1.2.3 — Carica un progetto direttamente dal path (senza dialog) — usato da open-file / argv
+ipcMain.handle('load-project-path', async (_event, filePath: string) => {
+    try {
+        if (!fs.existsSync(filePath)) return { success: false, error: 'File not found' };
+        const content = fs.readFileSync(filePath, 'utf-8');
+        try {
+            const parsed = JSON.parse(content) as any;
+            if (parsed && parsed.project && parsed.project.columns) {
+                parsed.project.columns.forEach((col: any) => {
+                    col.clips.forEach((clip: any) => {
+                        clip.isMissing = !fs.existsSync(clip.path);
+                    });
+                });
+            }
+            return { success: true, data: JSON.stringify(parsed), filePath };
+        } catch (e) {
+            return { success: true, data: content, filePath };
+        }
+    } catch (error) {
+        console.error('[Main] load-project-path failed:', error);
+        return { success: false, error: String(error) };
+    }
+});
+
 
 app.whenReady().then(() => {
     // Handle media:// protocol
@@ -599,7 +654,10 @@ app.whenReady().then(() => {
 
     if (process.platform === 'win32') app.setAppUserModelId('com.electron');
 
-    createWindow();
+    // v1.2.3 — Rileva file .lmp passato come argomento (doppio click / file association OS)
+    // Su Windows l'OS passa il path come process.argv[1] quando l'app è registrata come handler
+    const initialFilePath = process.argv.find(arg => arg.endsWith('.lmp'));
+    createWindow(initialFilePath);
 
     // v0.17.0 — Smart Mic: approva automaticamente i permessi getUserMedia (audio)
     // Electron 28 richiede che il main process approvi esplicitamente le richieste
