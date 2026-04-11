@@ -36,7 +36,6 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
     const columns = useProjectStore(s => s.columns);
 
     const clipColumn = useMemo(() => columns.find(c => c.clips.some(cl => cl.id === clip.id)), [clip.id, columns]);
-    const effectiveDisplayColor = customColor ?? clipColumn?.customColor ?? clipColumn?.color ?? '#3B82F6';
 
     const hasNextClip = useMemo(() => {
         if (!clipColumn) return false;
@@ -62,6 +61,9 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
     const [outroMarker, setOutroMarker] = useState(clip.outroMarker || 0);
     const [transitionType, setTransitionType] = useState<AudioClip['transitionType']>(clip.transitionType || 'default');
     const [notes, setNotes] = useState(clip.notes || '');
+
+    // Colore effettivo da mostrare: custom clip > custom colonna > colore colonna > fallback
+    const effectiveDisplayColor = customColor ?? clipColumn?.customColor ?? clipColumn?.color ?? '#3B82F6';
 
     // Reset state when clip changes or modal opens
     useEffect(() => {
