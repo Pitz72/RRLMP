@@ -1,39 +1,39 @@
-ï»¿# KAPITEL 4: ERWEITERTE CLIP-BEARBEITUNG (EIGENSCHAFTEN)
+# KAPITEL 4: ERWEITERTE CLIP-BEARBEITUNG (EIGENSCHAFTEN)
 
-Jede Audiodatei ist anders: Einige haben lange anfÃ¤ngliche Stille, andere haben eine zu geringe LautstÃ¤rke, wieder andere mÃ¼ssen sich endlos wiederholen.
-Um auf das erweiterte Konfigurationsfeld zuzugreifen, machen Sie einen **Rechtsklick** auf einen beliebigen Clip und wÃ¤hlen Sie **"Edit"** (Bearbeiten).
+Jede Audiodatei ist anders: Einige haben lange anfängliche Stille, andere haben eine zu geringe Lautstärke, wieder andere müssen sich endlos wiederholen.
+Um auf das erweiterte Konfigurationsfeld zuzugreifen, machen Sie einen **Rechtsklick** auf einen beliebigen Clip und wählen Sie **"Edit"** (Bearbeiten).
 
-Es Ã¶ffnet sich ein modales Fenster, das in zwei Hauptbereiche unterteilt ist: **Visual & Basic** (Links) und **Behavior & Timing** (Rechts).
+Es öffnet sich ein modales Fenster, das in zwei Hauptbereiche unterteilt ist: **Visual & Basic** (Links) und **Behavior & Timing** (Rechts).
 
 ---
 
 ## 4.1 Grundeinstellungen (Visuell & Audio)
 
-In diesem Abschnitt steuern Sie das Erscheinungsbild und die Roh-LautstÃ¤rke des Clips.
+In diesem Abschnitt steuern Sie das Erscheinungsbild und die Roh-Lautstärke des Clips.
 
-*   **Clip-Name**: Sie kÃ¶nnen den Clip nach Belieben umbenennen (z. B. von 	rack_01_final.mp3 in ERÃ–FFNUNGSTHEMA). Dies Ã¤ndert nur das Etikett in der Software, nicht den ursprÃ¼nglichen Dateinamen auf der Festplatte.
-*   **LautstÃ¤rke (Gain)**: Ein Schieberegler von 0% bis 150%.
-    *   Wenn Sie eine leise Aufnahme haben (z. B. eine WhatsApp-Sprachnachricht), kÃ¶nnen Sie sie Ã¼ber 100% schieben, um sie an den Rest der Show anzupassen.
-*   **Benutzerdefinierte Farbe**: StandardmÃ¤ÃŸig erbt der Clip die Farbe seiner Spalte (z. B. GrÃ¼n fÃ¼r Assets). Hier kÃ¶nnen Sie eine andere Farbe erzwingen, um ihn hervorzuheben (z. B. einen wichtigen Jingle in der grauen Spalte rot fÃ¤rben).
+*   **Clip-Name**: Sie können den Clip nach Belieben umbenennen (z. B. von 	rack_01_final.mp3 in ERÖFFNUNGSTHEMA). Dies ändert nur das Etikett in der Software, nicht den ursprünglichen Dateinamen auf der Festplatte.
+*   **Lautstärke (Gain)**: Ein Schieberegler von 0% bis 150%.
+    *   Wenn Sie eine leise Aufnahme haben (z. B. eine WhatsApp-Sprachnachricht), können Sie sie über 100% schieben, um sie an den Rest der Show anzupassen.
+*   **Benutzerdefinierte Farbe**: Standardmäßig erbt der Clip die Farbe seiner Spalte (z. B. Grün für Assets). Hier können Sie eine andere Farbe erzwingen, um ihn hervorzuheben (z. B. einen wichtigen Jingle in der grauen Spalte rot färben).
 
 ---
 
-## 4.2 Chirurgische PrÃ¤zision: Cue-Punkte & Trimmen
+## 4.2 Chirurgische Präzision: Cue-Punkte & Trimmen
 
-Oft sind Audiodateien nicht "sendebereit": Sie haben Sekunden der Stille am Anfang oder zu lange AuslÃ¤ufe. Anstatt einen externen Audio-Editor zu verwenden, kÃ¶nnen Sie sie hier korrigieren. Diese Ã„nderungen sind **nicht-destruktiv** (die Originaldatei bleibt intakt).
+Oft sind Audiodateien nicht "sendebereit": Sie haben Sekunden der Stille am Anfang oder zu lange Ausläufe. Anstatt einen externen Audio-Editor zu verwenden, können Sie sie hier korrigieren. Diese Änderungen sind **nicht-destruktiv** (die Originaldatei bleibt intakt).
 
 ### Manuelle Steuerung
-*   **Trim Start (Anfang)**: Legt fest, wie viele Sekunden am Anfang Ã¼bersprungen werden sollen.
-    *   *Beispiel*: Wenn Sie 2.5 einstellen, startet der Clip beim DrÃ¼cken von Play sofort ab Sekunde 2.5 und Ã¼berspringt die anfÃ¤ngliche Stille ("auf Schlag").
+*   **Trim Start (Anfang)**: Legt fest, wie viele Sekunden am Anfang übersprungen werden sollen.
+    *   *Beispiel*: Wenn Sie 2.5 einstellen, startet der Clip beim Drücken von Play sofort ab Sekunde 2.5 und überspringt die anfängliche Stille ("auf Schlag").
 *   **Trim End (Ende)**: Legt fest, wie viele Sekunden am Ende abgeschnitten werden sollen.
-    *   *Beispiel*: Wenn der Song 20 Sekunden unnÃ¶tigen Schlussapplaus hat, erhÃ¶hen Sie diesen Wert, bis die "Neue Dauer" Sie zufriedenstellt.
+    *   *Beispiel*: Wenn der Song 20 Sekunden unnötigen Schlussapplaus hat, erhöhen Sie diesen Wert, bis die "Neue Dauer" Sie zufriedenstellt.
 
-### ğŸª„ Der Zauberstab (Smart Trim / Auto-Detect)
-Um die Arbeit zu beschleunigen, enthÃ¤lt RLM einen grundlegenden Algorithmus fÃ¼r kÃ¼nstliche Intelligenz.
-1.  Klicken Sie auf die SchaltflÃ¤che mit dem **Zauberstab**-Symbol neben den Trim-Steuerelementen.
+### ?? Der Zauberstab (Smart Trim / Auto-Detect)
+Um die Arbeit zu beschleunigen, enthält RRLMP einen grundlegenden Algorithmus für künstliche Intelligenz.
+1.  Klicken Sie auf die Schaltfläche mit dem **Zauberstab**-Symbol neben den Trim-Steuerelementen.
 2.  Die Software scannt die Datei in Sekundenbruchteilen.
-3.  Erkennt automatisch, wo der eigentliche Ton beginnt und endet (Ã¼ber dem Schwellenwert von -40dB).
-4.  FÃ¼llt die Felder *Start* und *End* automatisch fÃ¼r Sie aus.
+3.  Erkennt automatisch, wo der eigentliche Ton beginnt und endet (über dem Schwellenwert von -40dB).
+4.  Füllt die Felder *Start* und *End* automatisch für Sie aus.
 
 > **Tipp**: Verwenden Sie den Zauberstab immer bei Sprachaufnahmen oder Interviews, um sie sofort zu bereinigen.
 
@@ -43,32 +43,32 @@ Um die Arbeit zu beschleunigen, enthÃ¤lt RLM einen grundlegenden Algorithmus fÃ¼
 
 Hier definieren Sie die Intelligenz des Clips: was er tun soll, wenn er startet, und was er tun soll, wenn er endet.
 
-### Behavior (Ãœberlagerungsmodus)
-*   **Normal (Standard)**: Wenn Sie diesen Clip starten, wird jeder andere Clip, der **in derselben Spalte** spielt, gestoppt. Dies ist das Standardverhalten fÃ¼r Songs (einer schlieÃŸt den anderen aus).
-*   **Stacco** (Unterbrechung): Wenn Sie diesen Clip starten, stoppt er andere Clips in der Spalte **NICHT**, sondern schaltet sie vorÃ¼bergehend "stumm" (oder Ã¼berlagert sie).
-    *   *Typische Verwendung*: Ein Soundeffekt oder ein Sprach-Jingle, den Sie Ã¼ber ein Musikbett in derselben Spalte spielen mÃ¶chten, ohne das Bett zu unterbrechen.
+### Behavior (Überlagerungsmodus)
+*   **Normal (Standard)**: Wenn Sie diesen Clip starten, wird jeder andere Clip, der **in derselben Spalte** spielt, gestoppt. Dies ist das Standardverhalten für Songs (einer schließt den anderen aus).
+*   **Stacco** (Unterbrechung): Wenn Sie diesen Clip starten, stoppt er andere Clips in der Spalte **NICHT**, sondern schaltet sie vorübergehend "stumm" (oder überlagert sie).
+    *   *Typische Verwendung*: Ein Soundeffekt oder ein Sprach-Jingle, den Sie über ein Musikbett in derselben Spalte spielen möchten, ohne das Bett zu unterbrechen.
 
 ### Next Action (Finale Automation)
 Was passiert, wenn der Clip endet?
 *   **Stop**: Der Clip endet und stoppt. (Standardverhalten).
-*   **Loop**: Der Clip startet endlos von vorne. NÃ¼tzlich fÃ¼r Betten und HintergrÃ¼nde. Ein **[LOOP]**-Badge erscheint auf der Karte.
-*   **Play Next**: Sobald dieser Clip zu verblassen beginnt (Fade Out), startet die Software automatisch den nÃ¤chsten Clip in der Spalte.
-    *   *Crossfade*: Der Ãœbergang ist flieÃŸend, ohne Stille-LÃ¼cken. Ein **[NEXT]**-Badge erscheint auf der Karte.
+*   **Loop**: Der Clip startet endlos von vorne. Nützlich für Betten und Hintergründe. Ein **[LOOP]**-Badge erscheint auf der Karte.
+*   **Play Next**: Sobald dieser Clip zu verblassen beginnt (Fade Out), startet die Software automatisch den nächsten Clip in der Spalte.
+    *   *Crossfade*: Der Übergang ist fließend, ohne Stille-Lücken. Ein **[NEXT]**-Badge erscheint auf der Karte.
 
 ---
 
-## 4.4 Fades (Ãœberblendungen)
+## 4.4 Fades (Überblendungen)
 
-Jede Spalte hat Standardwerte (z. B. Musik blendet in 2 Sekunden ein, Jingles sind trocken), aber hier kÃ¶nnen Sie diese Ã¼berschreiben.
+Jede Spalte hat Standardwerte (z. B. Musik blendet in 2 Sekunden ein, Jingles sind trocken), aber hier können Sie diese überschreiben.
 
-*   **Fade In (ms)**: Wie lange die LautstÃ¤rke benÃ¶tigt, um das Maximum zu erreichen, wenn Sie Play drÃ¼cken. (z. B. 2000ms = 2 Sekunden allmÃ¤hlicher Anstieg).
-*   **Fade Out (ms)**: Wie lange es dauert, bis ausgeblendet wird, wenn Sie Stop drÃ¼cken oder wenn der Clip natÃ¼rlich endet.
-    *   *Hinweis*: Ein langes Fade Out ist fÃ¼r Songs nÃ¼tzlich. Ein Fade Out bei 0 ist fÃ¼r harte Schnitte obligatorisch.
+*   **Fade In (ms)**: Wie lange die Lautstärke benötigt, um das Maximum zu erreichen, wenn Sie Play drücken. (z. B. 2000ms = 2 Sekunden allmählicher Anstieg).
+*   **Fade Out (ms)**: Wie lange es dauert, bis ausgeblendet wird, wenn Sie Stop drücken oder wenn der Clip natürlich endet.
+    *   *Hinweis*: Ein langes Fade Out ist für Songs nützlich. Ein Fade Out bei 0 ist für harte Schnitte obligatorisch.
 
 ---
 
 ## 4.5 Zuweisung von Steuerungen (Input)
 
-Am unteren Rand des Panels finden Sie die Referenzen fÃ¼r die externe Steuerung:
-*   **Trigger Keybind**: Klicken Sie hier und drÃ¼cken Sie eine Taste auf der Tastatur (z. B. "Q"), um sie diesem Clip zuzuweisen.
-*   **MIDI Bind**: Zeigt die zugewiesene MIDI-Note an (z. B. NOTE:60). Um sie zu Ã¤ndern, verwenden Sie den Modus "MIDI Learn" vom Hauptbildschirm aus (siehe Kap. 6).
+Am unteren Rand des Panels finden Sie die Referenzen für die externe Steuerung:
+*   **Trigger Keybind**: Klicken Sie hier und drücken Sie eine Taste auf der Tastatur (z. B. "Q"), um sie diesem Clip zuzuweisen.
+*   **MIDI Bind**: Zeigt die zugewiesene MIDI-Note an (z. B. NOTE:60). Um sie zu ändern, verwenden Sie den Modus "MIDI Learn" vom Hauptbildschirm aus (siehe Kap. 6).

@@ -29,7 +29,7 @@ Spesso i file audio non sono "pronti per la messa in onda": hanno secondi di sil
     *   *Esempio*: Se la canzone ha 20 secondi di applausi finali inutili, aumenta questo valore finché il "New Duration" non ti soddisfa.
 
 ### 🪄 La Bacchetta Magica (Smart Trim / Auto-Detect)
-Per velocizzare il lavoro, RLM include un algoritmo di intelligenza artificiale di base.
+Per velocizzare il lavoro, RRLMP include un algoritmo di intelligenza artificiale di base.
 1.  Clicca sul pulsante con l'icona **Bacchetta Magica** accanto ai controlli Trim.
 2.  Il software scansiona il file in una frazione di secondo.
 3.  Rileva automaticamente dove inizia e finisce il suono reale (sopra la soglia di -40dB).

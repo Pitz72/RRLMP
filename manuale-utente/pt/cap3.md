@@ -1,66 +1,66 @@
-ï»¿# CAPÃTULO 3: GESTÃƒO DE ÃUDIO (FLUXO DE TRABALHO BÃSICO)
+# CAPÍTULO 3: GESTÃO DE ÁUDIO (FLUXO DE TRABALHO BÁSICO)
 
-Agora que conhece a interface, Ã© altura de "carregar a mÃ¡quina".
-Neste capÃ­tulo aprenderÃ¡ como importar ficheiros de Ã¡udio, como controlar a reproduÃ§Ã£o e como manter o seu alinhamento ordenado.
+Agora que conhece a interface, é altura de "carregar a máquina".
+Neste capítulo aprenderá como importar ficheiros de áudio, como controlar a reprodução e como manter o seu alinhamento ordenado.
 
 ---
 
-## 3.1 ImportaÃ§Ã£o (Drag & Drop)
+## 3.1 Importação (Drag & Drop)
 
-O Runtime Live Machine nÃ£o utiliza menus complexos "Ficheiro > Importar". Foi concebido para trabalhar diretamente com as pastas do seu computador.
+O Runtime Live Machine Pro não utiliza menus complexos "Ficheiro > Importar". Foi concebido para trabalhar diretamente com as pastas do seu computador.
 
 ### Como carregar os ficheiros
-1.  Abra a pasta do seu computador (Explorador de Ficheiros no Windows ou Finder no Mac) onde guarda os seus ficheiros de Ã¡udio.
+1.  Abra a pasta do seu computador (Explorador de Ficheiros no Windows ou Finder no Mac) onde guarda os seus ficheiros de áudio.
 2.  Clique no ficheiro desejado e, mantendo premido, **arraste-o** para dentro de uma das 5 colunas do software.
 3.  Solte o rato.
 
-O clip aparecerÃ¡ instantaneamente como um novo CartÃ£o.
+O clip aparecerá instantaneamente como um novo Cartão.
 
-### Detalhes de ImportaÃ§Ã£o
-*   **Carregamento MÃºltiplo**: Pode selecionar 10, 20 ou 50 ficheiros simultaneamente da sua pasta e arrastÃ¡-los todos juntos. O software criarÃ¡ um cartÃ£o para cada um deles em sequÃªncia.
-*   **Formatos Suportados**: GraÃ§as ao motor nativo, o RLM suporta quase todos os formatos de Ã¡udio padrÃ£o: **MP3, WAV, AAC (m4a), OGG, FLAC**.
-*   **Performance**: NÃ£o importa se carrega um jingle de 2 segundos ou um DJ Set de 2 horas em formato WAV nÃ£o comprimido. O carregamento Ã© **instantÃ¢neo** e nÃ£o consome a memÃ³ria RAM do computador, graÃ§as Ã  tecnologia *Direct Disk Streaming*.
+### Detalhes de Importação
+*   **Carregamento Múltiplo**: Pode selecionar 10, 20 ou 50 ficheiros simultaneamente da sua pasta e arrastá-los todos juntos. O software criará um cartão para cada um deles em sequência.
+*   **Formatos Suportados**: Graças ao motor nativo, o RRLMP suporta quase todos os formatos de áudio padrão: **MP3, WAV, AAC (m4a), OGG, FLAC**.
+*   **Performance**: Não importa se carrega um jingle de 2 segundos ou um DJ Set de 2 horas em formato WAV não comprimido. O carregamento é **instantâneo** e não consome a memória RAM do computador, graças à tecnologia *Direct Disk Streaming*.
 
-> **Nota**: O software memoriza o "caminho" do ficheiro (ex. C:\Musica\Song.mp3). Se mover ou renomear o ficheiro original no seu computador, o RLM deixarÃ¡ de o conseguir encontrar (o cartÃ£o ficarÃ¡ vermelho/inativo). Para evitar este problema se mudar de PC, use a funÃ§Ã£o "Export Package" (ver Cap. 7).
+> **Nota**: O software memoriza o "caminho" do ficheiro (ex. C:\Musica\Song.mp3). Se mover ou renomear o ficheiro original no seu computador, o RRLMP deixará de o conseguir encontrar (o cartão ficará vermelho/inativo). Para evitar este problema se mudar de PC, use a função "Export Package" (ver Cap. 7).
 
 ---
 
-## 3.2 ReproduÃ§Ã£o (Play & Stop)
+## 3.2 Reprodução (Play & Stop)
 
-O sistema de reproduÃ§Ã£o estÃ¡ otimizado para evitar erros em direto.
+O sistema de reprodução está otimizado para evitar erros em direto.
 
 ### Iniciar um Clip (Play)
-*   **Clique Esquerdo**: Clique uma vez num cartÃ£o para o iniciar.
-*   **Feedback**: A borda do cartÃ£o torna-se **Verde Brilhante**, o Ã­cone "Play" pulsa e o temporizador inicia a contagem decrescente.
-*   **Barra de EspaÃ§os**: Se tiver atribuÃ­do uma tecla personalizada ao clip (ver Cap. 6), pode premi-la para o iniciar sem usar o rato.
+*   **Clique Esquerdo**: Clique uma vez num cartão para o iniciar.
+*   **Feedback**: A borda do cartão torna-se **Verde Brilhante**, o ícone "Play" pulsa e o temporizador inicia a contagem decrescente.
+*   **Barra de Espaços**: Se tiver atribuído uma tecla personalizada ao clip (ver Cap. 6), pode premi-la para o iniciar sem usar o rato.
 
 ### Parar um Clip (Stop / Fade)
-*   **Clique em Clip Ativo**: Se clicar num clip que jÃ¡ esteja a tocar, este irÃ¡ parar.
-    *   *Comportamento PadrÃ£o*: O clip executa um **Fade Out** (desvanecimento) rÃ¡pido em vez de cortar abruptamente, para um efeito mais profissional. (Os tempos de fade sÃ£o personalizÃ¡veis, ver Cap. 4).
-*   **Stop All**: Para parar tudo imediatamente (sem desvanecimentos), prima a **Barra de EspaÃ§os** (se configurada), a tecla **ESC** ou o botÃ£o vermelho **STOP ALL** no topo.
+*   **Clique em Clip Ativo**: Se clicar num clip que já esteja a tocar, este irá parar.
+    *   *Comportamento Padrão*: O clip executa um **Fade Out** (desvanecimento) rápido em vez de cortar abruptamente, para um efeito mais profissional. (Os tempos de fade são personalizáveis, ver Cap. 4).
+*   **Stop All**: Para parar tudo imediatamente (sem desvanecimentos), prima a **Barra de Espaços** (se configurada), a tecla **ESC** ou o botão vermelho **STOP ALL** no topo.
 
-### A Regra da Coluna (ExclusÃ£o)
-Numa realizaÃ§Ã£o de rÃ¡dio, geralmente nÃ£o quer que duas mÃºsicas toquem simultaneamente uma sobre a outra.
-*   **Regra**: Se na coluna "MÃšSICAS" estiver a tocar a *MÃºsica A* e clicar na *MÃºsica B* (na mesma coluna), a *MÃºsica A* para automaticamente (desvanecendo) e a *MÃºsica B* comeÃ§a.
-*   **ExceÃ§Ã£o**: Esta regra nÃ£o se aplica Ã  coluna "SFX" ou a clips definidos como "InterrupÃ§Ã£o" (Stacco), que podem tocar sobre os outros.
+### A Regra da Coluna (Exclusão)
+Numa realização de rádio, geralmente não quer que duas músicas toquem simultaneamente uma sobre a outra.
+*   **Regra**: Se na coluna "MÚSICAS" estiver a tocar a *Música A* e clicar na *Música B* (na mesma coluna), a *Música A* para automaticamente (desvanecendo) e a *Música B* começa.
+*   **Exceção**: Esta regra não se aplica à coluna "SFX" ou a clips definidos como "Interrupção" (Stacco), que podem tocar sobre os outros.
 
 ---
 
-## 3.3 OrganizaÃ§Ã£o do Alinhamento
+## 3.3 Organização do Alinhamento
 
-Durante um show, as necessidades mudam. O RLM permite-lhe reorganizar a grelha na hora.
+Durante um show, as necessidades mudam. O RRLMP permite-lhe reorganizar a grelha na hora.
 
 ### Mover os Clips (Reordenar)
-Carregou o alinhamento mas decidiu mudar a ordem das mÃºsicas?
-*   Clique num clip e, mantendo premido, **arraste-o** para cima ou para baixo. Uma linha guia mostrar-lhe-Ã¡ onde aterrarÃ¡.
-*   **Movimento entre Colunas**: Pode arrastar um clip de uma coluna para outra (ex. do "PrÃ©-Show" para a coluna "MÃºsica").
-    *   *AtenÃ§Ã£o*: Quando move um clip, este **herda as regras da nova coluna**. Se mover um jingle para a coluna MÃºsica, comeÃ§arÃ¡ a comportar-se como uma mÃºsica (sofrerÃ¡ ducking das vozes, etc.).
+Carregou o alinhamento mas decidiu mudar a ordem das músicas?
+*   Clique num clip e, mantendo premido, **arraste-o** para cima ou para baixo. Uma linha guia mostrar-lhe-á onde aterrará.
+*   **Movimento entre Colunas**: Pode arrastar um clip de uma coluna para outra (ex. do "Pré-Show" para a coluna "Música").
+    *   *Atenção*: Quando move um clip, este **herda as regras da nova coluna**. Se mover um jingle para a coluna Música, começará a comportar-se como uma música (sofrerá ducking das vozes, etc.).
 
-### SeleÃ§Ã£o MÃºltipla e EliminaÃ§Ã£o
+### Seleção Múltipla e Eliminação
 Para limpar rapidamente:
-1.  **SeleÃ§Ã£o Ãšnica**: Ctrl + Clique (Windows) ou Cmd + Clique (Mac) num clip seleciona-o (borda Azul) sem o fazer tocar.
-2.  **SeleÃ§Ã£o MÃºltipla**: Mantenha premido Ctrl e clique em diferentes clips para os realÃ§ar a todos.
-3.  **EliminaÃ§Ã£o**: Prima a tecla DEL (ou Delete / Backspace) no teclado.
-    *   O software pedir-lhe-Ã¡ confirmaÃ§Ã£o se estiver a eliminar muitos clips, para evitar erros acidentais.
+1.  **Seleção Única**: Ctrl + Clique (Windows) ou Cmd + Clique (Mac) num clip seleciona-o (borda Azul) sem o fazer tocar.
+2.  **Seleção Múltipla**: Mantenha premido Ctrl e clique em diferentes clips para os realçar a todos.
+3.  **Eliminação**: Prima a tecla DEL (ou Delete / Backspace) no teclado.
+    *   O software pedir-lhe-á confirmação se estiver a eliminar muitos clips, para evitar erros acidentais.
 
-> **Dica Pro**: Use a seleÃ§Ã£o mÃºltipla para esvaziar rapidamente a coluna "PrÃ©-Show" assim que o direto propriamente dito comeÃ§ar, para ter uma interface mais limpa.
+> **Dica Pro**: Use a seleção múltipla para esvaziar rapidamente a coluna "Pré-Show" assim que o direto propriamente dito começar, para ter uma interface mais limpa.

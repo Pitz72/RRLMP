@@ -1,38 +1,36 @@
-# RRLMP — Centro Documentazione
+# RRLMP — Centro Documentazione (v1.0.0)
 
-Benvenuto nel centro documentazione di **Runtime Radio Live Machine Pro**. Questo documento funge da indice e punto di ingresso unico per tutte le risorse del progetto.
+Benvenuto nel centro documentazione di **Runtime Live Machine Pro (RRLMP)**. Questo hub è il punto di ingresso unico per tutte le risorse del progetto.
 
 ---
 
-## 🛠️ Area Tecnica (Sviluppo & Architettura)
+## 🛠️ Area Tecnica (Sviluppatori)
 
 In questa sezione sono raccolti i documenti necessari per comprendere il funzionamento interno del software e la sua evoluzione.
 
-- **[Architettura di Progetto](./ARCHITECTURE.md)**: Linee guida, modello dei processi (Main/Renderer), strategia audio, IPC API, tipi e standard di sviluppo. *(Aggiornato a v0.16.5)*
-- **[Roadmap & Issue Backlog](./ROADMAP.md)**: Stato attuale dello sviluppo, criticità aperte e funzionalità pianificate. *(Aggiornato a v0.16.5)*
-- **[Visione Tecnica & Analisi Gap](./VISION.md)**: Analisi completa doc vs codice, debito tecnico, funzionalità da migliorare e funzionalità essenziali mancanti per il perfezionamento broadcast. *(Aggiornato a v0.16.5)*
-- **[Road to v1.0.0](./roadtov1.0.0.md)**: Analisi approfondita di ogni feature candidata alla release stabile: stato reale, architettura tecnica, difficoltà, stime e ordine consigliato. *(Nuovo — v0.16.5)*
+- **[Architettura di Progetto](./ARCHITECTURE.md)**: Linee guida, modello dei processi (Main/Renderer), strategia audio, IPC API e standard di sviluppo.
+- **[Visione Tecnica](./VISION.md)**: Filosofia del progetto, obiettivi a lungo termine e pilastri tecnologici.
+- **[Roadmap & Issue Backlog](./ROADMAP.md)**: Stato attuale dello sviluppo, criticità risolte e funzionalità pianificate per il futuro (Post-v1.0.0).
 - **Changelog (Storico Versioni)**:
-  - **[Release Correnti (v0.10.x+)](./changelogs/current/)**: Dettagli sulle ultime versioni e hotfix.
+  - **[Release Correnti (v1.0.x+)](./changelogs/current/)**: Dettagli sulle ultime versioni stabili.
   - **[Archivio Storico](./changelogs/archive/)**: Tutti i cambiamenti dalle versioni 0.0.1 in poi.
-- **Analisi Tecniche**:
-  - **[Analisi Forensi e Crash Report](./technical/analysis/)**: Studi approfonditi su crash critici (es: Access Violation).
-  - **[Report di Build e Debug](./technical/reports/)**: Note tecniche sulle build e script di utilità.
+- **[Archivio Documenti Strategici](./archive/)**: Analisi passate e documenti di transizione (es: Road to v1.0.0).
 
 ---
 
-## 📖 Area Utente (Manuale d'Uso)
+## 📖 Area Utente (Operatori Broadcast)
 
-Il manuale utente è una risorsa specifica non tecnica, progettata per la consultazione operativa e la produzione di documentazione ufficiale.
+Il manuale utente è una risorsa operativa per chi utilizza il software in onda o in produzione.
 
 ### Manuale in Italiano (IT)
 
 - [Capitolo 1: Introduzione e Setup](../manuale-utente/it/cap1.md)
 - [Capitolo 2: Interfaccia Utente](../manuale-utente/it/cap2.md)
 - [Capitolo 3: Gestione Clip](../manuale-utente/it/cap3.md)
+- [Capitolo 4: Motore di Transizione](../manuale-utente/it/cap4.md)
 - ... *Vedere cartella [manuale-utente/it/](../manuale-utente/it/) per i capitoli completi.*
 
-### Lingue Supportate
+### Lingue Supportate (Multilingua)
 
 - [English (EN)](../manuale-utente/en/)
 - [Français (FR)](../manuale-utente/fr/)
@@ -47,9 +45,9 @@ Il manuale utente è una risorsa specifica non tecnica, progettata per la consul
 ## 🚀 Guida Rapida per Sviluppatori
 
 1. `npm install`
-2. `npm run dev`
+2. `npm run dev` (Nota: lo sviluppo richiede Node.js 18+ ed Electron 28).
 3. Consulta l'**[Architettura](./ARCHITECTURE.md)** prima di modificare il motore audio.
 
 ---
 
-*Ultimo aggiornamento indice: 2026-04-10*
+*Ultimo aggiornamento indice: 2026-04-10 — Versione 1.0.0*

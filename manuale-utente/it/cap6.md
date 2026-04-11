@@ -7,7 +7,7 @@ In questo capitolo vedremo come configurare l'uscita audio e come comandare il s
 
 ## 6.1 Configurazione Audio (Routing)
 
-Per default, RLM esce sulla periferica audio predefinita di Windows. Tuttavia, in uno studio (o con setup podcast avanzati come il *Rødecaster Pro*), hai bisogno di separare i flussi.
+Per default, RRLMP esce sulla periferica audio predefinita di Windows. Tuttavia, in uno studio (o con setup podcast avanzati come il *Rødecaster Pro*), hai bisogno di separare i flussi.
 
 ### Selezionare l'Uscita
 1.  Clicca sull'icona **Ingranaggio (Impostazioni)** nella barra dei comandi in alto.
@@ -18,13 +18,13 @@ Per default, RLM esce sulla periferica audio predefinita di Windows. Tuttavia, i
 ### Live Switch
 Il cambio è istantaneo. Se la musica sta suonando mentre cambi periferica, l'audio "salterà" sulla nuova uscita senza interrompersi.
 
-> **Consiglio per Rødecaster/Mixer USB**: Se il tuo mixer ha più canali USB (es. Main e Sounds/Chat), imposta RLM su un canale secondario (es. "Sounds") in modo da poter controllare il suo volume con un fader dedicato sul mixer fisico, separandolo dai suoni di sistema di Windows.
+> **Consiglio per Rødecaster/Mixer USB**: Se il tuo mixer ha più canali USB (es. Main e Sounds/Chat), imposta RRLMP su un canale secondario (es. "Sounds") in modo da poter controllare il suo volume con un fader dedicato sul mixer fisico, separandolo dai suoni di sistema di Windows.
 
 ---
 
 ## 6.2 La Tastiera (Hotkeys)
 
-La tastiera del computer è il controller più veloce che hai. RLM include comandi globali preimpostati e tasti personalizzabili.
+La tastiera del computer è il controller più veloce che hai. RRLMP include comandi globali preimpostati e tasti personalizzabili.
 
 ### Comandi Globali (F-Keys)
 I tasti funzione (F1-F5) sono mappati per lanciare le colonne. Hanno una logica "intelligente": cercano la prima clip libera.
@@ -52,11 +52,11 @@ Vuoi lanciare la sigla premendo la barra spaziatrice o la lettera "Q"?
 Questa è la funzione "Pro" per eccellenza. Puoi collegare tastiere musicali, pad (come *Novation Launchpad*) o controller a fader (come *Korg nanoKONTROL*) e usarli per guidare il software.
 
 ### Collegamento
-1.  Collega il tuo controller USB-MIDI al computer **prima** di avviare Runtime Live Machine.
+1.  Collega il tuo controller USB-MIDI al computer **prima** di avviare Runtime Live Machine Pro.
 2.  Avvia il software. Il motore MIDI riconoscerà automaticamente la periferica.
 
 ### MIDI Learn Mode (Mappatura Facile)
-Non devi conoscere codici complicati. RLM impara guardando cosa fai.
+Non devi conoscere codici complicati. RRLMP impara guardando cosa fai.
 
 1.  Clicca sull'icona **MIDI** (Connettore DIN) nella barra in alto.
     *   L'icona diventa **Ciano (Accesa)**.

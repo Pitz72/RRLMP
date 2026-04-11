@@ -1,77 +1,77 @@
-ï»¿# CAPÃTULO 6: CONTROLO DE HARDWARE E ROUTING
+# CAPÍTULO 6: CONTROLO DE HARDWARE E ROUTING
 
-Um software de realizaÃ§Ã£o profissional nÃ£o vive isolado no computador. Deve comunicar com a mesa de mistura do estÃºdio, com os auscultadores e com os dedos do realizador.
-Neste capÃ­tulo veremos como configurar a saÃ­da de Ã¡udio e como comandar o software sem tocar no rato.
+Um software de realização profissional não vive isolado no computador. Deve comunicar com a mesa de mistura do estúdio, com os auscultadores e com os dedos do realizador.
+Neste capítulo veremos como configurar a saída de áudio e como comandar o software sem tocar no rato.
 
 ---
 
-## 6.1 ConfiguraÃ§Ã£o de Ãudio (Routing)
+## 6.1 Configuração de Áudio (Routing)
 
-Por defeito, o RLM sai no dispositivo de Ã¡udio predefinido do Windows. No entanto, num estÃºdio (ou com configuraÃ§Ãµes de podcast avanÃ§adas como o *RÃ¸decaster Pro*), precisa de separar os fluxos.
+Por defeito, o RRLMP sai no dispositivo de áudio predefinido do Windows. No entanto, num estúdio (ou com configurações de podcast avançadas como o *Rødecaster Pro*), precisa de separar os fluxos.
 
-### Selecionar a SaÃ­da
-1.  Clique no Ã­cone **Engrenagem (DefiniÃ§Ãµes)** na barra de comandos em cima.
-2.  Abrir-se-Ã¡ o painel **General Settings**.
-3.  No menu suspenso "Audio Output Device", verÃ¡ a lista de todas as placas de Ã¡udio ligadas ao seu PC.
-4.  Selecione o dispositivo desejado (ex. *RÃ¸decaster Pro Stereo* ou *Focusrite USB*).
+### Selecionar a Saída
+1.  Clique no ícone **Engrenagem (Definições)** na barra de comandos em cima.
+2.  Abrir-se-á o painel **General Settings**.
+3.  No menu suspenso "Audio Output Device", verá a lista de todas as placas de áudio ligadas ao seu PC.
+4.  Selecione o dispositivo desejado (ex. *Rødecaster Pro Stereo* ou *Focusrite USB*).
 
-### MudanÃ§a em Direto (Live Switch)
-A mudanÃ§a Ã© instantÃ¢nea. Se a mÃºsica estiver a tocar enquanto muda de dispositivo, o Ã¡udio "saltarÃ¡" para a nova saÃ­da sem se interromper.
+### Mudança em Direto (Live Switch)
+A mudança é instantânea. Se a música estiver a tocar enquanto muda de dispositivo, o áudio "saltará" para a nova saída sem se interromper.
 
-> **Dica para RÃ¸decaster/Misturadores USB**: Se a sua mesa de mistura tiver vÃ¡rios canais USB (ex. Main e Sounds/Chat), defina o RLM num canal secundÃ¡rio (ex. "Sounds") para poder controlar o seu volume com um fader dedicado na mesa fÃ­sica, separando-o dos sons de sistema do Windows.
+> **Dica para Rødecaster/Misturadores USB**: Se a sua mesa de mistura tiver vários canais USB (ex. Main e Sounds/Chat), defina o RRLMP num canal secundário (ex. "Sounds") para poder controlar o seu volume com um fader dedicado na mesa física, separando-o dos sons de sistema do Windows.
 
 ---
 
 ## 6.2 O Teclado (Hotkeys)
 
-O teclado do computador Ã© o controlador mais rÃ¡pido que tem. O RLM inclui comandos globais predefinidos e teclas personalizÃ¡veis.
+O teclado do computador é o controlador mais rápido que tem. O RRLMP inclui comandos globais predefinidos e teclas personalizáveis.
 
 ### Comandos Globais (Teclas F)
-As teclas de funÃ§Ã£o (F1-F5) estÃ£o mapeadas para lanÃ§ar as colunas. TÃªm uma lÃ³gica "inteligente": procuram o primeiro clip livre.
-*   **F1**: LanÃ§a a coluna 1 (Assets).
-*   **F2**: LanÃ§a a coluna 2 (MÃºsica).
-*   **F3**: LanÃ§a a coluna 3 (Vozes).
-*   **F4**: LanÃ§a a coluna 4 (SFX).
-*   **F5**: LanÃ§a a coluna 5 (PrÃ©-Show).
-*   **ESC**: **BOTÃƒO DE PÃ‚NICO**. Para tudo imediatamente (Stop All).
+As teclas de função (F1-F5) estão mapeadas para lançar as colunas. Têm uma lógica "inteligente": procuram o primeiro clip livre.
+*   **F1**: Lança a coluna 1 (Assets).
+*   **F2**: Lança a coluna 2 (Música).
+*   **F3**: Lança a coluna 3 (Vozes).
+*   **F4**: Lança a coluna 4 (SFX).
+*   **F5**: Lança a coluna 5 (Pré-Show).
+*   **ESC**: **BOTÃO DE PÂNICO**. Para tudo imediatamente (Stop All).
 
 ### Teclas Personalizadas (Custom Binds)
-Quer lanÃ§ar o genÃ©rico premindo a barra de espaÃ§os ou a letra "Q"?
-1.  FaÃ§a clique direito no clip -> **Edit**.
+Quer lançar o genérico premindo a barra de espaços ou a letra "Q"?
+1.  Faça clique direito no clip -> **Edit**.
 2.  Clique no campo **Trigger Keybind**.
 3.  Prima a tecla desejada no teclado.
 4.  Guarde.
-5.  AparecerÃ¡ um crachÃ¡ (ex. **[Q]**) no cartÃ£o para o lembrar da atribuiÃ§Ã£o.
+5.  Aparecerá um crachá (ex. **[Q]**) no cartão para o lembrar da atribuição.
 
-> **SeguranÃ§a**: Os comandos de teclado sÃ£o automaticamente desativados se estiver a escrever texto (ex. a renomear um clip), para evitar fazer partir o Ã¡udio enquanto digita.
+> **Segurança**: Os comandos de teclado são automaticamente desativados se estiver a escrever texto (ex. a renomear um clip), para evitar fazer partir o áudio enquanto digita.
 
 ---
 
-## 6.3 Controlador MIDI (O Poder FÃ­sico)
+## 6.3 Controlador MIDI (O Poder Físico)
 
-Esta Ã© a funÃ§Ã£o "Pro" por excelÃªncia. Pode ligar teclados musicais, pads (como *Novation Launchpad*) ou controladores de fader (como *Korg nanoKONTROL*) e usÃ¡-los para guiar o software.
+Esta é a função "Pro" por excelência. Pode ligar teclados musicais, pads (como *Novation Launchpad*) ou controladores de fader (como *Korg nanoKONTROL*) e usá-los para guiar o software.
 
-### LigaÃ§Ã£o
-1.  Ligue o seu controlador USB-MIDI ao computador **antes** de iniciar o Runtime Live Machine.
-2.  Inicie o software. O motor MIDI reconhecerÃ¡ automaticamente o dispositivo.
+### Ligação
+1.  Ligue o seu controlador USB-MIDI ao computador **antes** de iniciar o Runtime Live Machine Pro.
+2.  Inicie o software. O motor MIDI reconhecerá automaticamente o dispositivo.
 
-### Modo MIDI Learn (Mapeamento FÃ¡cil)
-NÃ£o precisa de saber cÃ³digos complicados. O RLM aprende observando o que faz.
+### Modo MIDI Learn (Mapeamento Fácil)
+Não precisa de saber códigos complicados. O RRLMP aprende observando o que faz.
 
-1.  Clique no Ã­cone **MIDI** (Conector DIN) na barra em cima.
-    *   O Ã­cone torna-se **Ciano (Ligado)**.
+1.  Clique no ícone **MIDI** (Conector DIN) na barra em cima.
+    *   O ícone torna-se **Ciano (Ligado)**.
     *   Os clips assumem um aspeto tracejado ("Em espera").
 2.  **Para mapear um Clip**:
     *   Clique com o rato no Clip desejado.
-    *   Prima o botÃ£o/pad fÃ­sico no seu controlador.
-    *   AparecerÃ¡ um crachÃ¡ (ex. **[M:60]**) no clip. Feito.
-3.  **Para mapear funÃ§Ãµes Globais**:
-    *   Clique no botÃ£o vermelho **STOP ALL** no ecrÃ£ -> Prima um botÃ£o grande no controlador.
-    *   Clique no cursor **MASTER VOL** no ecrÃ£ -> Mova um fader ou um botÃ£o rotativo no controlador.
-4.  Clique novamente no Ã­cone **MIDI** para sair do modo Learn.
+    *   Prima o botão/pad físico no seu controlador.
+    *   Aparecerá um crachá (ex. **[M:60]**) no clip. Feito.
+3.  **Para mapear funções Globais**:
+    *   Clique no botão vermelho **STOP ALL** no ecrã -> Prima um botão grande no controlador.
+    *   Clique no cursor **MASTER VOL** no ecrã -> Mova um fader ou um botão rotativo no controlador.
+4.  Clique novamente no ícone **MIDI** para sair do modo Learn.
 
 ### Tipos de Comandos Suportados
-*   **Note On/Off**: Perfeito para botÃµes e pads (LanÃ§amento de Clip, Stop All).
-*   **Control Change (CC)**: Perfeito para faders e botÃµes rotativos. Use-o para controlar o Volume Mestre de modo analÃ³gico e fluido.
+*   **Note On/Off**: Perfeito para botões e pads (Lançamento de Clip, Stop All).
+*   **Control Change (CC)**: Perfeito para faders e botões rotativos. Use-o para controlar o Volume Mestre de modo analógico e fluido.
 
-> **Portabilidade**: Os mapeamentos MIDI dos clips sÃ£o guardados dentro do projeto .lmp. Se levar o projeto para outro PC com o mesmo controlador, funcionarÃ¡ tudo logo.
+> **Portabilidade**: Os mapeamentos MIDI dos clips são guardados dentro do projeto .lmp. Se levar o projeto para outro PC com o mesmo controlador, funcionará tudo logo.

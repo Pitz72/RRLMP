@@ -1,6 +1,6 @@
 # RRLMP — Roadmap & Issue Backlog
 
-Versione corrente: **1.0.0**
+Versione corrente: **1.0.0** (Major Release)
 Ultimo aggiornamento: 2026-04-10
 
 ---
@@ -8,7 +8,8 @@ Ultimo aggiornamento: 2026-04-10
 ## Indice
 
 - [✅ Criticità Risolte](#-criticità-risolte)
-- [🚀 Evoluzione e Nuove Funzionalità](#-evoluzione-e-nuove-funzionalità)
+- [🚀 Evoluzione Post-v1.0.0](#-evoluzione-post-v100)
+- [🔬 Specifiche Tecniche Future](#-specifiche-tecniche-future)
 - [🔧 Debito Tecnico Noto](#-debito-tecnico-noto)
 - [📊 Riepilogo Stato Avanzamento](#-riepilogo-stato-avanzamento)
 - [✅ Archivio Interventi Completati](#-archivio-interventi-completati)
@@ -18,62 +19,43 @@ Ultimo aggiornamento: 2026-04-10
 ## ✅ Criticità Risolte
 
 - [✅] **Renderer Crash (Access Violation / 0xC0000005)**
-  - **RISOLTO in v0.11.0**: Completata la migrazione "Main-Side-Heavy". Decodifica e file pesanti gestiti dal proxy Node.js via FFmpeg.
-
-- [✅] **UI Micro-Stutter / Buffer Streaming**
-  - **RISOLTO in v0.11.0**: Ottimizzato protocollo `media://`, HighWaterMark portato a 1MB. Buffer iniziale 128KB per latenza zero.
-
-- [✅] **Build e Compilazione TypeScript**
-  - **RISOLTO in v0.11.0**: Chiusi conflitti TS1259. Build `.exe` verificata. ASAR unpack per FFmpeg.
-
-- [✅] **OOM Crash su Auto-Trim file grandi (White Screen)**
-  - **RISOLTO in v0.13.2** (documentato in v0.14.0): Moved silence detection dal renderer al main process via IPC `detect-silence`. FFmpeg `silencedetect` sostituisce `arrayBuffer()` + `decodeAudioData()` nel renderer.
+  - **RISOLTO**: Migrazione "Main-Side-Heavy". Decodifica gestita dal proxy Node.js via FFmpeg.
+- [✅] **OOM Crash su Auto-Trim file grandi**
+  - **RISOLTO**: Spostata silence detection nel main process via IPC `detect-silence`.
+- [✅] **Smart Mic Auto-Ducking**
+  - **RISOLTO in v0.17.0**: MicManager.ts con noise gate e integrazione `evaluateMix`.
 
 ---
 
-## 🚀 Evoluzione e Nuove Funzionalità
+## 🚀 Evoluzione Post-v1.0.0
 
-### 🎵 Audio Engine
+### 🟡 Priorità Alta (Prossimi Step)
 
-- [✅] **Main-Process Decoding (Main-Side-Heavy)**: FFmpeg + music-metadata nel Main. ✅ v0.11.0
-- [✅] **Sistema Transizioni Pre-Show**: Gapless / Segue / Crossfade con override per-clip. ✅ v0.13.2
-- [✅] **Auto-Silence Detection al Drop**: Silence detection automatica al drag di file nel PRE-SHOW. ✅ v0.13.2
-- [✅] **Marker Drag & Drop Visivo**: Handle trascinabili per Trim Start/End, Intro, Outro con drag globale e anti-stale ref pattern. ✅ v0.14.1
-- [✅] **Master Chain Audio** — HPF + Compressor broadcast + Limiter brickwall sul master bus. ✅ v0.16.2
-- [✅] **Fix Ducking Bug** — la base musicale parte al volume duckato corretto (evaluateMix con newClipId). ✅ v0.16.4
-- [✅] **Transizioni per Music e Assets** — crossfade/segue/gapless non più solo PRE-SHOW. ✅ v0.16.4
-- [✅] **Metadati ID3 su clip Music** — artist/title estratti in loadClip(), visualizzati in ClipCard. ✅ v0.16.4
-- [✅] **Smart Mic Auto-Ducking** — MicManager.ts, noise gate, integrazione evaluateMix, ARM button UI. ✅ v0.17.0
-- [ ] **Native Audio Module**: Investigare moduli nativi C++/Rust per playback ultra-stabile su file WAV 24-bit / 96kHz.
-- [ ] **Advanced Markers Pre-Calcolati**: Ottimizzare marker da metadati pre-calcolati nel Main (metadata embedding in .lmp).
+- [ ] **Session Recording (Master Mix)**
+  - Registrazione dell'output broadcast direttamente su file.
+  - **Stato**: Analisi tecnica completata. Vedere sezione [Specifiche Tecniche](#-specifiche-tecniche-future).
+- [ ] **Test Audio Engine (Copertura)**
+  - Implementazione di Vitest + @testing-library/react per testare `useAudioStore` e `evaluateMix`.
+- [ ] **Advanced Markers Pre-Calcolati**
+  - Suggerimento automatico di Intro/Outro basato sull'analisi energetica del file.
 
-### 🖥️ Interfaccia e Workflow
+### 🟢 Priorità Media/Bassa
 
-- [✅] **Clip Settings Redesign (Tabs)**: Schede separate General / Trim & Markers. ✅ v0.10.0
-- [✅] **Precise Trimming & Markers UI**: Mini-editor con Waveform visiva e player locale. ✅ v0.10.7
-- [✅] **Real-Time Board Cues**: Countdown Intro (`INTRO: -Xs`), pre-cue Outro (`OUTRO IN: -Xs`), alert finale (`🚨 OUTRO`). ✅ v0.12.0–v0.12.1
-- [✅] **MIDI Learn Mode**: Mapping note MIDI/CC a clip e azioni globali (Stop All, Master Volume). Countdown 15s, badge controller, Escape. ✅ (archivio)
-- [✅] **Internazionalizzazione (i18n)**: react-i18next, 8 lingue complete — IT, EN, FR, DE, ES, PT, RU, ZH. ✅ v1.0.0
-- [✅] **Export Progetto (self-contained)**: Copia file audio + .lmp in cartella esportata con progress modal. ✅ (archivio)
-- [✅] **Save/Load .lmp / Auto-Backup**: Persistenza progetto, salvataggio diretto, auto-backup ogni 5 minuti. ✅ (archivio)
-- [✅] **Output Device Switching**: Selezione scheda audio hot-switch. ✅ (archivio)
-- [✅] **Ducking Sidechain Dinamico**: Volume reduction automatico (duckingFactor / duckingDuration configurabili). ✅ (archivio)
-- [ ] **Layout Regia 5.0**: Espansione / customizzazione griglia (colonne configurabili, rinomina colonne).
-- [✅] **Pannello Keymapping Centralizzato** ✅ v0.14.6+
-- [✅] **LMP Integrity Check**: Check automatico all'apertura progetto. Clip mancanti → rosse + ⚠️ + playback bloccato. ✅ v0.14.2
-- [✅] **Feedback Visivo Auto-Silence** — badge TRIM… su ClipCard durante analisi (isAnalyzing). ✅ v0.14.6
-- [✅] **Drop OS a posizione precisa** ✅ v0.15.x
-- [✅] **Preview Transizione con Stop** — pulsante Stop + hasPlayed protetto. ✅ v0.16.5
-- [✅] **Column Color Picker** — 30 colori, customColor persistito. ✅ v0.16.1–0.16.3
-- [✅] **WelcomeScreen redesign** — layout orizzontale, slogan, bandiere. ✅ v0.16.5
-- [✅] **GeneralSettingsModal a Tab** — 3 tab con Language switcher. ✅ v0.16.5
+- [ ] **Native Audio Module**: Investigare moduli nativi C++/Rust solo se necessari per latenza ultra-bassa (ASIO). Attualmente lo streaming `media://` è sufficiente.
+- [ ] **Layout Regia 5.0**: Colonne configurabili e rinominabili (richiede migrazione .lmp).
 
-### 🛡️ Stabilità e Manutenibilità
+---
 
-- [✅] **Rimozione wavesurfer.js** ✅ v0.16.4
-- [✅] **i18n Estensione Modali** ✅ v0.16.1
-- [✅] **Error Boundaries React** ✅ v0.16.4
-- [ ] **Test Audio Engine**: Nessun test automatizzato sull'engine. Considerare test di integrazione per playClip/stopClip/transition.
+## 🔬 Specifiche Tecniche Future
+
+### 1. Session Recording (Singola Traccia WAV)
+- **Architettura**: Utilizzo di `AudioContext.createMediaStreamDestination()` collegato al master bus.
+- **Workflow**: `MediaRecorder` cattura il flusso (WebM/Opus) → IPC → Main Process → Conversione WAV via FFmpeg.
+- **Vantaggi**: Indipendente dalla scheda audio fisica; cattura esattamente ciò che viene trasmesso.
+
+### 2. Advanced Markers
+- **Analisi**: Eseguire `ebur128` (loudness) e analisi di onset nel Main Process durante il caricamento.
+- **UI**: Visualizzazione di handle tratteggiati nel Waveform Editor per i marker suggeriti, con pulsante "Accetta".
 
 ---
 
@@ -81,12 +63,8 @@ Ultimo aggiornamento: 2026-04-10
 
 | Priorità | Item | Dettaglio | Stato |
 |----------|------|-----------|-------|
-| ~~🔴 Alta~~ | ~~`wavesurfer.js` / `waveform-data` in package.json~~ | ~~Mai importati dal v0.10.7~~ | ✅ Rimossi 2026-04-06 |
-| ~~🟡 Media~~ | ~~Drag & drop marker waveform~~ | ~~Promesso in v0.10.0, mai implementato~~ | ✅ Implementato v0.14.1 |
-| ~~🟡 Media~~ | ~~Testi hardcoded in IT nei modali~~ | ~~ClipSettingsModal, GeneralSettingsModal hanno testi non i18n.~~ | ✅ Risolti in v0.16.1 |
-| 🟡 Media | Feedback Auto-Silence su drop | Nessun indicatore visivo mentre FFmpeg gira in background. | 📋 Aperto |
-| ~~🟢 Bassa~~ | ~~`crossfadeDuration` usato anche per segue~~ | ~~Nome variabile impreciso: usato per entrambi segue e crossfade.~~ | ✅ Risolto con `segueDuration` separata in v0.14.8 |
-| ~~🟢 Bassa~~ | ~~`alert()` come error handling~~ | ~~Alcuni errori usano `alert()` invece di notifiche non-bloccanti.~~ | ✅ Toast + ConfirmDialog in v0.14.7 |
+| 🟡 Media | Sync Documentazione | Allineare tutte le 8 lingue del manuale utente al brand "Pro". | 📋 In corso |
+| 🟡 Media | Test Audio Engine | Nessun test automatizzato sull'engine audio. | 📋 Aperto |
 
 ---
 
@@ -95,58 +73,19 @@ Ultimo aggiornamento: 2026-04-10
 | Gravità / Tipo | Risolti | Totali | Stato |
 | --- | --- | --- | --- |
 | 🔴 Criticità (Tutte) | 4 | 4 | **100%** ✅ |
-| 🚀 Nuove Feature Core | 26 | 27 | **96%** 🚀 |
-| 🔧 Debito Tecnico | 5 | 6 | **83%** 🔧 |
-| **TOTALE PROGETTO** | **35** | **37** | **95% COMPLETATO** |
+| 🚀 Feature Core v1.0 | 28 | 28 | **100%** ✅ |
+| 🔧 Debito Tecnico | 6 | 8 | **75%** 🔧 |
 
 ---
 
 ## ✅ Archivio Interventi Completati
 
-### Engine Audio
-- **Main-Side-Heavy Architecture** ✅ v0.11.0
-- **AudioProcessor (FFmpeg + music-metadata)** ✅ v0.10.5
-- **IPC Bridge detect-silence** ✅ v0.13.2
-- **Auto-Silence Detection al Drop** ✅ v0.13.2
-- **Sistema Transizioni Pre-Show (Gapless/Segue/Crossfade)** ✅ v0.13.2
-- **Ducking Sidechain Dinamico** ✅ (archivio)
-- **Output Device Hot-Switch** ✅ (archivio)
-- **Streaming Buffer 128KB + 1MB** ✅ v0.10.8 / v0.12.0
-
-### UI & Workflow
-- **Waveform Editor Integrato (Peak-based)** ✅ v0.10.7
-- **Clip Settings Tabs** ✅ v0.10.0
-- **Real-Time Cues Board (Intro/Outro countdown)** ✅ v0.12.0–v0.12.1
-- **MIDI Learn Mode** ✅ (archivio)
-- **Internazionalizzazione i18n** ✅ (archivio)
-- **Save/Load .lmp** ✅ (archivio)
-- **Auto-Backup 5 minuti** ✅ v0.10.3
-- **Export Progetto Self-Contained** ✅ (archivio)
-- **VU Meter** ✅ (archivio)
-- **Digital Clock** ✅ (archivio)
-- **Welcome Screen** ✅ (archivio)
-- **LMP Integrity Check (IPC check-files-exist + ClipCard visual state)** ✅ v0.14.2
-
-### Stabilità
-- **CSP & White Screen Startup Fix** ✅ v0.10.3
-- **ASAR Unpack FFmpeg/FFprobe** ✅ v0.11.2
-- **music-metadata downgrade CJS-safe** ✅ v0.11.1
-- **Electron pinned version (builder fix)** ✅ v0.13.2
-
-### v0.16.x — UI & UX Release
-- **Volume Master MIDI reattivo + Badge Auto-saved** ✅ v0.16.0
-- **Column Color Picker (12 → 30 colori), ConfirmDialog Promise-based, i18n ClipSettingsModal + GeneralSettingsModal** ✅ v0.16.1
-- **Testo clip schiarito (lightenHex), Drop Indicator, Master Chain Audio (HPF+Compressor+Limiter)** ✅ v0.16.2
-- **Fix colori clip PRE-SHOW in play, Color Picker esteso a 30 colori, GeneralSettingsModal redesign orizzontale** ✅ v0.16.3
-- **Fix ducking bug, Transizioni per Music e Assets, Metadati ID3, Error Boundaries React, rimozione wavesurfer.js** ✅ v0.16.4
-- **Preview Transizione con Stop button, GeneralSettingsModal a 3 tab, WelcomeScreen redesign orizzontale** ✅ v0.16.5
-
-### v0.17.0
-- **Smart Mic Auto-Ducking** ✅ v0.17.0
-
 ### v1.0.0 — Major Release
-- **i18n Completa** — Tutte e 8 le lingue (FR, DE, ES, PT, RU, ZH) portate da stub a 89+ chiavi complete ✅ v1.0.0
-- **Rebranding "Runtime Live Machine Pro"** — Nuovo logo (5 barre VU + play triangle), badge PRO nell'header, banner nel README ✅ v1.0.0
+- **i18n Completa**: 8 lingue localizzate al 100%.
+- **Rebranding Pro**: Nuovo logo, badge PRO, nuova Welcome Screen.
+- **Master Chain Audio**: HPF + Compressor + Limiter sul master bus.
+- **Smart Mic**: Monitoraggio hardware microfono con auto-ducking.
+- **Waveform Editor**: Zoom 1x-8x e handle drag & drop.
 
 ---
-*Documento aggiornato il 2026-04-10 — versione 1.0.0.*
+*Documento aggiornato il 2026-04-10 — allineato a v1.0.0.*

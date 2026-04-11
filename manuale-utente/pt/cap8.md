@@ -1,64 +1,64 @@
-Ôªø# CAP√çTULO 8: RESOLU√á√ÉO DE PROBLEMAS E FAQ
+# CAPÕTULO 8: RESOLU«√O DE PROBLEMAS E FAQ
 
-Mesmo no software mais est√°vel, podem ocorrer imprevistos devido ao hardware ou ao sistema operativo. Aqui encontrar√° as solu√ß√µes para os problemas mais comuns.
-
----
-
-## 8.1 Problemas de √Åudio
-
-### O Temporizador corre e os Medidores VU movem-se, mas n√£o ou√ßo nada.
-O software est√° a reproduzir o √°udio corretamente (v√™-o pelas barras coloridas em cima), mas o sinal n√£o chega √†s suas colunas/auscultadores.
-1.  **Verifique o Volume Mestre**: Certifique-se de que o cursor de volume em cima n√£o est√° a zero.
-2.  **Verifique a Sa√≠da (Routing)**:
-    *   Clique no √≠cone **Engrenagem** (Defini√ß√µes).
-    *   Verifique que dispositivo est√° selecionado em "Audio Output Device".
-    *   Por vezes o Windows muda o ID dos dispositivos USB se forem desligados e ligados novamente. Tente voltar a selecionar a sua placa de √°udio (ex. *R√∏decaster Pro* ou *Auscultadores*) da lista.
-3.  **Misturador Externo**: Se sai para uma mesa de mistura USB, verifique se o fader f√≠sico desse canal n√£o est√° em baixo ou em "Mute".
-
-### O √°udio "crepita" ou salta.
-Isto acontece raramente gra√ßas ao motor nativo, mas pode acontecer se o CPU do computador estiver sob stress extremo.
-*   Feche outras aplica√ß√µes pesadas (edi√ß√£o de v√≠deo, jogos).
-*   Se usa uma placa de √°udio profissional, verifique se o *Tamanho do Buffer (Buffer Size)* nos drivers da placa n√£o √© demasiado baixo (recomendado: 256 ou 512 amostras).
+Mesmo no software mais est·vel, podem ocorrer imprevistos devido ao hardware ou ao sistema operativo. Aqui encontrar· as soluÁıes para os problemas mais comuns.
 
 ---
 
-## 8.2 Gest√£o de Ficheiros e Clips Vermelhos
+## 8.1 Problemas de ¡udio
 
-### Um Clip tornou-se Vermelho e j√° n√£o toca.
-Um **Cart√£o Vermelho** indica que o software j√° n√£o consegue encontrar o ficheiro de √°udio no disco.
-*   **Causa**: Moveu, renomeou ou apagou o ficheiro MP3/WAV original. Ou o ficheiro estava numa pen USB/Disco Externo que agora est√° desligado.
-*   **Solu√ß√£o**:
+### O Temporizador corre e os Medidores VU movem-se, mas n„o ouÁo nada.
+O software est· a reproduzir o ·udio corretamente (vÍ-o pelas barras coloridas em cima), mas o sinal n„o chega ‡s suas colunas/auscultadores.
+1.  **Verifique o Volume Mestre**: Certifique-se de que o cursor de volume em cima n„o est· a zero.
+2.  **Verifique a SaÌda (Routing)**:
+    *   Clique no Ìcone **Engrenagem** (DefiniÁıes).
+    *   Verifique que dispositivo est· selecionado em "Audio Output Device".
+    *   Por vezes o Windows muda o ID dos dispositivos USB se forem desligados e ligados novamente. Tente voltar a selecionar a sua placa de ·udio (ex. *R¯decaster Pro* ou *Auscultadores*) da lista.
+3.  **Misturador Externo**: Se sai para uma mesa de mistura USB, verifique se o fader fÌsico desse canal n„o est· em baixo ou em "Mute".
+
+### O ·udio "crepita" ou salta.
+Isto acontece raramente graÁas ao motor nativo, mas pode acontecer se o CPU do computador estiver sob stress extremo.
+*   Feche outras aplicaÁıes pesadas (ediÁ„o de vÌdeo, jogos).
+*   Se usa uma placa de ·udio profissional, verifique se o *Tamanho do Buffer (Buffer Size)* nos drivers da placa n„o È demasiado baixo (recomendado: 256 ou 512 amostras).
+
+---
+
+## 8.2 Gest„o de Ficheiros e Clips Vermelhos
+
+### Um Clip tornou-se Vermelho e j· n„o toca.
+Um **Cart„o Vermelho** indica que o software j· n„o consegue encontrar o ficheiro de ·udio no disco.
+*   **Causa**: Moveu, renomeou ou apagou o ficheiro MP3/WAV original. Ou o ficheiro estava numa pen USB/Disco Externo que agora est· desligado.
+*   **SoluÁ„o**:
     1.  Volte a ligar o disco externo.
-    2.  Mova o ficheiro de volta para a sua localiza√ß√£o original.
-    3.  Ou, arraste o ficheiro novamente para a grelha (criando um novo cart√£o) e apague o antigo vermelho.
+    2.  Mova o ficheiro de volta para a sua localizaÁ„o original.
+    3.  Ou, arraste o ficheiro novamente para a grelha (criando um novo cart„o) e apague o antigo vermelho.
 
-> **Preven√ß√£o**: Para evitar este problema, use a fun√ß√£o **Export Package** (Cap. 7) que copia todos os ficheiros para uma pasta segura juntamente com o projeto.
+> **PrevenÁ„o**: Para evitar este problema, use a funÁ„o **Export Package** (Cap. 7) que copia todos os ficheiros para uma pasta segura juntamente com o projeto.
 
 ---
 
 ## 8.3 Problemas MIDI
 
-### O meu controlador MIDI n√£o funciona / n√£o √© detetado.
-1.  **Regra de Ouro do MIDI**: O controlador deve estar ligado ao computador **ANTES** de iniciar o Runtime Live Machine.
-    *   Se o ligar com o software aberto, o navegador interno poder√° n√£o o ver. Feche e volte a abrir o RLM.
-2.  **Learn Mode**: Verifique se n√£o deixou o modo "MIDI Learn" ativo (√çcone Ciano). Neste modo, premir as teclas serve apenas para mapear, n√£o para tocar.
-3.  **Drivers**: Alguns controladores avan√ßados requerem drivers espec√≠ficos. Verifique se o Windows o reconhece corretamente.
+### O meu controlador MIDI n„o funciona / n„o È detetado.
+1.  **Regra de Ouro do MIDI**: O controlador deve estar ligado ao computador **ANTES** de iniciar o Runtime Live Machine Pro.
+    *   Se o ligar com o software aberto, o navegador interno poder· n„o o ver. Feche e volte a abrir o RRLMP.
+2.  **Learn Mode**: Verifique se n„o deixou o modo "MIDI Learn" ativo (Õcone Ciano). Neste modo, premir as teclas serve apenas para mapear, n„o para tocar.
+3.  **Drivers**: Alguns controladores avanÁados requerem drivers especÌficos. Verifique se o Windows o reconhece corretamente.
 
 ---
 
 ## 8.4 Perguntas Frequentes (FAQ)
 
-**P: Posso usar o RLM para automatizar a r√°dio 24h por dia?**
-R: N√£o. O RLM foi concebido para a realiza√ß√£o *Live* (programas assegurados por uma pessoa). N√£o tem fun√ß√µes de agendamento hor√°rio ou rota√ß√£o musical autom√°tica infinita.
+**P: Posso usar o RRLMP para automatizar a r·dio 24h por dia?**
+R: N„o. O RRLMP foi concebido para a realizaÁ„o *Live* (programas assegurados por uma pessoa). N„o tem funÁıes de agendamento hor·rio ou rotaÁ„o musical autom·tica infinita.
 
-**P: Que formatos de √°udio s√£o suportados?**
-R: Suporta nativamente **MP3, WAV, AAC, OGG, FLAC**. Recomendamos o uso de WAV para m√°xima qualidade ou MP3 320kbps para poupar espa√ßo.
+**P: Que formatos de ·udio s„o suportados?**
+R: Suporta nativamente **MP3, WAV, AAC, OGG, FLAC**. Recomendamos o uso de WAV para m·xima qualidade ou MP3 320kbps para poupar espaÁo.
 
 **P: O software funciona no iPad ou Android?**
-R: N√£o, o Runtime Live Machine √© um software de Desktop profissional para **Windows** e **macOS**. Requer a pot√™ncia de gest√£o de ficheiros de um computador real.
+R: N„o, o Runtime Live Machine Pro È um software de Desktop profissional para **Windows** e **macOS**. Requer a potÍncia de gest„o de ficheiros de um computador real.
 
 **P: Como atualizo o software?**
-R: No arranque, o Welcome Screen notific√°-lo-√° se houver uma nova vers√£o dispon√≠vel (indicador Amarelo/Laranja). Visite o site oficial para descarregar o instalador atualizado. Os seus projetos .lmp guardados ser√£o compat√≠veis com as novas vers√µes.
+R: No arranque, o Welcome Screen notific·-lo-· se houver uma nova vers„o disponÌvel (indicador Amarelo/Laranja). Visite o site oficial para descarregar o instalador atualizado. Os seus projetos .lmp guardados ser„o compatÌveis com as novas versıes.
 
-**P: Onde encontro os ficheiros de salvamento autom√°tico?**
-R: Se estiver a trabalhar num ficheiro guardado, o backup .bak est√° na mesma pasta que o projeto. Se estava a trabalhar num projeto "Sem T√≠tulo" e o PC se desligou, verifique na pasta de dados de aplica√ß√£o do sistema (no Windows: %APPDATA%\runtime-live-machine\).
+**P: Onde encontro os ficheiros de salvamento autom·tico?**
+R: Se estiver a trabalhar num ficheiro guardado, o backup .bak est· na mesma pasta que o projeto. Se estava a trabalhar num projeto "Sem TÌtulo" e o PC se desligou, verifique na pasta de dados de aplicaÁ„o do sistema (no Windows: %APPDATA%\runtime-live-machine\).

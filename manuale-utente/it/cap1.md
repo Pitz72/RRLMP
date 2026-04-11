@@ -1,19 +1,19 @@
 # CAPITOLO 1: INTRODUZIONE E SETUP
 
-Benvenuto in **Runtime Live Machine**.
+Benvenuto in **Runtime Live Machine Pro (RRLMP)**.
 Questo capitolo ti guiderà nei primi passi: dalla comprensione della filosofia del software fino al primo avvio.
 
-## 1.1 Cos'è Runtime Live Machine (RLM)
+## 1.1 Cos'è Runtime Live Machine Pro (RRLMP)
 
-**Runtime Live Machine** è un'architettura audio professionale progettata per la regia di **singoli show dal vivo**, podcast, eventi e web radio.
+**Runtime Live Machine Pro** è un'architettura audio professionale di classe "Pro" progettata per la regia di **singoli show dal vivo**, podcast, eventi e web radio.
 
-A differenza dei complessi software di automazione radiofonica H24 (che suonano musica a rotazione per giorni), RLM è uno strumento di **Performance**. È pensato per essere "suonato" in tempo reale da un regista o da uno speaker.
+A differenza dei complessi software di automazione radiofonica H24 (che suonano musica a rotazione per giorni), RRLMP è uno strumento di **Performance**. È pensato per essere "suonato" in tempo reale da un regista o da uno speaker, offrendo un controllo chirurgico su ogni transizione.
 
-### Perché scegliere RLM?
+### Perché scegliere RRLMP?
 *   **Filosofia "Single Show"**: Ogni progetto è un contenitore isolato che racchiude tutto ciò che serve per quella specifica puntata o evento.
-*   **Motore Audio Nativo**: Utilizza la tecnologia *Direct Disk Streaming* per riprodurre file audio (WAV, MP3) istantaneamente senza caricarli nella RAM, garantendo stabilità assoluta.
-*   **Sicurezza Totale**: Include sistemi di Auto-Backup e avvisi "Dead Air" per evitare il silenzio in onda.
-*   **Controllo Fisico**: Supporta nativamente controller MIDI e tastiere per una regia tattile.
+*   **Architettura Main-Side-Heavy**: Utilizza un proxy Node.js per la decodifica audio pesante (FFmpeg), garantendo che l'interfaccia (Renderer) rimanga fluida e priva di crash anche con file WAV di grandi dimensioni.
+*   **Sicurezza Totale**: Include sistemi di Auto-Backup, integrità dei file .lmp e avvisi visivi per i cue di Intro/Outro.
+*   **Controllo Fisico**: Supporta nativamente controller MIDI (con MIDI Learn) e tastiere per una regia tattile e reattiva.
 
 ---
 
@@ -21,43 +21,43 @@ A differenza dei complessi software di automazione radiofonica H24 (che suonano 
 
 ### Requisiti di Sistema
 *   **Windows**: Windows 10 o Windows 11 (64-bit).
-*   **macOS**: macOS 11 (Big Sur) o successivi (Supporto Apple Silicon & Intel).
+*   **macOS**: macOS 11 (Big Sur) o successivi (Supporto nativo Apple Silicon & Intel).
+*   **Linux**: AppImage e pacchetti .deb supportati (Ubuntu/Debian/Mint).
 *   **RAM**: Minimo 4GB (Consigliati 8GB).
 *   **Spazio Disco**: 200MB per l'applicazione + spazio per i tuoi file audio.
 
 ### Installazione su Windows
-1.  Scarica il file `Runtime Live Machine Setup 1.0.0.exe` dal sito ufficiale.
+1.  Scarica il file `Runtime Live Machine Pro Setup 1.0.0.exe` dal sito ufficiale o dal repository.
 2.  Fai doppio click sull'eseguibile.
 3.  Il programma di installazione automatico copierà i file e creerà un collegamento sul Desktop.
 4.  Al termine, l'applicazione si avvierà automaticamente.
 
-> **Nota di Sicurezza**: Poiché il software è aggiornato frequentemente, Windows SmartScreen potrebbe mostrare un avviso "PC protetto da Windows". Clicca su **"Ulteriori informazioni"** e poi su **"Esegui comunque"**. Il software è sicuro e privo di malware.
+> **Nota di Sicurezza**: Poiché il software è aggiornato frequentemente, Windows SmartScreen potrebbe mostrare un avviso "PC protetto da Windows". Clicca su **"Ulteriori informazioni"** e poi su **"Esegui comunque"**. Il software è sicuro, firmato e privo di malware.
 
 ### Installazione su macOS
 1.  Scarica il file `.dmg`.
-2.  Apri il file immagine.
-3.  Trascina l'icona di **Runtime Live Machine** nella cartella **Applications**.
-4.  Al primo avvio, potresti dover autorizzare l'applicazione nelle *Preferenze di Sistema > Sicurezza e Privacy* se non provieni dall'App Store.
+2.  Apri il file immagine e trascina l'icona di **Runtime Live Machine Pro** nella cartella **Applications**.
+3.  Al primo avvio, potresti dover autorizzare l'applicazione nelle *Preferenze di Sistema > Sicurezza e Privacy*.
 
 ---
 
 ## 1.3 La Schermata di Benvenuto (Welcome Screen)
 
-Al primo avvio, verrai accolto dalla **Welcome Screen**. Questa è la tua dashboard di partenza, progettata per farti iniziare a lavorare in pochi secondi.
+Al primo avvio, verrai accolto dalla nuova **Welcome Screen** in layout orizzontale. Questa è la tua dashboard di partenza, progettata per farti iniziare a lavorare in pochi secondi.
 
 ### Elementi della Schermata
-1.  **Stato Versione**: Sotto il logo, vedrai il numero della versione attuale (es. `v1.0.0`).
+1.  **Nuovo Logo**: Il logo Pro (5 barre VU meter con triangolo di play) identifica la versione stabile del software.
+2.  **Stato Versione**: Sotto il logo, vedrai il numero della versione attuale (es. `v1.0.0`).
     *   ✅ **Verde**: Hai l'ultima versione disponibile.
-    *   ⬇️ **Giallo/Arancione**: È disponibile un aggiornamento. Il sistema controlla automaticamente i server all'avvio.
-2.  **Selettore Lingua**: In alto a destra (o nel menu dedicato) trovi le bandiere per cambiare la lingua dell'interfaccia.
-    *   *Lingue supportate*: Inglese (Default), Italiano, Francese, Tedesco, Spagnolo, Portoghese, Russo, Cinese.
-    *   La tua scelta verrà memorizzata per i futuri avvii.
+    *   ⬇️ **Giallo/Arancione**: È disponibile un aggiornamento.
+3.  **Selettore Lingua**: In alto a destra trovi le bandiere (8 lingue supportate) per cambiare istantaneamente l'interfaccia.
+    *   *Lingue*: IT, EN, FR, DE, ES, PT, RU, ZH.
+    *   La scelta viene memorizzata nel profilo utente.
 
 ### Azioni Disponibili
-*   **Nuovo Progetto (New Project)**: Crea una sessione vuota. Tutte le colonne saranno pulite e pronte per essere riempite. Usalo per iniziare un nuovo episodio da zero.
-*   **Carica Progetto (Load Project)**: Apre una finestra di dialogo per selezionare un file `.lmp` (Live Machine Project) dal tuo disco.
-    *   *Suggerimento*: I file `.lmp` contengono tutte le impostazioni delle clip, i volumi, i colori e le mappature MIDI.
-*   **Manuale Online**: Apre questo manuale nel tuo browser predefinito per una consultazione rapida.
+*   **Nuovo Progetto (New Project)**: Crea una sessione vuota. Tutte le 5 colonne (Assets, Music, Voice, SFX, PRE-SHOW) saranno pronte per il caricamento dei file.
+*   **Carica Progetto (Load Project)**: Apre un file `.lmp` esistente. RRLMP eseguirà un controllo di integrità: se mancano dei file audio, verranno evidenziati in rosso.
+*   **Manuale Online**: Apre la documentazione aggiornata nel tuo browser.
 
-> **Primo Avvio**: Una volta cliccato su "Nuovo Progetto" o caricato un file, l'interfaccia si aprirà a tutto schermo per massimizzare lo spazio di lavoro. Sei pronto per andare in onda.
+> **Primo Avvio**: RRLMP si avvia preferibilmente a tutto schermo. Una volta caricato un progetto, noterai il badge **PRO** ciano nell'header, a conferma della licenza e della stabilità del motore audio.
 

@@ -39,8 +39,8 @@ Una **Card Rossa** indica che il software non riesce più a trovare il file audi
 ## 8.3 Problemi MIDI
 
 ### Il mio controller MIDI non funziona / non viene rilevato.
-1.  **Regola d'Oro del MIDI**: Il controller deve essere collegato al computer **PRIMA** di avviare Runtime Live Machine.
-    *   Se lo colleghi a software aperto, il browser interno potrebbe non vederlo. Chiudi e riapri RLM.
+1.  **Regola d'Oro del MIDI**: Il controller deve essere collegato al computer **PRIMA** di avviare Runtime Live Machine Pro.
+    *   Se lo colleghi a software aperto, il browser interno potrebbe non vederlo. Chiudi e riapri RRLMP.
 2.  **Learn Mode**: Verifica di non aver lasciato attiva la modalità "MIDI Learn" (Icona Ciano). In questa modalità, premere i tasti serve solo a mappare, non a suonare.
 3.  **Driver**: Alcuni controller avanzati richiedono driver specifici. Verifica che Windows lo riconosca correttamente.
 
@@ -48,14 +48,14 @@ Una **Card Rossa** indica che il software non riesce più a trovare il file audi
 
 ## 8.4 Domande Frequenti (FAQ)
 
-**Q: Posso usare RLM per automatizzare la radio 24 ore su 24?**
-A: No. RLM è progettato per la regia *Live* (show presidiati da una persona). Non ha funzioni di schedulazione oraria o rotazione automatica musicale infinita.
+**Q: Posso usare RRLMP per automatizzare la radio 24 ore su 24?**
+A: No. RRLMP è progettato per la regia *Live* (show presidiati da una persona). Non ha funzioni di schedulazione oraria o rotazione automatica musicale infinita.
 
 **Q: Quali formati audio sono supportati?**
 A: Supporta nativamente **MP3, WAV, AAC, OGG, FLAC**. Consigliamo l'uso di WAV per la massima qualità o MP3 320kbps per risparmiare spazio.
 
 **Q: Il software funziona su iPad o Android?**
-A: No, Runtime Live Machine è un software Desktop professionale per **Windows** e **macOS**. Richiede la potenza di gestione file di un computer vero.
+A: No, Runtime Live Machine Pro è un software Desktop professionale per **Windows** e **macOS**. Richiede la potenza di gestione file di un computer vero.
 
 **Q: Come aggiorno il software?**
 A: All'avvio, la Welcome Screen ti avviserà se c'è una nuova versione disponibile (indicatore Giallo/Arancione). Visita il sito ufficiale per scaricare l'installer aggiornato. I tuoi progetti `.lmp` salvati saranno compatibili con le nuove versioni.

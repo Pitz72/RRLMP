@@ -1,64 +1,64 @@
-ï»¿# CAPÃTULO 8: SOLUCIÃ“N DE PROBLEMAS Y PREGUNTAS FRECUENTES (FAQ)
+# CAPÍTULO 8: SOLUCIÓN DE PROBLEMAS Y PREGUNTAS FRECUENTES (FAQ)
 
-Incluso en el software mÃ¡s estable, pueden ocurrir imprevistos debido al hardware o al sistema operativo. AquÃ­ encontrarÃ¡ las soluciones a los problemas mÃ¡s comunes.
+Incluso en el software más estable, pueden ocurrir imprevistos debido al hardware o al sistema operativo. Aquí encontrará las soluciones a los problemas más comunes.
 
 ---
 
 ## 8.1 Problemas de Audio
 
-### El Temporizador corre y los VÃºmetros se mueven, pero no escucho nada.
-El software estÃ¡ reproduciendo el audio correctamente (lo ve en las barras de colores en la parte superior), pero la seÃ±al no llega a sus altavoces/auriculares.
-1.  **Revise el Volumen Maestro**: AsegÃºrese de que el control deslizante de volumen en la parte superior no estÃ© en cero.
+### El Temporizador corre y los Vúmetros se mueven, pero no escucho nada.
+El software está reproduciendo el audio correctamente (lo ve en las barras de colores en la parte superior), pero la señal no llega a sus altavoces/auriculares.
+1.  **Revise el Volumen Maestro**: Asegúrese de que el control deslizante de volumen en la parte superior no esté en cero.
 2.  **Verifique la Salida (Enrutamiento)**:
-    *   Haga clic en el icono de **Engranaje** (ConfiguraciÃ³n).
-    *   Verifique quÃ© dispositivo estÃ¡ seleccionado en "Audio Output Device".
-    *   A veces Windows cambia el ID de los dispositivos USB si se desconectan y se vuelven a conectar. Intente volver a seleccionar su tarjeta de audio (ej. *RÃ¸decaster Pro* o *Auriculares*) de la lista.
-3.  **Mezclador Externo**: Si sale a un mezclador USB, verifique que el fader fÃ­sico de ese canal no estÃ© bajado o en "Mute".
+    *   Haga clic en el icono de **Engranaje** (Configuración).
+    *   Verifique qué dispositivo está seleccionado en "Audio Output Device".
+    *   A veces Windows cambia el ID de los dispositivos USB si se desconectan y se vuelven a conectar. Intente volver a seleccionar su tarjeta de audio (ej. *Rødecaster Pro* o *Auriculares*) de la lista.
+3.  **Mezclador Externo**: Si sale a un mezclador USB, verifique que el fader físico de ese canal no esté bajado o en "Mute".
 
 ### El audio "crepita" o salta.
-Esto sucede raramente gracias al motor nativo, pero puede suceder si la CPU de la computadora estÃ¡ bajo estrÃ©s extremo.
-*   Cierre otras aplicaciones pesadas (ediciÃ³n de video, juegos).
-*   Si usa una tarjeta de audio profesional, verifique que el *TamaÃ±o del BÃºfer (Buffer Size)* en los controladores de la tarjeta no sea demasiado bajo (recomendado: 256 o 512 muestras).
+Esto sucede raramente gracias al motor nativo, pero puede suceder si la CPU de la computadora está bajo estrés extremo.
+*   Cierre otras aplicaciones pesadas (edición de video, juegos).
+*   Si usa una tarjeta de audio profesional, verifique que el *Tamaño del Búfer (Buffer Size)* en los controladores de la tarjeta no sea demasiado bajo (recomendado: 256 o 512 muestras).
 
 ---
 
-## 8.2 GestiÃ³n de Archivos y Clips Rojos
+## 8.2 Gestión de Archivos y Clips Rojos
 
 ### Un Clip se ha vuelto Rojo y ya no suena.
 Una **Tarjeta Roja** indica que el software ya no puede encontrar el archivo de audio en el disco.
-*   **Causa**: Ha movido, renombrado o eliminado el archivo MP3/WAV original. O el archivo estaba en una memoria USB/Disco Externo que ahora estÃ¡ desconectado.
-*   **SoluciÃ³n**:
+*   **Causa**: Ha movido, renombrado o eliminado el archivo MP3/WAV original. O el archivo estaba en una memoria USB/Disco Externo que ahora está desconectado.
+*   **Solución**:
     1.  Vuelva a conectar el disco externo.
-    2.  Mueva el archivo de nuevo a su ubicaciÃ³n original.
-    3.  O, arrastre el archivo de nuevo a la cuadrÃ­cula (creando una nueva tarjeta) y elimine la antigua roja.
+    2.  Mueva el archivo de nuevo a su ubicación original.
+    3.  O, arrastre el archivo de nuevo a la cuadrícula (creando una nueva tarjeta) y elimine la antigua roja.
 
-> **PrevenciÃ³n**: Para evitar este problema, use la funciÃ³n **Export Package** (Cap. 7) que copia todos los archivos en una carpeta segura junto con el proyecto.
+> **Prevención**: Para evitar este problema, use la función **Export Package** (Cap. 7) que copia todos los archivos en una carpeta segura junto con el proyecto.
 
 ---
 
 ## 8.3 Problemas MIDI
 
 ### Mi controlador MIDI no funciona / no es detectado.
-1.  **Regla de Oro del MIDI**: El controlador debe estar conectado a la computadora **ANTES** de iniciar Runtime Live Machine.
-    *   Si lo conecta con el software abierto, el navegador interno podrÃ­a no verlo. Cierre y vuelva a abrir RLM.
+1.  **Regla de Oro del MIDI**: El controlador debe estar conectado a la computadora **ANTES** de iniciar Runtime Live Machine Pro.
+    *   Si lo conecta con el software abierto, el navegador interno podría no verlo. Cierre y vuelva a abrir RRLMP.
 2.  **Learn Mode**: Verifique que no haya dejado el modo "MIDI Learn" activo (Icono Cian). En este modo, presionar las teclas sirve solo para mapear, no para tocar.
-3.  **Controladores (Drivers)**: Algunos controladores avanzados requieren controladores especÃ­ficos. Verifique que Windows lo reconozca correctamente.
+3.  **Controladores (Drivers)**: Algunos controladores avanzados requieren controladores específicos. Verifique que Windows lo reconozca correctamente.
 
 ---
 
 ## 8.4 Preguntas Frecuentes (FAQ)
 
-**P: Â¿Puedo usar RLM para automatizar la radio las 24 horas?**
-R: No. RLM estÃ¡ diseÃ±ado para la direcciÃ³n *En Vivo* (programas atendidos por una persona). No tiene funciones de programaciÃ³n horaria o rotaciÃ³n musical automÃ¡tica infinita.
+**P: ¿Puedo usar RRLMP para automatizar la radio las 24 horas?**
+R: No. RRLMP está diseñado para la dirección *En Vivo* (programas atendidos por una persona). No tiene funciones de programación horaria o rotación musical automática infinita.
 
-**P: Â¿QuÃ© formatos de audio son compatibles?**
-R: Soporta nativamente **MP3, WAV, AAC, OGG, FLAC**. Recomendamos usar WAV para mÃ¡xima calidad o MP3 320kbps para ahorrar espacio.
+**P: ¿Qué formatos de audio son compatibles?**
+R: Soporta nativamente **MP3, WAV, AAC, OGG, FLAC**. Recomendamos usar WAV para máxima calidad o MP3 320kbps para ahorrar espacio.
 
-**P: Â¿El software funciona en iPad o Android?**
-R: No, Runtime Live Machine es un software de Escritorio profesional para **Windows** y **macOS**. Requiere la potencia de gestiÃ³n de archivos de una computadora real.
+**P: ¿El software funciona en iPad o Android?**
+R: No, Runtime Live Machine Pro es un software de Escritorio profesional para **Windows** y **macOS**. Requiere la potencia de gestión de archivos de una computadora real.
 
-**P: Â¿CÃ³mo actualizo el software?**
-R: Al inicio, la Welcome Screen le notificarÃ¡ si hay una nueva versiÃ³n disponible (indicador Amarillo/Naranja). Visite el sitio oficial para descargar el instalador actualizado. Sus proyectos .lmp guardados serÃ¡n compatibles con las nuevas versiones.
+**P: ¿Cómo actualizo el software?**
+R: Al inicio, la Welcome Screen le notificará si hay una nueva versión disponible (indicador Amarillo/Naranja). Visite el sitio oficial para descargar el instalador actualizado. Sus proyectos .lmp guardados serán compatibles con las nuevas versiones.
 
-**P: Â¿DÃ³nde encuentro los archivos de guardado automÃ¡tico?**
-R: Si estÃ¡ trabajando en un archivo guardado, la copia de seguridad .bak estÃ¡ en la misma carpeta que el proyecto. Si estaba trabajando en un proyecto "Sin TÃ­tulo" y la PC se apagÃ³, verifique en la carpeta de datos de aplicaciÃ³n del sistema (en Windows: %APPDATA%\runtime-live-machine\).
+**P: ¿Dónde encuentro los archivos de guardado automático?**
+R: Si está trabajando en un archivo guardado, la copia de seguridad .bak está en la misma carpeta que el proyecto. Si estaba trabajando en un proyecto "Sin Título" y la PC se apagó, verifique en la carpeta de datos de aplicación del sistema (en Windows: %APPDATA%\runtime-live-machine\).

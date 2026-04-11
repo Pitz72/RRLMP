@@ -1,63 +1,63 @@
-Ôªø# CAP√çTULO 5: O MOTOR DE MISTURA (O C√âREBRO)
+# CAPÕTULO 5: O MOTOR DE MISTURA (O C…REBRO)
 
-O Runtime Live Machine n√£o √© um simples leitor que toca ficheiros de √°udio ao acaso. No seu interior existe um **"C√©rebro" de Mistura** sempre ativo.
-O software age como um t√©cnico de som virtual invis√≠vel: escuta o que est√° a fazer e ajusta automaticamente os volumes das outras faixas para garantir que o resultado final seja sempre limpo e intelig√≠vel.
+O Runtime Live Machine Pro n„o È um simples leitor que toca ficheiros de ·udio ao acaso. No seu interior existe um **"CÈrebro" de Mistura** sempre ativo.
+O software age como um tÈcnico de som virtual invisÌvel: escuta o que est· a fazer e ajusta automaticamente os volumes das outras faixas para garantir que o resultado final seja sempre limpo e inteligÌvel.
 
-N√£o tem de se preocupar em baixar manualmente a m√∫sica quando come√ßa uma entrevista: o RLM trata disso.
-
----
-
-## 5.1 A Hierarquia de √Åudio (A Pir√¢mide)
-
-Para perceber como funciona, imagine as colunas como uma pir√¢mide de import√¢ncia. Quem est√° no topo "manda" no volume de quem est√° em baixo.
-
-1.  **N√çVEL 1 (Chefes Supremos): VOZES / PR√â-GRAVADOS** (Coluna Laranja)
-    *   T√™m sempre a prioridade absoluta. Ningu√©m pode baixar o seu volume. Quando falam, todos os outros se calam.
-2.  **N√çVEL 2 (Classe M√©dia): M√öSICAS DO EPIS√ìDIO** (Coluna Vermelha)
-    *   S√£o baixadas pelas Vozes. Mas mandam nos Assets.
-3.  **N√çVEL 3 (Fundo): SHOW ASSETS** (Coluna Verde)
-    *   S√£o as bases e os tapetes sonoros. S√£o silenciados por quase tudo o resto.
-
-> **Nota Bem**: A coluna **SFX / CARTWALL** (Cinzenta) est√° "fora do sistema". Os efeitos sonoros tocam sempre no volume m√°ximo e sobrep√µem-se a tudo sem influenciar ou ser influenciados pelos outros. Um aplauso deve ouvir-se forte, mesmo sobre uma voz.
+N„o tem de se preocupar em baixar manualmente a m˙sica quando comeÁa uma entrevista: o RRLMP trata disso.
 
 ---
 
-## 5.2 O Ducking Autom√°tico (Efeito R√°dio)
+## 5.1 A Hierarquia de ¡udio (A Pir‚mide)
 
-Esta √© a fun√ß√£o mais utilizada em r√°dio. O "Ducking" √© o abaixamento autom√°tico da m√∫sica quando algu√©m fala.
+Para perceber como funciona, imagine as colunas como uma pir‚mide de import‚ncia. Quem est· no topo "manda" no volume de quem est· em baixo.
+
+1.  **NÕVEL 1 (Chefes Supremos): VOZES / PR…-GRAVADOS** (Coluna Laranja)
+    *   TÍm sempre a prioridade absoluta. NinguÈm pode baixar o seu volume. Quando falam, todos os outros se calam.
+2.  **NÕVEL 2 (Classe MÈdia): M⁄SICAS DO EPIS”DIO** (Coluna Vermelha)
+    *   S„o baixadas pelas Vozes. Mas mandam nos Assets.
+3.  **NÕVEL 3 (Fundo): SHOW ASSETS** (Coluna Verde)
+    *   S„o as bases e os tapetes sonoros. S„o silenciados por quase tudo o resto.
+
+> **Nota Bem**: A coluna **SFX / CARTWALL** (Cinzenta) est· "fora do sistema". Os efeitos sonoros tocam sempre no volume m·ximo e sobrepıem-se a tudo sem influenciar ou ser influenciados pelos outros. Um aplauso deve ouvir-se forte, mesmo sobre uma voz.
+
+---
+
+## 5.2 O Ducking Autom·tico (Efeito R·dio)
+
+Esta È a funÁ„o mais utilizada em r·dio. O "Ducking" È o abaixamento autom·tico da m˙sica quando alguÈm fala.
 
 *   **Como funciona**:
-    1.  Tem uma M√∫sica ou uma Base em reprodu√ß√£o (Volume 100%).
-    2.  Lan√ßa um clip da coluna **VOZES** (ex. uma entrevista ou um √°udio).
-    3.  O software baixa imediata e suavemente a M√∫sica/Base para um n√≠vel de fundo (cerca de 20% do volume, ou -14dB).
-    4.  A Voz soa clara sobre a m√∫sica.
-    5.  Assim que o clip Voz acaba, a m√∫sica sobe automaticamente para 100%.
+    1.  Tem uma M˙sica ou uma Base em reproduÁ„o (Volume 100%).
+    2.  LanÁa um clip da coluna **VOZES** (ex. uma entrevista ou um ·udio).
+    3.  O software baixa imediata e suavemente a M˙sica/Base para um nÌvel de fundo (cerca de 20% do volume, ou -14dB).
+    4.  A Voz soa clara sobre a m˙sica.
+    5.  Assim que o clip Voz acaba, a m˙sica sobe automaticamente para 100%.
 
-*   **Vantagem**: N√£o tem de usar o rato para baixar faders enquanto tenta lan√ßar a entrevista. √â tudo autom√°tico.
+*   **Vantagem**: N„o tem de usar o rato para baixar faders enquanto tenta lanÁar a entrevista. … tudo autom·tico.
 
 ---
 
-## 5.3 Domin√¢ncia Musical (Gest√£o Inteligente de Bases)
+## 5.3 Domin‚ncia Musical (Gest„o Inteligente de Bases)
 
-Um erro cl√°ssico dos realizadores principiantes √© fazer tocar uma m√∫sica *sobre* uma base r√≠tmica (Bed), criando um caos sonoro (bateria contra bateria). O RLM resolve este problema com a **Domin√¢ncia Musical**.
+Um erro cl·ssico dos realizadores principiantes È fazer tocar uma m˙sica *sobre* uma base rÌtmica (Bed), criando um caos sonoro (bateria contra bateria). O RRLMP resolve este problema com a **Domin‚ncia Musical**.
 
-*   **O Cen√°rio**:
-    Tem uma Base (Show Asset) em loop sob a voz do locutor. A dada altura lan√ßa um disco (M√∫sica).
-*   **O que faz o RLM**:
-    Em vez de parar a base (que precisaria pronta depois da m√∫sica), o software leva-a a **Volume 0 (Mudo)** mas continua a faz√™-la rodar "em fantasma".
+*   **O Cen·rio**:
+    Tem uma Base (Show Asset) em loop sob a voz do locutor. A dada altura lanÁa um disco (M˙sica).
+*   **O que faz o RRLMP**:
+    Em vez de parar a base (que precisaria pronta depois da m˙sica), o software leva-a a **Volume 0 (Mudo)** mas continua a fazÍ-la rodar "em fantasma".
 *   **O Resultado**:
-    Ouve-se apenas a M√∫sica. A base desapareceu.
+    Ouve-se apenas a M˙sica. A base desapareceu.
 *   **O Regresso**:
-    Quando a M√∫sica acaba (ou prime Stop na m√∫sica), a Base reemerge automaticamente em desvanecimento (Fade In).
+    Quando a M˙sica acaba (ou prime Stop na m˙sica), a Base reemerge automaticamente em desvanecimento (Fade In).
 
-Isto permite-lhe ter um fluxo cont√≠nuo "Base -> M√∫sica -> Base" sem nunca ter de clicar em "Play" na base uma segunda vez.
+Isto permite-lhe ter um fluxo contÌnuo "Base -> M˙sica -> Base" sem nunca ter de clicar em "Play" na base uma segunda vez.
 
 ---
 
-## 5.4 Exce√ß√µes: As "Interrup√ß√µes" (Stacchi)
+## 5.4 ExceÁıes: As "InterrupÁıes" (Stacchi)
 
-O que acontece se quiser tocar um Jingle da r√°dio *sobre* a base, sem que a base desapare√ßa de todo?
-Aqui entra em jogo a defini√ß√£o **Behavior: Stacco** (ver Cap. 4).
+O que acontece se quiser tocar um Jingle da r·dio *sobre* a base, sem que a base desapareÁa de todo?
+Aqui entra em jogo a definiÁ„o **Behavior: Stacco** (ver Cap. 4).
 
-*   Se um clip na coluna Assets estiver definido como "Normal", parar√° as outras bases.
-*   Se estiver definido como **"Stacco"**, sobrepor-se-√° √†s outras bases baixando-as ligeiramente, mas sem as parar. √â ideal para os Station ID ("Est√£o a ouvir a Runtime Radio...") que devem "cavalgar" a intro de uma faixa ou uma base.
+*   Se um clip na coluna Assets estiver definido como "Normal", parar· as outras bases.
+*   Se estiver definido como **"Stacco"**, sobrepor-se-· ‡s outras bases baixando-as ligeiramente, mas sem as parar. … ideal para os Station ID ("Est„o a ouvir a Runtime Radio...") que devem "cavalgar" a intro de uma faixa ou uma base.

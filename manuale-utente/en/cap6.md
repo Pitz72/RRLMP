@@ -1,4 +1,4 @@
-ï»¿# CHAPTER 6: HARDWARE CONTROL AND ROUTING
+# CHAPTER 6: HARDWARE CONTROL AND ROUTING
 
 A professional directing software does not live isolated in the computer. It must communicate with the studio mixer, headphones, and the director's fingers.
 In this chapter, we will see how to configure the audio output and how to control the software without touching the mouse.
@@ -7,24 +7,24 @@ In this chapter, we will see how to configure the audio output and how to contro
 
 ## 6.1 Audio Configuration (Routing)
 
-By default, RLM outputs to the default Windows audio device. However, in a studio (or with advanced podcast setups like the *RÃ¸decaster Pro*), you need to separate the flows.
+By default, RRLMP outputs to the default Windows audio device. However, in a studio (or with advanced podcast setups like the *Rødecaster Pro*), you need to separate the flows.
 
 ### Selecting the Output
 1.  Click the **Gear (Settings)** icon in the top command bar.
 2.  The **General Settings** panel will open.
 3.  In the "Audio Output Device" dropdown menu, you will see the list of all sound cards connected to your PC.
-4.  Select the desired device (e.g., *RÃ¸decaster Pro Stereo* or *Focusrite USB*).
+4.  Select the desired device (e.g., *Rødecaster Pro Stereo* or *Focusrite USB*).
 
 ### Live Switch
 The change is instantaneous. If music is playing while you switch devices, the audio will "jump" to the new output without interruption.
 
-> **Tip for RÃ¸decaster/USB Mixers**: If your mixer has multiple USB channels (e.g., Main and Sounds/Chat), set RLM to a secondary channel (e.g., "Sounds") so you can control its volume with a dedicated fader on the physical mixer, separating it from Windows system sounds.
+> **Tip for Rødecaster/USB Mixers**: If your mixer has multiple USB channels (e.g., Main and Sounds/Chat), set RRLMP to a secondary channel (e.g., "Sounds") so you can control its volume with a dedicated fader on the physical mixer, separating it from Windows system sounds.
 
 ---
 
 ## 6.2 The Keyboard (Hotkeys)
 
-The computer keyboard is the fastest controller you have. RLM includes preset global commands and customizable keys.
+The computer keyboard is the fastest controller you have. RRLMP includes preset global commands and customizable keys.
 
 ### Global Commands (F-Keys)
 Function keys (F1-F5) are mapped to launch columns. They have "smart" logic: they look for the first free clip.
@@ -52,11 +52,11 @@ Do you want to launch the intro by pressing the spacebar or the letter "Q"?
 This is the quintessential "Pro" function. You can connect musical keyboards, pads (like *Novation Launchpad*) or fader controllers (like *Korg nanoKONTROL*) and use them to drive the software.
 
 ### Connection
-1.  Connect your USB-MIDI controller to the computer **before** starting Runtime Live Machine.
+1.  Connect your USB-MIDI controller to the computer **before** starting Runtime Live Machine Pro.
 2.  Start the software. The MIDI engine will automatically recognize the device.
 
 ### MIDI Learn Mode (Easy Mapping)
-You don't need to know complicated codes. RLM learns by watching what you do.
+You don't need to know complicated codes. RRLMP learns by watching what you do.
 
 1.  Click the **MIDI** icon (DIN Connector) in the top bar.
     *   The icon turns **Cyan (On)**.

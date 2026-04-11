@@ -1,0 +1,221 @@
+==============================================================
+  RUNTIME LIVE MACHINE PRO — Guida alla Compilazione (macOS)
+==============================================================
+Versione: 1.0.0
+Data: 2026-04-11
+Piattaforme testate: macOS Monterey 12.x, Ventura 13.x, Sonoma 14.x
+
+
+--------------------------------------------------------------
+PREREQUISITI
+--------------------------------------------------------------
+
+1. XCODE COMMAND LINE TOOLS
+   Richiesti da electron-builder per compilare moduli nativi.
+
+   Apri il Terminale e lancia:
+   $ xcode-select --install
+
+   Segui la procedura guidata. Se già installati, il comando
+   mostrerà un errore innocuo (xcode-select: already installed).
+
+
+2. NODE.JS 18 o superiore
+   Scarica da https://nodejs.org (versione LTS consigliata)
+   oppure usa Homebrew:
+
+   $ brew install node
+
+   Verifica versioni dopo l'installazione:
+   $ node --version    # deve essere 18.x o superiore
+   $ npm --version     # deve essere 9.x o superiore
+
+
+3. PYTHON 3 + PILLOW (per generazione icone)
+   Python 3 è già installato su macOS Monterey+.
+   Installa Pillow solo se devi rigenerare le icone:
+
+   $ pip3 install Pillow
+
+   Per la compilazione normale (build da sorgente) Pillow non è
+   necessario: le icone sono già nel repo (build/icon.png, etc).
+
+
+4. GIT
+   $ git --version
+
+   Se non è installato, macOS lo proporrà automaticamente.
+   In alternativa:
+   $ brew install git
+
+
+--------------------------------------------------------------
+DOWNLOAD DEL SORGENTE
+--------------------------------------------------------------
+
+Clona il repository (scegli GitLab o GitHub):
+
+  GitLab (principale):
+  $ git clone https://gitlab.com/pizzisimone1972/RRLMP.git
+
+  GitHub (mirror privato):
+  $ git clone https://github.com/Pitz72/RRLMP.git
+
+Entra nella cartella:
+  $ cd RRLMP
+
+
+--------------------------------------------------------------
+INSTALLAZIONE DIPENDENZE
+--------------------------------------------------------------
+
+$ npm install
+
+Questo scarica tutte le dipendenze da package.json inclusi
+Electron, React, Vite, Tailwind, Zustand e electron-builder.
+Tempo stimato: 2–5 minuti in base alla connessione.
+
+
+--------------------------------------------------------------
+AVVIO IN MODALITÀ SVILUPPO
+--------------------------------------------------------------
+
+$ npm run dev
+
+Lancia Vite + Electron con hot-reload. Utile per sviluppare
+o verificare che tutto funzioni prima di eseguire la build.
+
+
+--------------------------------------------------------------
+BUILD DI PRODUZIONE (installer .dmg)
+--------------------------------------------------------------
+
+Esegui i quattro passaggi nell'ordine:
+
+1. Compila il processo principale Electron:
+   $ npm run build:main
+
+2. Compila il preload (bridge sicuro IPC):
+   $ npm run build:preload
+
+3. Compila il renderer React (Vite):
+   $ npx vite build
+
+4. Genera l'installer macOS:
+   $ npx electron-builder --mac
+
+Output finale:
+   builds/v1.0.0/Runtime Live Machine Pro-1.0.0.dmg
+
+   Questo file è un installer standard macOS: aprilo, trascina
+   l'app nella cartella Applicazioni e avvia normalmente.
+
+
+--------------------------------------------------------------
+NOTA: FIRMA DEL CODICE (CODE SIGNING)
+--------------------------------------------------------------
+
+Se compili per uso personale (non per distribuzione),
+electron-builder crea un .dmg non firmato. macOS mostrerà
+un avviso "applicazione da sviluppatore non identificato".
+
+Per avviare comunque l'app:
+- Apri Finder → Applicazioni
+- Tasto destro sull'app → "Apri" → "Apri" di nuovo nel dialog
+
+Oppure da Terminale:
+  $ xattr -cr "/Applications/Runtime Live Machine Pro.app"
+
+Per la distribuzione pubblica è necessario un Apple Developer
+Account (99$/anno) e la firma con codesign + notarizzazione.
+Questo è rilevante solo per chi vuole distribuire l'app ad
+altri utenti Mac — non per l'uso personale.
+
+
+--------------------------------------------------------------
+NOTE SU FFMPEG
+--------------------------------------------------------------
+
+FFmpeg è incluso nel progetto come binario precompilato e
+viene estratto dall'ASAR (electron-builder: asarUnpack).
+
+I binari inclusi sono per Windows (ffmpeg.exe, ffprobe.exe).
+Per macOS è necessario sostituirli con le versioni macOS:
+
+1. Scarica FFmpeg per macOS da https://evermeet.cx/ffmpeg/
+   (build statica, formato .7z — estrai ffmpeg e ffprobe)
+
+2. Sostituisci i binari nella cartella del progetto:
+   resources/ffmpeg         (sostituisci con il binario macOS)
+   resources/ffprobe        (sostituisci con il binario macOS)
+
+3. Dai permessi di esecuzione:
+   $ chmod +x resources/ffmpeg resources/ffprobe
+
+4. Ricompila con i passaggi della sezione "Build di produzione"
+
+   Senza questo passaggio, le funzionalità che dipendono da
+   FFmpeg non funzioneranno su Mac (silence detection,
+   waveform rendering, metadata ID3).
+
+
+--------------------------------------------------------------
+PERCORSO FILE OUTPUT BUILD
+--------------------------------------------------------------
+
+  builds/
+  └── v1.0.0/
+      ├── Runtime Live Machine Pro-1.0.0.dmg     ← installer
+      ├── Runtime Live Machine Pro-1.0.0-mac.zip ← portabile
+      └── builder-debug.yml                       ← log build
+
+La cartella builds/ è in .gitignore — non viene mai
+committata nel repository.
+
+
+--------------------------------------------------------------
+PROBLEMI COMUNI
+--------------------------------------------------------------
+
+ERRORE: "gyp: No Xcode or CLT version detected"
+  → Reinstalla Xcode Command Line Tools:
+    $ sudo xcode-select --reset
+    $ xcode-select --install
+
+ERRORE: "Error: EACCES permission denied" durante npm install
+  → Non usare sudo. Correggi i permessi npm:
+    $ sudo chown -R $(whoami) ~/.npm
+
+ERRORE: "cannot be opened because the developer cannot be verified"
+  → Vedi sezione "Firma del codice" sopra.
+
+ERRORE: "dyld: Library not loaded" all'avvio dell'app
+  → FFmpeg non è compatibile con macOS. Vedi sezione FFmpeg.
+
+L'app si avvia ma il waveform non appare / silence detection fallisce
+  → FFmpeg binario mancante o non eseguibile. Vedi sezione FFmpeg.
+
+
+--------------------------------------------------------------
+VERSIONE NODE.JS RACCOMANDATA
+--------------------------------------------------------------
+
+Node.js 18 LTS (18.20.x) — versione testata con Electron 28
+Node.js 20 LTS — compatibile
+Node.js 22+ — non testato, potrebbe avere incompatibilità
+               con moduli nativi di electron-builder
+
+Consiglio: usa nvm per gestire versioni Node multiple:
+  $ brew install nvm
+  $ nvm install 18
+  $ nvm use 18
+
+
+--------------------------------------------------------------
+CONTATTI / SEGNALAZIONE BUG
+--------------------------------------------------------------
+
+Repository: https://gitlab.com/pizzisimone1972/RRLMP
+Issue tracker: https://gitlab.com/pizzisimone1972/RRLMP/-/issues
+
+==============================================================

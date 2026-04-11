@@ -1,4 +1,4 @@
-﻿# CHAPTER 4: ADVANCED CLIP EDITING (PROPERTIES)
+# CHAPTER 4: ADVANCED CLIP EDITING (PROPERTIES)
 
 Every audio file is different: some have long initial silences, others have too low volume, and others need to repeat endlessly.
 To access the advanced configuration panel, **Right-Click** on any clip and select **"Edit"**.
@@ -28,8 +28,8 @@ Often audio files are not "ready for air": they have seconds of silence at the s
 *   **Trim End**: Sets how many seconds to cut from the end.
     *   *Example*: If the song has 20 seconds of useless final applause, increase this value until the "New Duration" satisfies you.
 
-### 🪄 The Magic Wand (Smart Trim / Auto-Detect)
-To speed up work, RLM includes a basic artificial intelligence algorithm.
+### ?? The Magic Wand (Smart Trim / Auto-Detect)
+To speed up work, RRLMP includes a basic artificial intelligence algorithm.
 1.  Click the button with the **Magic Wand** icon next to the Trim controls.
 2.  The software scans the file in a fraction of a second.
 3.  Automatically detects where the real sound begins and ends (above the -40dB threshold).

@@ -1,4 +1,4 @@
-﻿# CHAPTER 3: AUDIO MANAGEMENT (BASIC WORKFLOW)
+# CHAPTER 3: AUDIO MANAGEMENT (BASIC WORKFLOW)
 
 Now that you know the interface, it's time to "load the machine".
 In this chapter, you will learn how to import audio files, control playback, and keep your playlist organized.
@@ -7,7 +7,7 @@ In this chapter, you will learn how to import audio files, control playback, and
 
 ## 3.1 Importing (Drag & Drop)
 
-Runtime Live Machine does not use complex "File > Import" menus. It is designed to work directly with your computer's folders.
+Runtime Live Machine Pro does not use complex "File > Import" menus. It is designed to work directly with your computer's folders.
 
 ### How to load files
 1.  Open the folder on your computer (File Explorer on Windows or Finder on Mac) where you keep your audio files.
@@ -18,10 +18,10 @@ The clip will instantly appear as a new Card.
 
 ### Import Details
 *   **Multiple Loading**: You can select 10, 20, or 50 files simultaneously from your folder and drag them all together. The software will create a card for each of them in sequence.
-*   **Supported Formats**: Thanks to the native engine, RLM supports almost all standard audio formats: **MP3, WAV, AAC (m4a), OGG, FLAC**.
+*   **Supported Formats**: Thanks to the native engine, RRLMP supports almost all standard audio formats: **MP3, WAV, AAC (m4a), OGG, FLAC**.
 *   **Performance**: It doesn't matter if you load a 2-second jingle or a 2-hour DJ Set in uncompressed WAV format. Loading is **instant** and does not consume the computer's RAM, thanks to *Direct Disk Streaming* technology.
 
-> **Note**: The software stores the "path" of the file (e.g., C:\Music\Song.mp3). If you move or rename the original file on your computer, RLM will no longer be able to find it (the card will turn red/inactive). To avoid this issue if you change PCs, use the "Export Package" function (see Chap. 7).
+> **Note**: The software stores the "path" of the file (e.g., C:\Music\Song.mp3). If you move or rename the original file on your computer, RRLMP will no longer be able to find it (the card will turn red/inactive). To avoid this issue if you change PCs, use the "Export Package" function (see Chap. 7).
 
 ---
 
@@ -48,7 +48,7 @@ In radio directing, you usually don't want two songs playing simultaneously on t
 
 ## 3.3 Playlist Organization
 
-During a show, needs change. RLM allows you to rearrange the grid on the fly.
+During a show, needs change. RRLMP allows you to rearrange the grid on the fly.
 
 ### Moving Clips (Reordering)
 Loaded the playlist but decide to change the song order?

@@ -7,7 +7,7 @@ In questo capitolo imparerai come importare i file audio, come controllare la ri
 
 ## 3.1 Importazione (Drag & Drop)
 
-Runtime Live Machine non utilizza complessi menu "File > Importa". È progettato per lavorare direttamente con le cartelle del tuo computer.
+Runtime Live Machine Pro non utilizza complessi menu "File > Importa". È progettato per lavorare direttamente con le cartelle del tuo computer.
 
 ### Come caricare i file
 1.  Apri la cartella del tuo computer (Esplora Risorse su Windows o Finder su Mac) dove tieni i tuoi file audio.
@@ -18,10 +18,10 @@ La clip apparirà istantaneamente come una nuova Card.
 
 ### Dettagli Importazione
 *   **Caricamento Multiplo**: Puoi selezionare 10, 20 o 50 file contemporaneamente dalla tua cartella e trascinarli tutti insieme. Il software creerà una card per ognuno di essi in sequenza.
-*   **Formati Supportati**: Grazie al motore nativo, RLM supporta quasi tutti i formati audio standard: **MP3, WAV, AAC (m4a), OGG, FLAC**.
+*   **Formati Supportati**: Grazie al motore nativo, RRLMP supporta quasi tutti i formati audio standard: **MP3, WAV, AAC (m4a), OGG, FLAC**.
 *   **Performance**: Non importa se carichi un jingle di 2 secondi o un DJ Set di 2 ore in formato WAV non compresso. Il caricamento è **istantaneo** e non consuma la memoria RAM del computer, grazie alla tecnologia *Direct Disk Streaming*.
 
-> **Nota**: Il software memorizza il "percorso" del file (es. `C:\Musica\Song.mp3`). Se sposti o rinomini il file originale sul tuo computer, RLM non riuscirà più a trovarlo (la card diventerà rossa/inattiva). Per evitare questo problema se cambi PC, usa la funzione "Export Package" (vedi Cap. 7).
+> **Nota**: Il software memorizza il "percorso" del file (es. `C:\Musica\Song.mp3`). Se sposti o rinomini il file originale sul tuo computer, RRLMP non riuscirà più a trovarlo (la card diventerà rossa/inattiva). Per evitare questo problema se cambi PC, usa la funzione "Export Package" (vedi Cap. 7).
 
 ---
 
@@ -48,7 +48,7 @@ In una regia radiofonica, di solito non vuoi che due canzoni suonino contemporan
 
 ## 3.3 Organizzazione della Scaletta
 
-Durante uno show, le esigenze cambiano. RLM ti permette di riorganizzare la griglia al volo.
+Durante uno show, le esigenze cambiano. RRLMP ti permette di riorganizzare la griglia al volo.
 
 ### Spostare le Clip (Reordering)
 Hai caricato la scaletta ma decidi di cambiare l'ordine dei brani?

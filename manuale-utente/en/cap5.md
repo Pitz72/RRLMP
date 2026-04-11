@@ -1,9 +1,9 @@
-﻿# CHAPTER 5: THE MIXING ENGINE (THE BRAIN)
+# CHAPTER 5: THE MIXING ENGINE (THE BRAIN)
 
-Runtime Live Machine is not a simple player that plays audio files randomly. Inside it, there is an always-active **Mixing "Brain"**.
+Runtime Live Machine Pro is not a simple player that plays audio files randomly. Inside it, there is an always-active **Mixing "Brain"**.
 The software acts like an invisible virtual sound engineer: it listens to what you are doing and automatically adjusts the volumes of other tracks to ensure that the final result is always clean and intelligible.
 
-You don't have to worry about manually lowering the music when an interview starts: RLM takes care of it.
+You don't have to worry about manually lowering the music when an interview starts: RRLMP takes care of it.
 
 ---
 
@@ -39,11 +39,11 @@ This is the most used function in radio. "Ducking" is the automatic lowering of 
 
 ## 5.3 Music Dominance (Smart Bed Management)
 
-A classic mistake of rookie directors is playing a song *over* a rhythmic bed, creating sonic chaos (drums against drums). RLM solves this problem with **Music Dominance**.
+A classic mistake of rookie directors is playing a song *over* a rhythmic bed, creating sonic chaos (drums against drums). RRLMP solves this problem with **Music Dominance**.
 
 *   **The Scenario**:
     You have a Bed (Show Asset) looping under the speaker's voice. At some point, you launch a record (Song).
-*   **What RLM does**:
+*   **What RRLMP does**:
     Instead of stopping the bed (which you might need ready after the song), the software brings it to **Volume 0 (Mute)** but keeps it running "ghosted".
 *   **The Result**:
     Only the Song is heard. The bed is gone.

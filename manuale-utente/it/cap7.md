@@ -1,7 +1,7 @@
 # CAPITOLO 7: GESTIONE PROGETTI E SICUREZZA
 
 Configurare uno show richiede tempo: caricare le clip, regolare i volumi, impostare i trim. Perdere questo lavoro sarebbe disastroso.
-Runtime Live Machine utilizza un sistema di salvataggio a più livelli per garantire che i tuoi dati siano sempre al sicuro.
+Runtime Live Machine Pro utilizza un sistema di salvataggio a più livelli per garantire che i tuoi dati siano sempre al sicuro.
 
 ---
 
@@ -24,14 +24,14 @@ Nella barra dei comandi in alto, hai due opzioni distinte:
     *   Usalo per creare versioni diverse dello show (es. "Podcast_Ep1.lmp", "Podcast_Ep2.lmp").
 
 ### Protezione Chiusura (Unsaved Changes)
-Il software monitora costantemente le tue azioni. Se hai fatto modifiche non salvate (caricato una clip, cambiato un volume) e provi a chiudere il programma, RLM **bloccherà la chiusura** e ti mostrerà un avviso: *"Ci sono modifiche non salvate"*.
+Il software monitora costantemente le tue azioni. Se hai fatto modifiche non salvate (caricato una clip, cambiato un volume) e provi a chiudere il programma, RRLMP **bloccherà la chiusura** e ti mostrerà un avviso: *"Ci sono modifiche non salvate"*.
 Non perderai mai il lavoro per un click accidentale sulla "X".
 
 ---
 
 ## 7.2 Auto-Backup (La Rete di Protezione)
 
-Non sempre ci si ricorda di salvare. Per questo, RLM include un sistema di **Auto-Backup** invisibile che lavora in background.
+Non sempre ci si ricorda di salvare. Per questo, RRLMP include un sistema di **Auto-Backup** invisibile che lavora in background.
 
 *   **Frequenza**: Ogni **5 minuti**, il software salva automaticamente una copia di sicurezza dello stato attuale.
 *   **Dove finisce il backup?**
@@ -39,7 +39,7 @@ Non sempre ci si ricorda di salvare. Per questo, RLM include un sistema di **Aut
 *   **Come recuperarlo**:
     *   Se il PC si spegne improvvisamente o il file principale si corrompe, vai nella cartella del progetto.
     *   Cerca il file `.bak`.
-    *   Rinominalo togliendo il `.bak` (o aprilo direttamente con RLM). Avrai recuperato il lavoro fino agli ultimi 5 minuti.
+    *   Rinominalo togliendo il `.bak` (o aprilo direttamente con RRLMP). Avrai recuperato il lavoro fino agli ultimi 5 minuti.
 
 ---
 
@@ -60,6 +60,6 @@ Per spostare lo show, devi usare la funzione **Export Package**.
     *   Crea un nuovo file `project.lmp` in cui tutti i collegamenti sono stati riscritti per puntare alla cartella locale `audio/`.
 
 ### Il Risultato
-Otterrai una cartella contenente tutto il necessario. Puoi collegare la chiavetta USB a qualsiasi computer con Runtime Live Machine installato, aprire il file `project.lmp` e tutto funzionerà perfettamente, indipendentemente dalle lettere delle unità o dai percorsi originali.
+Otterrai una cartella contenente tutto il necessario. Puoi collegare la chiavetta USB a qualsiasi computer con Runtime Live Machine Pro installato, aprire il file `project.lmp` e tutto funzionerà perfettamente, indipendentemente dalle lettere delle unità o dai percorsi originali.
 
 > **Uso Consigliato**: Usa questa funzione alla fine della preparazione di ogni show per creare un "Master" da portare in studio o da archiviare come backup storico completo.

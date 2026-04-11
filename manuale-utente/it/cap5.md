@@ -1,9 +1,9 @@
 # CAPITOLO 5: IL MOTORE DI MIXAGGIO (THE BRAIN)
 
-Runtime Live Machine non è un semplice player che suona file audio a caso. Al suo interno c'è un **"Cervello" di Mixaggio** sempre attivo.
+Runtime Live Machine Pro non è un semplice player che suona file audio a caso. Al suo interno c'è un **"Cervello" di Mixaggio** sempre attivo.
 Il software agisce come un fonico virtuale invisibile: ascolta ciò che stai facendo e regola automaticamente i volumi delle altre tracce per garantire che il risultato finale sia sempre pulito e intellegibile.
 
-Non devi preoccuparti di abbassare manualmente la musica quando parte un'intervista: ci pensa RLM.
+Non devi preoccuparti di abbassare manualmente la musica quando parte un'intervista: ci pensa RRLMP.
 
 ---
 
@@ -39,11 +39,11 @@ Questa è la funzione più utilizzata in radio. Il "Ducking" è l'abbassamento a
 
 ## 5.3 Music Dominance (Gestione Intelligente Basi)
 
-Un errore classico dei registi alle prime armi è far suonare una canzone *sopra* una base ritmica (Bed), creando un caos sonoro (batteria contro batteria). RLM risolve questo problema con la **Dominanza Musicale**.
+Un errore classico dei registi alle prime armi è far suonare una canzone *sopra* una base ritmica (Bed), creando un caos sonoro (batteria contro batteria). RRLMP risolve questo problema con la **Dominanza Musicale**.
 
 *   **Lo Scenario**:
     Hai una Base (Show Asset) in loop sotto la voce dello speaker. A un certo punto lanci un disco (Canzone).
-*   **Cosa fa RLM**:
+*   **Cosa fa RRLMP**:
     Invece di fermare la base (che ti servirebbe pronta dopo la canzone), il software la porta a **Volume 0 (Muto)** ma continua a farla girare "in fantasma".
 *   **Il Risultato**:
     Si sente solo la Canzone. La base è sparita.

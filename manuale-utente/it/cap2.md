@@ -1,6 +1,6 @@
 # CAPITOLO 2: L'INTERFACCIA DI LAVORO
 
-L'interfaccia di **Runtime Live Machine** è progettata per essere scura, ad alto contrasto e priva di distrazioni. Ogni elemento è posizionato per essere raggiunto rapidamente durante una diretta.
+L'interfaccia di **Runtime Live Machine Pro** è progettata per essere scura, ad alto contrasto e priva di distrazioni. Ogni elemento è posizionato per essere raggiunto rapidamente durante una diretta.
 
 L'area di lavoro si divide in due zone principali: la **Barra di Controllo (Header)** in alto e la **Griglia di Regia** centrale.
 
