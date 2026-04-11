@@ -131,12 +131,11 @@ class MicManager {
             // v1.2.2 — Routing al recording bus (sempre attivo quando armato)
             // gain = 0 se mixEnabled (il mic arriva al recording già via master chain)
             // gain = 1 se mixEnabled = false (Rodecaster/hardware monitor: mic solo nel recording)
-            const { default: AudioContextManager } = await import('./AudioContextManager');
-            const acmForRec = AudioContextManager.getInstance();
+            // Riusa 'manager' già dichiarato sopra — nessun import duplicato
             this.micRecordingGain = this.audioCtx.createGain();
             this.micRecordingGain.gain.value = this._mixEnabled ? 0 : 1;
             this.source.connect(this.micRecordingGain);
-            this.micRecordingGain.connect(acmForRec.getRecordingBus());
+            this.micRecordingGain.connect(manager.getRecordingBus());
 
             this._isArmed = true;
             this._isMicActive = false;
