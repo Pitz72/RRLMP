@@ -30,6 +30,7 @@ interface SettingsState {
     micMixEnabled: boolean;          // se true, la voce entra nel master bus (canale mix)
     micVolume: number;               // guadagno del canale mix (0.0 a 1.0), default 0.8
     micBypassProcessing: boolean;    // se true, invia a destination saltando la catena master
+    micFeedbackAcknowledged: boolean; // v1.1.2 — utente ha confermato uso cuffie/mixer pro
 
     // Session Recording (v1.0.0+)
     recordingFormat: 'webm' | 'wav';
@@ -43,13 +44,14 @@ interface SettingsState {
     setPreshowTransition: (updates: { type?: TransitionType; duration?: number }) => void;
     setSegueDuration: (ms: number) => void;
     setMasterChain: (updates: Partial<MasterChainSettings>) => void;
-    setMicSettings: (updates: { 
-        inputDeviceId?: string; 
-        thresholdDb?: number; 
+    setMicSettings: (updates: {
+        inputDeviceId?: string;
+        thresholdDb?: number;
         enabled?: boolean;
         mixEnabled?: boolean;
         volume?: number;
         bypassProcessing?: boolean;
+        feedbackAcknowledged?: boolean;
     }) => void;
     setRecordingSettings: (updates: { format?: 'webm' | 'wav'; bitrate?: number }) => void;
 }
@@ -80,6 +82,7 @@ export const useSettingsStore = create<SettingsState>()(
             micMixEnabled: false,
             micVolume: 0.8,
             micBypassProcessing: false,
+            micFeedbackAcknowledged: false,
 
             // Recording defaults
             recordingFormat: 'webm',
@@ -110,6 +113,7 @@ export const useSettingsStore = create<SettingsState>()(
                 micMixEnabled:    updates.mixEnabled    ?? state.micMixEnabled,
                 micVolume:        updates.volume        ?? state.micVolume,
                 micBypassProcessing: updates.bypassProcessing ?? state.micBypassProcessing,
+                micFeedbackAcknowledged: updates.feedbackAcknowledged ?? state.micFeedbackAcknowledged,
             })),
             setRecordingSettings: (updates) => set((state) => ({
                 recordingFormat: updates.format ?? state.recordingFormat,

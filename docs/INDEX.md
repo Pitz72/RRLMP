@@ -1,4 +1,4 @@
-# RRLMP — Centro Documentazione (v1.0.0)
+# RRLMP — Centro Documentazione (v1.2.0)
 
 Benvenuto nel centro documentazione di **Runtime Live Machine Pro (RRLMP)**. Questo hub è il punto di ingresso unico per tutte le risorse del progetto.
 
@@ -50,4 +50,4 @@ Il manuale utente è una risorsa operativa per chi utilizza il software in onda 
 
 ---
 
-*Ultimo aggiornamento indice: 2026-04-10 — Versione 1.0.0*
+*Ultimo aggiornamento indice: 2026-04-11 — Versione 1.2.0*

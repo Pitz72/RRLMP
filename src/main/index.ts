@@ -466,6 +466,22 @@ ipcMain.handle('convert-recording', async (event, inputPath: string, outputPath:
     }
 });
 
+// v1.1.3 — Salva ArrayBuffer (dal MediaRecorder renderer-side) su disco come file temp
+ipcMain.handle('save-recording-buffer', async (_event, arrayBuffer: ArrayBuffer) => {
+    try {
+        const tempDir = app.getPath('temp');
+        const timestamp = Date.now();
+        const tempPath = join(tempDir, `rrlmp_temp_${timestamp}.webm`);
+        const buffer = Buffer.from(arrayBuffer);
+        fs.writeFileSync(tempPath, buffer);
+        console.log(`[Main] Recording buffer saved to: ${tempPath}`);
+        return { success: true, path: tempPath };
+    } catch (error) {
+        console.error('[Main] Failed to save recording buffer:', error);
+        return { success: false, error: String(error) };
+    }
+});
+
 ipcMain.handle('delete-temp-recording', async (_event, path: string) => {
     try {
         if (fs.existsSync(path)) {

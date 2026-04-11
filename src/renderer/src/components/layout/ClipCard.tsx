@@ -38,14 +38,19 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
     // v0.14.4 — UP NEXT badge: la clip immediatamente successiva a quella in play (stessa colonna, nextAction = play_next)
     const activeClips = useAudioStore((state) => state.activeClips);
     const columns = useProjectStore((state) => state.columns);
+
+    // v1.1.6 — Colore dinamico: segue il colore corrente della colonna (customColor || color).
+    // clip.customColor (scelta esplicita utente per singola clip) ha la priorità assoluta.
+    const parentColumn = React.useMemo(() => columns.find(c => c.clips.some(cl => cl.id === clip.id)), [columns, clip.id]);
+    const effectiveColor = clip.customColor || (parentColumn ? (parentColumn.customColor || parentColumn.color) : clip.color);
+
     const isNextUp = React.useMemo(() => {
-        const col = columns.find(c => c.clips.some(cl => cl.id === clip.id));
-        if (!col) return false;
-        const clipIdx = col.clips.findIndex(c => c.id === clip.id);
+        if (!parentColumn) return false;
+        const clipIdx = parentColumn.clips.findIndex(c => c.id === clip.id);
         if (clipIdx <= 0) return false;
-        const prevClip = col.clips[clipIdx - 1];
+        const prevClip = parentColumn.clips[clipIdx - 1];
         return prevClip.nextAction === 'play_next' && !!activeClips[prevClip.id];
-    }, [columns, activeClips, clip.id]);
+    }, [parentColumn, activeClips, clip.id]);
 
     const [currentTime, setCurrentTime] = React.useState(0);
 
@@ -128,7 +133,7 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                 ${isMidiLearnMode && !isSelected ? 'border-dashed border-cyan-800 opacity-80' : ''}
             `}
             style={{
-                borderColor: clip.isMissing ? undefined : (isPlaying ? (clip.customColor || clip.color) : undefined)
+                borderColor: clip.isMissing ? undefined : (isPlaying ? effectiveColor : undefined)
             }}
         >
             {/* Progress Bar Background */}
@@ -136,7 +141,7 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                 className="absolute left-0 top-0 bottom-0 transition-all duration-100 ease-linear pointer-events-none opacity-20"
                 style={{
                     width: `${progress * 100}%`,
-                    backgroundColor: clip.customColor || clip.color
+                    backgroundColor: effectiveColor
                 }}
             />
 
@@ -174,12 +179,12 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                     {isPlaying && (
                         <div
                             className="w-2 h-2 rounded-full animate-pulse"
-                            style={{ backgroundColor: clip.customColor || clip.color }}
+                            style={{ backgroundColor: effectiveColor }}
                         />
                     )}
                     <span
                         className={`font-medium truncate text-sm`}
-                        style={{ color: clip.isMissing ? '#ef4444' : (isPlaying ? (clip.customColor || lightenHex(clip.color, 0.4)) : lightenHex(clip.color)) }}
+                        style={{ color: clip.isMissing ? '#ef4444' : (isPlaying ? effectiveColor : lightenHex(effectiveColor)) }}
                     >
                         {clip.isMissing ? `⚠️ ${clip.name} (File Non Trovato)` : (clip.title || clip.name)}
                     </span>
@@ -187,7 +192,7 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                     {clip.type === 'music' && clip.artist && (
                         <span
                             className="text-[10px] truncate leading-tight"
-                            style={{ color: lightenHex(clip.color, 0.6) + 'bb' }}
+                            style={{ color: lightenHex(effectiveColor, 0.6) + 'bb' }}
                         >
                             {clip.artist}
                         </span>

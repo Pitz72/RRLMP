@@ -15,7 +15,7 @@ interface AudioDevice {
     label: string;
 }
 
-type SettingsTab = 'output' | 'chain' | 'language';
+type SettingsTab = 'general' | 'audio' | 'mic' | 'recording' | 'chain';
 
 const LANGUAGES = [
     { code: 'en', label: 'English' },
@@ -28,7 +28,6 @@ const LANGUAGES = [
     { code: 'zh', label: '中文' },
 ];
 
-// Toggle switch riutilizzabile
 const Toggle: React.FC<{ enabled: boolean; onToggle: () => void; labelOn?: string; labelOff?: string }> = ({
     enabled, onToggle, labelOn = 'On', labelOff = 'Off'
 }) => (
@@ -40,7 +39,6 @@ const Toggle: React.FC<{ enabled: boolean; onToggle: () => void; labelOn?: strin
     </label>
 );
 
-// Slider con label e valore
 const LabeledSlider: React.FC<{
     label: string; value: number; min: number; max: number; step: number;
     display: string; accent?: string; disabled?: boolean;
@@ -59,6 +57,12 @@ const LabeledSlider: React.FC<{
     </div>
 );
 
+const SectionTitle: React.FC<{ children: React.ReactNode; color?: string }> = ({ children, color = 'text-zinc-500' }) => (
+    <h3 className={`text-[10px] uppercase font-bold tracking-wider mb-3 ${color}`}>{children}</h3>
+);
+
+const Divider: React.FC = () => <div className="h-px bg-zinc-800" />;
+
 export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
     const { t, i18n } = useTranslation();
     const {
@@ -67,31 +71,25 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
         defaultPreshowTransition, setDefaultPreshowTransition,
         crossfadeDuration, segueDuration, setPreshowTransition, setSegueDuration,
         masterChain, setMasterChain,
-        micInputDeviceId, micThresholdDb, micEnabled, micMixEnabled, micVolume, micBypassProcessing, setMicSettings,
+        micInputDeviceId, micThresholdDb, micEnabled, micMixEnabled, micVolume, micBypassProcessing, micFeedbackAcknowledged, setMicSettings,
         recordingFormat, setRecordingSettings
     } = useSettingsStore();
     const updateOutputDevice = useAudioStore(s => s.updateOutputDevice);
     const [devices, setDevices] = useState<AudioDevice[]>([]);
     const [inputDevices, setInputDevices] = useState<AudioDevice[]>([]);
-    const [activeTab, setActiveTab] = useState<SettingsTab>('output');
+    const [activeTab, setActiveTab] = useState<SettingsTab>('general');
 
     useEffect(() => {
         if (isOpen) {
             navigator.mediaDevices.enumerateDevices().then(devs => {
-                const audioOuts = devs
-                    .filter(d => d.kind === 'audiooutput')
-                    .map(d => ({
-                        deviceId: d.deviceId,
-                        label: d.label || `Device ${d.deviceId.substring(0, 5)}...`
-                    }));
-                setDevices(audioOuts);
-                const audioIns = devs
-                    .filter(d => d.kind === 'audioinput')
-                    .map(d => ({
-                        deviceId: d.deviceId,
-                        label: d.label || `Input ${d.deviceId.substring(0, 5)}...`
-                    }));
-                setInputDevices(audioIns);
+                setDevices(devs.filter(d => d.kind === 'audiooutput').map(d => ({
+                    deviceId: d.deviceId,
+                    label: d.label || `Device ${d.deviceId.substring(0, 5)}...`
+                })));
+                setInputDevices(devs.filter(d => d.kind === 'audioinput').map(d => ({
+                    deviceId: d.deviceId,
+                    label: d.label || `Input ${d.deviceId.substring(0, 5)}...`
+                })));
             });
         }
     }, [isOpen]);
@@ -105,15 +103,19 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     const tabs: { id: SettingsTab; label: string; icon: string }[] = [
-        { id: 'output', label: t('modal.settings.tab.output'), icon: '🎚️' },
-        { id: 'chain', label: t('modal.settings.tab.chain'), icon: '⛓️' },
-        { id: 'language', label: t('modal.settings.tab.language'), icon: '🌐' },
+        { id: 'general',   label: 'Generali',    icon: '⚙️' },
+        { id: 'audio',     label: 'Audio & Mix',  icon: '🎚️' },
+        { id: 'mic',       label: 'Microfono',    icon: '🎙️' },
+        { id: 'recording', label: 'Registrazione', icon: '⏺' },
+        { id: 'chain',     label: 'Master Chain', icon: '⛓️' },
     ];
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col" style={{ maxHeight: '88vh' }}>
-
+            <div
+                className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col"
+                style={{ width: '75vw', maxWidth: '960px', height: '80vh' }}
+            >
                 {/* HEADER */}
                 <div className="bg-zinc-800 px-6 py-4 border-b border-zinc-700 flex justify-between items-center shrink-0">
                     <h2 className="text-base font-bold text-white tracking-wide">{t('modal.settings.title')}</h2>
@@ -141,13 +143,43 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 {/* BODY */}
                 <div className="flex-1 overflow-y-auto min-h-0">
 
-                    {/* ── TAB: Output & Mix ── */}
-                    {activeTab === 'output' && (
+                    {/* ── TAB: GENERALI ── */}
+                    {activeTab === 'general' && (
+                        <div className="p-6 space-y-6">
+                            <section>
+                                <SectionTitle color="text-violet-400">{t('modal.settings.tab.language')}</SectionTitle>
+                                <p className="text-[10px] text-zinc-600 italic mb-3">Seleziona la lingua dell'interfaccia. La modifica è immediata.</p>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {LANGUAGES.map((lng) => {
+                                        const isActive = i18n.language === lng.code || i18n.language.startsWith(lng.code);
+                                        return (
+                                            <button
+                                                key={lng.code}
+                                                onClick={() => i18n.changeLanguage(lng.code)}
+                                                className={`flex items-center gap-3 px-4 py-3 rounded-lg border transition-all text-left ${
+                                                    isActive
+                                                        ? 'border-violet-500 bg-violet-500/10 text-white'
+                                                        : 'border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 hover:bg-zinc-800'
+                                                }`}
+                                            >
+                                                <FlagIcon code={lng.code} className="rounded-sm shadow-sm flex-shrink-0" />
+                                                <span className="text-sm font-medium">{lng.label}</span>
+                                                {isActive && <span className="ml-auto text-violet-400 text-xs">✓</span>}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </section>
+                        </div>
+                    )}
+
+                    {/* ── TAB: AUDIO & MIX ── */}
+                    {activeTab === 'audio' && (
                         <div className="p-6 space-y-6">
 
-                            {/* AUDIO OUTPUT */}
+                            {/* OUTPUT DEVICE */}
                             <section>
-                                <h3 className="text-[10px] uppercase text-zinc-500 font-bold tracking-wider mb-3">{t('modal.settings.outputDevice')}</h3>
+                                <SectionTitle>{t('modal.settings.outputDevice')}</SectionTitle>
                                 <select
                                     value={outputDeviceId}
                                     onChange={handleChangeDevice}
@@ -161,12 +193,70 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 <p className="text-[10px] text-zinc-600 mt-1">Seleziona la scheda audio (es. Rødecaster). L'audio si sposta immediatamente.</p>
                             </section>
 
-                            <div className="h-px bg-zinc-800" />
+                            <Divider />
 
-                            {/* SMART MIC — Audio Input */}
+                            {/* MIXING INTELLIGENCE */}
+                            <section className="space-y-4">
+                                <SectionTitle color="text-emerald-500">{t('modal.settings.mixingIntelligence')}</SectionTitle>
+                                <LabeledSlider
+                                    label={t('modal.settings.duckingReduction')}
+                                    value={duckingFactor} min={0} max={1} step={0.05}
+                                    display={`${Math.round(duckingFactor * 100)}%`}
+                                    accent="accent-emerald-500"
+                                    onChange={(v) => setDuckingSettings({ factor: v })}
+                                />
+                                <p className="text-[10px] text-zinc-600 -mt-2 italic">Volume musica quando lo speaker parla. 20% è lo standard radiofonico.</p>
+                                <LabeledSlider
+                                    label={t('modal.settings.duckingSpeed')}
+                                    value={duckingDuration} min={0} max={2000} step={50}
+                                    display={`${duckingDuration}ms`}
+                                    accent="accent-emerald-500"
+                                    onChange={(v) => setDuckingSettings({ duration: v })}
+                                />
+                                <p className="text-[10px] text-zinc-600 -mt-2 italic">Più alto = transizione più morbida.</p>
+                            </section>
+
+                            <Divider />
+
+                            {/* TRANSIZIONI */}
+                            <section className="space-y-4">
+                                <SectionTitle color="text-emerald-500">{t('modal.settings.defaultTransition')}</SectionTitle>
+                                <select
+                                    value={defaultPreshowTransition}
+                                    onChange={(e) => setDefaultPreshowTransition(e.target.value as 'crossfade' | 'segue' | 'gapless')}
+                                    className="w-full bg-zinc-950 border border-zinc-800 rounded text-xs p-2 text-white outline-none focus:border-emerald-500"
+                                >
+                                    <option value="crossfade">Crossfade (Sfumatura Incrociata)</option>
+                                    <option value="segue">Segue / Cold Start (Subito Pieno, Prec. Sfuma)</option>
+                                    <option value="gapless">Gapless (Taglio Netto / No Fade)</option>
+                                </select>
+                                <p className="text-[10px] text-zinc-600 -mt-2 italic">Transizione automatica tra clip consecutive con play_next.</p>
+                                <LabeledSlider
+                                    label={t('modal.settings.crossfadeDuration')}
+                                    value={crossfadeDuration} min={200} max={6000} step={100}
+                                    display={`${crossfadeDuration}ms`}
+                                    accent="accent-emerald-500"
+                                    onChange={(v) => setPreshowTransition({ duration: v })}
+                                />
+                                <LabeledSlider
+                                    label={t('modal.settings.segueDuration')}
+                                    value={segueDuration} min={100} max={3000} step={100}
+                                    display={`${segueDuration}ms`}
+                                    accent="accent-orange-500"
+                                    onChange={(v) => setSegueDuration(v)}
+                                />
+                            </section>
+                        </div>
+                    )}
+
+                    {/* ── TAB: MICROFONO ── */}
+                    {activeTab === 'mic' && (
+                        <div className="p-6 space-y-6">
+
+                            {/* SMART MIC — DUCKING */}
                             <section className="space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-[10px] uppercase text-red-400 font-bold tracking-wider">Smart Mic — Auto-Ducking</h3>
+                                    <SectionTitle color="text-red-400">Smart Mic — Auto-Ducking</SectionTitle>
                                     <Toggle
                                         enabled={micEnabled}
                                         onToggle={() => setMicSettings({ enabled: !micEnabled })}
@@ -175,7 +265,6 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     />
                                 </div>
                                 <p className="text-[10px] text-zinc-600 italic">Il microfono monitora il parlato e abbassa automaticamente la musica, senza passare da una clip voce.</p>
-
                                 <div className={`space-y-3 transition-opacity ${micEnabled ? '' : 'opacity-40 pointer-events-none'}`}>
                                     <div>
                                         <span className="text-xs text-zinc-400 block mb-1">Dispositivo di Input</span>
@@ -203,146 +292,128 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         Voce sopra questa soglia per 80ms → ducking attivo. Rilascio a {micThresholdDb - 12} dBFS per 1.5s. Default: -30 dBFS.
                                     </p>
                                 </div>
-
-                                {/* v1.0.0+ — MIC MIX CHANNEL */}
-                                <div className="p-3 bg-red-950/20 border border-red-900/40 rounded-lg space-y-3">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs font-bold text-red-400">Canale Mix Microfono</span>
-                                            <span className="bg-red-500 text-white text-[8px] px-1 rounded font-black">NEW</span>
-                                        </div>
-                                        <Toggle
-                                            enabled={micMixEnabled}
-                                            onToggle={() => setMicSettings({ mixEnabled: !micMixEnabled })}
-                                            labelOn="In Mix"
-                                            labelOff="Mute"
-                                        />
-                                    </div>
-                                    <p className="text-[10px] text-zinc-400 italic">Invia la voce dell'operatore direttamente al master bus dell'applicazione.</p>
-
-                                    <div className={`space-y-3 transition-opacity ${micMixEnabled ? '' : 'opacity-40 pointer-events-none'}`}>
-                                        <LabeledSlider
-                                            label="Volume Microfono"
-                                            value={micVolume}
-                                            min={0} max={1} step={0.01}
-                                            display={`${Math.round(micVolume * 100)}%`}
-                                            accent="accent-red-500"
-                                            onChange={v => setMicSettings({ volume: v })}
-                                        />
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-xs text-zinc-400">Bypass Master Chain</span>
-                                            <Toggle
-                                                enabled={micBypassProcessing}
-                                                onToggle={() => setMicSettings({ bypassProcessing: !micBypassProcessing })}
-                                            />
-                                        </div>
-                                        <p className="text-[10px] text-zinc-500 italic -mt-1">
-                                            {micBypassProcessing 
-                                                ? "⚠️ Voce raw all'uscita (zero latenza, no effetti)." 
-                                                : "✨ Voce processata (HPF + Compressor + Limiter)."}
-                                        </p>
-                                    </div>
-
-                                    {/* FEEDBACK WARNING */}
-                                    <div className="p-2 bg-yellow-500/10 border border-yellow-500/30 rounded text-[9px] text-yellow-200 flex gap-2">
-                                        <span className="shrink-0">⚠️</span>
-                                        <span>
-                                            <strong>RISCHIO FEEDBACK:</strong> Se usi le casse, l'audio del mic potrebbe rientrare nel mix creando fischi. 
-                                            Usa sempre le <strong>cuffie</strong> se il canale Mix è attivo.
-                                        </span>
-                                    </div>
-                                </div>
                             </section>
 
-                            <div className="h-px bg-zinc-800" />
+                            <Divider />
 
-                            {/* SESSION RECORDING (v1.0.0+) */}
+                            {/* CANALE MIX MICROFONO */}
                             <section className="space-y-3">
-                                <h3 className="text-[10px] uppercase text-zinc-500 font-bold tracking-wider mb-3">Session Recording</h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <span className="text-xs text-zinc-400 block mb-1">Formato predefinito</span>
-                                        <select
-                                            value={recordingFormat}
-                                            onChange={e => setRecordingSettings({ format: e.target.value as 'webm' | 'wav' })}
-                                            className="w-full bg-zinc-950 border border-zinc-700 rounded p-2 text-xs text-white focus:border-emerald-500 outline-none"
-                                        >
-                                            <option value="webm">WebM / Opus (Broadcast Quality)</option>
-                                            <option value="wav">WAV (Raw / Lossless)</option>
-                                        </select>
-                                    </div>
-                                    <div className="flex flex-col justify-end">
-                                        <span className="text-[10px] text-zinc-500 uppercase font-bold">Bitrate</span>
-                                        <span className="text-sm font-mono text-emerald-400">320 kbps</span>
-                                    </div>
+                                <div className="flex items-center justify-between">
+                                    <SectionTitle color="text-red-400">Canale Mix Microfono</SectionTitle>
+                                    <Toggle
+                                        enabled={micMixEnabled}
+                                        onToggle={() => setMicSettings({ mixEnabled: !micMixEnabled })}
+                                        labelOn="In Mix"
+                                        labelOff="Mute"
+                                    />
                                 </div>
-                                <p className="text-[10px] text-zinc-600 italic">
-                                    La registrazione cattura tutto ciò che senti in uscita, inclusi microfono (se armato e in mix) ed effetti master.
-                                </p>
-                            </section>
+                                <p className="text-[10px] text-zinc-400 italic">Invia la voce dell'operatore direttamente al master bus dell'applicazione.</p>
 
-                            <div className="h-px bg-zinc-800" />
+                                <div className={`space-y-3 transition-opacity ${micMixEnabled ? '' : 'opacity-40 pointer-events-none'}`}>
+                                    <LabeledSlider
+                                        label="Volume Microfono"
+                                        value={micVolume}
+                                        min={0} max={1} step={0.01}
+                                        display={`${Math.round(micVolume * 100)}%`}
+                                        accent="accent-red-500"
+                                        onChange={v => setMicSettings({ volume: v })}
+                                    />
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs text-zinc-400">Bypass Master Chain</span>
+                                        <Toggle
+                                            enabled={micBypassProcessing}
+                                            onToggle={() => setMicSettings({ bypassProcessing: !micBypassProcessing })}
+                                        />
+                                    </div>
+                                    <p className="text-[10px] text-zinc-500 italic -mt-1">
+                                        {micBypassProcessing
+                                            ? '⚠️ Voce raw all\'uscita (zero latenza, no effetti).'
+                                            : '✨ Voce processata (HPF + Compressor + Limiter).'}
+                                    </p>
+                                </div>
 
-                            {/* MIXING INTELLIGENCE */}
-                            <section className="space-y-4">
-                                <h3 className="text-[10px] uppercase text-emerald-500 font-bold tracking-wider">{t('modal.settings.mixingIntelligence')}</h3>
-
-                                <LabeledSlider
-                                    label={t('modal.settings.duckingReduction')}
-                                    value={duckingFactor} min={0} max={1} step={0.05}
-                                    display={`${Math.round(duckingFactor * 100)}%`}
-                                    accent="accent-emerald-500"
-                                    onChange={(v) => setDuckingSettings({ factor: v })}
-                                />
-                                <p className="text-[10px] text-zinc-600 -mt-2 italic">Volume musica quando lo speaker parla. 20% è lo standard radiofonico.</p>
-
-                                <LabeledSlider
-                                    label={t('modal.settings.duckingSpeed')}
-                                    value={duckingDuration} min={0} max={2000} step={50}
-                                    display={`${duckingDuration}ms`}
-                                    accent="accent-emerald-500"
-                                    onChange={(v) => setDuckingSettings({ duration: v })}
-                                />
-                                <p className="text-[10px] text-zinc-600 -mt-2 italic">Più alto = transizione più morbida.</p>
-                            </section>
-
-                            <div className="h-px bg-zinc-800" />
-
-                            {/* TRANSIZIONI */}
-                            <section className="space-y-4">
-                                <h3 className="text-[10px] uppercase text-emerald-500 font-bold tracking-wider">{t('modal.settings.defaultTransition')}</h3>
-
-                                <select
-                                    value={defaultPreshowTransition}
-                                    onChange={(e) => setDefaultPreshowTransition(e.target.value as 'crossfade' | 'segue' | 'gapless')}
-                                    className="w-full bg-zinc-950 border border-zinc-800 rounded text-xs p-2 text-white outline-none focus:border-emerald-500"
-                                >
-                                    <option value="crossfade">Crossfade (Sfumatura Incrociata)</option>
-                                    <option value="segue">Segue / Cold Start (Subito Pieno, Prec. Sfuma)</option>
-                                    <option value="gapless">Gapless (Taglio Netto / No Fade)</option>
-                                </select>
-                                <p className="text-[10px] text-zinc-600 -mt-2 italic">Transizione automatica tra clip consecutive con play_next.</p>
-
-                                <LabeledSlider
-                                    label={t('modal.settings.crossfadeDuration')}
-                                    value={crossfadeDuration} min={200} max={6000} step={100}
-                                    display={`${crossfadeDuration}ms`}
-                                    accent="accent-emerald-500"
-                                    onChange={(v) => setPreshowTransition({ duration: v })}
-                                />
-
-                                <LabeledSlider
-                                    label={t('modal.settings.segueDuration')}
-                                    value={segueDuration} min={100} max={3000} step={100}
-                                    display={`${segueDuration}ms`}
-                                    accent="accent-orange-500"
-                                    onChange={(v) => setSegueDuration(v)}
-                                />
+                                {/* FEEDBACK WARNING (v1.1.2) */}
+                                {micFeedbackAcknowledged ? (
+                                    <div className="p-2 bg-zinc-800/50 border border-zinc-700 rounded text-[9px] text-zinc-500 flex gap-2 items-center">
+                                        <span className="shrink-0">✓</span>
+                                        <span>Rischio feedback: usa cuffie o mixer professionale.</span>
+                                        <button
+                                            onClick={() => setMicSettings({ feedbackAcknowledged: false })}
+                                            className="ml-auto text-zinc-600 hover:text-zinc-400 underline whitespace-nowrap"
+                                        >
+                                            Rileggi avviso
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="p-2 bg-yellow-500/10 border border-yellow-500/30 rounded text-[9px] text-yellow-200 space-y-2">
+                                        <div className="flex gap-2">
+                                            <span className="shrink-0">⚠️</span>
+                                            <span>
+                                                <strong>RISCHIO FEEDBACK:</strong> Se usi le casse, l'audio del mic potrebbe rientrare nel mix creando fischi.
+                                                Usa sempre le <strong>cuffie</strong> se il canale Mix è attivo.
+                                                I mixer professionali (Rødecaster, ecc.) con routing interno non hanno questo rischio.
+                                            </span>
+                                        </div>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={micFeedbackAcknowledged}
+                                                onChange={e => setMicSettings({ feedbackAcknowledged: e.target.checked })}
+                                                className="w-3 h-3 accent-yellow-500"
+                                            />
+                                            <span className="text-yellow-300">Ho capito. Uso cuffie o un mixer professionale.</span>
+                                        </label>
+                                    </div>
+                                )}
                             </section>
                         </div>
                     )}
 
-                    {/* ── TAB: Master Chain ── */}
+                    {/* ── TAB: REGISTRAZIONE ── */}
+                    {activeTab === 'recording' && (
+                        <div className="p-6 space-y-6">
+                            <section className="space-y-4">
+                                <SectionTitle color="text-zinc-400">Session Recording</SectionTitle>
+                                <p className="text-[10px] text-zinc-600 italic">
+                                    La registrazione cattura tutto ciò che senti in uscita — inclusi microfono (se armato e in mix) ed effetti master.
+                                    Il formato e la qualità si scelgono al momento dell'esportazione.
+                                </p>
+
+                                <div className="p-4 bg-zinc-950/60 border border-zinc-800 rounded-lg space-y-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                                        <span className="text-xs font-bold text-zinc-300">Tap point: dopo il Limiter</span>
+                                    </div>
+                                    <p className="text-[10px] text-zinc-600 italic">Il segnale registrato è fedele all'onda radio: passa per HPF, Compressore e Limiter brickwall.</p>
+                                    <div className="flex gap-6 mt-2">
+                                        <div>
+                                            <span className="text-[9px] text-zinc-600 uppercase font-bold block">Formati disponibili</span>
+                                            <span className="text-xs text-zinc-300 font-mono">WAV · FLAC · MP3 · OGG · WEBM</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-[9px] text-zinc-600 uppercase font-bold block">Qualità interna</span>
+                                            <span className="text-xs text-zinc-300 font-mono">Opus 320 kbps</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <span className="text-xs text-zinc-400 block mb-1">Formato predefinito apertura dialog</span>
+                                    <select
+                                        value={recordingFormat}
+                                        onChange={e => setRecordingSettings({ format: e.target.value as 'webm' | 'wav' })}
+                                        className="w-full bg-zinc-950 border border-zinc-700 rounded p-2 text-xs text-white focus:border-emerald-500 outline-none"
+                                    >
+                                        <option value="wav">WAV (Lossless)</option>
+                                        <option value="webm">WebM / Opus (Broadcast Quality)</option>
+                                    </select>
+                                    <p className="text-[10px] text-zinc-600 mt-1 italic">Formato preselezionato all'apertura della finestra di esportazione.</p>
+                                </div>
+                            </section>
+                        </div>
+                    )}
+
+                    {/* ── TAB: MASTER CHAIN ── */}
                     {activeTab === 'chain' && (
                         <div className="p-6 space-y-5">
                             <div className="flex items-center justify-between">
@@ -420,37 +491,6 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             >
                                 ↺ Ripristina default Master Chain
                             </button>
-                        </div>
-                    )}
-
-                    {/* ── TAB: Lingua / Language ── */}
-                    {activeTab === 'language' && (
-                        <div className="p-6 space-y-5">
-                            <div>
-                                <h3 className="text-[10px] uppercase text-violet-400 font-bold tracking-wider mb-1">{t('modal.settings.tab.language')}</h3>
-                                <p className="text-[10px] text-zinc-600 italic">Seleziona la lingua dell'interfaccia. La modifica è immediata.</p>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-3">
-                                {LANGUAGES.map((lng) => {
-                                    const isActive = i18n.language === lng.code || i18n.language.startsWith(lng.code);
-                                    return (
-                                        <button
-                                            key={lng.code}
-                                            onClick={() => i18n.changeLanguage(lng.code)}
-                                            className={`flex items-center gap-3 px-4 py-3 rounded-lg border transition-all text-left ${
-                                                isActive
-                                                    ? 'border-violet-500 bg-violet-500/10 text-white'
-                                                    : 'border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 hover:bg-zinc-800'
-                                            }`}
-                                        >
-                                            <FlagIcon code={lng.code} className="rounded-sm shadow-sm flex-shrink-0" />
-                                            <span className="text-sm font-medium">{lng.label}</span>
-                                            {isActive && <span className="ml-auto text-violet-400 text-xs">✓</span>}
-                                        </button>
-                                    );
-                                })}
-                            </div>
                         </div>
                     )}
 

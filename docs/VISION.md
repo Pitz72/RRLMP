@@ -1,5 +1,5 @@
 # RRLMP — Documento di Visione Tecnica
-**Versione**: 1.0.0 | **Data**: 2026-04-10
+**Versione**: 1.2.0 | **Data**: 2026-04-11
 
 Questo documento sintetizza la filosofia di **Runtime Live Machine Pro (RRLMP)**, le scelte architettoniche fondamentali e la visione a lungo termine del progetto.
 
@@ -29,14 +29,15 @@ Non carichiamo i file audio nella RAM. Utilizziamo un protocollo custom che stre
 
 ---
 
-## 3. ROADMAP EVOLUTIVA (Post-v1.0.0)
+## 3. ROADMAP EVOLUTIVA (Post-v1.2.0)
 
-La versione 1.0.0 ha stabilizzato il core. Il futuro di RRLMP si muove verso l'automazione intelligente e l'integrazione hardware:
+La versione 1.2.0 ha completato il ciclo di Session Recording e stabilizzato l'UI. Il futuro:
 
-1.  **Session Recording**: Registrazione nativa del master mix per podcasting immediato.
+1.  ✅ ~~**Session Recording**~~ — **Completato in v1.1.x–v1.2.0**. Export WAV/FLAC/MP3/OGG/WEBM.
 2.  **Smart Cues**: Analisi IA (via FFmpeg) per suggerire automaticamente i punti di Intro e Outro.
 3.  **Hardware Expansion**: Supporto esteso a protocolli OSC e integrazione profonda con mixer digitali (ASIO).
+4.  **Layout Regia 5.0**: Colonne configurabili e rinominabili (richiede migrazione .lmp).
 
 ---
 
-*Documento aggiornato il 2026-04-10 — allineato a v1.0.0.*
+*Documento aggiornato il 2026-04-11 — allineato a v1.2.0.*

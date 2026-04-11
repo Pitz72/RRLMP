@@ -1,0 +1,172 @@
+import React, { useState } from 'react';
+import { FileAudio, FileVideo, XCircle } from 'lucide-react';
+import { useRecordingStore } from '../../store/useRecordingStore';
+import { toast } from '../../store/useToastStore';
+
+interface Props {
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+type ExportFormat = 'wav' | 'mp3' | 'flac' | 'ogg' | 'webm';
+
+interface FormatOption {
+    id: ExportFormat;
+    label: string;
+    description: string;
+    supportsDepth: boolean;
+    supportsBitrate: boolean;
+    icon: React.ReactNode;
+}
+
+const FORMAT_OPTIONS: FormatOption[] = [
+    { id: 'wav',  label: 'WAV',  description: 'Lossless — ideale per editing e archivio',      supportsDepth: true,  supportsBitrate: false, icon: <FileAudio size={16} /> },
+    { id: 'flac', label: 'FLAC', description: 'Lossless compresso — archivio di qualità',      supportsDepth: true,  supportsBitrate: false, icon: <FileAudio size={16} /> },
+    { id: 'mp3',  label: 'MP3',  description: 'Lossy — massima compatibilità',                  supportsDepth: false, supportsBitrate: true,  icon: <FileAudio size={16} /> },
+    { id: 'ogg',  label: 'OGG',  description: 'Lossy / Vorbis — open source, buona qualità',   supportsDepth: false, supportsBitrate: true,  icon: <FileAudio size={16} /> },
+    { id: 'webm', label: 'WEBM', description: 'Opus — formato nativo della registrazione',     supportsDepth: false, supportsBitrate: true,  icon: <FileVideo size={16} /> },
+];
+
+const BITRATE_OPTIONS = [128000, 192000, 256000, 320000];
+const DEPTH_OPTIONS: Array<16 | 24 | 32> = [16, 24, 32];
+
+export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
+    const { exportRecording, cancelExport } = useRecordingStore();
+    const [format, setFormat] = useState<ExportFormat>('wav');
+    const [bitrate, setBitrate] = useState(320000);
+    const [sampleDepth, setSampleDepth] = useState<16 | 24 | 32>(24);
+
+    const selectedFmt = FORMAT_OPTIONS.find(f => f.id === format)!;
+
+    if (!isOpen) return null;
+
+    const handleExport = async () => {
+        const result = await exportRecording({
+            format,
+            bitrate: selectedFmt.supportsBitrate ? bitrate : undefined,
+            sampleDepth: selectedFmt.supportsDepth ? sampleDepth : undefined,
+        });
+
+        if (result.success) {
+            toast(`Esportazione completata:\n${result.path}`, 'success', 5000);
+            onClose();
+        } else if (result.error !== 'Canceled by user') {
+            toast(`Errore esportazione: ${result.error}`, 'error');
+        }
+    };
+
+    const handleCancel = async () => {
+        await cancelExport();
+        onClose();
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+
+                {/* HEADER */}
+                <div className="bg-zinc-800 px-5 py-4 border-b border-zinc-700 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-sm font-bold text-white">Esporta Registrazione</h2>
+                        <p className="text-[10px] text-zinc-500 mt-0.5">Scegli formato e qualità, poi seleziona dove salvare.</p>
+                    </div>
+                    <button onClick={onClose} className="text-zinc-400 hover:text-white w-7 h-7 flex items-center justify-center rounded hover:bg-zinc-700 transition-colors">&times;</button>
+                </div>
+
+                <div className="p-5 space-y-5">
+
+                    {/* FORMATO */}
+                    <div className="space-y-2">
+                        <span className="text-[10px] uppercase text-zinc-500 font-bold tracking-wider">Formato</span>
+                        <div className="grid grid-cols-5 gap-1.5">
+                            {FORMAT_OPTIONS.map(opt => (
+                                <button
+                                    key={opt.id}
+                                    onClick={() => setFormat(opt.id)}
+                                    className={`flex flex-col items-center gap-1 py-2.5 px-1 rounded-lg border text-center transition-all ${
+                                        format === opt.id
+                                            ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400'
+                                            : 'border-zinc-700 bg-zinc-800/50 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
+                                    }`}
+                                >
+                                    {opt.icon}
+                                    <span className="text-[10px] font-bold">{opt.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                        <p className="text-[10px] text-zinc-600 italic">{selectedFmt.description}</p>
+                    </div>
+
+                    {/* BIT DEPTH (WAV / FLAC) */}
+                    {selectedFmt.supportsDepth && (
+                        <div className="space-y-2">
+                            <span className="text-[10px] uppercase text-zinc-500 font-bold tracking-wider">Profondità di Bit</span>
+                            <div className="flex gap-2">
+                                {DEPTH_OPTIONS.map(d => (
+                                    <button
+                                        key={d}
+                                        onClick={() => setSampleDepth(d)}
+                                        className={`flex-1 py-1.5 rounded border text-xs font-mono font-bold transition-all ${
+                                            sampleDepth === d
+                                                ? 'border-sky-500 bg-sky-500/10 text-sky-400'
+                                                : 'border-zinc-700 bg-zinc-800/50 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
+                                        }`}
+                                    >
+                                        {d}-bit
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-[10px] text-zinc-600 italic">
+                                {sampleDepth === 16 ? 'Standard CD — massima compatibilità.'
+                                    : sampleDepth === 24 ? '24-bit — standard broadcast, consigliato.'
+                                    : '32-bit float — per post-produzione professionale (file grandi).'}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* BITRATE (MP3 / OGG / WEBM) */}
+                    {selectedFmt.supportsBitrate && (
+                        <div className="space-y-2">
+                            <span className="text-[10px] uppercase text-zinc-500 font-bold tracking-wider">Bitrate</span>
+                            <div className="flex gap-2">
+                                {BITRATE_OPTIONS.map(b => (
+                                    <button
+                                        key={b}
+                                        onClick={() => setBitrate(b)}
+                                        className={`flex-1 py-1.5 rounded border text-xs font-mono font-bold transition-all ${
+                                            bitrate === b
+                                                ? 'border-orange-500 bg-orange-500/10 text-orange-400'
+                                                : 'border-zinc-700 bg-zinc-800/50 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
+                                        }`}
+                                    >
+                                        {b / 1000}k
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* FOOTER */}
+                <div className="bg-zinc-800 px-5 py-3 border-t border-zinc-700 flex gap-2 justify-end">
+                    <button
+                        onClick={handleCancel}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 text-xs font-medium transition-colors"
+                    >
+                        <XCircle size={12} />
+                        Elimina Registrazione
+                    </button>
+                    <button
+                        onClick={handleExport}
+                        className="flex items-center gap-1.5 px-5 py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 transition-colors"
+                    >
+                        <FileAudio size={12} />
+                        Scegli Destinazione…
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default RecordingExportModal;

@@ -25,12 +25,15 @@ It replaces the chaotic "play from folder" workflow with a structured, visual bo
 - **Auto-Silence Detection** — drop a file into PRE-SHOW and the app automatically detects and trims leading/trailing silence via FFmpeg
 - **Ducking Sidechain** — voice columns can automatically duck music columns
 - **Smart Mic Auto-Ducking** — hardware microphone monitoring via Web Audio API (USB mic, Rødecaster, any audio input). Voice detected by noise gate → automatic music ducking, no button required. Fully opt-in.
+- **Mic-in-Mix Channel** — operator voice routed directly into the master bus, with volume slider, optional master chain bypass, and professional feedback warning.
+- **Session Recording** — capture the full master mix (post-limiter) to WAV, FLAC, MP3, OGG, or WEBM. Select format, bitrate, and bit depth at export time. Export modal opens at end of recording.
 - **Master Chain Audio** — broadcast-grade processing on master bus: HPF 80Hz, Dynamics Compressor (-18dBFS, 4:1), Brickwall Limiter (-1dBFS). Configurable in Settings.
 - **Output Device Hot-Switch** — change audio output device without restarting
 - **Emergency Stop** — global `Escape` key (via Electron `globalShortcut`) stops all playback instantly, even when the app is not focused
 
 ### Board & Workflow
 - **5 fixed columns**: Assets, Music, Voice, SFX, PRE-SHOW — each with configurable behavior, color-coded, keybind-mapped
+- **Dynamic clip colors** — clips inherit and follow the column's current color in real time. Idle: lighter tint. Playing: full bright color. Per-clip color override is also available.
 - **Smart Mic ARM button** — arm/disarm microphone monitoring from the header with real-time mini VU meter
 - **Column color customization** — each column has its own color picker (30 colors), persisted in project
 - **Real-Time Board Cues** — INTRO countdown (`INTRO: -5s`) and OUTRO pre-cue alert on each ClipCard
@@ -115,9 +118,9 @@ src/
 
 ## Current Version
 
-**v1.0.0** — *Major Release: Runtime Live Machine Pro — i18n completa (8 lingue) + rebranding*
+**v1.2.0** — *Recording Export Modal · Settings Redesign · Dynamic Clip Colors · Recording Bugfix*
 
-See [`docs/changelogs/current/1.0.0.md`](./docs/changelogs/current/1.0.0.md) for details.
+See [`docs/changelogs/current/1.2.0.md`](./docs/changelogs/current/1.2.0.md) for details.
 
 ---
 
