@@ -35,9 +35,13 @@ declare global {
             onCheckCloseIntent: (callback: () => void) => () => void;
             onEmergencyStop: (callback: () => void) => () => void;
             importM3u: () => Promise<{ success: boolean; paths?: string[]; error?: string }>;
-            // v1.0.0+ — Session Recording
-            showSaveDialogRecording: (defaultName: string) => Promise<{ canceled: boolean; filePath?: string }>;
-            saveRecording: (arrayBuffer: ArrayBuffer, path: string) => Promise<{ success: boolean; path?: string; size?: number; error?: string }>;
+            // v1.1.1+ — Session Recording (Chunk-based)
+            startRecording: () => Promise<{ success: boolean; path?: string; error?: string }>;
+            appendRecordChunk: (arrayBuffer: ArrayBuffer) => Promise<{ success: boolean; error?: string }>;
+            stopRecording: () => Promise<{ success: boolean; path?: string; error?: string }>;
+            showSaveDialogRecording: (defaultName: string, format: 'wav' | 'webm') => Promise<{ canceled: boolean; filePath?: string }>;
+            convertRecording: (inputPath: string, outputPath: string, options: { bitrate?: number, format?: string }) => Promise<{ success: boolean; error?: string }>;
+            deleteTempRecording: (path: string) => Promise<{ success: boolean; error?: string }>;
         }
 
 

@@ -3,43 +3,33 @@ import AudioRecorder from '../engine/AudioRecorder';
 
 interface RecordingState {
     isRecording: boolean;
+    isConverting: boolean;
     startTime: number | null;
     elapsedSeconds: number;
-    outputPath: string | null;
+    tempPath: string | null;
     timerIntervalId: number | null;
 
     startRecording: () => Promise<void>;
-    stopRecording: () => Promise<{ success: boolean; path?: string; error?: string }>;
+    stopRecording: () => Promise<void>;
+    exportRecording: (format: 'wav' | 'webm') => Promise<{ success: boolean; path?: string; error?: string }>;
+    cancelExport: () => Promise<void>;
     reset: () => void;
 }
 
 export const useRecordingStore = create<RecordingState>((set, get) => ({
     isRecording: false,
+    isConverting: false,
     startTime: null,
     elapsedSeconds: 0,
-    outputPath: null,
+    tempPath: null,
     timerIntervalId: null,
 
     startRecording: async () => {
         const recorder = AudioRecorder.getInstance();
-        
-        // Ensure it's initialized (connected to master output)
         recorder.initialize();
 
-        // Generate default filename
-        const now = new Date();
-        const dateStr = now.toISOString().split('T')[0];
-        const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-');
-        const defaultName = `RRLMP_REC_${dateStr}_${timeStr}.webm`;
-
-        // Ask for path
-        const result = await window.electron.showSaveDialogRecording(defaultName);
-        if (result.canceled || !result.filePath) {
-            return;
-        }
-
         try {
-            recorder.start();
+            await recorder.start();
             
             const intervalId = window.setInterval(() => {
                 set((state) => ({ 
@@ -49,9 +39,9 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
 
             set({
                 isRecording: true,
+                isConverting: false,
                 startTime: Date.now(),
                 elapsedSeconds: 0,
-                outputPath: result.filePath,
                 timerIntervalId: intervalId as unknown as number
             });
 
@@ -62,8 +52,8 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
     },
 
     stopRecording: async () => {
-        const { isRecording, outputPath, timerIntervalId } = get();
-        if (!isRecording || !outputPath) return { success: false, error: 'Not recording' };
+        const { isRecording, timerIntervalId } = get();
+        if (!isRecording) return;
 
         const recorder = AudioRecorder.getInstance();
 
@@ -72,23 +62,64 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
         }
 
         try {
-            const arrayBuffer = await recorder.stop();
-            const result = await window.electron.saveRecording(arrayBuffer, outputPath);
-
+            const tempPath = await recorder.stop();
             set({
                 isRecording: false,
                 startTime: null,
-                elapsedSeconds: 0,
-                outputPath: null,
+                tempPath: tempPath,
                 timerIntervalId: null
             });
-
-            return result;
         } catch (error) {
-            console.error('[RecordingStore] Failed to stop/save recording:', error);
+            console.error('[RecordingStore] Failed to stop recording:', error);
             set({ isRecording: false, timerIntervalId: null });
+        }
+    },
+
+    exportRecording: async (format: 'wav' | 'webm') => {
+        const { tempPath } = get();
+        if (!tempPath) return { success: false, error: 'No recording to export' };
+
+        // 1. Chiedi all'utente dove salvare
+        const now = new Date();
+        const dateStr = now.toISOString().split('T')[0];
+        const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-');
+        const defaultName = `RRLMP_REC_${dateStr}_${timeStr}.${format}`;
+
+        const result = await window.electron.showSaveDialogRecording(defaultName, format);
+        if (result.canceled || !result.filePath) {
+            return { success: false, error: 'Canceled by user' };
+        }
+
+        set({ isConverting: true });
+
+        try {
+            // 2. Avvia conversione via IPC
+            const convResult = await window.electron.convertRecording(
+                tempPath, 
+                result.filePath, 
+                { format, bitrate: 320000 }
+            );
+
+            if (convResult.success) {
+                set({ isConverting: false, tempPath: null, elapsedSeconds: 0 });
+            } else {
+                set({ isConverting: false });
+            }
+
+            return { success: convResult.success, path: result.filePath, error: convResult.error };
+
+        } catch (error) {
+            set({ isConverting: false });
             return { success: false, error: String(error) };
         }
+    },
+
+    cancelExport: async () => {
+        const { tempPath } = get();
+        if (tempPath) {
+            await window.electron.deleteTempRecording(tempPath);
+        }
+        set({ isConverting: false, tempPath: null, elapsedSeconds: 0 });
     },
 
     reset: () => {
@@ -96,9 +127,10 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
         if (timerIntervalId) window.clearInterval(timerIntervalId);
         set({
             isRecording: false,
+            isConverting: false,
             startTime: null,
             elapsedSeconds: 0,
-            outputPath: null,
+            tempPath: null,
             timerIntervalId: null
         });
     }

@@ -117,17 +117,67 @@ export class AudioProcessor {
 
                 console.log(`[AudioProcessor] Peak Data estratti con successo! Punti: ${reducedPeaks.length}`);
                 resolve({ success: true, data: reducedPeaks });
-            });
+                });
 
-        } catch (error) {
-            console.error('[AudioProcessor] Errore fatale waveform:', error);
-            resolve({ success: false, error: String(error) });
-        }
-    });
-  }
+                } catch (error) {
+                console.error('[AudioProcessor] Errore fatale waveform:', error);
+                resolve({ success: false, error: String(error) });
+                }
+                });
+                }
 
-  /**
-   * Rileva il silenzio iniziale e finale del file audio tramite FFmpeg silencedetect.
+                /**
+                * Converte un file audio in un altro formato (es. WebM -> WAV) 
+                * con monitoraggio del progresso.
+                */
+                static async convertAudio(
+                inputPath: string, 
+                outputPath: string, 
+                options: { bitrate?: number, format?: string } = {},
+                onProgress?: (progress: number) => void
+                ): Promise<{ success: boolean; error?: string }> {
+                return new Promise((resolve) => {
+                try {
+                console.log(`[AudioProcessor] Conversione: ${inputPath} -> ${outputPath}`);
+
+                const command = ffmpeg(inputPath)
+                .output(outputPath)
+                .on('progress', (info) => {
+                if (onProgress && info.percent) {
+                    onProgress(Math.floor(info.percent));
+                }
+                })
+                .on('error', (err: Error) => {
+                console.error('[AudioProcessor] Conversion Error:', err);
+                resolve({ success: false, error: err.message });
+                })
+                .on('end', () => {
+                console.log(`[AudioProcessor] Conversione completata: ${outputPath}`);
+                resolve({ success: true });
+                });
+
+                if (options.bitrate) {
+                command.audioBitrate(options.bitrate / 1000); // fluent-ffmpeg aspetta kbps
+                }
+
+                if (options.format === 'wav') {
+                command.toFormat('wav').audioCodec('pcm_s16le');
+                } else if (options.format === 'webm') {
+                command.toFormat('webm').audioCodec('libopus');
+                }
+
+                command.run();
+
+                } catch (error) {
+                console.error('[AudioProcessor] Errore fatale conversione:', error);
+                resolve({ success: false, error: String(error) });
+                }
+                });
+                }
+
+                /**
+                * Rileva il silenzio iniziale e finale del file audio tramite FFmpeg silencedetect.
+
    * Viene eseguito nel main process (Node.js) per evitare OOM nel renderer su file grandi.
    * Ritorna trimStart e trimEnd in secondi.
    */

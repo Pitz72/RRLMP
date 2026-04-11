@@ -367,28 +367,113 @@ ipcMain.handle('save-project-silent', async (_event: Electron.IpcMainInvokeEvent
     }
 });
 
-// --- SESSION RECORDING IPC (v1.x) ---
+// --- SESSION RECORDING IPC (v1.1.1+) ---
 
-ipcMain.handle('show-save-dialog-recording', async (event, defaultName: string) => {
-    const win = BrowserWindow.fromWebContents(event.sender);
-    if (!win) return { canceled: true };
-    return await dialog.showSaveDialog(win, {
-        title: 'Seleziona dove salvare la registrazione',
-        defaultPath: defaultName,
-        filters: [
-            { name: 'Audio WebM (Opus)', extensions: ['webm'] },
-            { name: 'Tutti i file', extensions: ['*'] }
-        ]
+let recordingWriteStream: fs.WriteStream | null = null;
+let currentTempRecordingPath: string | null = null;
+
+ipcMain.handle('start-recording', async (_event) => {
+    try {
+        const tempDir = app.getPath('temp');
+        const timestamp = Date.now();
+        currentTempRecordingPath = join(tempDir, `rrlmp_temp_${timestamp}.webm`);
+        
+        recordingWriteStream = fs.createWriteStream(currentTempRecordingPath);
+        console.log(`[Main] Temp recording started: ${currentTempRecordingPath}`);
+        
+        return { success: true, path: currentTempRecordingPath };
+    } catch (error) {
+        console.error('[Main] Failed to start temp recording:', error);
+        return { success: false, error: String(error) };
+    }
+});
+
+ipcMain.handle('append-record-chunk', async (_event, arrayBuffer: ArrayBuffer) => {
+    if (!recordingWriteStream) return { success: false, error: 'No active recording stream' };
+    
+    try {
+        const buffer = Buffer.from(arrayBuffer);
+        recordingWriteStream.write(buffer);
+        return { success: true };
+    } catch (error) {
+        console.error('[Main] Failed to append chunk:', error);
+        return { success: false, error: String(error) };
+    }
+});
+
+ipcMain.handle('stop-recording', async (_event) => {
+    return new Promise((resolve) => {
+        if (!recordingWriteStream) {
+            return resolve({ success: false, error: 'No active recording stream' });
+        }
+
+        const path = currentTempRecordingPath;
+        recordingWriteStream.end(() => {
+            console.log(`[Main] Temp recording stopped: ${path}`);
+            recordingWriteStream = null;
+            resolve({ success: true, path });
+        });
     });
 });
 
-ipcMain.handle('save-recording', async (_event, arrayBuffer: ArrayBuffer, outputPath: string) => {
+ipcMain.handle('show-save-dialog-recording', async (event, defaultName: string, format: 'wav' | 'webm') => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (!win) return { canceled: true };
+    
+    const filters = format === 'wav' 
+        ? [{ name: 'Audio WAV (Lossless)', extensions: ['wav'] }]
+        : [{ name: 'Audio WebM (Opus)', extensions: ['webm'] }];
+
+    return await dialog.showSaveDialog(win, {
+        title: 'Seleziona dove salvare la registrazione finale',
+        defaultPath: defaultName,
+        filters: [...filters, { name: 'Tutti i file', extensions: ['*'] }]
+    });
+});
+
+ipcMain.handle('convert-recording', async (event, inputPath: string, outputPath: string, options: { bitrate?: number, format?: string }) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (!win) return { success: false, error: 'No window found' };
+
     try {
-        const buffer = Buffer.from(arrayBuffer);
-        await fs.promises.writeFile(outputPath, buffer);
-        return { success: true, path: outputPath, size: buffer.length };
+        const result = await AudioProcessor.convertAudio(
+            inputPath, 
+            outputPath, 
+            options,
+            (progress) => {
+                if (!win.isDestroyed()) {
+                    // Riutilizziamo l'evento export-progress per la barra UI
+                    win.webContents.send('export-progress', {
+                        current: progress,
+                        total: 100,
+                        filename: 'Conversione in corso...'
+                    });
+                }
+            }
+        );
+
+        if (result.success) {
+            // Se la conversione è riuscita e il file è diverso dall'input, eliminiamo il temporaneo
+            if (inputPath !== outputPath && fs.existsSync(inputPath)) {
+                try { fs.unlinkSync(inputPath); } catch (e) { /* ignore */ }
+            }
+        }
+
+        return result;
     } catch (error) {
-        console.error('Save recording failed:', error);
+        console.error('[Main] Conversion failed:', error);
+        return { success: false, error: String(error) };
+    }
+});
+
+ipcMain.handle('delete-temp-recording', async (_event, path: string) => {
+    try {
+        if (fs.existsSync(path)) {
+            fs.unlinkSync(path);
+            return { success: true };
+        }
+        return { success: false, error: 'File not found' };
+    } catch (error) {
         return { success: false, error: String(error) };
     }
 });
