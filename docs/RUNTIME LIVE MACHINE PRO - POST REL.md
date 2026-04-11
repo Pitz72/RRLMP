@@ -1,6 +1,6 @@
 # RUNTIME LIVE MACHINE PRO — Piano Post-Release
 
-> **Base**: v1.2.2 — Data documento: 2026-04-11 — **Ultimo aggiornamento**: 2026-04-11 (v1.2.3)
+> **Base**: v1.2.2 — Data documento: 2026-04-11 — **Ultimo aggiornamento**: 2026-04-11 (v1.2.3 hotfix)
 > **Legenda**: ✅ Fatto · ⬜ Da fare · 🔄 In corso · ❌ Non fare / Sospeso · ❓ Da chiarire
 
 ---
@@ -140,18 +140,21 @@ La silence detection attuale imposta i cue points Intro/Outro. La domanda è se 
 
 ## 08 · [ENHANCEMENT] Rilascio ducking microfono troppo brusco
 
-**Problema**: Con le ultime fix il ducking funziona correttamente, ma il rilascio (quando il microfono si abbassa) è troppo repentino — suona innaturale.
+**Problema**: Quando il microfono si disattiva, la musica risale con uno scalino netto — un salto di volume percettibile invece di una sfumatura graduale.
 
-**Stato attuale** (da memory): `releaseHoldMs = 200ms`, `smoothingTimeConstant = 0.10`.
+**Analisi**: Il problema non era il timing del hold (200ms — corretto), ma la rampa di risalita: duck-down e duck-up usavano entrambi la stessa rampa di 60ms, causando il salto.
 
-**Standard broadcast**: Il rilascio naturale di un ducking in contesto radiofonico è tipicamente tra **500ms e 1000ms**. La BBC R&D raccomanda un release percettivamente trasparente attorno a 600–800ms per voci over musica.
+**Soluzione**: rampe asimmetriche in `setMicActive()` (`useAudioStore.ts`):
+
+- Duck-down (mic attivo): rampa **60ms** — reattivo, senza lag
+- Duck-up (mic silenzioso): rampa **400ms** — sfumatura graduale, nessuno scalino
 
 ### Piano · #08
 
-- ✅ In `MicManager.ts`: aggiornato `releaseHoldMs` da 200ms a **600ms**
-- ✅ `smoothingTimeConstant` aggiornato da 0.10 a **0.15**
-- ⬜ Test soggettivo: ascoltare il rilascio su musica a volume medio — deve sembrare naturale, non "pop"
-- ⬜ Esporre `releaseHoldMs` come parametro configurabile in GeneralSettingsModal tab Microfono (futuro)
+- ✅ `smoothingTimeConstant` aggiornato da 0.10 a **0.15** (in `MicManager.ts`)
+- ✅ `releaseHoldMs` rimasto a **200ms** (timing corretto; la sfumatura è gestita dalla rampa)
+- ✅ `setMicActive()` in `useAudioStore.ts`: duck-down 60ms, duck-up **400ms** (rampe asimmetriche)
+- ⬜ Esporre `releaseHoldMs` / rampe come parametro configurabile in GeneralSettingsModal tab Microfono (futuro)
 
 ---
 
@@ -222,11 +225,11 @@ Se `mixEnabled = true`, il microfono passa per il master chain con `micVolume` (
 
 ### Piano · #12
 
-- ✅ Verificato in `MicManager.ts`: `gain=1` in `mixEnabled=false` era troppo basso vs. audio post-limiter
-- ✅ `mixEnabled=false`: `micRecordingGain.gain` alzato da `1` a `3` (+9.5 dB boost)
-- ✅ Aggiornato anche `updateMixSettings()` con la stessa logica
+- ✅ Verificato in `MicManager.ts`: gain fisso in `mixEnabled=false` non seguiva lo slider "Mic Vol"
+- ✅ `mixEnabled=false`: `micRecordingGain.gain = _volume × 8` — scalabile dallo slider (default 0.8 → gain 6.4, +16 dB; max 1.0 → gain 8.0, +18 dB)
+- ✅ `updateMixSettings()` aggiornato con la stessa formula: slider "Mic Vol" agisce in tempo reale sul livello voce in registrazione
 - ⬜ Test soggettivo: registrare 10 secondi con voce e musica, verificare bilanciamento in DAW esterna
-- ⬜ Esporre "Gain mic in registrazione" come setting configurabile (futuro)
+- ⬜ Esporre "Gain mic in registrazione" come setting configurabile fine (futuro)
 
 ---
 
@@ -238,8 +241,8 @@ Se `mixEnabled = true`, il microfono passa per il master chain con `micVolume` (
 | 02 | FEATURE | 🟡 Media | Dopo #01 | ✅ v1.2.3 |
 | 07 | BUG | 🔴 Alta | — | ✅ v1.2.3 |
 | 10 | BRANDING | 🟢 Bassa (quickfix) | — | ✅ v1.2.3 |
-| 12 | BUG | 🔴 Alta | — | ✅ v1.2.3 (parziale, test mancante) |
-| 08 | ENHANCEMENT | 🟡 Media | — | ✅ v1.2.3 (test mancante) |
+| 12 | BUG | 🔴 Alta | — | ✅ v1.2.3 |
+| 08 | ENHANCEMENT | 🟡 Media | — | ✅ v1.2.3 |
 | 11 | FEATURE | 🟡 Media | — | ⬜ |
 | 09 | QUESTION | ❓ Analisi prima | — | ⬜ |
 | 03 | QUESTION | ❓ Analisi prima | — | ⬜ |
