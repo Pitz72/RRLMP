@@ -1,6 +1,6 @@
-# Architecture & Development Reference (v1.0.0)
+# Architecture & Development Reference (v1.2.2)
 
-Ultimo aggiornamento: 2026-04-10
+Ultimo aggiornamento: 2026-04-11
 
 ---
 
@@ -69,7 +69,7 @@ useDebugStore        → Log transitori per overlay debug in-app
 - `activeClips: Record<string, ActiveClip>` — player attivi per clip ID
 - `playClip(clip)` — start + conflict resolution (stop same-column clips, skip transitioning)
 - `stopClip(id)` / `stopAll()` — stop con fade-out se configurato
-- `evaluateMix(activeClips, newClipId?)` — ducking sidechain (source → ducka i target); il newClipId riceve fadeTo istantaneo
+- `evaluateMix(activeClips, newClipId?, overrideDuration?)` — ducking sidechain; newClipId riceve fadeTo istantaneo; overrideDuration override del ramp (es. 60ms per mic ducking)
 - `applyTransitionAndPlayNext(clipId)` — orchestrazione Gapless/Segue/Crossfade
 - `fadingClipIds: string[]` (Zustand state, reattivo) — clip in fade-out per transizione
 - `previewingClipIds: string[]` — clip in modalità preview transizione (hasPlayed protetto)
@@ -153,12 +153,15 @@ class AudioProcessor {
 
 ---
 
-## 5. Master Chain (v0.16.2)
+## 5. Master Chain (v0.16.2 → v1.2.2)
 
 Topology:
 
 ```
-masterGain → HPF (BiquadFilterNode highpass 80Hz) → Compressor (DynamicsCompressorNode) → Limiter (DynamicsCompressorNode 20:1) → destination + splitter → analysers
+masterGain → HPF → Compressor → Limiter → destination
+                                         → splitter → analysers
+                                         → recordingBus → MediaStreamDestinationNode (recording)
+                                                        ↑ micRecordingGain (quando mic armato e mixEnabled=false)
 ```
 
 Parametri broadcast:
@@ -204,19 +207,30 @@ Esposta da `src/preload/index.ts` via `contextBridge`:
 
 ---
 
-## 7b. MicManager (v0.17.0)
+## 7b. MicManager (v0.17.0 → v1.2.2)
 
 File: `src/renderer/src/engine/MicManager.ts` — Singleton, pattern identico a MidiManager.
 
 Flusso:
 ```
 getUserMedia({ echoCancellation: false }) → MediaStreamAudioSourceNode
-    → AnalyserNode (fftSize=1024) [MAI connesso all'output]
+    → AnalyserNode (fftSize=1024, smoothing=0.10) [MAI connesso all'output]
     → getFloatTimeDomainData() ogni 40ms → RMS → dBFS
-    → Noise Gate: attivazione -30dBFS/80ms, rilascio -42dBFS/1500ms (isteresi 12dB)
-    → activityListeners → useAudioStore.setMicActive()
+    → Noise Gate: attivazione -30dBFS/10ms, rilascio -42dBFS/200ms (isteresi 12dB)
+    → activityListeners → useAudioStore.setMicActive(active, overrideDuration=60ms)
     → levelListeners → GlobalControls VU meter
 ```
+
+Routing grafo audio (v1.0.0+):
+```
+source → micGain (monitoring) → masterGain    [solo se mixEnabled=true]
+       → micRecordingGain     → recordingBus  [sempre quando armato, gain=0 se mixEnabled=true]
+```
+
+- `micGain`: monitoring attraverso master chain. gain=0 se mixEnabled=false.
+- `micRecordingGain`: sempre collegato a `AudioContextManager.getRecordingBus()`.
+  gain=1 se mixEnabled=false (Rodecaster/hardware monitor: mic catturata solo nel recording).
+  gain=0 se mixEnabled=true (mic già nel recording via master chain, evita doppiaggio).
 
 Il contesto AudioContext usato è quello di AudioContextManager (nessun contesto aggiuntivo).
 
