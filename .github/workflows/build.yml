@@ -1,9 +1,6 @@
 name: Build and Package RRLMP
 
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
 
 jobs:
@@ -14,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
 
     steps:
       - name: Checkout Code
@@ -33,7 +30,6 @@ jobs:
         run: npm run build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Prevent signing errors on macOS/Windows by disabling auto-discovery
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Upload Artifacts

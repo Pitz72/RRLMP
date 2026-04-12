@@ -5,6 +5,7 @@ stages:
 build_linux:
   stage: build
   image: node:20
+  when: manual
   script:
     - npm install
     - npm run build
@@ -13,8 +14,6 @@ build_linux:
     paths:
       - builds/v*/**/*
     expire_in: 1 week
-  only:
-    - master
 
 # Job per macOS (.dmg)
 build_macos:
@@ -22,6 +21,7 @@ build_macos:
   image: macos-15-xcode-16
   tags:
     - macos-15-xcode-16
+  when: manual
   variables:
     CSC_IDENTITY_AUTO_DISCOVERY: "false"
   script:
@@ -33,5 +33,3 @@ build_macos:
     paths:
       - builds/v*/**/*
     expire_in: 1 week
-  only:
-    - master
