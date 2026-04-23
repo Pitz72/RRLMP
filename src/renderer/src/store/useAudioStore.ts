@@ -389,11 +389,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     debugLog(`AudioStore: Ended ${freshClip.name}`, 'info');
                     get().stopClip(freshClip.id);
 
-                    if (freshClip.nextAction === 'loop') {
-                        debugLog(`AudioStore: Looping ${freshClip.name}`, 'event');
-                        setTimeout(() => get().playClip(freshClip), 50);
-                    }
-                    else if (freshClip.nextAction === 'play_next') {
+                    if (freshClip.nextAction === 'play_next') {
                         const transition = freshClip.transitionType
                             ?? useSettingsStore.getState().defaultPreshowTransition;
 

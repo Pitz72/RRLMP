@@ -27,6 +27,7 @@ export class StreamPlayer implements IAudioPlayer {
     private trimEnd: number = 0;
     private introMarker: number = 0;
     private outroMarker: number = 0;
+    private isLooping: boolean = false;
 
     private currentClipId: string = '';
     private volumeGainNode: GainNode;
@@ -37,6 +38,8 @@ export class StreamPlayer implements IAudioPlayer {
     constructor() {
         const ctx = AudioContextManager.getInstance().getContext();
         this.audioElement = new Audio() as HTMLAudioElementWithSinkId;
+        this.audioElement.loop = false; // Always manual for trim support
+        
         const deviceId = useSettingsStore.getState().outputDeviceId;
         if (deviceId && deviceId !== 'default') {
             this.setOutputDevice(deviceId);
@@ -53,7 +56,12 @@ export class StreamPlayer implements IAudioPlayer {
         this.volumeGainNode.connect(AudioContextManager.getInstance().getOutput());
 
         this.audioElement.onended = () => {
-            if (this.onEndedCallback) this.onEndedCallback();
+            if (this.isLooping) {
+                debugLog(`StreamPlayer: Natural Loop Restart for ${this.currentClipId}`, 'event');
+                this.restartLoop();
+            } else if (this.onEndedCallback) {
+                this.onEndedCallback();
+            }
         };
 
         this.audioElement.ontimeupdate = () => {
@@ -61,8 +69,14 @@ export class StreamPlayer implements IAudioPlayer {
             const effectiveDuration = Math.max(0, duration - this.trimEnd);
 
             // --- L4 Logic Documentation ---
-            // 0. Manual Trim End Trigger
+            // 0. Trim End Trigger (Manual or Loop)
             if (this.trimEnd > 0 && duration > 0 && currentTime >= effectiveDuration) {
+                if (this.isLooping) {
+                    debugLog(`StreamPlayer: Trim Loop Restart for ${this.currentClipId}`, 'event');
+                    this.restartLoop();
+                    return;
+                }
+                
                 if (!this.audioElement.paused) {
                     debugLog(`StreamPlayer: Trim End Triggered (${this.trimEnd}s offset)`, 'event');
                     this.audioElement.pause();
@@ -84,7 +98,7 @@ export class StreamPlayer implements IAudioPlayer {
             }
 
             // 3. Fade Out Logic
-            if (this.fadeOutDuration > 0 && !this.fadeOutTriggered && duration > 0 && !this.audioElement.loop) {
+            if (this.fadeOutDuration > 0 && !this.fadeOutTriggered && duration > 0) {
                 const remaining = effectiveDuration - currentTime;
                 if (remaining <= (this.fadeOutDuration / 1000)) {
                     this.fadeOutTriggered = true;
@@ -94,7 +108,7 @@ export class StreamPlayer implements IAudioPlayer {
             }
 
             // 4. PreEnd Logic
-            if (duration > 0 && !this.preEndTriggered && this.onPreEndCallback && !this.audioElement.loop) {
+            if (duration > 0 && !this.preEndTriggered && this.onPreEndCallback) {
                 const threshold = (this.fadeOutDuration > 0) ? (this.fadeOutDuration / 1000) : 0.05;
                 const remaining = effectiveDuration - currentTime;
                 if (remaining <= threshold) {
@@ -112,6 +126,25 @@ export class StreamPlayer implements IAudioPlayer {
             const errorMsg = this.audioElement.error ? `Code ${this.audioElement.error.code} - ${this.audioElement.error.message}` : String(e);
             debugLog(`StreamPlayer: Error ${errorMsg}`, 'error');
         };
+    }
+
+    private restartLoop(): void {
+        // Reset markers for the next cycle
+        this.introReached = false;
+        this.outroReached = false;
+        this.fadeOutTriggered = false;
+        this.preEndTriggered = false;
+
+        // Reset volume to target (if it was fading out)
+        const ctx = AudioContextManager.getInstance().getContext();
+        this.volumeGainNode.gain.cancelScheduledValues(ctx.currentTime);
+        this.volumeGainNode.gain.setValueAtTime(this.targetVolume, ctx.currentTime);
+
+        // Restart from trim point
+        this.audioElement.currentTime = this.trimStart;
+        this.audioElement.play().catch(e => {
+            debugLog(`StreamPlayer: Loop play failed ${e.message}`, 'error');
+        });
     }
 
     async load(path: string): Promise<void> {
@@ -278,7 +311,10 @@ export class StreamPlayer implements IAudioPlayer {
     updateSettings(clip: AudioClip): void {
         if (clip.id) this.currentClipId = clip.id;
         if (clip.volume !== undefined) this.targetVolume = clip.volume;
-        if (clip.isLooping !== undefined) this.audioElement.loop = clip.isLooping;
+        if (clip.isLooping !== undefined) {
+            this.isLooping = clip.isLooping;
+            this.audioElement.loop = false; // We handle loop manually to support Trims
+        }
         if (clip.fadeIn !== undefined) this.fadeInDuration = clip.fadeIn;
         if (clip.fadeOut !== undefined) this.fadeOutDuration = clip.fadeOut;
         if (clip.trimStart !== undefined) this.trimStart = clip.trimStart;

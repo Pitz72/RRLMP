@@ -8,7 +8,7 @@ export type ClipType = 'asset' | 'music' | 'voice' | 'sfx' | 'preshow';
  */
 export type TransitionType = 'gapless' | 'segue' | 'crossfade';
 
-export type PlaybackMode = 'oneshot' | 'loop' | 'sequence';
+export type PlaybackMode = 'oneshot' | 'sequence';
 
 declare global {
     interface Window {

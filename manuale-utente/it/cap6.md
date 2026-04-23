@@ -1,77 +1,89 @@
-# CAPITOLO 6: CONTROLLO HARDWARE E ROUTING
-
-Un software di regia professionale non vive isolato nel computer. Deve comunicare con il mixer dello studio, con le cuffie e con le dita del regista.
-In questo capitolo vedremo come configurare l'uscita audio e come comandare il software senza toccare il mouse.
+# Capitolo 6 — Il motore di mixaggio
 
 ---
 
-## 6.1 Configurazione Audio (Routing)
+Il problema di fondo della regia radiofonica manuale è la moltiplicazione delle azioni simultanee: avviare un brano, abbassare la musica, parlare al microfono, preparare la clip successiva, tenere d'occhio l'orologio. Ogni operazione in più è un'opportunità di errore in un contesto in cui l'errore è pubblico e immediato.
 
-Per default, RRLMP esce sulla periferica audio predefinita di Windows. Tuttavia, in uno studio (o con setup podcast avanzati come il *Rødecaster Pro*), hai bisogno di separare i flussi.
-
-### Selezionare l'Uscita
-1.  Clicca sull'icona **Ingranaggio (Impostazioni)** nella barra dei comandi in alto.
-2.  Si aprirà il pannello **General Settings**.
-3.  Nel menu a tendina "Audio Output Device", vedrai la lista di tutte le schede audio collegate al tuo PC.
-4.  Seleziona la periferica desiderata (es. *Rødecaster Pro Stereo* o *Focusrite USB*).
-
-### Live Switch
-Il cambio è istantaneo. Se la musica sta suonando mentre cambi periferica, l'audio "salterà" sulla nuova uscita senza interrompersi.
-
-> **Consiglio per Rødecaster/Mixer USB**: Se il tuo mixer ha più canali USB (es. Main e Sounds/Chat), imposta RRLMP su un canale secondario (es. "Sounds") in modo da poter controllare il suo volume con un fader dedicato sul mixer fisico, separandolo dai suoni di sistema di Windows.
+Il motore di mixaggio di Runtime Live Machine Pro elimina la maggior parte di queste azioni intermedie delegandole al software. Non è automazione nel senso di «il software fa le cose al posto tuo senza che tu lo sappia»: è automazione delle regole che tu stesso definiresti se avessi abbastanza mani per eseguirle tutte.
 
 ---
 
-## 6.2 La Tastiera (Hotkeys)
+## 6.1 La gerarchia audio
 
-La tastiera del computer è il controller più veloce che hai. RRLMP include comandi globali preimpostati e tasti personalizzabili.
+Il sistema di mixaggio automatico si basa su una **gerarchia di priorità** tra le colonne. Ogni colonna occupa un livello preciso nella scala di importanza, e il software applica questa scala in modo coerente durante l'intera sessione.
 
-### Comandi Globali (F-Keys)
-I tasti funzione (F1-F5) sono mappati per lanciare le colonne. Hanno una logica "intelligente": cercano la prima clip libera.
-*   **F1**: Lancia la colonna 1 (Assets).
-*   **F2**: Lancia la colonna 2 (Musica).
-*   **F3**: Lancia la colonna 3 (Voci).
-*   **F4**: Lancia la colonna 4 (SFX).
-*   **F5**: Lancia la colonna 5 (Pre-Show).
-*   **ESC**: **PANIC BUTTON**. Ferma tutto immediatamente (Stop All).
+Il modo più immediato per capire questa gerarchia è immaginarla come una scala discendente di «diritto di parola»:
 
-### Tasti Personalizzati (Custom Binds)
-Vuoi lanciare la sigla premendo la barra spaziatrice o la lettera "Q"?
-1.  Fai tasto destro sulla clip -> **Edit**.
-2.  Clicca nel campo **Trigger Keybind**.
-3.  Premi il tasto desiderato sulla tastiera.
-4.  Salva.
-5.  Sulla card apparirà un badge (es. **[Q]**) per ricordarti l'assegnazione.
+**Livello 1 — Voci / Preregistrazioni (Arancione)**
+La priorità assoluta. Quando una clip voce è in riproduzione, tutto il resto si abbassa automaticamente a un livello di sottofondo. Nessun altro segnale nel sistema può sovrascrivere questa regola.
 
-> **Sicurezza**: I comandi da tastiera vengono automaticamente disabilitati se stai scrivendo del testo (es. rinominando una clip), per evitare di far partire l'audio mentre digiti.
+**Livello 2 — Canzoni dell'episodio (Rosso)**
+Cedono spazio alle Voci, ma comandano sulle basi degli Assets. Quando entra una canzone, le basi musicali degli Assets si azzerano (non si fermano: continuano a girare in silenzio, pronte per il ritorno).
+
+**Livello 3 — Show Assets (Verde)**
+Le basi di sottofondo. Vengono abbassate sia dalle Voci che dalle Canzoni.
+
+**Fuori dalla gerarchia — SFX / Cartwall (Grigio)**
+Gli effetti sonori non partecipano al sistema di ducking. Suonano sempre al volume pieno, si sovrappongono a qualsiasi cosa stia succedendo nella griglia senza abbassare né essere abbassati. Questa è una scelta progettuale deliberata: un effetto sonoro che viene ducked da una voce perde metà del suo valore espressivo.
 
 ---
 
-## 6.3 MIDI Controller (Il Potere Fisico)
+## 6.2 Ducking automatico
 
-Questa è la funzione "Pro" per eccellenza. Puoi collegare tastiere musicali, pad (come *Novation Launchpad*) o controller a fader (come *Korg nanoKONTROL*) e usarli per guidare il software.
+Il **ducking** è il meccanismo con cui un segnale audio viene automaticamente abbassato quando un segnale di priorità superiore entra in riproduzione.
 
-### Collegamento
-1.  Collega il tuo controller USB-MIDI al computer **prima** di avviare Runtime Live Machine Pro.
-2.  Avvia il software. Il motore MIDI riconoscerà automaticamente la periferica.
+Nella pratica radio, il caso più comune è il seguente: una canzone sta suonando in piena dinamica; il conduttore lancia un'intervista preregistrata dalla colonna Voci. In quel momento, RLMP abbassa la canzone a circa il 20% del volume originale (−14 dB) con una transizione in dissolvenza morbida, lasciando che la voce occupi lo spazio sonoro in modo intellegibile. Appena l'intervista termina, la canzone risale al volume originale con un fade in altrettanto fluido.
 
-### MIDI Learn Mode (Mappatura Facile)
-Non devi conoscere codici complicati. RRLMP impara guardando cosa fai.
+L'operatore non tocca nulla. Il gesto eseguito è stato un solo click: avviare l'intervista.
 
-1.  Clicca sull'icona **MIDI** (Connettore DIN) nella barra in alto.
-    *   L'icona diventa **Ciano (Accesa)**.
-    *   Le clip assumono un aspetto tratteggiato ("In attesa").
-2.  **Per mappare una Clip**:
-    *   Clicca con il mouse sulla Clip desiderata.
-    *   Premi il pulsante/pad fisico sul tuo controller.
-    *   Apparirà un badge (es. **[M:60]**) sulla clip. Fatto.
-3.  **Per mappare funzioni Globali**:
-    *   Clicca sul pulsante rosso **STOP ALL** sullo schermo -> Premi un tastone sul controller.
-    *   Clicca sullo slider **MASTER VOL** sullo schermo -> Muovi un fader o una manopola sul controller.
-4.  Clicca di nuovo l'icona **MIDI** per uscire dalla modalità Learn.
+### Ducking microfono (Smart Mic)
 
-### Tipi di Comandi Supportati
-*   **Note On/Off**: Perfetto per pulsanti e pad (Lancio Clip, Stop All).
-*   **Control Change (CC)**: Perfetto per fader e manopole rotative. Usalo per controllare il Master Volume in modo analogico e fluido.
+Il sistema di ducking si estende anche al microfono fisico collegato al computer. Quando la funzione Smart Mic è attiva (vedi Capitolo 7), RLMP monitora in continuo il segnale in ingresso dal microfono: se rileva audio sopra la soglia del noise gate configurabile, applica il ducking esattamente come farebbe una clip della colonna Voci. Il conduttore non deve premere nessun pulsante: parla al microfono e la musica si abbassa da sola.
 
-> **Portabilità**: Le mappature MIDI delle clip sono salvate dentro il progetto `.lmp`. Se porti il progetto su un altro PC con lo stesso controller, funzionerà tutto subito.
+---
+
+## 6.3 Music Dominance: gestione intelligente delle basi
+
+Un errore sonoro classico nella produzione radio è il momento in cui una canzone e una base musicale (*bed*) si sovrappongono: due elementi ritmici che si scontrano, due kick drum che non coincidono, il risultato è confuso e non professionale.
+
+RLMP gestisce questo scenario con la **Music Dominance**.
+
+**Lo scenario tipo.** Una base musicale sta girando in loop nella colonna Assets, sotto la voce del conduttore. Il conduttore lancia un brano musicale dalla colonna Canzoni.
+
+**Cosa fa RLMP.** Non ferma la base — fermarla richiederebbe poi di avviarla manualmente al termine della canzone. Invece, la porta silenziosamente a **volume zero**, mantenendola in riproduzione «in fantasma»: il file continua a scorrere, il loop continua, ma non si sente nulla.
+
+**Il risultato sonoro.** Si sente solo la canzone. La base è scomparsa senza che l'operatore abbia fatto nulla.
+
+**Il ritorno.** Quando la canzone termina (o viene fermata), la base riemerge con un fade in automatico, riprendendo dal punto in cui si trovava nel loop. Il flusso risultante — base → canzone → base — avviene senza un singolo click aggiuntivo da parte dell'operatore.
+
+---
+
+## 6.4 Stacchi: l'eccezione alla regola
+
+Il comportamento **Stacco** (configurabile nelle proprietà di ogni clip, vedi Capitolo 5) consente a una clip di sovrapporsi alle altre senza triggering il sistema di ducking o Music Dominance.
+
+Una clip con comportamento Stacco, avviata nella colonna Assets, non zittisce le altre basi in riproduzione: si affianca a esse, eventualmente abbassandole di qualche dB per fare spazio, ma senza interromperle.
+
+L'uso tipico è lo *station ID* vocale («Stai ascoltando…»): deve sentirsi chiaramente, ma la base sotto deve continuare a girare. Configurando la clip come Stacco, ottieni esattamente questo effetto.
+
+**Combinazione con Fade In.** Per un risultato più curato, abbina il comportamento Stacco a un fade in breve (300–500 ms) sulla clip dello station ID: l'ingresso sarà morbido, non brusco.
+
+---
+
+## 6.5 Master Chain: la catena di processori sul master bus
+
+Il segnale combinato di tutte le clip in riproduzione, dopo il Master Volume, attraversa una **catena di processori audio** sul bus master prima di raggiungere la periferica di uscita. Questa catena è attiva per impostazione predefinita e progettata per garantire un suono broadcast-grade senza richiedere configurazione avanzata.
+
+La catena comprende tre stadi in serie:
+
+**High-Pass Filter (HPF) a 80 Hz.**
+Elimina le frequenze sub-bass inutili che consumano headroom e possono causare distorsioni sui sistemi di diffusione. Le voci e gli strumenti non contengono informazioni udibili sotto gli 80 Hz in un contesto broadcast.
+
+**Compressore dinamico.**
+Soglia: −18 dBFS. Rapporto di compressione: 4:1. Attenuazione dei picchi eccessivi e contenimento della varianza dinamica tra clip di livello diverso. Un'intervista telefonica registrata a basso volume e una sigla professionale producono, dopo il compressore, un livello di uscita più omogeneo.
+
+**Limiter a brickwall.**
+Soglia: −1 dBFS. Garantisce che il segnale non superi mai il livello massimo consentito, prevenendo la distorsione digitale (clipping) indipendentemente dai picchi nei segnali sorgente.
+
+La catena è configurabile e disattivabile dalle impostazioni generali (icona Ingranaggio → *Master Chain*). In un contesto dove il segnale viene già processato da un mixer hardware o da un chain esterno, puoi disattivarla per evitare processazioni doppie.
+

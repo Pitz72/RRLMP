@@ -1,96 +1,90 @@
-# CAPITOLO 2: L'INTERFACCIA DI LAVORO
-
-L'interfaccia di **Runtime Live Machine Pro** è progettata per essere scura, ad alto contrasto e priva di distrazioni. Ogni elemento è posizionato per essere raggiunto rapidamente durante una diretta.
-
-L'area di lavoro si divide in due zone principali: la **Barra di Controllo (Header)** in alto e la **Griglia di Regia** centrale.
+# Capitolo 2 — Installazione e primo avvio
 
 ---
 
-## 2.1 La Barra di Controllo (Header)
-
-La parte superiore dello schermo è il centro nevralgico del software. Qui trovi gli strumenti per gestire il progetto, l'hardware e il monitoraggio globale.
-
-### Informazioni e Monitoraggio
-*   **ℹ️ Info & About**: Cliccando sull'icona delle informazioni (o sul logo), si apre il pannello dei crediti che mostra la versione installata e lo stato degli aggiornamenti.
-*   **⏱️ Orologio di Studio**: Un grande orologio digitale (HH:MM:SS) sincronizzato con il sistema. È il tuo riferimento temporale assoluto per la messa in onda.
-*   **🔊 Master Volume**: Lo slider orizzontale controlla il volume generale di uscita del software.
-    *   *Nota*: Questo volume agisce su tutte le clip. Se lo porti a zero, il software è muto, anche se le clip stanno suonando.
-*   **📊 VU Meters (L/R)**: Due barre colorate (Verde/Giallo/Rosso) accanto al volume.
-    *   Indicano il livello audio reale in uscita.
-    *   **Verde**: Segnale ottimale.
-    *   **Rosso**: Segnale troppo alto (Saturazione/Clipping). Abbassa il Master Volume se vedi spesso il rosso.
-
-### Il Pulsante Panico
-*   **🟥 STOP ALL**: Il pulsante rosso centrale è il comando di emergenza. Cliccandolo (o premendo `ESC` sulla tastiera), **tutte** le clip attive si fermano istantaneamente e i riverberi vengono troncati. Usalo per chiudere tutto in caso di errore o imprevisto.
-
-### Le Icone Funzionali (Toolbar)
-A destra del pulsante Stop, trovi una serie di icone grigie raggruppate per funzione.
-
-#### Gruppo Progetto (Gestione File)
-1.  **📄 Nuovo Progetto (File Plus)**: Pulisce interamente la griglia per iniziare un nuovo show da zero. Se hai modifiche non salvate, ti chiederà conferma.
-2.  **💾 Salva (Floppy Disk)**: Salvataggio rapido. Sovrascrive il file `.lmp` attuale. Usalo frequentemente durante il lavoro.
-3.  **🖊️ Salva con Nome (Floppy con Penna)**: Apre sempre la finestra di dialogo per salvare una *nuova copia* del progetto con un nome diverso. Utile per creare versioni (es. "Show_v1", "Show_v2").
-4.  **📂 Carica (Cartella)**: Apre un progetto esistente dal disco.
-5.  **📦 Export Package (Scatola/Archivio)**: Una funzione vitale per la portabilità.
-    *   Crea una copia completa del progetto in una cartella a tua scelta.
-    *   **Copia fisicamente tutti i file audio** (MP3, WAV) utilizzati nella cartella di destinazione.
-    *   Ti permette di spostare lo show su una chiavetta USB ed eseguirlo su un altro computer senza perdere i collegamenti ai file.
-
-#### Gruppo Hardware
-6.  **🎹 MIDI Learn (Connettore DIN)**: Attiva/Disattiva la modalità di apprendimento MIDI.
-    *   Quando è **acceso (Ciano)**: Clicca una clip e premi un tasto sul tuo controller esterno per assegnarlo.
-    *   Quando è **spento (Grigio)**: I tasti del controller lanciano le clip.
-7.  **⚙️ Impostazioni (Ingranaggio)**: Apre il pannello delle preferenze globali, dove puoi selezionare la **Scheda Audio di Uscita** (Routing). Fondamentale se usi mixer USB come Rødecaster Pro o schede esterne.
+L'installazione di Runtime Live Machine Pro è progettata per richiedere il minimo di interazione: pochi click, nessuna configurazione manuale, nessun prerequisito da installare separatamente. Il motore audio (FFmpeg) è integrato nel pacchetto di installazione e non richiede alcun intervento da parte tua.
 
 ---
 
-## 2.2 La Griglia a 5 Colonne (Swimlanes)
+## 2.1 Requisiti di sistema
 
-Il cuore operativo è diviso in 5 colonne verticali fisse. Ogni colonna ha un colore e una logica di comportamento specifica per aiutarti a organizzare lo show.
+Prima di procedere, verifica che il tuo computer soddisfi i requisiti minimi. Le specifiche consigliate garantiscono la migliore esperienza durante sessioni lunghe o con molte clip caricate simultaneamente.
 
-1.  **SHOW ASSETS (Verde)**
-    *   *Contenuto*: Sigle, Basi, Sottofondi, Stacchi istituzionali.
-    *   *Comportamento*: Elementi strutturali dello show. Spesso agiscono come "Sorgente" per abbassare il volume della musica (Ducking).
-2.  **CANZONI DELL'EPISODIO (Rosso)**
-    *   *Contenuto*: La tua playlist musicale.
-    *   *Comportamento*: Subisce il Ducking (si abbassa) quando parlano le voci. Ha la priorità sugli Assets (Music Dominance).
-3.  **VOCI / PREREGISTRAZIONI (Arancione)**
-    *   *Contenuto*: Interviste, Vocali WhatsApp, Blocchi parlati preregistrati.
-    *   *Comportamento*: **Priorità Massima**. Quando suona una clip qui, tutto il resto si abbassa.
-4.  **SFX / CARTWALL (Grigio)**
-    *   *Contenuto*: Effetti sonori brevi, applausi, rumori, jingles veloci.
-    *   *Comportamento*: Suoni "Shot" che si sovrappongono a tutto senza influenzare i volumi altrui.
-5.  **PRE-SHOW (Viola)**
-    *   *Contenuto*: Musica di attesa prima della diretta.
-    *   *Comportamento*: Playlist di riscaldamento.
+| | Minimo | Consigliato |
+|---|---|---|
+| **Sistema operativo (Windows)** | Windows 10 64-bit | Windows 11 64-bit |
+| **Sistema operativo (macOS)** | macOS 11 Big Sur | macOS 13 Ventura o successivi |
+| **Sistema operativo (Linux)** | Ubuntu 20.04 / Debian 11 | Ubuntu 22.04 LTS |
+| **RAM** | 4 GB | 8 GB o più |
+| **Spazio su disco** | 300 MB (applicazione) | 1 GB + spazio per i file audio |
+| **CPU** | Qualsiasi dual-core moderno | Quad-core o superiore |
 
-### Avviso "Dead Air" (Fine Playlist)
-L'intestazione delle colonne è intelligente. Se una colonna sta suonando l'ultima traccia disponibile e mancano meno di **20 secondi** alla fine, l'intestazione inizierà a **lampeggiare** (Giallo/Rosso) visualizzando l'avviso **DEAD AIR**.
-Questo ti avverte visivamente che sta per calare il silenzio, dandoti il tempo di preparare la traccia successiva.
+Il software è ottimizzato per Apple Silicon (M1, M2, M3) e gira in modo nativo su entrambe le architetture macOS senza emulazione Rosetta.
+
+Non è richiesta una scheda audio dedicata: RLMP funziona con qualsiasi periferica audio riconosciuta dal sistema operativo, dalla scheda audio integrata ai mixer USB professionali come il Rødecaster Pro o l'RØDECaster Duo.
 
 ---
 
-## 2.3 La Card Audio (Clip)
+## 2.2 Installazione su Windows
 
-Ogni file audio caricato diventa una "Card" rettangolare nella griglia.
+1. Scarica il file `Runtime Live Machine Pro Setup 1.2.0.exe` dal sito ufficiale.
+2. Fai doppio click sull'eseguibile. L'installer NSIS si avvierà e copierà i file nelle directory appropriate.
+3. Al termine, un collegamento verrà creato sul Desktop e nel menu Start.
+4. L'applicazione si avvia automaticamente al completamento dell'installazione.
 
-### Informazioni Visive
-*   **Titolo**: Il nome del file (o il nome personalizzato assegnato).
-*   **Timer**:
-    *   *A riposo*: Mostra la durata totale (es. `03:45`).
-    *   *In Play*: Mostra un **Countdown** (es. `-01:20`).
-    *   *Alert*: Quando mancano meno di 15 secondi, il timer diventa **ROSSO** per segnalare la chiusura imminente.
+**Nota su Windows SmartScreen.** Poiché il software viene aggiornato con frequenza, il certificato di firma digitale potrebbe non avere ancora accumulato la «reputazione» sufficiente per la whitelist automatica di SmartScreen. Se compare l'avviso «Il PC è stato protetto da Windows», clicca su *Ulteriori informazioni* e poi su *Esegui comunque*. Il software è privo di malware e il codice sorgente è disponibile pubblicamente.
 
-### Badge e Simboli
-Sulla card possono apparire diverse etichette che indicano come si comporterà la clip:
-*   **[LOOP]**: La clip ricomincerà da capo automaticamente alla fine.
-*   **[NEXT]**: Alla fine della clip, partirà automaticamente quella successiva (Crossfade).
-*   **[STACCO]**: La clip non ferma il sottofondo, ma lo zittisce temporaneamente per sovrapporsi.
-*   **[Q] / [SPACE]**: Indica il tasto della tastiera assegnato per il lancio rapido.
-*   **[M:60]**: Indica che la clip è mappata su un controller MIDI esterno.
+---
 
-### Selezione e Interazione
-*   **Click Sinistro**: Avvia (Play) o Ferma (Stop/Fade Out) la clip.
-*   **Ctrl + Click**: Seleziona la clip senza suonarla (bordo Blu). Utile per selezionare più clip contemporaneamente ed eliminarle in blocco con il tasto `CANC`.
-*   **Drag & Drop**: Puoi trascinare le clip per riordinarle o spostarle da una colonna all'altra.
+## 2.3 Installazione su macOS
+
+1. Scarica il file `.dmg` dal sito ufficiale.
+2. Apri il file immagine e trascina l'icona di Runtime Live Machine Pro nella cartella *Applicazioni*.
+3. Al primo avvio, macOS potrebbe mostrare un avviso Gatekeeper («App non può essere aperta perché proviene da uno sviluppatore non identificato»). Per procedere, apri *Preferenze di Sistema* → *Sicurezza e Privacy* → *Generali* e clicca su *Apri comunque* accanto al nome dell'applicazione.
+
+Dalla versione macOS 15 (Sequoia) in poi, il percorso è *Impostazioni di Sistema* → *Privacy e sicurezza* → scorri fino alla sezione *Sicurezza*.
+
+---
+
+## 2.4 Installazione su Linux
+
+Sono disponibili due formati di distribuzione:
+
+- **AppImage** — eseguibile portabile, non richiede installazione. Rendi il file eseguibile (`chmod +x`) e avvialo direttamente.
+- **Pacchetto .deb** — per distribuzioni Debian/Ubuntu/Mint. Installa con `sudo dpkg -i nomefile.deb` oppure aprilo con il gestore pacchetti grafico.
+
+Su alcune distribuzioni potrebbe essere necessario installare il pacchetto `libasound2` per il supporto audio ALSA. Consulta la documentazione della tua distribuzione se l'applicazione non si avvia.
+
+---
+
+## 2.5 La schermata di benvenuto
+
+Al primo avvio — e a ogni avvio successivo, finché non apri un progetto — RLMP presenta la **Welcome Screen**, il punto di accesso a tutte le operazioni preliminari.
+
+Il layout è orizzontale e comprende tre zone funzionali.
+
+**Zona sinistra — Identità e stato.**
+Il logo del software (cinque barre di VU meter con il simbolo di play) identifica visivamente la versione Pro. Sotto il logo è riportato il numero di versione installata, accompagnato da un indicatore cromatico di aggiornamento:
+
+- **Verde** — il software è aggiornato all'ultima versione disponibile.
+- **Giallo/Arancione** — è disponibile un aggiornamento. Visita il sito ufficiale per scaricarlo.
+
+**Zona centrale — Azioni principali.**
+
+- *Nuovo Progetto* — crea una sessione vuota con le cinque colonne pronte al caricamento.
+- *Carica Progetto* — apre un file `.lmp` esistente. Prima di renderlo operativo, RLMP esegue un **controllo di integrità**: verifica che ogni file audio referenziato esista ancora nel percorso memorizzato. I file mancanti vengono immediatamente segnalati con un bordo rosso sulla rispettiva clip.
+- *Manuale* — apre la documentazione nel browser predefinito.
+
+**Zona destra — Selettore lingua.**
+RLMP supporta otto lingue dell'interfaccia: Italiano, Inglese, Francese, Tedesco, Spagnolo, Portoghese, Russo e Cinese semplificato. La bandiera corrispondente alla lingua attiva è evidenziata. La selezione viene memorizzata nel profilo utente e persiste tra una sessione e l'altra.
+
+---
+
+## 2.6 Il primo avvio: cosa aspettarsi
+
+Alla prima apertura di un progetto, noterai nell'header il badge **PRO** in ciano acceso. Non è un elemento decorativo: conferma che il motore audio in background è attivo e operativo, che FFmpeg è stato inizializzato correttamente e che il protocollo di streaming `media://` è in ascolto.
+
+Il software si avvia preferibilmente in modalità a tutto schermo. Se la finestra dovesse aprirsi ridimensionata, premi `F11` (Windows/Linux) o `Ctrl+Cmd+F` (macOS) per portarla a schermo intero — condizione ottimale per il lavoro di regia.
+
+Il **Timer On Air** nell'header rimarrà a zero finché non viene lanciata la prima clip della sessione. Da quel momento inizierà a contare il tempo trascorso in diretta: uno strumento di riferimento utile per chi lavora con scalette a tempo fisso.
 

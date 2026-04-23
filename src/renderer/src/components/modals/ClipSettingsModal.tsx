@@ -325,15 +325,6 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                         </select>
                                     </label>
 
-                                    {isLooping && nextAction === 'play_next' && (
-                                        <div className="mt-2 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded flex items-start gap-2">
-                                            <span className="text-yellow-500 text-xs">⚠️</span>
-                                            <p className="text-[10px] text-yellow-200/80 leading-tight">
-                                                <strong>Conflict:</strong> Looping has priority. "Autoplay Next" will be ignored.
-                                            </p>
-                                        </div>
-                                    )}
-
                                     <div className="h-px bg-zinc-900 my-1" />
 
                                     <label className="flex items-center justify-between cursor-pointer group">

@@ -1,74 +1,107 @@
-# CAPITOLO 4: EDITING AVANZATO CLIP (PROPRIETÀ)
-
-Ogni file audio è diverso: alcuni hanno lunghi silenzi iniziali, altri hanno un volume troppo basso, altri ancora devono ripetersi all'infinito.
-Per accedere al pannello di configurazione avanzata, fai **Click con il Tasto Destro** su qualsiasi clip e seleziona **"Edit"** (Modifica).
-
-Si aprirà una finestra modale divisa in due sezioni principali: **Visual & Basic** (Sinistra) e **Behavior & Timing** (Destra).
+# Capitolo 4 — Il workflow base: caricare e riprodurre
 
 ---
 
-## 4.1 Impostazioni di Base (Visual & Audio)
-
-In questa sezione controlli l'aspetto e il volume grezzo della clip.
-
-*   **Nome Clip**: Puoi rinominare la clip come preferisci (es. da `track_01_final.mp3` a `SIGLA DI APERTURA`). Questo cambia solo l'etichetta nel software, non il nome del file originale sul disco.
-*   **Volume (Gain)**: Uno slider che va da 0% a 150%.
-    *   Se hai una registrazione bassa (es. un vocale WhatsApp), puoi spingerla oltre il 100% per allinearla al resto dello show.
-*   **Colore Personalizzato**: Per default, la clip eredita il colore della sua colonna (es. Verde per Assets). Qui puoi forzare un colore diverso per farla risaltare (es. colorare di Rosso un jingle importante nella colonna Grigia).
+Il ciclo operativo fondamentale di Runtime Live Machine Pro si articola in tre fasi: importare i file audio, organizzarli nella griglia, riprodurli durante la diretta. Questo capitolo descrive ciascuna fase con la precisione necessaria per lavorare in modo sicuro anche sotto pressione.
 
 ---
 
-## 4.2 Precisione Chirurgica: Cue Points & Trim
+## 4.1 Importare i file audio
 
-Spesso i file audio non sono "pronti per la messa in onda": hanno secondi di silenzio in testa o code troppo lunghe. Invece di usare un editor audio esterno, puoi sistemarli qui. Queste modifiche sono **non distruttive** (il file originale rimane intatto).
+RLMP non dispone di un browser interno né di una libreria centralizzata. L'importazione avviene esclusivamente tramite **drag & drop** diretto dal file manager del sistema operativo — Esplora risorse su Windows, Finder su macOS, Nautilus o equivalenti su Linux.
 
-### Controlli Manuali
-*   **Trim Start (Inizio)**: Imposta quanti secondi saltare all'inizio.
-    *   *Esempio*: Se metti `2.5`, quando premi Play la clip partirà istantaneamente dal secondo 2.5, saltando il silenzio iniziale ("a battuta").
-*   **Trim End (Fine)**: Imposta quanti secondi tagliare dalla fine.
-    *   *Esempio*: Se la canzone ha 20 secondi di applausi finali inutili, aumenta questo valore finché il "New Duration" non ti soddisfa.
+### Il gesto base
 
-### 🪄 La Bacchetta Magica (Smart Trim / Auto-Detect)
-Per velocizzare il lavoro, RRLMP include un algoritmo di intelligenza artificiale di base.
-1.  Clicca sul pulsante con l'icona **Bacchetta Magica** accanto ai controlli Trim.
-2.  Il software scansiona il file in una frazione di secondo.
-3.  Rileva automaticamente dove inizia e finisce il suono reale (sopra la soglia di -40dB).
-4.  Compila automaticamente i campi *Start* ed *End* per te.
+1. Apri la cartella del tuo computer dove si trovano i file audio.
+2. Seleziona uno o più file. Per selezionare più file: `Ctrl+Click` per selezione discontinua, `Shift+Click` per selezione continua.
+3. Trascina i file selezionati sopra una delle cinque colonne della griglia e rilascia.
 
-> **Consiglio**: Usa sempre la Bacchetta Magica sulle registrazioni vocali o le interviste per pulirle istantaneamente.
+Ogni file genera una card nella colonna di destinazione. Se trascini più file contemporaneamente, le card vengono create nell'ordine in cui i file compaiono nel file manager, in sequenza dall'alto verso il basso.
 
----
+**Indicatore di inserimento.** Durante il trascinamento, una linea blu luminosa scorre lungo la colonna indicando la posizione esatta in cui le card verranno inserite. Puoi scegliere di inserire nuove clip in cima alla colonna, in fondo o in una posizione intermedia con precisione.
 
-## 4.3 Comportamenti (Behaviors & Logic)
+### Formati supportati
 
-Qui definisci l'intelligenza della clip: cosa deve fare quando parte e cosa deve fare quando finisce.
+Il motore FFmpeg integrato garantisce compatibilità con i principali formati audio:
 
-### Behavior (Modalità di Sovrapposizione)
-*   **Normal (Default)**: Quando lanci questa clip, qualsiasi altra clip che sta suonando **nella stessa colonna** viene fermata. È il comportamento standard per le canzoni (una esclude l'altra).
-*   **Stacco**: Quando lanci questa clip, essa **NON ferma** le altre clip della colonna, ma le "zittisce" temporaneamente (o si sovrappone).
-    *   *Uso tipico*: Un effetto sonoro o un jingle vocale che vuoi suonare sopra una base musicale che si trova nella stessa colonna, senza interrompere la base.
+| Formato | Estensione | Note |
+|---|---|---|
+| MP3 | `.mp3` | Tutti i bitrate da 32 a 320 kbps |
+| WAV | `.wav` | PCM non compresso, qualsiasi profondità di bit |
+| AAC / M4A | `.aac`, `.m4a` | Include file da iTunes/Apple Music |
+| OGG Vorbis | `.ogg` | |
+| FLAC | `.flac` | Lossless, qualsiasi sample rate |
 
-### Next Action (Automazione Finale)
-Cosa succede quando la clip finisce?
-*   **Stop**: La clip finisce e si ferma. (Comportamento standard).
-*   **Loop**: La clip ricomincia da capo all'infinito. Utile per basi e sottofondi (Bed). Apparirà un badge **[LOOP]** sulla card.
-*   **Play Next**: Appena questa clip inizia a sfumare (Fade Out), il software lancia automaticamente la clip successiva nella colonna.
-    *   *Crossfade*: Il passaggio è fluido, senza buchi di silenzio. Apparirà un badge **[NEXT]** sulla card.
+**Una nota sulle prestazioni.** Il protocollo di streaming `media://` garantisce che i file audio non vengano caricati in memoria RAM al momento dell'importazione. Un file WAV non compresso da 2 GB si comporta esattamente come un MP3 da 5 MB: il caricamento è istantaneo e l'impatto sulla memoria di sistema è trascurabile. Le risorse della CPU vengono impegnate solo durante la decodifica attiva, cioè durante la riproduzione.
+
+### Il percorso dei file
+
+RLMP memorizza il **percorso assoluto** del file sul disco, non una copia del file stesso. Se sposti, rinomini o cancelli il file originale, la card corrispondente diventerà rossa e non sarà più riproducibile. Per lavorare su più computer o creare archivi portabili, utilizza la funzione **Export Package** descritta nel Capitolo 10.
 
 ---
 
-## 4.4 Fades (Dissolvenze)
+## 4.2 Riproduzione: avviare e fermare le clip
 
-Ogni colonna ha dei default (es. la Musica sfuma in 2 secondi, i Jingle sono secchi), ma qui puoi sovrascriverli.
+### Avviare una clip
 
-*   **Fade In (ms)**: Quanto tempo impiega il volume ad arrivare al massimo quando premi Play. (Es. 2000ms = 2 secondi di salita graduale).
-*   **Fade Out (ms)**: Quanto tempo impiega a sfumare quando premi Stop o quando la clip finisce naturalmente.
-    *   *Nota*: Un Fade Out lungo è utile per le canzoni. Un Fade Out a 0 è obbligatorio per gli stacchi secchi.
+Un **click sinistro** sulla card è sufficiente per avviare la riproduzione. Il feedback è immediato: il bordo della card si illumina nel colore della colonna, il timer passa al conto alla rovescia e i VU meter nell'header riflettono il segnale in uscita.
+
+Se alla clip è stato assegnato un tasto della tastiera (vedi Capitolo 8), quel tasto funziona come alternativa al click — utile quando stai operando su un'altra parte dell'interfaccia e non vuoi spostare il mouse.
+
+### Fermare una clip
+
+**Click sulla clip attiva** — la clip entra nella fase di **fade out** e si ferma entro il tempo configurato nelle sue proprietà (vedi Capitolo 5). Il comportamento predefinito prevede una dissolvenza di 1–2 secondi per le canzoni e gli assets, e uno stop secco per gli SFX.
+
+**Tasto `Esc`** — ferma tutte le clip attive istantaneamente, senza fade. È il comando di emergenza. Funziona anche quando il software non è la finestra in primo piano.
+
+**Pulsante STOP ALL** nell'header — identico a `Esc`, accessibile con il mouse.
+
+### La logica di esclusione per colonna
+
+Nella maggior parte delle colonne, RLMP applica la regola **«una clip alla volta»**: se stai riproducendo il *Brano A* nella colonna Canzoni e clicchi sul *Brano B* nella stessa colonna, il *Brano A* si ferma (con fade out) e il *Brano B* parte. Non è necessario fermare manualmente la clip in corso prima di avviarne un'altra.
+
+La colonna **SFX** è l'eccezione principale: gli effetti sonori si sovrappongono a tutto, inclusi altri effetti della stessa colonna, e non interrompono ciò che sta suonando altrove. Un applauso può partire mentre una canzone è in corso senza interromperne la riproduzione.
+
+Le clip con il comportamento **Stacco** (configurabile nelle proprietà, vedi Capitolo 5) si comportano come gli SFX rispetto alla logica di esclusione, indipendentemente dalla colonna di appartenenza.
 
 ---
 
-## 4.5 Assegnazione Controlli (Input)
+## 4.3 Organizzare la scaletta
 
-In fondo al pannello trovi i riferimenti per il controllo esterno:
-*   **Trigger Keybind**: Clicca qui e premi un tasto sulla tastiera (es. "Q") per assegnarlo a questa clip.
-*   **MIDI Bind**: Mostra la nota MIDI assegnata (es. `NOTE:60`). Per modificarla, usa la modalità "MIDI Learn" dalla schermata principale (vedi Cap. 6).
+### Riordinare le clip
+
+Durante la preparazione dello show, o anche mentre lo show è in corso, puoi riorganizzare l'ordine delle clip in qualsiasi momento.
+
+**Trascinamento interno.** Clicca su una card, tieni premuto e trascinala verso l'alto o verso il basso nella stessa colonna. La linea guida blu indica la posizione di inserimento. La clip si inserisce nella nuova posizione senza interrompere le riproduzioni in corso.
+
+**Spostamento tra colonne.** Puoi trascinare una clip da una colonna all'altra. Quando lo fai, la clip **eredita le regole della colonna di destinazione**: una voce preregistrata spostata nella colonna Canzoni inizierà a subire il ducking esattamente come un brano musicale; un jingle spostato nella colonna SFX acquisirà il comportamento di sovrapposizione libera.
+
+Spostare le clip tra colonne è un'operazione potente e intenzionale. Usa la funzione in modo consapevole, specialmente durante la diretta.
+
+### Selezione multipla e cancellazione
+
+Per rimuovere più clip dalla griglia in una sola operazione:
+
+1. `Ctrl+Click` (Windows/Linux) o `Cmd+Click` (macOS) su ciascuna clip da selezionare. Il bordo diventa blu.
+2. Premi `Canc` o `Delete`. Il software chiede conferma se il numero di clip selezionate è superiore a una.
+
+La cancellazione dalla griglia rimuove le clip dal progetto corrente, non i file audio dal disco.
+
+> **Suggerimento operativo.** A diretta iniziata, svuotare la colonna Pre-Show con una selezione multipla e `Canc` è il modo più rapido per liberare spazio visivo nell'interfaccia e passare alla modalità operativa.
+
+---
+
+## 4.4 Cue di struttura: INTRO e OUTRO
+
+Ogni clip può avere due **marker strutturali** configurati nell'editor della forma d'onda (Capitolo 5):
+
+- **Intro Marker** — il punto in cui la melodia principale del brano entra effettivamente, dopo l'introduzione strumentale. Utile per sapere esattamente quando iniziare a parlare sopra l'intro.
+- **Outro Marker** — il punto in cui inizia la coda finale del brano. Segnala il momento giusto per preparare la transizione alla traccia successiva.
+
+Quando la riproduzione di una clip si avvicina a questi punti, sulla card compare un avviso visivo:
+
+- **INTRO: −Xs** — conto alla rovescia in secondi all'Intro Marker.
+- **OUTRO: −Xs** — conto alla rovescia in secondi all'Outro Marker.
+
+Questi avvisi vengono visualizzati solo se i marker sono stati configurati. Sulle clip senza marker, la card mostra solo il conto alla rovescia standard al termine del brano.
+
