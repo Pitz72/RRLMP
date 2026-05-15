@@ -1,8 +1,22 @@
 import { app, shell, BrowserWindow, protocol, nativeImage, ipcMain, dialog, globalShortcut, session } from 'electron';
-import { join } from 'path';
+import { join, normalize, isAbsolute, extname } from 'path';
 import * as fs from 'fs';
 import { Readable } from 'stream';
 import { AudioProcessor } from './AudioProcessor';
+
+// GR-03 Fix: timeout wrapper per IPC handler asincroni che invocano FFmpeg.
+// Evita hang permanenti dell'app se FFmpeg si blocca o il file è illeggibile.
+const withIpcTimeout = <T>(promise: Promise<T>, ms: number, label: string): Promise<T> =>
+    Promise.race([
+        promise,
+        new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error(`IPC_TIMEOUT: ${label} (${ms}ms)`)), ms)
+        )
+    ]);
+
+// GR-04 Fix: whitelist estensioni audio per il protocollo media://.
+// Blocca path traversal e accesso a file non audio.
+const ALLOWED_MEDIA_EXTENSIONS = new Set(['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac', '.opus', '.wma', '.webm', '.mp4']);
 
 // CRITICAL: Disable GPU Acceleration to prevent 0xC0000005 Access Violation crashes on some Windows systems
 // especially when using multiple Canvas elements (Waveform Editor).
@@ -129,15 +143,18 @@ function createWindow(initialFilePath?: string): void {
 
 // Audio Processing (Main-Side-Heavy Architecture)
 ipcMain.handle('get-audio-metadata', async (_event, filePath: string) => {
-    return await AudioProcessor.extractMetadata(filePath);
+    return await withIpcTimeout(AudioProcessor.extractMetadata(filePath), 10_000, 'get-audio-metadata')
+        .catch((err: Error) => ({ success: false, error: err.message }));
 });
 
 ipcMain.handle('get-waveform-data', async (_event, filePath: string) => {
-    return await AudioProcessor.generateWaveformData(filePath);
+    return await withIpcTimeout(AudioProcessor.generateWaveformData(filePath), 30_000, 'get-waveform-data')
+        .catch((err: Error) => ({ success: false, error: err.message }));
 });
 
 ipcMain.handle('detect-silence', async (_event, filePath: string) => {
-    return await AudioProcessor.detectSilence(filePath);
+    return await withIpcTimeout(AudioProcessor.detectSilence(filePath), 30_000, 'detect-silence')
+        .catch((err: Error) => ({ success: false, error: err.message }));
 });
 
 ipcMain.handle('check-files-exist', async (_event, paths: string[]) => {
@@ -583,8 +600,19 @@ app.whenReady().then(() => {
                 }
             }
 
-            // DIAGNOSTICS: Log the file being requested
-            console.log(`[Media] Requesting: ${filePath}`);
+            // GR-04 Fix: valida path prima di servire il file.
+            // normalize() risolve i segmenti ".." per prevenire path traversal.
+            // isAbsolute() blocca path relativi inattesi.
+            // La whitelist estensioni impedisce l'accesso a file non audio.
+            filePath = normalize(filePath);
+            if (!isAbsolute(filePath)) {
+                console.warn(`[Media] Blocked non-absolute path: ${filePath}`);
+                return new Response('Forbidden', { status: 403 });
+            }
+            if (!ALLOWED_MEDIA_EXTENSIONS.has(extname(filePath).toLowerCase())) {
+                console.warn(`[Media] Blocked non-audio extension: ${filePath}`);
+                return new Response('Forbidden', { status: 403 });
+            }
 
             if (!fs.existsSync(filePath)) {
                 return new Response('File not found', { status: 404 });

@@ -179,11 +179,11 @@ const getColumnForClip = (clipId: string): string | null => {
     return null;
 }
 
-// G3 Fix: Mappa generation ID per evitare race condition in playClip.
-// Ogni chiamata a playClip incrementa il contatore per quella clip;
-// se al ritorno dell'await load() il contatore non corrisponde più,
-// l'operazione è obsoleta e va scartata.
-const playGenerations = new Map<string, number>();
+// GR-02 Fix: Mappa run-ID per evitare race condition in playClip.
+// Ogni invocazione di playClip genera un UUID unico per clipId;
+// se al ritorno dell'await load() il run-ID non corrisponde più,
+// l'operazione è obsoleta (superata da un play successivo) e viene scartata.
+const playRunIds = new Map<string, string>();
 
 // v0.13.2 — Transition System
 // Clip in fade-out per transizione: gestito come stato Zustand (v0.14.9)
@@ -198,15 +198,21 @@ let pendingCrossfadeFadeIn: number | null = null;
 // da evaluateMix() che è definita fuori dal create() callback.
 let _isMicActiveGlobal = false;
 
+// GR-01 Fix: flag module-level che garantisce un solo interval attivo,
+// anche con React 18 StrictMode (double-invoke in dev) o hot reload multipli.
+let _progressLoopStarted = false;
+
 export const useAudioStore = create<AudioStore>((set, get) => {
 
-    // G8 Fix: setInterval condizionale — chiama _syncProgress solo se ci sono
-    // clip attive, evitando 10 set() Zustand/s inutili durante il silenzio.
-    setInterval(() => {
-        if (Object.keys(get().activeClips).length > 0) {
-            get()._syncProgress();
-        }
-    }, 100);
+    // GR-01 Fix: avvia il loop di progresso una sola volta per lifetime del modulo.
+    if (!_progressLoopStarted) {
+        _progressLoopStarted = true;
+        setInterval(() => {
+            if (Object.keys(get().activeClips).length > 0) {
+                get()._syncProgress();
+            }
+        }, 100);
+    }
 
     return {
         activeClips: {},
@@ -282,9 +288,9 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 return;
             }
 
-            // G3 Fix: registra generation ID prima del load asincrono.
-            const generation = (playGenerations.get(freshClip.id) || 0) + 1;
-            playGenerations.set(freshClip.id, generation);
+            // GR-02 Fix: registra run-ID univoco prima del load asincrono.
+            const runId = Math.random().toString(36).slice(2, 10);
+            playRunIds.set(freshClip.id, runId);
 
             let player: IAudioPlayer = new StreamPlayer();
 
@@ -407,9 +413,9 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
                 await player.load(freshClip.path);
 
-                // G3 Fix: verifica che questa operazione di load sia ancora valida.
-                if ((playGenerations.get(freshClip.id) || 0) !== generation) {
-                    debugLog(`AudioStore: Load obsoleto scartato per ${freshClip.name} (gen ${generation})`, 'info');
+                // GR-02 Fix: verifica che questa operazione di load sia ancora la più recente.
+                if (playRunIds.get(freshClip.id) !== runId) {
+                    debugLog(`AudioStore: Load obsoleto scartato per ${freshClip.name} (runId ${runId})`, 'info');
                     player.cleanup();
                     return;
                 }
@@ -569,8 +575,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     ac.player.stop();
                     ac.player.cleanup();
                 });
-                // Reset mix e timer On Air
-                return { activeClips: {}, suppressedClips: {}, onAirStartTime: null, fadingClipIds: [] };
+                // Reset completo: mix, timer, preview e fading orphans
+                return { activeClips: {}, suppressedClips: {}, onAirStartTime: null, fadingClipIds: [], previewingClipIds: [] };
             });
         },
 
