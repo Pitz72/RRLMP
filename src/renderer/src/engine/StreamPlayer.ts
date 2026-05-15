@@ -240,13 +240,21 @@ export class StreamPlayer implements IAudioPlayer {
     }
 
     cleanup(): void {
+        // GR-05 Fix: disabilita il loop prima di pausare per impedire che onended/ontimeupdate
+        // richiamino restartLoop() se l'evento arriva in concorrenza con cleanup().
+        this.isLooping = false;
+
         this.audioElement.pause();
         this.audioElement.removeAttribute('src');
         this.audioElement.load();
 
+        // GR-05 Fix: nulla TUTTI i callback per rilasciare le chiusure e permettere al GC
+        // di raccogliere lo scope circostante (in precedenza intro/outro mancavano).
         this.onEndedCallback = null;
         this.onFadeOutStartCallback = null;
         this.onPreEndCallback = null;
+        this.onIntroReachedCallback = null;
+        this.onOutroReachedCallback = null;
         this.audioElement.onended = null;
         this.audioElement.ontimeupdate = null;
         this.audioElement.onerror = null;

@@ -345,6 +345,13 @@ ipcMain.handle('export-project', async (event, projectJsonString: string) => {
 
                 await new Promise(resolve => setTimeout(resolve, 5));
 
+                // GR-07 Fix: dopo ogni yield controlla che la finestra esista ancora.
+                // Se l'utente chiude l'app durante l'export il loop si interrompe senza
+                // lasciare stream di copia o promise zombie nel main process.
+                if (win.isDestroyed()) {
+                    return { success: false, error: 'Export cancelled: window closed' };
+                }
+
                 if (originalPath && fs.existsSync(originalPath)) {
                     const fileName = join(originalPath).split(process.platform === 'win32' ? '\\' : '/').pop();
                     if (fileName) {
