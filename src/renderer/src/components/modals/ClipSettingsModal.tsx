@@ -127,7 +127,12 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             debugLog('Smart Trim: rilevamento silenzio via FFmpeg...', 'info');
             const result = await window.electron.detectSilence(clip.path);
             if (!result.success || !result.data) {
-                toast('Auto-Trim: errore durante l\'analisi FFmpeg.', 'error');
+                // v1.2.22 (NEW-ME-01): distinguere rate-limit dagli errori reali
+                if (result.error === 'IPC_RATE_LIMITED') {
+                    toast('Analisi in coda — troppe operazioni FFmpeg parallele. Riprova tra qualche secondo.', 'warning');
+                } else {
+                    toast('Auto-Trim: errore durante l\'analisi FFmpeg.', 'error');
+                }
                 return;
             }
             if (result.data.noSilence) {
