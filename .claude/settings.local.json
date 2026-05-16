@@ -24,7 +24,9 @@
       "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" status)",
       "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" reset HEAD .claude/settings.local.json)",
       "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" checkout -- .claude/settings.local.json)",
-      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" stash drop)"
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" stash drop)",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" stash -u)",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" merge --no-ff claude/silly-swirles-1e7360 -m \"Merge v1.2.19: fix NEW-GR-04 playoutLog cap\")"
     ]
   }
 }
