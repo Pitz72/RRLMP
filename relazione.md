@@ -8,15 +8,18 @@
 
 ## STORICO FIX
 
-| Versione | Commit | Criticità risolte |
-| ---------- | -------- | ------------------- |
+| Versione | Commit | Modifiche |
+| ---------- | -------- | --------- |
 | v1.2.6 | 7cfefe2 | GR-01, GR-02, GR-03, GR-04, GR-08 (bonus) |
 | v1.2.7 | d7fe551 | GR-05, GR-07 (GR-06 già risolto nel codebase) |
 | v1.2.8 | 061f41b | ME-01, ME-05 |
 | v1.2.9 | 177aa98 | ME-03, ME-07 |
 | v1.2.10 | 12dc386 | ME-02, ME-04, ME-06 |
 | v1.2.11 | 8b3bf7d | LI-01, LI-02, LI-03, LI-04, LI-05 |
-| v1.2.12 | ab4cbd4 | ESC Focus Guard |
+| v1.2.12 | ab4cbd4 | ESC Focus Guard — bugfix |
+| v1.2.13 | 238de31 | Relazione: Waveform Editor, MIDI, Voice Tracking, ESC aggiornati — documentazione |
+| v1.2.14 | e2c235c | Smart Mic Ducking: hold times configurabili + nota loopback USB mixer — miglioramento |
+| v1.2.15 | c3b1bf6 | Auto-Silence Detection: soglia dinamica da volumedetect — miglioramento |
 
 ---
 
@@ -131,7 +134,7 @@ Analisi R128 e scrittura del tag nel file audio per normalize il volume clip-by-
 
 ### Criticità aperte da pianificare
 
-Nessuna. Tutte le criticità note sono state risolte in v1.2.6–v1.2.11.
+Nessuna. Tutte le criticità note sono state risolte in v1.2.6–v1.2.12.
 
 ### Feature da valutare per roadmap
 
@@ -152,4 +155,4 @@ Nessuna. Tutte le criticità note sono state risolte in v1.2.6–v1.2.11.
 
 ---
 
-*Aggiornato a v1.2.11. Tutte le criticità note (gravissime, gravi, medie e lievi) sono state risolte.*
+*Aggiornato a v1.2.15. Tutte le criticità note (gravissime, gravi, medie e lievi) sono state risolte in v1.2.6–v1.2.12. v1.2.13–v1.2.15 portano miglioramenti alle funzionalità esistenti.*
