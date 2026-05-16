@@ -761,17 +761,38 @@ app.whenReady().then(() => {
 
             if (range) {
                 const parts = range.replace(/bytes=/, "").split("-");
-                const start = parseInt(parts[0], 10);
-                const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+                const rawStart = parseInt(parts[0], 10);
+                const rawEnd = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+
+                // MEDIA-03 (v1.3.4): clamp Range a [0, fileSize-1].
+                // Un client (audio element con scrub aggressivo o seek su clip troncata
+                // dopo trim) può chiedere `Range: bytes=N-N+big` con end oltre EOF: prima
+                // veniva passato a createReadStream così com'era → Content-Length errato e
+                // chunksize potenzialmente negativo se start>end. Ora rispondiamo 416 sui
+                // range invalidi e clamp end a fileSize-1 sui range troppo larghi.
+                if (!isFinite(rawStart) || rawStart < 0 || rawStart >= fileSize) {
+                    return new Response('Range Not Satisfiable', {
+                        status: 416,
+                        headers: { 'Content-Range': `bytes */${fileSize}` }
+                    });
+                }
+                const start = rawStart;
+                const end = Math.min(isFinite(rawEnd) ? rawEnd : fileSize - 1, fileSize - 1);
                 const chunksize = (end - start) + 1;
 
-                // Ottimizzazione v0.12.0: Buffer ibrido. 
+                // Ottimizzazione v0.12.0: Buffer ibrido.
                 // Start a 128KB per colpire immediatamente l'evento <audio onPlay> ed azzerare la latenza.
                 // 1MB per chunking parallelo o stream pesante.
                 const isStartup = start === 0;
                 const bufferSize = isStartup ? 128 * 1024 : 1024 * 1024;
                 const nodeStream = fs.createReadStream(filePath, { start, end, highWaterMark: bufferSize });
-                nodeStream.on('error', (err) => logger.error('[Media] ReadStream Range error:', err));
+                // MEDIA-04 (v1.3.4): su errore (USB unplugged, file rimosso mid-stream,
+                // permessi cambiati) distruggi il nodeStream così Readable.toWeb propaga
+                // l'errore al client come stream interrotto invece di lasciarlo appeso.
+                nodeStream.on('error', (err) => {
+                    logger.error('[Media] ReadStream Range error:', err);
+                    try { nodeStream.destroy(err as Error); } catch { /* noop */ }
+                });
 
                 const webStream = Readable.toWeb(nodeStream) as unknown as ReadableStream;
 
@@ -787,8 +808,12 @@ app.whenReady().then(() => {
                 });
             } else {
                 const nodeStream = fs.createReadStream(filePath, { highWaterMark: 1024 * 1024 });
-                nodeStream.on('error', (err) => logger.error('[Media] ReadStream Full error:', err));
-                
+                // MEDIA-04 (v1.3.4): vedi sopra.
+                nodeStream.on('error', (err) => {
+                    logger.error('[Media] ReadStream Full error:', err);
+                    try { nodeStream.destroy(err as Error); } catch { /* noop */ }
+                });
+
                 const webStream = Readable.toWeb(nodeStream) as unknown as ReadableStream;
 
                 return new Response(webStream, {

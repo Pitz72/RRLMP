@@ -175,10 +175,23 @@ export const MainGrid: React.FC = () => {
         // Allow only files
         if (!e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
 
+        // DND-04 (v1.3.4): rifiuta drop su colonna locked (es. SHOW ASSETS).
+        // Prima il drop nativo bypassava il flag isLocked che invece protegge
+        // l'editing tramite UI → l'utente poteva sporcare la colonna protetta
+        // trascinandoci file dal File Explorer.
+        const targetCol = columns.find(c => c.id === colId);
+        if (targetCol?.isLocked) {
+            setDropIndicator(null);
+            return;
+        }
+
         // GR12 Fix: filtra solo file audio supportati.
         // File non audio (immagini, PDF, exe...) vengono ignorati silenziosamente
         // invece di essere aggiunti e fallire al momento del caricamento.
-        const SUPPORTED_AUDIO_EXTENSIONS = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac', 'opus', 'wma'];
+        // DND-05 (v1.3.4): aggiunti webm e mp4 — coerente con ALLOWED_MEDIA_EXTENSIONS
+        // in main/index.ts (sono formati audio validi serviti dal protocollo media://
+        // e usati dal session recording, che esporta WebM/Opus nativo).
+        const SUPPORTED_AUDIO_EXTENSIONS = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac', 'opus', 'wma', 'webm', 'mp4'];
         const files = Array.from(e.dataTransfer.files).filter(file => {
             const ext = file.name.split('.').pop()?.toLowerCase();
             return ext && SUPPORTED_AUDIO_EXTENSIONS.includes(ext);
