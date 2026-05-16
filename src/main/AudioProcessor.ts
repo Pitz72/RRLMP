@@ -61,6 +61,7 @@ export class AudioProcessor {
             // ma lo facciamo interamente in fluente-ffmpeg. 
             
             let audioBuffer: number[] = [];
+            let _waveformKillTimeout: ReturnType<typeof setTimeout> | null = null;
 
             const command = ffmpeg(filePath)
                 // -ac 1 downmixa in mono per il picco, -filter:a aresample per scalare uniformememente 
@@ -73,6 +74,7 @@ export class AudioProcessor {
                     '-f', 's16le'
                 ])
                 .on('error', (err: Error) => {
+                    if (_waveformKillTimeout) { clearTimeout(_waveformKillTimeout); _waveformKillTimeout = null; }
                     console.error('[AudioProcessor] Waveform Error:', err);
                     resolve({ success: false, error: err.message });
                 });
@@ -80,7 +82,15 @@ export class AudioProcessor {
             // Una transform stream (rimossa in v0.11.0 poiché si ascolta l'evento data direttamente)
 
             const ffStream = command.pipe();
+
+            _waveformKillTimeout = setTimeout(() => {
+                _waveformKillTimeout = null;
+                try { command.kill('SIGKILL'); } catch { /* noop */ }
+                resolve({ success: false, error: 'Timeout: waveform generation exceeded 28s' });
+            }, 28000);
+
             ffStream.on('error', (err: Error) => {
+                if (_waveformKillTimeout) { clearTimeout(_waveformKillTimeout); _waveformKillTimeout = null; }
                 console.error('[AudioProcessor] ffStream pipe error:', err);
                 resolve({ success: false, error: err.message });
             });
@@ -96,6 +106,7 @@ export class AudioProcessor {
             });
 
             ffStream.on('end', () => {
+                if (_waveformKillTimeout) { clearTimeout(_waveformKillTimeout); _waveformKillTimeout = null; }
                 if (audioBuffer.length === 0) {
                      console.warn(`[AudioProcessor] Attenzione: l'array peak per ${filePath} è vuoto!`);
                      return resolve({ success: true, data: [] });
@@ -210,16 +221,23 @@ export class AudioProcessor {
             const proc = spawn(safeFfmpegPath, args);
             let stderrData = '';
 
+            const _silenceKillTimeout = setTimeout(() => {
+                try { proc.kill('SIGKILL'); } catch { /* noop */ }
+                resolve({ success: false, error: 'Timeout: silence detection exceeded 28s' });
+            }, 28000);
+
             proc.stderr.on('data', (chunk: Buffer) => {
                 stderrData += chunk.toString();
             });
 
             proc.on('error', (err: Error) => {
+                clearTimeout(_silenceKillTimeout);
                 console.error('[AudioProcessor] detectSilence spawn error:', err);
                 resolve({ success: false, error: err.message });
             });
 
             proc.on('close', () => {
+                clearTimeout(_silenceKillTimeout);
                 try {
                     const durMatch = stderrData.match(/Duration:\s*(\d+):(\d+):([\d.]+)/);
                     const duration = durMatch

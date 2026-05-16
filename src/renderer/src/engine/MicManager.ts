@@ -125,7 +125,7 @@ class MicManager {
             this.source.connect(this.micGain);
 
             if (this._mixEnabled) {
-                this._connectToMix();
+                await this._connectToMix();
             }
 
             // v1.2.2 — Routing al recording bus (sempre attivo quando armato)
