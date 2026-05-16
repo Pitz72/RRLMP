@@ -52,20 +52,15 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
         return prevClip.nextAction === 'play_next' && !!activeClips[prevClip.id];
     }, [parentColumn, activeClips, clip.id]);
 
-    const [currentTime, setCurrentTime] = React.useState(0);
-
-    React.useEffect(() => {
-        let interval: NodeJS.Timeout;
-        if (isPlaying && activeState?.player) {
-            setCurrentTime(activeState.player.getCurrentTime());
-            interval = setInterval(() => {
-                setCurrentTime(activeState.player.getCurrentTime());
-            }, 200);
-        } else {
-            setCurrentTime(0);
-        }
-        return () => clearInterval(interval);
-    }, [isPlaying, activeState]);
+    // v1.2.25 (NEW-ME-04): currentTime derivato dal progress globale dello store
+    // (aggiornato a 10fps da _syncProgress). Elimina il setInterval per-ClipCard:
+    // con 30+ clip attive (cartwall) avevamo 30 timer da 200ms paralleli — ora 0.
+    // Il prezzo è una latenza max 100ms vs il player reale, accettabile per display.
+    const currentTime = React.useMemo(() => {
+        if (!isPlaying || !activeState?.player) return 0;
+        const dur = activeState.player.getDuration() || clip.duration || 0;
+        return activeState.progress * dur;
+    }, [isPlaying, activeState, clip.duration]);
 
     const formatTime = (seconds: number) => {
         if (!seconds || isNaN(seconds)) return "00:00";
