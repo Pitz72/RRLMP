@@ -71,7 +71,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
         defaultPreshowTransition, setDefaultPreshowTransition,
         crossfadeDuration, segueDuration, setPreshowTransition, setSegueDuration,
         masterChain, setMasterChain,
-        micInputDeviceId, micThresholdDb, micEnabled, micMixEnabled, micVolume, micBypassProcessing, micFeedbackAcknowledged, setMicSettings,
+        micInputDeviceId, micThresholdDb, micActivationHoldMs, micReleaseHoldMs, micEnabled, micMixEnabled, micVolume, micBypassProcessing, micFeedbackAcknowledged, setMicSettings,
         recordingFormat, setRecordingSettings
     } = useSettingsStore();
     const updateOutputDevice = useAudioStore(s => s.updateOutputDevice);
@@ -289,7 +289,26 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         onChange={v => setMicSettings({ thresholdDb: v })}
                                     />
                                     <p className="text-[10px] text-zinc-600 -mt-2 italic">
-                                        Voce sopra questa soglia per 80ms → ducking attivo. Rilascio a {micThresholdDb - 12} dBFS per 1.5s. Default: -30 dBFS.
+                                        Rilascio a {micThresholdDb - 12} dBFS (isteresi fissa 12 dB). Default: -30 dBFS.
+                                    </p>
+                                    <LabeledSlider
+                                        label="Hold attivazione (ms sopra soglia prima del ducking)"
+                                        value={micActivationHoldMs}
+                                        min={10} max={500} step={10}
+                                        display={`${micActivationHoldMs} ms`}
+                                        accent="accent-red-500"
+                                        onChange={v => setMicSettings({ activationHoldMs: v })}
+                                    />
+                                    <LabeledSlider
+                                        label="Hold rilascio (ms sotto soglia prima dello stop ducking)"
+                                        value={micReleaseHoldMs}
+                                        min={100} max={5000} step={100}
+                                        display={`${micReleaseHoldMs} ms`}
+                                        accent="accent-orange-500"
+                                        onChange={v => setMicSettings({ releaseHoldMs: v })}
+                                    />
+                                    <p className="text-[10px] text-zinc-600 -mt-2 italic">
+                                        Con mixer USB (Rødecaster, Zoom LiveTrak ecc.) che applicano loopback dell'audio del PC, alzare la soglia a -20/-15 dBFS o aumentare l'hold di attivazione a 200–500 ms per evitare trigger da bleed involontario.
                                     </p>
                                 </div>
                             </section>

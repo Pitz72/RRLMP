@@ -27,8 +27,8 @@ export const GlobalControls = () => {
     const { stopAll } = useAudioStore();
     const loadClip = useAudioStore((s) => s.loadClip);
     const { columns, isDirty, setDirty, loadProject, resetProject, currentFilePath, isMidiLearnMode, setIsMidiLearnMode, runIntegrityCheck, updateClip, addClipFromPath } = useProjectStore();
-    const { globalMidiBinds, setGlobalMidiBind, masterVolume, setMasterVolume: setStoredVolume, 
-        micInputDeviceId, micThresholdDb, micEnabled, micMixEnabled, micVolume, micBypassProcessing, setMicSettings } = useSettingsStore();
+    const { globalMidiBinds, setGlobalMidiBind, masterVolume, setMasterVolume: setStoredVolume,
+        micInputDeviceId, micThresholdDb, micActivationHoldMs, micReleaseHoldMs, micEnabled, micMixEnabled, micVolume, micBypassProcessing, setMicSettings } = useSettingsStore();
     const setMicActive = useAudioStore(s => s.setMicActive);
     const isMicActive = useAudioStore(s => s.isMicActive);
 
@@ -215,11 +215,14 @@ export const GlobalControls = () => {
             if (micArmingRef.current) return;
             micArmingRef.current = true;
             try {
-                // Passa le opzioni di mix all'arm (v1.0.0+)
+                // Passa le opzioni di mix all'arm (v1.0.0+), hold times v1.2.14
                 await mic.arm(micInputDeviceId, micThresholdDb, {
                     enabled: micMixEnabled,
                     volume: micVolume,
                     bypass: micBypassProcessing
+                }, {
+                    activationMs: micActivationHoldMs,
+                    releaseMs: micReleaseHoldMs
                 });
                 setIsArmed(true);
             } catch (e) {

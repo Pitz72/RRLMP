@@ -26,6 +26,8 @@ interface SettingsState {
     // Smart Mic (v0.17.0)
     micInputDeviceId: string;        // 'default' o deviceId specifico
     micThresholdDb: number;          // soglia di attivazione noise gate (dBFS), default -30
+    micActivationHoldMs: number;     // ms sopra soglia prima di attivare ducking, default 80 — v1.2.14
+    micReleaseHoldMs: number;        // ms sotto soglia prima di rilasciare ducking, default 1500 — v1.2.14
     micEnabled: boolean;             // se false, il mic non viene armato anche se disponibile
     micMixEnabled: boolean;          // se true, la voce entra nel master bus (canale mix)
     micVolume: number;               // guadagno del canale mix (0.0 a 1.0), default 0.8
@@ -47,6 +49,8 @@ interface SettingsState {
     setMicSettings: (updates: {
         inputDeviceId?: string;
         thresholdDb?: number;
+        activationHoldMs?: number;
+        releaseHoldMs?: number;
         enabled?: boolean;
         mixEnabled?: boolean;
         volume?: number;
@@ -75,9 +79,11 @@ export const useSettingsStore = create<SettingsState>()(
             crossfadeDuration: 2000,
             segueDuration: 800,
 
-            // Smart Mic defaults (v0.17.0)
+            // Smart Mic defaults (v0.17.0, hold times v1.2.14)
             micInputDeviceId: 'default',
             micThresholdDb: -30,
+            micActivationHoldMs: 80,
+            micReleaseHoldMs: 1500,
             micEnabled: false,
             micMixEnabled: false,
             micVolume: 0.8,
@@ -107,11 +113,13 @@ export const useSettingsStore = create<SettingsState>()(
                 masterChain: { ...state.masterChain, ...updates }
             })),
             setMicSettings: (updates) => set((state) => ({
-                micInputDeviceId: updates.inputDeviceId ?? state.micInputDeviceId,
-                micThresholdDb:   updates.thresholdDb   ?? state.micThresholdDb,
-                micEnabled:       updates.enabled       ?? state.micEnabled,
-                micMixEnabled:    updates.mixEnabled    ?? state.micMixEnabled,
-                micVolume:        updates.volume        ?? state.micVolume,
+                micInputDeviceId:    updates.inputDeviceId    ?? state.micInputDeviceId,
+                micThresholdDb:      updates.thresholdDb      ?? state.micThresholdDb,
+                micActivationHoldMs: updates.activationHoldMs ?? state.micActivationHoldMs,
+                micReleaseHoldMs:    updates.releaseHoldMs    ?? state.micReleaseHoldMs,
+                micEnabled:          updates.enabled          ?? state.micEnabled,
+                micMixEnabled:       updates.mixEnabled       ?? state.micMixEnabled,
+                micVolume:           updates.volume           ?? state.micVolume,
                 micBypassProcessing: updates.bypassProcessing ?? state.micBypassProcessing,
                 micFeedbackAcknowledged: updates.feedbackAcknowledged ?? state.micFeedbackAcknowledged,
             })),

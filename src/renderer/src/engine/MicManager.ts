@@ -90,15 +90,24 @@ class MicManager {
 
     /**
      * Arma il microfono: richiede accesso a getUserMedia e inizia il monitoraggio.
-     * @param deviceId  ID dispositivo audio di input (default = 'default')
-     * @param threshold Soglia di attivazione in dBFS (default = activationThresholdDb)
+     * @param deviceId   ID dispositivo audio di input (default = 'default')
+     * @param threshold  Soglia di attivazione in dBFS (default = activationThresholdDb)
      * @param mixOptions Opzioni opzionali per il mix (volume, enable, bypass)
+     * @param holdOptions Tempi di hold gate (activationMs, releaseMs) — v1.2.14
      */
-    public async arm(deviceId = 'default', threshold?: number, mixOptions?: { enabled: boolean, volume: number, bypass: boolean }): Promise<void> {
+    public async arm(
+        deviceId = 'default',
+        threshold?: number,
+        mixOptions?: { enabled: boolean, volume: number, bypass: boolean },
+        holdOptions?: { activationMs?: number; releaseMs?: number }
+    ): Promise<void> {
         if (this._isArmed) this._cleanup(); // reset se già armato
 
         if (threshold !== undefined) this.activationThresholdDb = threshold;
         this.releaseThresholdDb = this.activationThresholdDb - 12; // isteresi fissa 12dB
+
+        if (holdOptions?.activationMs !== undefined) this.activationHoldMs = holdOptions.activationMs;
+        if (holdOptions?.releaseMs    !== undefined) this.releaseHoldMs    = holdOptions.releaseMs;
 
         if (mixOptions) {
             this._mixEnabled = mixOptions.enabled;
