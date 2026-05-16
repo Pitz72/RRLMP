@@ -3,6 +3,7 @@ import { useProjectStore } from '../../store/useProjectStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import MidiManager from '../../engine/MidiManager';
 import { Keyboard, X, Info } from 'lucide-react';
+import { confirm } from '../../store/useConfirmStore';
 
 interface KeymappingModalProps {
     isOpen: boolean;
@@ -125,9 +126,37 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
 
         if (e.key === 'Escape' || e.key === 'Backspace' || e.key === 'Delete') {
             handleClearKey(target);
-        } else {
-            updateClip(target.colId, target.id, { keybind: e.code });
+            return;
         }
+
+        // ASSET-06 (v1.3.6): detect conflitto keybind prima di scrivere.
+        // Due clip con lo stesso `e.code` sono ambigue: la prima che `find()`
+        // incontra in MainGrid.handleKeyDown viene triggerata, la seconda è
+        // morta. Prima il modale accettava silenziosamente l'override → bug
+        // invisibile finché l'operatore non si accorgeva che la sua clip "non
+        // suona". Ora chiediamo conferma esplicita e rimuoviamo il bind dalla
+        // clip precedente, così resta sempre un solo proprietario del tasto.
+        const conflict = columns
+            .flatMap(col => col.clips.map(cl => ({ cl, colId: col.id })))
+            .find(({ cl }) => cl.keybind === e.code && cl.id !== target.id);
+
+        if (conflict) {
+            // ConfirmDialog Promise-based (NON window.confirm — blocca thread audio).
+            void (async () => {
+                const ok = await confirm(
+                    `Il tasto "${e.code}" è già assegnato a "${conflict.cl.name}". Vuoi spostarlo su questa clip? La clip precedente perderà il binding.`,
+                    'Sposta',
+                    'Annulla'
+                );
+                if (!ok) return;
+                updateClip(conflict.colId, conflict.cl.id, { keybind: '' });
+                if (target.colId) {
+                    updateClip(target.colId, target.id, { keybind: e.code });
+                }
+            })();
+            return;
+        }
+        updateClip(target.colId, target.id, { keybind: e.code });
     };
 
     // ---- Render helpers ----
