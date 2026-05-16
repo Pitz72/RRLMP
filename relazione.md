@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
 **Ultima analisi**: 16 maggio 2026  
-**Versione corrente**: 1.2.10 (commit 12dc386)  
+**Versione corrente**: 1.2.12 (commit ab4cbd4)  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -15,7 +15,8 @@
 | v1.2.8 | 061f41b | ME-01, ME-05 |
 | v1.2.9 | 177aa98 | ME-03, ME-07 |
 | v1.2.10 | 12dc386 | ME-02, ME-04, ME-06 |
-| v1.2.11 | — | LI-01, LI-02, LI-03, LI-04, LI-05 |
+| v1.2.11 | 8b3bf7d | LI-01, LI-02, LI-03, LI-04, LI-05 |
+| v1.2.12 | ab4cbd4 | ESC Focus Guard |
 
 ---
 
@@ -41,6 +42,7 @@
 ✅ **LI-03** · `console.*` non strutturato in produzione — risolto in v1.2.11  
 ✅ **LI-04** · Singleton audio non distrutti su ricarica webview — risolto in v1.2.11  
 ✅ **LI-05** · Countdown MIDI Learn attivabile in doppio — risolto in v1.2.11  
+✅ **ESC** · Emergency Stop globale attivo anche fuori focus — risolto in v1.2.12  
 
 ---
 
@@ -48,11 +50,10 @@
 
 | Area | Stato | Cosa manca |
 | ------ | ------- | ------------ |
-| Waveform Editor | Buono | Smart Cues: analisi IA per suggerire Intro/Outro automatici (backlog) |
-| Session Recording | Buono | Voice Tracking: registrazione singoli inserti voce con pre/post-roll (F-12) |
-| MIDI Learn | Funzionale | Supporto OSC; velocity non usata come controllo di volume |
-| Auto-Silence Detection | Funzionale | Smart Cues: analisi intelligente invece di soglia dB fissa |
-| Smart Mic Ducking | Funzionale | Talkback separato; IFB per ospiti in studio (F-17) |
+| Waveform Editor | Buono | Smart Cues: il backend IPC/FFmpeg restituisce solo trimStart/trimEnd; manca rilevazione automatica di introCue/outroCue (primo picco energetico e punto di dissolvenza naturale) da integrare nei marker del WaveformEditor |
+| MIDI Learn | Funzionale | Velocity ricevuta ma ignorata (\_velocity nei callback) — non usata come controllo di volume per le clip; OSC rimandato a roadmap (F-25, Tier 3) |
+| Auto-Silence Detection | Funzionale | Soglia FFmpeg fissa a -40 dB hardcoded in AudioProcessor.detectSilence(); nessuna analisi del noise floor del file per adattare la soglia dinamicamente |
+| Smart Mic Ducking | Funzionale | Hold time di attivazione/rilascio non configurabili dall'UI (hardcoded); con mixer USB (Rødecaster ecc.) il segnale di loopback può innescare il ducking anche a mic in mute; Talkback/IFB (F-17) rimandato a roadmap |
 | Export Self-Contained | Funzionale | Nessun Playout Log automatico; export solo on-demand manuale (F-03) |
 | Open-file da OS (.lmp association) | Funzionale | Associazione icona e "Apri con..." non garantiti su tutte le config Windows |
 
@@ -100,7 +101,7 @@ EQ a 3 o 5 bande per ogni bus (Music, Voice, SFX) separato dalla Master Chain, p
 Aggiunta, rimozione e riordinamento clip sono operazioni irreversibili. Stack undo/redo da 20-50 operazioni è standard in tutti i DAW.
 
 **F-12 · Voice Tracking / Jingle Recording integrato**  
-Registrazione di voiceover nella scaletta con pre-roll e post-roll della clip adiacente. La Session Recording registra l'intera sessione, non i singoli inserti.
+Possibilità per il conduttore di registrare inserti voce singoli (intro, outro, link) direttamente in regia, con pre-roll della clip precedente e post-roll della clip successiva per un ascolto in contesto. Il file registrato viene salvato come clip nella board. Distinto dal Session Recording (che cattura l'intera sessione): il Voice Tracking opera clip per clip e produce file standalone pronti per la rotazione.
 
 **F-13 · BPM Detection automatica**  
 Rilevazione BPM via FFmpeg/aubio per sincronizzare crossfade al beat della traccia musicale.
