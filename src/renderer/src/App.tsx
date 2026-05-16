@@ -232,7 +232,14 @@ function App() {
         };
 
 
-        const handleMidiMessage = (note: number, velocity: number, command: number) => {
+        const handleMidiMessage = (rawNote: number, rawVelocity: number, command: number) => {
+            // MIDI-02 (v1.3.2): guard sui valori MIDI grezzi prima di qualsiasi calcolo
+            // (velocity/127 per masterVolume, velocityGain per playClip). Un device fuori
+            // spec o un pacchetto corrotto potrebbe inviare valori > 127 o negativi: senza
+            // clamp a monte, `velocityGain` salterebbe il check di Math.min(1.5, ...) a valle
+            // (perché il clamp è solo sul prodotto finale, non sul moltiplicatore in ingresso).
+            const note = Math.max(0, Math.min(127, Math.floor(rawNote))) | 0;
+            const velocity = Math.max(0, Math.min(127, Math.floor(rawVelocity))) | 0;
 
             const state = useProjectStore.getState();
             const { isMidiLearnMode, selectedClipIds, assignMidiToClip, columns } = state;
@@ -267,7 +274,8 @@ function App() {
                 if (selectedClipIds.length === 1) {
                     assignMidiToClip(selectedClipIds[0], note);
                 } else {
-                    console.warn("Seleziona una clip per assegnare il MIDI");
+                    // MIDI-03 (v1.3.2): debugLog strutturato invece di console.warn (pattern LI-03).
+                    useDebugStore.getState().log('MIDI Learn: seleziona una sola clip per assegnare il MIDI', 'event');
                 }
             } else {
                 // Trigger (Only Note On)
