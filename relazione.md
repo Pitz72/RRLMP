@@ -30,7 +30,7 @@
 | v1.2.23 | 38b7156 | **NEW-ME-02** `playClip` ora controlla `activeClips[id]` PRIMA della conflict resolution di colonna — doppio-click/MIDI duplicato non silenzia più la colonna |
 | v1.2.24 | 05b9dfd | **NEW-ME-03** sanitize numerici in `validateLmpProjectData` (volume/pan/trim/marker/fade/duration) — niente più bus muto da volume=NaN |
 | v1.2.25 | cc9460e | **NEW-ME-04** ClipCard `currentTime` derivato da `activeState.progress` invece di `setInterval` 200ms locale — niente più 30 timer paralleli su cartwall pieno |
-| v1.2.26 | — | **NEW-ME-05** `setPermissionRequestHandler` ora nega `mediaTypes.video` — webcam non concessa anche se richiesta da terze parti |
+| v1.2.26 | b2dc97a | **NEW-ME-05** `setPermissionRequestHandler` ora nega `mediaTypes.video` — webcam non concessa anche se richiesta da terze parti |
 
 ---
 
@@ -73,7 +73,7 @@
 
 ## CRITICITÀ APERTE (post-revisione globale 2026-05-16)
 
-Revisione globale post-v1.2.16 ha identificato 18 criticità non documentate. Le 2 gravissime sono state chiuse in v1.2.17. Restano 16 aperte.
+Revisione globale post-v1.2.16 ha identificato 18 criticità non documentate. Chiuse 11 (2 gravissime + 4 gravi + 5 medie) in v1.2.17–v1.2.26. **Restano 7, tutte lievi.**
 
 ### LIEVI (7)
 
