@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { IAudioPlayer } from '../engine/AudioPlayer.interface';
 import { StreamPlayer } from '../engine/StreamPlayer';
-import { AudioClip } from '../types';
+import { AudioClip, PlayoutLogEntry } from '../types';
 import AudioContextManager from '../engine/AudioContextManager';
 import { debugLog } from './useDebugStore';
 import { useProjectStore } from './useProjectStore';
@@ -31,8 +31,12 @@ interface AudioStore {
     // v0.17.0 — Smart Mic: il microfono hardware è rilevato come voce attiva
     isMicActive: boolean;
 
+    // Playout Log
+    playoutLog: PlayoutLogEntry[];
+    clearPlayoutLog: () => void;
+
     // Actions
-    playClip: (clip: AudioClip) => Promise<void>;
+    playClip: (clip: AudioClip, velocityGain?: number) => Promise<void>;
     loadClip: (clip: AudioClip) => Promise<void>;
     playColumn: (colIndex: number) => Promise<void>;
     updateOutputDevice: (deviceId: string) => void;
@@ -232,14 +236,24 @@ export const useAudioStore = create<AudioStore>((set, get) => {
         fadingClipIds: [],
         previewingClipIds: [],
         isMicActive: false,
+        playoutLog: [],
+        clearPlayoutLog: () => set({ playoutLog: [] }),
 
-        playClip: async (clipArg: AudioClip) => {
+        playClip: async (clipArg: AudioClip, velocityGain?: number) => {
             const currentStore = get();
 
             // FRESH DATA FETCH
             const { columns } = useProjectStore.getState();
             const freshClip = columns.flatMap(col => col.clips).find(c => c.id === clipArg.id) || clipArg;
             const columnId = getColumnForClip(freshClip.id);
+
+            // MIDI velocity scaling: scale volume without modifying the store
+            const effectiveVolume = velocityGain !== undefined
+                ? Math.max(0, Math.min(1.5, freshClip.volume * velocityGain))
+                : freshClip.volume;
+            const effectiveClip = effectiveVolume !== freshClip.volume
+                ? { ...freshClip, volume: effectiveVolume }
+                : freshClip;
 
             // Integrity Guard (v0.14.2): blocca playback per file mancanti
             if (freshClip.isMissing) {
@@ -317,8 +331,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 pendingCrossfadeFadeIn = null;
                 player.updateSettings(
                     fadeInOverride !== null
-                        ? { ...freshClip, fadeIn: fadeInOverride }
-                        : freshClip
+                        ? { ...effectiveClip, fadeIn: fadeInOverride }
+                        : effectiveClip
                 );
 
                 // v0.13.2 — Helper per applicare la transizione corretta tra clip in sequenza.
@@ -438,13 +452,23 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     const { defaultPreshowTransition, crossfadeDuration, segueDuration } = useSettingsStore.getState();
                     const transType = freshClip.transitionType ?? defaultPreshowTransition;
                     if (transType === 'crossfade') {
-                        player.updateSettings({ ...freshClip, fadeOut: crossfadeDuration });
+                        player.updateSettings({ ...effectiveClip, fadeOut: crossfadeDuration });
                     } else if (transType === 'segue') {
-                        player.updateSettings({ ...freshClip, fadeOut: segueDuration });
+                        player.updateSettings({ ...effectiveClip, fadeOut: segueDuration });
                     }
                 }
 
                 player.play();
+
+                const logEntry: PlayoutLogEntry = {
+                    id: Math.random().toString(36).slice(2, 10),
+                    clipId: freshClip.id,
+                    clipName: freshClip.name,
+                    artist: freshClip.artist,
+                    title: freshClip.title,
+                    clipType: freshClip.type,
+                    startTime: Date.now(),
+                };
 
                 set((state) => {
                     // v0.14.5: avvia il timer On Air al primo play dopo idle
@@ -456,10 +480,11 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                                 player,
                                 isPlaying: true,
                                 progress: 0,
-                                clip: freshClip
+                                clip: effectiveClip
                             }
                         },
-                        onAirStartTime: wasIdle ? Date.now() : state.onAirStartTime
+                        onAirStartTime: wasIdle ? Date.now() : state.onAirStartTime,
+                        playoutLog: [...state.playoutLog, logEntry],
                     };
                     evaluateMix(newState.activeClips, freshClip.id);
                     return newState;
@@ -574,7 +599,15 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
                     const newPreviewingClipIds = state.previewingClipIds.filter(id => id !== clipId);
 
-                    return { activeClips: newActiveClips, suppressedClips: newSuppressedClips, previewingClipIds: newPreviewingClipIds };
+                    // Aggiorna endTime nell'ultima entry del log per questa clip
+                    const now = Date.now();
+                    const lastIdx = state.playoutLog.reduce((acc, e, i) =>
+                        e.clipId === clipId && !e.endTime ? i : acc, -1);
+                    const newPlayoutLog = lastIdx !== -1
+                        ? state.playoutLog.map((e, i) => i === lastIdx ? { ...e, endTime: now } : e)
+                        : state.playoutLog;
+
+                    return { activeClips: newActiveClips, suppressedClips: newSuppressedClips, previewingClipIds: newPreviewingClipIds, playoutLog: newPlayoutLog };
                 }
                 return state;
             });

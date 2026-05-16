@@ -1,5 +1,16 @@
 export type ClipType = 'asset' | 'music' | 'voice' | 'sfx' | 'preshow';
 
+export interface PlayoutLogEntry {
+    id: string;
+    clipId: string;
+    clipName: string;
+    artist?: string;
+    title?: string;
+    clipType: string;
+    startTime: number;  // Unix ms
+    endTime?: number;   // Unix ms — undefined mentre ancora in play
+}
+
 /**
  * Tipo di transizione tra clip in sequenza (v0.13.2).
  * - gapless:   la nuova parte esattamente alla fine della precedente, taglio netto.
@@ -17,6 +28,7 @@ declare global {
             getAudioMetadata: (filePath: string) => Promise<{success: boolean, data?: unknown, error?: string}>;
             getWaveformData: (filePath: string) => Promise<{success: boolean, data?: number[], error?: string}>;
             detectSilence: (filePath: string, thresholdDb?: number) => Promise<{success: boolean, data?: {trimStart: number, trimEnd: number, noSilence?: boolean, thresholdUsed?: number}, error?: string}>;
+            detectSmartCues: (filePath: string) => Promise<{success: boolean, data?: {introCue: number, outroCue: number}, error?: string}>;
             checkFilesExist: (paths: string[]) => Promise<{ missing: string[] }>;
             saveProject: (content: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
             loadProject: () => Promise<{ success: boolean; data?: string; filePath?: string; error?: string }>;
@@ -37,6 +49,8 @@ declare global {
             // v1.2.3 — Apertura diretta file .lmp da file association OS
             loadProjectFromPath: (filePath: string) => Promise<{ success: boolean; data?: string; filePath?: string; error?: string }>;
             onOpenFile: (callback: (filePath: string) => void) => () => void;
+            // Playout Log export
+            savePlayoutLog: (csvContent: string, suggestedName: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
             importM3u: () => Promise<{ success: boolean; paths?: string[]; error?: string }>;
             // v1.1.1+ — Session Recording (Chunk-based)
             startRecording: () => Promise<{ success: boolean; path?: string; error?: string }>;

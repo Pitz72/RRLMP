@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Play, Pause, Scissors, Flag, Music, ZoomIn, ZoomOut } from 'lucide-react';
+import { Play, Pause, Scissors, Flag, Music, ZoomIn, ZoomOut, Zap } from 'lucide-react';
 import { toFileUrl } from '../../utils/pathUtils';
 
 type DraggingMarker = 'trimStart' | 'trimEnd' | 'intro' | 'outro' | null;
@@ -44,14 +44,15 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    const [isPlaying,   setIsPlaying]   = useState(false);
-    const [duration,    setDuration]    = useState(0);
-    const [currentTime, setCurrentTime] = useState(0);
-    const [isLoaded,    setIsLoaded]    = useState(false);
-    const [peaks,       setPeaks]       = useState<number[]>([]);
-    const [isAnalyzing, setIsAnalyzing] = useState(true);
-    const [dragging,    setDragging]    = useState<DraggingMarker>(null);
-    const [zoom,        setZoom]        = useState(1);
+    const [isPlaying,         setIsPlaying]         = useState(false);
+    const [duration,          setDuration]          = useState(0);
+    const [currentTime,       setCurrentTime]       = useState(0);
+    const [isLoaded,          setIsLoaded]          = useState(false);
+    const [peaks,             setPeaks]             = useState<number[]>([]);
+    const [isAnalyzing,       setIsAnalyzing]       = useState(true);
+    const [dragging,          setDragging]          = useState<DraggingMarker>(null);
+    const [zoom,              setZoom]              = useState(1);
+    const [isDetectingCues,   setIsDetectingCues]   = useState(false);
 
     const fileUrl = toFileUrl(path);
 
@@ -140,6 +141,23 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
             document.removeEventListener('mouseup',   onUp);
         };
     }, [dragging]); // Solo dragging — tutti i valori live acceduti via ref
+
+    // ─── Smart Cues ─────────────────────────────────────────────────────────────
+    const handleSmartCues = async () => {
+        if (!window.electron?.detectSmartCues || isDetectingCues) return;
+        setIsDetectingCues(true);
+        try {
+            const res = await window.electron.detectSmartCues(path);
+            if (res.success && res.data) {
+                const updates: Parameters<typeof onChange>[0] = {};
+                if (res.data.introCue > 0) updates.introMarker = res.data.introCue;
+                if (res.data.outroCue > 0) updates.outroMarker = res.data.outroCue;
+                if (Object.keys(updates).length > 0) onChange(updates);
+            }
+        } finally {
+            setIsDetectingCues(false);
+        }
+    };
 
     // ─── Handlers ───────────────────────────────────────────────────────────────
     const togglePlay = () => {
@@ -450,6 +468,19 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                 </div>
                 </div>
             </div>
+
+            {/* ── Smart Cues ── */}
+            <button
+                onClick={handleSmartCues}
+                disabled={isDetectingCues || !isLoaded}
+                className="w-full flex items-center justify-center gap-2 p-2 bg-zinc-900 hover:bg-violet-900/40 border border-zinc-800 hover:border-violet-500/60 rounded transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Analizza il brano e suggerisce automaticamente Intro e Outro Cue tramite FFmpeg"
+            >
+                <Zap size={13} className={isDetectingCues ? 'text-violet-400 animate-pulse' : 'text-zinc-500'} />
+                <span className="text-[9px] font-bold uppercase text-zinc-500 hover:text-zinc-300 transition-colors">
+                    {isDetectingCues ? 'Analisi Smart Cues...' : 'Smart Cues (Auto)'}
+                </span>
+            </button>
 
             {/* ── Quick Set Buttons ── */}
             <div className="grid grid-cols-4 gap-2">

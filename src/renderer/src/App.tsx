@@ -14,17 +14,20 @@ import AudioContextManager from './engine/AudioContextManager';
 import { WelcomeScreen } from './components/modals/WelcomeScreen';
 import { OnAirTimer } from './components/ui/OnAirTimer';
 import { RecordingButton } from './components/ui/RecordingButton';
+import { PlayoutLogModal } from './components/modals/PlayoutLogModal';
 import { NoteBoard } from './components/ui/NoteBoard';
 import { ToastContainer } from './components/ui/ToastContainer';
 import { ConfirmDialog } from './components/ui/ConfirmDialog';
 import { toast } from './store/useToastStore';
 import { confirm, confirmThree } from './store/useConfirmStore';
+import { ListChecks } from 'lucide-react';
 
 
 import appLogo from './assets/logo.png';
 
 function App() {
     const [showWelcome, setShowWelcome] = useState(true);
+    const [showPlayoutLog, setShowPlayoutLog] = useState(false);
     const masterChain = useSettingsStore((s) => s.masterChain);
 
     // LI-04: cleanup singleton audio/MIDI all'unmount (hot-reload dev + ricarica pagina)
@@ -229,7 +232,7 @@ function App() {
                         if (isActive) {
                             audioStore.stopClip(foundClip.id);
                         } else {
-                            audioStore.playClip(foundClip);
+                            audioStore.playClip(foundClip, velocity / 127);
                         }
                         return;
                     }
@@ -268,6 +271,7 @@ function App() {
             <DebugOverlay />
             <ToastContainer />
             <ConfirmDialog />
+            {showPlayoutLog && <PlayoutLogModal onClose={() => setShowPlayoutLog(false)} />}
 
             {showWelcome && (
                 <WelcomeScreen
@@ -307,6 +311,14 @@ function App() {
                 </div>
 
                 <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => setShowPlayoutLog(true)}
+                        className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 hover:text-cyan-300 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 hover:border-cyan-600/50 rounded transition-all"
+                        title="Apri Playout Log"
+                    >
+                        <ListChecks size={13} />
+                        Log
+                    </button>
                     <RecordingButton />
                     <OnAirTimer />
                     <DigitalClock />

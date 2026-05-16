@@ -22,6 +22,7 @@ if (process.contextIsolated) {
             getAudioMetadata: (filePath: string) => ipcRenderer.invoke('get-audio-metadata', filePath),
             getWaveformData: (filePath: string) => ipcRenderer.invoke('get-waveform-data', filePath),
             detectSilence: (filePath: string, thresholdDb?: number) => ipcRenderer.invoke('detect-silence', filePath, thresholdDb),
+            detectSmartCues: (filePath: string) => ipcRenderer.invoke('detect-smart-cues', filePath),
             checkFilesExist: (paths: string[]) => ipcRenderer.invoke('check-files-exist', paths),
 
             // Persistence APIs
@@ -75,6 +76,8 @@ if (process.contextIsolated) {
             saveRecordingBuffer: (arrayBuffer: ArrayBuffer) => ipcRenderer.invoke('save-recording-buffer', arrayBuffer),
             convertRecording: (inputPath: string, outputPath: string, options: { format?: string; bitrate?: number; sampleDepth?: number }) => ipcRenderer.invoke('convert-recording', inputPath, outputPath, options),
             deleteTempRecording: (path: string) => ipcRenderer.invoke('delete-temp-recording', path),
+            // Playout Log
+            savePlayoutLog: (csvContent: string, suggestedName: string) => ipcRenderer.invoke('save-playout-log', csvContent, suggestedName),
         });
     } catch (error) {
         console.error("Context Bridge Error:", error);

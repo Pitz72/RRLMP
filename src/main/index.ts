@@ -173,6 +173,12 @@ ipcMain.handle('detect-silence', async (_event, filePath: string, thresholdDb?: 
     ).catch((err: Error) => ({ success: false, error: err.message }));
 });
 
+ipcMain.handle('detect-smart-cues', async (_event, filePath: string) => {
+    return withConcurrencyLimit('detect-smart-cues', 2, () =>
+        withIpcTimeout(AudioProcessor.detectSmartCues(filePath), 35_000, 'detect-smart-cues')
+    ).catch((err: Error) => ({ success: false, error: err.message }));
+});
+
 ipcMain.handle('check-files-exist', async (_event, paths: string[]) => {
     const missing = (paths as string[]).filter(p => !fs.existsSync(p));
     return { missing };
@@ -565,6 +571,27 @@ ipcMain.handle('delete-temp-recording', async (_event, path: string) => {
     }
 });
 
+// Playout Log export
+ipcMain.handle('save-playout-log', async (event, csvContent: string, suggestedName: string) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (!win) return { success: false };
+    const { canceled, filePath } = await dialog.showSaveDialog(win, {
+        title: 'Salva Playout Log',
+        defaultPath: suggestedName,
+        filters: [
+            { name: 'CSV', extensions: ['csv'] },
+            { name: 'Testo', extensions: ['txt'] }
+        ]
+    });
+    if (canceled || !filePath) return { success: false };
+    try {
+        fs.writeFileSync(filePath, csvContent, 'utf-8');
+        return { success: true, filePath };
+    } catch (error) {
+        return { success: false, error: String(error) };
+    }
+});
+
 // Apre un URL nel browser di sistema (usato dall'update checker)
 ipcMain.handle('open-external', async (_event, url: string) => {
     await shell.openExternal(url);
@@ -706,8 +733,13 @@ app.whenReady().then(() => {
     if (process.platform === 'win32') app.setAppUserModelId('com.electron');
 
     // v1.2.3 — Rileva file .lmp passato come argomento (doppio click / file association OS)
-    // Su Windows l'OS passa il path come process.argv[1] quando l'app è registrata come handler
-    const initialFilePath = process.argv.find(arg => arg.endsWith('.lmp'));
+    // Su Windows l'OS passa il path tra gli argv quando l'app è registrata come handler.
+    // Escludiamo path interni di Electron (app.asar, electron.exe) e verifichiamo esistenza su disco.
+    const initialFilePath = process.argv.slice(1).find(arg =>
+        arg.endsWith('.lmp') &&
+        !arg.includes('app.asar') &&
+        fs.existsSync(arg)
+    );
     createWindow(initialFilePath);
 
     // v0.17.0 — Smart Mic: approva automaticamente i permessi getUserMedia (audio)

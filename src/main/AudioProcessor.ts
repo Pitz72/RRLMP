@@ -242,6 +242,70 @@ export class AudioProcessor {
                 *
                 * @param overrideThresholdDb  Se fornito, usa questa soglia fissa invece del calcolo dinamico.
                 */
+  /**
+   * Analizza il file con una soglia alta (vicina al livello medio) per trovare:
+   * - introCue: primo momento in cui l'audio raggiunge piena energia (primo picco energetico)
+   * - outroCue: ultimo momento di energia sostenuta prima della dissolvenza finale
+   *
+   * Usa silencedetect con threshold = mean - 3dB per catturare solo le zone "silenziose"
+   * rispetto al corpo del brano. I boundary silence_end/silence_start diventano i cue suggeriti.
+   */
+  static async detectSmartCues(filePath: string): Promise<{ success: boolean; data?: { introCue: number; outroCue: number }; error?: string }> {
+    if (!fs.existsSync(filePath)) return { success: false, error: 'File non trovato' };
+
+    const meanLevel = await AudioProcessor._estimateMeanLevel(filePath);
+    // Soglia aggressiva: mean - 3dB, clamped tra -25 e -10 dBFS
+    const threshold = meanLevel !== null
+        ? Math.max(-25, Math.min(-10, meanLevel - 3))
+        : -18;
+
+    return new Promise((resolve) => {
+        const proc = spawn(safeFfmpegPath, [
+            '-i', filePath,
+            '-af', `silencedetect=noise=${threshold.toFixed(1)}dB:d=0.25`,
+            '-f', 'null', '-'
+        ]);
+        let stderrData = '';
+        const killTimeout = setTimeout(() => {
+            try { proc.kill('SIGKILL'); } catch { /* noop */ }
+            resolve({ success: false, error: 'Timeout: smart cues detection exceeded 30s' });
+        }, 30000);
+
+        proc.stderr.on('data', (chunk: Buffer) => { stderrData += chunk.toString(); });
+        proc.on('error', (err: Error) => { clearTimeout(killTimeout); resolve({ success: false, error: err.message }); });
+        proc.on('close', () => {
+            clearTimeout(killTimeout);
+            try {
+                const durMatch = stderrData.match(/Duration:\s*(\d+):(\d+):([\d.]+)/);
+                const duration = durMatch
+                    ? parseInt(durMatch[1]) * 3600 + parseInt(durMatch[2]) * 60 + parseFloat(durMatch[3])
+                    : 0;
+
+                const silenceEnds: number[] = [];
+                const silenceStarts: number[] = [];
+                for (const line of stderrData.split('\n')) {
+                    const eMatch = line.match(/silence_end:\s*([\d.e+\-]+)/);
+                    if (eMatch) silenceEnds.push(parseFloat(eMatch[1]));
+                    const sMatch = line.match(/silence_start:\s*([\d.e+\-]+)/);
+                    if (sMatch) silenceStarts.push(parseFloat(sMatch[1]));
+                }
+
+                // introCue: primo silence_end nel primo 40% del brano (dove l'audio raggiunge piena energia)
+                const earlyEnds = silenceEnds.filter(t => t > 0.3 && t < duration * 0.4);
+                const introCue = earlyEnds.length > 0 ? parseFloat(earlyEnds[0].toFixed(3)) : 0;
+
+                // outroCue: ultimo silence_start dopo il 40% del brano (inizio dissolvenza finale)
+                const lateStarts = silenceStarts.filter(t => t > duration * 0.4 && t < duration - 1.0);
+                const outroCue = lateStarts.length > 0 ? parseFloat(lateStarts[lateStarts.length - 1].toFixed(3)) : 0;
+
+                resolve({ success: true, data: { introCue, outroCue } });
+            } catch (parseErr) {
+                resolve({ success: false, error: String(parseErr) });
+            }
+        });
+    });
+  }
+
   static async detectSilence(filePath: string, overrideThresholdDb?: number): Promise<any> {
     if (!fs.existsSync(filePath)) {
         return { success: false, error: 'File non trovato' };
