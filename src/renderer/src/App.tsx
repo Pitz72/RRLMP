@@ -45,16 +45,46 @@ function App() {
     }, [masterChain]);
 
     // v1.2.3 — Apertura diretta file .lmp da doppio click / file association OS
+    // v1.2.17 (NEW-GR-02): se c'è un progetto sporco, chiedi conferma PRIMA di stopAll()/load.
+    // Un doppio-click accidentale durante una diretta non deve fermare l'audio in onda.
     useEffect(() => {
         const unsub = window.electron.onOpenFile(async (filePath: string) => {
             try {
+                // Gate isDirty: salva / non salvare / annulla, identico a handleCloseIntent
+                const state = useProjectStore.getState();
+                if (state.isDirty) {
+                    const response = await confirmThree(
+                        'Ci sono modifiche non salvate. Cosa vuoi fare prima di aprire il nuovo progetto?',
+                        'Salva',
+                        'Non Salvare',
+                        'Annulla'
+                    );
+                    if (response === 'cancel') return;
+                    if (response === 'confirm') {
+                        const projectData = {
+                            version: __APP_VERSION__,
+                            timestamp: Date.now(),
+                            project: { columns: state.columns }
+                        };
+                        const json = JSON.stringify(projectData, null, 2);
+                        const saveRes = state.currentFilePath
+                            ? await window.electron.saveProjectDirect(json, state.currentFilePath)
+                            : await window.electron.saveProject(json);
+                        if (!saveRes.success) {
+                            toast('Salvataggio non riuscito: ' + (saveRes.error ?? 'annullato'), 'error');
+                            return;
+                        }
+                    }
+                    // 'third' (Non Salvare) → prosegue senza salvare
+                }
+
                 const result = await window.electron.loadProjectFromPath(filePath);
                 if (result.success && result.data) {
                     try {
                         const parsed = JSON.parse(result.data);
                         const projectData = validateLmpProjectData(parsed.project);
-                        useProjectStore.getState().loadProject(projectData, filePath);
                         useAudioStore.getState().stopAll();
+                        useProjectStore.getState().loadProject(projectData, filePath);
                         useProjectStore.getState().setDirty(false);
                         setShowWelcome(false);
                     } catch (e) {
