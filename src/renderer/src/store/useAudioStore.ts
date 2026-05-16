@@ -8,6 +8,14 @@ import { useProjectStore } from './useProjectStore';
 import { useSettingsStore } from './useSettingsStore';
 import * as AUDIO_CONST from '../constants/audioConstants';
 
+// v1.2.19 (NEW-GR-04): cap FIFO sul playoutLog per evitare degrado progressivo
+// in memoria su sessioni broadcast lunghe (8h+ con jingle/SFX su tasti rapidi
+// possono superare 5–10k entry). 2000 entry coprono ampiamente una diretta
+// tipica; le più vecchie vengono droppate silenziosamente.
+const MAX_PLAYOUT_LOG_ENTRIES = 2000;
+const capPlayoutLog = (log: PlayoutLogEntry[]): PlayoutLogEntry[] =>
+    log.length > MAX_PLAYOUT_LOG_ENTRIES ? log.slice(-MAX_PLAYOUT_LOG_ENTRIES) : log;
+
 interface ActiveClipState {
     player: IAudioPlayer;
     isPlaying: boolean;
@@ -484,7 +492,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                             }
                         },
                         onAirStartTime: wasIdle ? Date.now() : state.onAirStartTime,
-                        playoutLog: [...state.playoutLog, logEntry],
+                        playoutLog: capPlayoutLog([...state.playoutLog, logEntry]),
                     };
                     evaluateMix(newState.activeClips, freshClip.id);
                     return newState;
