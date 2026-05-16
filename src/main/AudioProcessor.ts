@@ -16,7 +16,24 @@ const safeFfprobePath = ffprobePath.replace('app.asar', 'app.asar.unpacked');
 ffmpeg.setFfmpegPath(safeFfmpegPath);
 ffmpeg.setFfprobePath(safeFfprobePath);
 
+// v1.2.17 (NEW-GR-01): registro globale delle conversioni FFmpeg in corso,
+// per poterle terminare quando la finestra viene chiusa o l'app esce.
+const activeConversions = new Set<any>();
+
 export class AudioProcessor {
+  /**
+   * v1.2.17 — Termina forzatamente tutte le conversioni FFmpeg attive.
+   * Chiamato su window-close e before-quit per evitare processi zombie.
+   */
+  static cancelAllConversions(): number {
+    const count = activeConversions.size;
+    for (const cmd of activeConversions) {
+      try { cmd.kill('SIGKILL'); } catch { /* noop */ }
+    }
+    activeConversions.clear();
+    return count;
+  }
+
   /**
    * Estrae i metadati essenziali (durata, tag) senza caricamento completo in memoria.
    */
@@ -151,6 +168,16 @@ export class AudioProcessor {
                 try {
                 console.log(`[AudioProcessor] Conversione: ${inputPath} -> ${outputPath} (format=${options.format})`);
 
+                let killTimer: NodeJS.Timeout | null = null;
+                let settled = false;
+                const finish = (result: { success: boolean; error?: string }) => {
+                    if (settled) return;
+                    settled = true;
+                    if (killTimer) { clearTimeout(killTimer); killTimer = null; }
+                    activeConversions.delete(command);
+                    resolve(result);
+                };
+
                 const command = ffmpeg(inputPath)
                 .output(outputPath)
                 .on('progress', (info) => {
@@ -160,12 +187,20 @@ export class AudioProcessor {
                 })
                 .on('error', (err: Error) => {
                 console.error('[AudioProcessor] Conversion Error:', err);
-                resolve({ success: false, error: err.message });
+                finish({ success: false, error: err.message });
                 })
                 .on('end', () => {
                 console.log(`[AudioProcessor] Conversione completata: ${outputPath}`);
-                resolve({ success: true });
+                finish({ success: true });
                 });
+
+                // v1.2.17 (NEW-GR-01): hard timeout 30 min — evita zombie su conversioni infinite
+                killTimer = setTimeout(() => {
+                    try { command.kill('SIGKILL'); } catch { /* noop */ }
+                    finish({ success: false, error: 'CONVERSION_TIMEOUT' });
+                }, 30 * 60 * 1000);
+
+                activeConversions.add(command);
 
                 const fmt = options.format || 'webm';
 

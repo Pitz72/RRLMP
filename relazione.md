@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
-**Ultima analisi**: 16 maggio 2026  
-**Versione corrente**: 1.2.16  
+**Ultima analisi**: 16 maggio 2026 (revisione globale post-v1.2.16)  
+**Versione corrente**: 1.2.17  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -20,7 +20,8 @@
 | v1.2.13 | 238de31 | Relazione: Waveform Editor, MIDI, Voice Tracking, ESC aggiornati — documentazione |
 | v1.2.14 | e2c235c | Smart Mic Ducking: hold times configurabili + nota loopback USB mixer — miglioramento |
 | v1.2.15 | c3b1bf6 | Auto-Silence Detection: soglia dinamica da volumedetect — miglioramento |
-| v1.2.16 | — | **MIDI Velocity**: `playClip(velocityGain?)` scala volume per riproduzione, evaluateMix usa valore scalato per ducking · **Smart Cues**: `detectSmartCues()` silencedetect con soglia mean−3dB, bottone Auto in WaveformEditor · **Playout Log**: store runtime `playoutLog[]`, modal con badge ON AIR live, Export CSV · **Open-file OS**: NSIS `oneClick:false` + argv parsing con `fs.existsSync` guard |
+| v1.2.16 | e9a9df3 | **MIDI Velocity**: `playClip(velocityGain?)` scala volume per riproduzione, evaluateMix usa valore scalato per ducking · **Smart Cues**: `detectSmartCues()` silencedetect con soglia mean−3dB, bottone Auto in WaveformEditor · **Playout Log**: store runtime `playoutLog[]`, modal con badge ON AIR live, Export CSV · **Open-file OS**: NSIS `oneClick:false` + argv parsing con `fs.existsSync` guard |
+| v1.2.17 | — | **NEW-GR-01** `convertAudio()` con registro globale + hard timeout 30 min + kill su window-close/before-quit · **NEW-GR-02** `onOpenFile` (apertura `.lmp` da OS) ora gate `isDirty` con confirmThree Salva/Non Salvare/Annulla — niente più stopAll() accidentale in onda |
 
 ---
 
@@ -47,8 +48,58 @@
 ✅ **LI-04** · Singleton audio non distrutti su ricarica webview — risolto in v1.2.11  
 ✅ **LI-05** · Countdown MIDI Learn attivabile in doppio — risolto in v1.2.11  
 ✅ **ESC** · Emergency Stop globale attivo anche fuori focus — risolto in v1.2.12  
+✅ **NEW-GR-01** · `convertAudio()` senza timeout/kill su finestra chiusa — risolto in v1.2.17  
+✅ **NEW-GR-02** · Apertura `.lmp` da OS bypassava il gate `isDirty` — risolto in v1.2.17  
 
 ---
+
+## CRITICITÀ APERTE (post-revisione globale 2026-05-16)
+
+Revisione globale post-v1.2.16 ha identificato 18 criticità non documentate. Le 2 gravissime sono state chiuse in v1.2.17. Restano 16 aperte.
+
+### GRAVI (4)
+
+- **NEW-GR-03** · Timeout IPC `detect-smart-cues` (35s) < timeout interni FFmpeg (10s+30s=40s)  
+  `src/main/index.ts:178` vs `src/main/AudioProcessor.ts:256`  
+  IPC rigetta prima del kill → `withConcurrencyLimit` satura → `IPC_RATE_LIMITED` a catena.  
+  **Fix**: portare timeout IPC a 45s e decrementare `_ipcInflight` solo a terminazione effettiva del processo.
+
+- **NEW-GR-04** · `playoutLog` array senza cap, modal non virtualizzata  
+  `src/renderer/src/store/useAudioStore.ts:239,463-487`  
+  Sessione 8h con jingle/SFX → 5–10k entry, GC pressure, eventuale crash.  
+  **Fix**: cap FIFO 2000 entry; virtualizzare la tabella o append-only su file.
+
+- **NEW-GR-05** · `MicManager._poll` può chiamare callback dopo cleanup  
+  `src/renderer/src/engine/MicManager.ts:274-322`  
+  Re-arm con cambio device USB → `isMicActive=true` fantasma → ducking permanente in onda.  
+  **Fix**: token di sessione (incrementato a ogni `arm()`) testato in `_poll`/`_setActive`/timer callbacks.
+
+- **NEW-GR-06** · CSP `'unsafe-eval'` + `'unsafe-inline'` anche in produzione  
+  `src/main/index.ts:122`  
+  Superficie XSS amplificata su apertura `.lmp` di terzi.  
+  **Fix**: branch su `process.env.NODE_ENV !== 'development'` per rimuovere `'unsafe-eval'` in prod.
+
+### MEDIE (5)
+
+- **NEW-ME-01** · `IPC_RATE_LIMITED` ritornato come "successo" → renderer senza toast dedicato. Fix: toast "Operazione in coda".
+- **NEW-ME-02** · `playClip` race: chiamata doppia ferma la colonna anziché restartare. Fix: spostare check `activeClips` prima della conflict resolution.
+- **NEW-ME-03** · `validateLmpProjectData` non controlla `volume`/`trimStart/End`/`introMarker`/`outroMarker`: `NaN` o `1e10` rende muto il bus. Fix: clamp/sanity-check sui campi numerici.
+- **NEW-ME-04** · `ClipCard` istanzia `setInterval` 200ms per clip — ridondante con loop globale. Fix: usare `activeState.progress` dallo store.
+- **NEW-ME-05** · `setPermissionRequestHandler` approva anche `video`. Fix: filtrare su audio-only.
+
+### LIEVI (7)
+
+- **NEW-LI-01** · `_isMicActiveGlobal` non resettato su cleanup App.
+- **NEW-LI-02** · `import-m3u` non normalizza path risolti.
+- **NEW-LI-03** · Loop progress di `useAudioStore` non distruttibile (test/E2E).
+- **NEW-LI-04** · UUID via `Math.random()` (preferire `crypto.randomUUID()`).
+- **NEW-LI-05** · Smart Cues senza toast su `success:false`.
+- **NEW-LI-06** · `PlayoutLogModal.handleExport` non distingue cancel vs error.
+- **NEW-LI-07** · `unhandledrejection` listener installato dopo bootstrap.
+
+### Aree non ispezionate (secondo passaggio consigliato)
+
+`useRecordingStore.ts`, `AudioRecorder.ts`, `MidiManager.ts`, drag&drop in `MainGrid.tsx`, ciclo di vita `MediaRecorder` su sessioni lunghe.
 
 ---
 
@@ -91,7 +142,7 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ### Criticità aperte
 
-Nessuna. Tutte le criticità note sono state risolte in v1.2.6–v1.2.12.
+**16 criticità** post-revisione globale: 4 gravi (NEW-GR-03..06), 5 medie (NEW-ME-01..05), 7 lievi (NEW-LI-01..07). Le 2 gravissime (NEW-GR-01, NEW-GR-02) sono state risolte in v1.2.17. Storico GR-01..LI-05 chiuso in v1.2.6–v1.2.12.
 
 ### Roadmap attiva
 
@@ -107,4 +158,4 @@ Nessuna. Tutte le criticità note sono state risolte in v1.2.6–v1.2.12.
 
 ---
 
-*Aggiornato a v1.2.16. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
+*Aggiornato a v1.2.17. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*

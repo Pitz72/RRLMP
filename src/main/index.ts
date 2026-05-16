@@ -99,6 +99,9 @@ function createWindow(initialFilePath?: string): void {
 
     mainWindow.on('closed', () => {
         mainWindowRef = null;
+        // v1.2.17 (NEW-GR-01): termina conversioni FFmpeg in corso quando la finestra muore
+        const killed = AudioProcessor.cancelAllConversions();
+        if (killed > 0) logger.warn(`[Main] Terminate ${killed} conversioni FFmpeg attive su window close`);
     });
 
     // CLOSING HANDSHAKE
@@ -768,6 +771,12 @@ app.whenReady().then(() => {
 
 app.on('will-quit', () => {
     globalShortcut.unregisterAll();
+});
+
+// v1.2.17 (NEW-GR-01): assicura che nessun child FFmpeg sopravviva all'app
+app.on('before-quit', () => {
+    const killed = AudioProcessor.cancelAllConversions();
+    if (killed > 0) logger.warn(`[Main] Terminate ${killed} conversioni FFmpeg attive su before-quit`);
 });
 
 app.on('window-all-closed', () => {
