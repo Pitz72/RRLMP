@@ -269,6 +269,16 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 return;
             }
 
+            // v1.2.23 (NEW-ME-02): se la clip è già attiva, comportati come "toggle stop"
+            // e ritorna SUBITO, prima della conflict resolution di colonna. Senza questo
+            // check anticipato, una chiamata doppia (doppio-click o MIDI Note duplicata)
+            // fermava prima le clip in conflitto della colonna, lasciandola silenziosa.
+            if (currentStore.activeClips[freshClip.id]) {
+                debugLog(`AudioStore: PlayClip toggle-stop su ${freshClip.name} (già attiva)`, 'info');
+                currentStore.stopClip(freshClip.id);
+                return;
+            }
+
             debugLog(`AudioStore: PlayClip ${freshClip.name} (Next: ${freshClip.nextAction}, Behavior: ${freshClip.behavior})`, 'event');
 
             // PRE-SHOW LOGIC: Stop Pre-Show if starting Show Assets
@@ -314,11 +324,6 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                             currentStore.stopClip(ac.clip.id);
                         });
                 }
-            }
-
-            if (currentStore.activeClips[freshClip.id]) {
-                currentStore.stopClip(freshClip.id);
-                return;
             }
 
             // GR-02 Fix: registra run-ID univoco prima del load asincrono.

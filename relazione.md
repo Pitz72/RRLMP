@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
 **Ultima analisi**: 16 maggio 2026 (revisione globale post-v1.2.16)  
-**Versione corrente**: 1.2.22  
+**Versione corrente**: 1.2.23  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -26,7 +26,8 @@
 | v1.2.19 | 4d53ef4 | **NEW-GR-04** cap FIFO `playoutLog` a 2000 entry — niente più degrado memoria su sessioni broadcast lunghe |
 | v1.2.20 | 0628c42 | **NEW-GR-05** MicManager session token su `_poll`/`_setActive`/timer callbacks — re-arm rapido non lascia più `isMicActive=true` fantasma |
 | v1.2.21 | 6a7f78d | **NEW-GR-06** CSP `'unsafe-eval'` rimosso in produzione — superficie XSS ridotta, fast-refresh Vite preservato in dev |
-| v1.2.22 | — | **NEW-ME-01** toast dedicato per `IPC_RATE_LIMITED` su WaveformEditor (Smart Cues) e ClipSettingsModal (Auto-Trim); toast success/warning quando Smart Cues va a buon fine |
+| v1.2.22 | 40784eb | **NEW-ME-01** toast dedicato per `IPC_RATE_LIMITED` su WaveformEditor (Smart Cues) e ClipSettingsModal (Auto-Trim); toast success/warning quando Smart Cues va a buon fine |
+| v1.2.23 | — | **NEW-ME-02** `playClip` ora controlla `activeClips[id]` PRIMA della conflict resolution di colonna — doppio-click/MIDI duplicato non silenzia più la colonna |
 
 ---
 
@@ -60,6 +61,7 @@
 ✅ **NEW-GR-05** · `MicManager._poll` callback dopo cleanup (race re-arm) — risolto in v1.2.20  
 ✅ **NEW-GR-06** · CSP `'unsafe-eval'` in produzione — risolto in v1.2.21  
 ✅ **NEW-ME-01** · `IPC_RATE_LIMITED` senza toast dedicato — risolto in v1.2.22  
+✅ **NEW-ME-02** · `playClip` race su chiamata doppia — risolto in v1.2.23  
 
 ---
 
@@ -67,9 +69,8 @@
 
 Revisione globale post-v1.2.16 ha identificato 18 criticità non documentate. Le 2 gravissime sono state chiuse in v1.2.17. Restano 16 aperte.
 
-### MEDIE (4)
+### MEDIE (3)
 
-- **NEW-ME-02** · `playClip` race: chiamata doppia ferma la colonna anziché restartare. Fix: spostare check `activeClips` prima della conflict resolution.
 - **NEW-ME-03** · `validateLmpProjectData` non controlla `volume`/`trimStart/End`/`introMarker`/`outroMarker`: `NaN` o `1e10` rende muto il bus. Fix: clamp/sanity-check sui campi numerici.
 - **NEW-ME-04** · `ClipCard` istanzia `setInterval` 200ms per clip — ridondante con loop globale. Fix: usare `activeState.progress` dallo store.
 - **NEW-ME-05** · `setPermissionRequestHandler` approva anche `video`. Fix: filtrare su audio-only.
@@ -129,7 +130,7 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ### Criticità aperte
 
-**11 criticità** aperte post-revisione globale: 0 gravi, 4 medie (NEW-ME-02..05), 7 lievi (NEW-LI-01..07). Gravissime/gravi chiuse: NEW-GR-01/02 in v1.2.17, NEW-GR-03 in v1.2.18, NEW-GR-04 in v1.2.19, NEW-GR-05 in v1.2.20, NEW-GR-06 in v1.2.21. NEW-ME-01 in v1.2.22. Storico GR-01..LI-05 chiuso in v1.2.6–v1.2.12.
+**10 criticità** aperte: 0 gravi, 3 medie (NEW-ME-03..05), 7 lievi (NEW-LI-01..07). Gravissime/gravi chiuse: v1.2.17 (GR-01/02), v1.2.18 (GR-03), v1.2.19 (GR-04), v1.2.20 (GR-05), v1.2.21 (GR-06). Medie chiuse: v1.2.22 (ME-01), v1.2.23 (ME-02). Storico GR-01..LI-05 chiuso in v1.2.6–v1.2.12.
 
 ### Roadmap attiva
 
@@ -145,4 +146,4 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ---
 
-*Aggiornato a v1.2.22. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
+*Aggiornato a v1.2.23. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
