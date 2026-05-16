@@ -39,6 +39,7 @@ export const GlobalControls = () => {
     const [isArmed, setIsArmed] = useState(false);
     const [micLevel, setMicLevel] = useState(-100);
     const micArmingRef = useRef(false); // evita doppio arm in StrictMode
+    const autoSavedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // M2 Fix: stato MIDI per badge visivo
     const [midiInputCount, setMidiInputCount] = useState(0);
@@ -99,7 +100,11 @@ export const GlobalControls = () => {
                     if (result.success) {
                         debugLog(`Auto-backup completed: ${result.path?.split(/[\\/]/).pop()}`, 'info');
                         setShowAutoSaved(true);
-                        setTimeout(() => setShowAutoSaved(false), 3000);
+                        if (autoSavedTimerRef.current) clearTimeout(autoSavedTimerRef.current);
+                        autoSavedTimerRef.current = setTimeout(() => {
+                            setShowAutoSaved(false);
+                            autoSavedTimerRef.current = null;
+                        }, 3000);
                     } else {
                         debugLog(`Auto-backup failed: ${result.error}`, 'error');
                     }
@@ -107,7 +112,10 @@ export const GlobalControls = () => {
             }
         }, 300000); // 5 minutes
 
-        return () => clearInterval(timer);
+        return () => {
+            clearInterval(timer);
+            if (autoSavedTimerRef.current) clearTimeout(autoSavedTimerRef.current);
+        };
     }, []); // Run once on mount
 
     // Unsaved Changes Alert (Close Protection)

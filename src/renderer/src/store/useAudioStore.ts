@@ -78,7 +78,8 @@ const getBusForType = (type: string) => {
  */
 const evaluateMix = (activeClips: Record<string, ActiveClipState>, newClipId?: string, overrideDuration?: number) => {
     const activeValues = Object.values(activeClips);
-    const { duckingFactor, duckingDuration } = useSettingsStore.getState();
+    const duckingFactor = _duckingFactor;
+    const duckingDuration = _duckingDuration;
 
     // 1. ANALYSIS: Scan for high-priority types currently playing
     // v0.17.0: isMicActive (Smart Mic) ha la stessa priorità di una clip voice
@@ -201,6 +202,16 @@ let _isMicActiveGlobal = false;
 // GR-01 Fix: flag module-level che garantisce un solo interval attivo,
 // anche con React 18 StrictMode (double-invoke in dev) o hot reload multipli.
 let _progressLoopStarted = false;
+
+// ME-07 Fix: cache module-level per i parametri ducking di useSettingsStore.
+// evaluateMix() è definita fuori da create() — non può usare hooks né chiamare
+// getState() ad ogni invocazione. Subscribe aggiorna i valori ad ogni cambio settings.
+let _duckingFactor = useSettingsStore.getState().duckingFactor;
+let _duckingDuration = useSettingsStore.getState().duckingDuration;
+useSettingsStore.subscribe((state) => {
+    _duckingFactor = state.duckingFactor;
+    _duckingDuration = state.duckingDuration;
+});
 
 export const useAudioStore = create<AudioStore>((set, get) => {
 
