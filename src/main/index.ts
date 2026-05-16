@@ -722,9 +722,10 @@ app.whenReady().then(() => {
     });
 
     // v0.14.3 — Emergency Stop globale: Escape → stopAll nel renderer
+    // v1.2.12 — guard isFocused(): non sparare se la finestra non è in primo piano
     globalShortcut.register('Escape', () => {
         BrowserWindow.getAllWindows().forEach(w => {
-            if (!w.isDestroyed()) w.webContents.send('emergency-stop');
+            if (!w.isDestroyed() && w.isFocused()) w.webContents.send('emergency-stop');
         });
     });
 
