@@ -762,9 +762,21 @@ app.whenReady().then(() => {
     // v0.17.0 — Smart Mic: approva automaticamente i permessi getUserMedia (audio)
     // Electron 28 richiede che il main process approvi esplicitamente le richieste
     // di accesso ai dispositivi media dal renderer (getUserMedia per microfono).
-    session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
+    // v1.2.26 (NEW-ME-05): approva 'media' SOLO per audio. Electron passa
+    // `details.mediaTypes` (array di 'audio'/'video') con la richiesta: l'app
+    // non usa la webcam — autorizzare anche video amplierebbe la superficie
+    // di attacco senza beneficio funzionale.
+    session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback, details) => {
         if (permission === 'media') {
-            callback(true); // approva sempre l'accesso audio/video richiesto dall'app
+            const mediaTypes = (details as { mediaTypes?: string[] })?.mediaTypes;
+            // Se mediaTypes è definito e contiene 'video', neghiamo l'intera richiesta.
+            // Se mediaTypes è assente (older Electron), permettiamo: il constraint
+            // nel renderer è già {audio: ..., video: false}, quindi non si può ottenere video comunque.
+            if (mediaTypes && mediaTypes.includes('video')) {
+                callback(false);
+                return;
+            }
+            callback(true);
         } else {
             callback(false);
         }
