@@ -1,6 +1,6 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
-**Ultima analisi**: 16 maggio 2026 (revisione globale post-v1.2.16)  
+**Ultima analisi**: 16 maggio 2026 — Blocco 1 revisione esaustiva (Recording + MIDI) post-v1.3.0  
 **Versione corrente**: 1.3.0  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
@@ -82,11 +82,42 @@
 
 ## CRITICITÀ APERTE
 
-**Nessuna.** Tutte le 18 criticità identificate dalla revisione globale 2026-05-16 sono state risolte in v1.2.17–v1.2.27 (2 gravissime + 4 gravi + 5 medie + 7 lievi). Storico GR-01..LI-05 già chiuso in v1.2.6–v1.2.12.
+**11 criticità** aperte dalla revisione Blocco 1 (Recording + MIDI) del 2026-05-16 — successiva alla milestone v1.3.0. Le 18 criticità della revisione globale precedente restano tutte chiuse.
+
+### Blocco 1 — Recording (8)
+
+| ID | Sev | File | Problema | Fix suggerito |
+| -- | --- | ---- | -------- | ------------- |
+| **REC-01** | Grave | `src/main/index.ts:582` (`delete-temp-recording`) | Handler IPC cancella path arbitrari senza validazione: rischio eliminazione file fuori `app.getPath('temp')` | Validare prefisso temp dir + bloccare `..` traversal, oppure generare UUID lato main e accettare solo l'ID dal renderer |
+| **REC-02** | Media | `src/main/index.ts:531` (`convert-recording`) | IPC senza `withIpcTimeout` wrapper — renderer blocca indefinitamente se FFmpeg hang | Wrappare con `withIpcTimeout(..., 60_000, 'convert-recording')` |
+| **REC-03** | Media | `src/renderer/src/engine/AudioRecorder.ts:6,48,63` | `chunks: BlobPart[]` cresce illimitato — su 1h+ può causare OOM renderer | Cap FIFO (es. 5000) o streaming append via IPC chunk-per-chunk |
+| **REC-04** | Media | `src/renderer/src/store/useRecordingStore.ts:54–79` | Se `recorder.stop()` fallisce a metà, `isRecording=false` ma `tempPath` + chunks restano: secondo start riusa singleton corrotto | Reset esplicito di `tempPath` + UUID per-invocation |
+| **REC-05** | Media | `src/renderer/src/components/modals/RecordingExportModal.tsx:45` | `onExportProgress` callback registrata ma cleanup non garantito su unmount | `return () => { if (unsub) unsub(); }` nel useEffect |
+| **REC-06** | Media | `src/renderer/src/store/useRecordingStore.ts:34–46` | `timerIntervalId` non clearato se finestra chiusa durante recording — store Zustand sopravvive | Hook cleanup globale o destructor store |
+| **REC-07** | Lieve | `src/renderer/src/store/useRecordingStore.ts:85–88` | `defaultName` non sanitizza caratteri illegali Windows (`: < > ? " \|`) | `replace(/[:<>?"\|]/g, '_')` |
+| **REC-08** | Lieve | `src/renderer/src/engine/AudioRecorder.ts:63–67` | `ondataavailable` senza try/catch — chunk corrotto perso in silenzio | try/catch + log |
+
+### Blocco 1 — MIDI (3)
+
+| ID | Sev | File | Problema | Fix suggerito |
+| -- | --- | ---- | -------- | ------------- |
+| **MIDI-01** | Media | `src/renderer/src/engine/MidiManager.ts:73–76` | `onstatechange` su `disconnected` non azzera `onmidimessage`: riconnessione stessa porta → doppio listener fantasma | `else if (e.port.state === 'disconnected') { e.port.onmidimessage = null; }` |
+| **MIDI-02** | Media | `src/renderer/src/store/useAudioStore.ts:272–274` | `velocityGain` clampato a 1.5 ma `velocity` MIDI non validato a monte (`[0,127]`) | Guard in `handleMidiMessage` di `App.tsx` prima di `velocity/127` |
+| **MIDI-03** | Lieve | `src/renderer/src/engine/MidiManager.ts:35,91` + `src/renderer/src/App.tsx:252` | `console.warn/error` invece di `debugLog()` strutturato (pattern LI-03) | Sostituire con `debugLog()` |
 
 ### Aree non ispezionate (secondo passaggio consigliato per future iterazioni)
 
-`useRecordingStore.ts`, `AudioRecorder.ts`, `MidiManager.ts`, drag&drop in `MainGrid.tsx`, ciclo di vita `MediaRecorder` su sessioni lunghe.
+Blocco 2: Persistenza progetto (auto-backup, recovery crash, migrazione `.lmp`). Blocco 3: Drag&drop `MainGrid.tsx`, protocollo `media://` (range/abort). Inoltre: modali residui, output device multi-routing, asset library, build/distribution.
+
+### Aree pulite confermate nel Blocco 1
+
+- Race playClip (`playRunIds` con `crypto.randomUUID()` — NEW-LI-04 OK)
+- MIDI Learn doppio countdown (LI-05 OK)
+- Validazione struttura mapping (`validateLmpProjectData` con sanitize — NEW-ME-03 OK)
+- Singleton `MidiManager.destroy()` chiamato in `App.tsx` cleanup
+- IPC concurrency limiting (`withConcurrencyLimit`) per FFmpeg-heavy
+- Tracking `activeConversions` + cleanup on window-close (NEW-GR-01 OK)
+- Path validation `media://` whitelist (GR-04 OK)
 
 ---
 
@@ -129,7 +160,7 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ### Criticità aperte
 
-**Nessuna.** Tutte le 18 criticità identificate dalla revisione globale sono state risolte in v1.2.17–v1.2.27: 2 gravissime, 4 gravi, 5 medie, 7 lievi. Storico GR-01..LI-05 chiuso in v1.2.6–v1.2.12.
+**11** (1 grave + 7 medie + 3 lievi) — tutte dal Blocco 1 revisione esaustiva 2026-05-16 (Recording + MIDI). Dettaglio nella sezione "CRITICITÀ APERTE" sopra. Le 18 criticità della revisione globale precedente (GR-01..LI-05 + NEW-*) restano tutte chiuse.
 
 ### Roadmap attiva
 
@@ -145,4 +176,4 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ---
 
-*Aggiornato a v1.3.0. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
+*Aggiornato a v1.3.0 + Blocco 1 revisione esaustiva 2026-05-16. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
