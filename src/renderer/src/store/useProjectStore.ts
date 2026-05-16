@@ -359,6 +359,16 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
         if (!sourceCol || !destCol) return state;
 
+        // DND-02 (v1.3.4): bounds check su oldIndex prima dello spread.
+        // dnd-kit normalmente fornisce indici validi, ma una race tra drag-end
+        // e modifiche concorrenti (rimozione clip via MIDI, hot reload) può
+        // produrre oldIndex >= sourceCol.clips.length: `{ ...undefined }` non
+        // crasha JS ma genera una clip senza id → tutta la colonna destinazione
+        // diventa inutilizzabile fino a reload. newIndex viene clampato dopo.
+        if (oldIndex < 0 || oldIndex >= sourceCol.clips.length) {
+            return state;
+        }
+
         // Clone columns to avoid mutation
         const newColumns = [...state.columns];
         const sourceColIndex = newColumns.findIndex(c => c.id === sourceColId);
@@ -379,15 +389,19 @@ export const useProjectStore = create<ProjectState>((set) => ({
             clipToMove.color = destCol.color;
         }
 
-        // Insert into destination
+        // Insert into destination — DND-02 (v1.3.4): clamp newIndex per evitare
+        // splice fuori range (es. dnd-kit calcola un indice basato su uno snapshot
+        // delle colonne precedente a una rimozione concorrente).
         if (sourceColId === destColId) {
             const upClips = [...sourceCol.clips];
             const [movedItem] = upClips.splice(oldIndex, 1);
-            upClips.splice(newIndex, 0, movedItem);
+            const safeIndex = Math.max(0, Math.min(newIndex, upClips.length));
+            upClips.splice(safeIndex, 0, movedItem);
             newColumns[sourceColIndex] = { ...sourceCol, clips: upClips };
         } else {
             const destClips = [...newColumns[destColIndex].clips];
-            destClips.splice(newIndex, 0, clipToMove);
+            const safeIndex = Math.max(0, Math.min(newIndex, destClips.length));
+            destClips.splice(safeIndex, 0, clipToMove);
             newColumns[destColIndex] = { ...destCol, clips: destClips };
         }
 

@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
 **Ultima analisi**: 16 maggio 2026 — Blocco 1 revisione esaustiva (Recording + MIDI) post-v1.3.0  
-**Versione corrente**: 1.3.3  
+**Versione corrente**: 1.3.4  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -36,6 +36,7 @@
 | **v1.3.1** | — | **REC-01..08** (cumulativa Recording): validazione path `delete-temp-recording` (allow-list dir+regex basename) · `convert-recording` con `withIpcTimeout` 30 min · cap FIFO chunks 14400 + auto-stop pulito · reset esplicito store su start/stop fallito · cleanup difensivo `onExportProgress` · reset store su unmount App · sanitize filename Windows · try/catch su `ondataavailable`. |
 | **v1.3.2** | — | **MIDI-01..03** (cumulativa MIDI): `onstatechange` azzera `onmidimessage` su disconnect (no doppio trigger su riconnessione) · clamp `note`/`velocity` a `[0,127]` in `handleMidiMessage` · `console.warn/error` → `debugLog()` strutturato in MidiManager e App.tsx. **Blocco 1 completo: 11/11 chiuse.** |
 | **v1.3.3** | — | **PERSIST-01/02/04/06/09** (cumulativa Persistenza): auto-backup ora gate `isDirty` (no I/O su progetto pulito) · save atomico via `writeFileAtomicSync` (tmp+rename) su tutti i 3 handler · load JSON malformato torna ora errore esplicito + toast · log esplicito errori rotazione autosave · `loadProject` azzera selezione e MIDI Learn (con `preserveUiState` per Save/Save As). |
+| **v1.3.4** | — | **DND-02/04/05 + MEDIA-03/04** (cumulativa DnD + media://): `moveClip` bounds check `oldIndex` + clamp `newIndex` · drop nativo rifiutato su colonna locked · filter renderer allineato a main (aggiunto webm/mp4) · Range header validato (416 su invalid) + clamp `end` a `fileSize-1` · `nodeStream.destroy(err)` su errore stream per propagare cancellazione al client. |
 
 ---
 
@@ -96,16 +97,21 @@
 ✅ **PERSIST-04** · load JSON malformato tornava `success:true` con raw string — risolto in v1.3.3  
 ✅ **PERSIST-06** · rotazione autosave silenziava errori `unlinkSync` — risolto in v1.3.3  
 ✅ **PERSIST-09** · `loadProject` non azzerava `selectedClipIds` / `isMidiLearnMode` — risolto in v1.3.3  
+✅ **DND-02** · `moveClip` no bounds check su `oldIndex`/`newIndex` — risolto in v1.3.4  
+✅ **DND-04** · drop nativo bypassava `isLocked` colonna — risolto in v1.3.4  
+✅ **DND-05** · filter renderer mancava `webm`/`mp4` (incoerente con main) — risolto in v1.3.4  
+✅ **MEDIA-03** · Range header `end` non clampato a `fileSize-1` — risolto in v1.3.4  
+✅ **MEDIA-04** · errore stream non propagato al client (solo log) — risolto in v1.3.4  
 
 ---
 
 ## CRITICITÀ APERTE
 
-**0 criticità aperte.** Blocco 1 (11/11) e prima ondata Blocco 2 — Persistenza (5/5) chiusi. Le 18 della revisione globale precedente restano tutte chiuse.
+**0 criticità aperte.** Blocco 1 (11/11), Blocco 2 Persistenza (5/5), Blocco 3 prima ondata DnD+Media (5/5) chiusi. Le 18 della revisione globale precedente restano tutte chiuse.
 
 ### Aree non ispezionate (secondo passaggio consigliato per future iterazioni)
 
-Blocco 3: Drag&drop `MainGrid.tsx`, protocollo `media://` (range/abort). Inoltre: modali residui, output device multi-routing, asset library, build/distribution.
+Modali residui, output device multi-routing, asset library, build/distribution.
 
 ### Aree pulite confermate nel Blocco 1
 
@@ -158,7 +164,7 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ### Criticità aperte
 
-**0** — Blocco 1 (11) + prima ondata Blocco 2 — Persistenza (5) chiusi tra v1.3.1 e v1.3.3. Le 18 della revisione globale precedente (GR-01..LI-05 + NEW-*) restano tutte chiuse. Da ispezionare: Blocco 3 (drag&drop MainGrid, media:// range/abort) + aree minori (modali residui, output device multi-routing, asset library, build/distribution).
+**0** — Blocco 1 (11) + Blocco 2 Persistenza (5) + Blocco 3 prima ondata DnD+Media (5) chiusi tra v1.3.1 e v1.3.4. Cumulative 21 fix dal 2026-05-16. Le 18 della revisione globale precedente (GR-01..LI-05 + NEW-*) restano tutte chiuse. Da ispezionare: aree minori (modali residui, output device multi-routing, asset library, build/distribution).
 
 ### Roadmap attiva
 
@@ -174,4 +180,4 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ---
 
-*Aggiornato a v1.3.3 (cumulativa Persistenza PERSIST-01/02/04/06/09; Blocco 2 Persistenza 5/5) + Blocco 1 revisione esaustiva 2026-05-16. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
+*Aggiornato a v1.3.4 (cumulativa DnD+Media DND-02/04/05+MEDIA-03/04; Blocco 3 prima ondata 5/5) — totale 21 fix dal 2026-05-16. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
