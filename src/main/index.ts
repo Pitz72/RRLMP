@@ -243,6 +243,21 @@ ipcMain.handle('show-close-dialog-i18n', async (event, labels: {
     return result.response;
 });
 
+// PERSIST-02 (v1.3.3): write atomico — scrive su file .tmp adiacente e poi rename().
+// Su filesystem POSIX e NTFS la rename è atomica: o vede il vecchio file integro o il
+// nuovo file completo, mai un file troncato. Senza questo, un crash app / power loss
+// nel mezzo di writeFileSync corromperebbe il .lmp dell'utente.
+const writeFileAtomicSync = (targetPath: string, content: string): void => {
+    const tmpPath = `${targetPath}.tmp-${process.pid}-${Date.now()}`;
+    fs.writeFileSync(tmpPath, content, 'utf-8');
+    try {
+        fs.renameSync(tmpPath, targetPath);
+    } catch (e) {
+        try { fs.unlinkSync(tmpPath); } catch { /* ignore */ }
+        throw e;
+    }
+};
+
 ipcMain.handle('dialog:save-project', async (event, content: string) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     if (!win) return { success: false };
@@ -255,7 +270,7 @@ ipcMain.handle('dialog:save-project', async (event, content: string) => {
     if (canceled || !filePath) return { success: false };
 
     try {
-        fs.writeFileSync(filePath, content, 'utf-8');
+        writeFileAtomicSync(filePath, content);
         return { success: true, filePath };
     } catch (error) {
         logger.error('Save failed:', error);
@@ -266,7 +281,7 @@ ipcMain.handle('dialog:save-project', async (event, content: string) => {
 // New: Direct Save (Overwrite)
 ipcMain.handle('save-project-direct', async (_event: Electron.IpcMainInvokeEvent, content: string, filePath: string) => {
     try {
-        fs.writeFileSync(filePath, content, 'utf-8');
+        writeFileAtomicSync(filePath, content);
         return { success: true, filePath };
     } catch (error) {
         return { success: false, error: String(error) };
@@ -304,7 +319,12 @@ ipcMain.handle('dialog:load-project', async (event) => {
             }
             return { success: true, data: JSON.stringify(parsed), filePath: filePaths[0] };
         } catch (e) {
-            return { success: true, data: content, filePath: filePaths[0] };
+            // PERSIST-04 (v1.3.3): se il parse JSON fallisce non spacciare il raw come "success".
+            // Prima: success:true + data:rawString → il renderer rifaceva JSON.parse, otteneva
+            // un errore opaco a livello UI. Ora torniamo errore esplicito così il toast di
+            // load può mostrare un messaggio comprensibile ("file .lmp non valido o corrotto").
+            logger.error('Load failed: invalid JSON', e);
+            return { success: false, error: `File .lmp non valido o corrotto: ${e instanceof Error ? e.message : String(e)}` };
         }
     } catch (error) {
         logger.error('Load failed:', error);
@@ -440,7 +460,8 @@ ipcMain.handle('save-project-silent', async (_event: Electron.IpcMainInvokeEvent
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
             targetPath = join(autosaveDir, `autosave_${timestamp}.lmp`);
         }
-        fs.writeFileSync(targetPath, content, 'utf-8');
+        // PERSIST-02 (v1.3.3): atomic write anche per autosave/.bak.
+        writeFileAtomicSync(targetPath, content);
 
         // GR10 Fix: rotazione autosave
         if (!filePath) {
@@ -453,7 +474,14 @@ ipcMain.handle('save-project-silent', async (_event: Electron.IpcMainInvokeEvent
             const MAX_AUTOSAVES = 10;
             const toDelete = allFiles.slice(MAX_AUTOSAVES);
             toDelete.forEach((f: { name: string }) => {
-                try { fs.unlinkSync(join(autosaveDir, f.name)); } catch { /* ignore */ }
+                // PERSIST-06 (v1.3.3): log dell'errore invece di silent ignore.
+                // Se la rotazione fallisce ripetutamente (file lockato AV, permessi,
+                // disco pieno), prima non c'era alcun segnale → leak silenzioso.
+                try {
+                    fs.unlinkSync(join(autosaveDir, f.name));
+                } catch (e) {
+                    logger.warn(`[Main] Auto-save rotation: impossibile eliminare ${f.name}: ${e instanceof Error ? e.message : String(e)}`);
+                }
             });
         }
 
@@ -659,7 +687,11 @@ ipcMain.handle('load-project-path', async (_event, filePath: string) => {
             }
             return { success: true, data: JSON.stringify(parsed), filePath };
         } catch (e) {
-            return { success: true, data: content, filePath };
+            // PERSIST-04 (v1.3.3): coerente con dialog:load-project — niente più
+            // success:true con raw string. Doppio-click su .lmp corrotto da OS produce
+            // ora un errore chiaro all'utente.
+            logger.error('[Main] load-project-path: invalid JSON', e);
+            return { success: false, error: `File .lmp non valido o corrotto: ${e instanceof Error ? e.message : String(e)}` };
         }
     } catch (error) {
         logger.error('[Main] load-project-path failed:', error);

@@ -84,10 +84,13 @@ export const GlobalControls = () => {
     // BUGFIX v0.10.3: Decoupled from columns dependency to avoid resetting the timer on every change.
     useEffect(() => {
         const timer = setInterval(async () => {
-            const { columns, currentFilePath } = useProjectStore.getState();
-            
-            // Only auto-backup if there are changes and we have valid project data
-            if (columns.length > 0) {
+            const { columns, currentFilePath, isDirty } = useProjectStore.getState();
+
+            // PERSIST-01 (v1.3.3): gate vero su isDirty.
+            // Prima il check era solo `columns.length > 0` → un progetto caricato e
+            // mai modificato veniva riscritto in autosave ogni 5 min (I/O inutile +
+            // rotazione che cancella backup utenti più vecchi). Ora salta se pulito.
+            if (columns.length > 0 && isDirty) {
                 const projectData = {
                     version: __APP_VERSION__,
                     timestamp: Date.now(),
@@ -460,7 +463,7 @@ export const GlobalControls = () => {
                                 // Direct save preserves path, so no change needed unless we want to be safe.
                                 // But loadProject signature is clumsy.
                                 // IF result.filePath is returned, update it.
-                                loadProject({ columns }, result.filePath);
+                                loadProject({ columns }, result.filePath, { preserveUiState: true });
                             }
                         } else {
                             if (result.error) toast('Salvataggio fallito: ' + result.error, 'error');
@@ -485,7 +488,7 @@ export const GlobalControls = () => {
 
                         if (result.success && result.filePath) {
                             setDirty(false);
-                            loadProject({ columns }, result.filePath);
+                            loadProject({ columns }, result.filePath, { preserveUiState: true });
                         }
                     }}
                 >
@@ -501,6 +504,12 @@ export const GlobalControls = () => {
                         if (isDirty && !await confirm('Hai modifiche non salvate. Caricare un nuovo progetto le sovrascriverà. Continuare?', 'Carica comunque', 'Annulla')) return;
 
                         const result = await window.electron.loadProject();
+                        // PERSIST-04 (v1.3.3): il main ora torna success:false con error
+                        // esplicito se il file non è JSON valido. Surfacciamo all'utente.
+                        if (!result.success && (result as { error?: string }).error) {
+                            toast((result as { error: string }).error, 'error');
+                            return;
+                        }
                         if (result.success && result.data) {
                             try {
                                 const parsed = JSON.parse(result.data);
