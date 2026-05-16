@@ -14,7 +14,48 @@ export interface UpdateInfo {
     downloadFilename?: string;
 }
 
-export const checkForUpdates = async (currentVersion: string): Promise<UpdateInfo> => {
+// BUILD-05 (v1.3.7): throttle a 24h tramite localStorage.
+// WelcomeScreen + AboutModal chiamavano `checkForUpdates` ad ogni mount → ad ogni
+// avvio dell'app il server `versions.json` riceve un hit, anche se l'utente apre
+// e chiude RRLMP più volte al giorno per test. Con il throttle: se l'ultimo check
+// è andato a buon fine entro 24h, restituiamo la risposta cached senza network.
+// Il chiamante può passare `force: true` per bypassare (es. bottone "Controlla ora"
+// in About). Cached info inclusi i campi della release così la UI mostra ancora il
+// dialog se l'update era disponibile e l'utente l'aveva chiuso.
+const CACHE_KEY = 'rrlmp.updateCheckCache';
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+interface UpdateCheckCache {
+    timestamp: number;
+    currentVersion: string;
+    info: UpdateInfo;
+}
+
+const readCache = (currentVersion: string): UpdateInfo | null => {
+    try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw) as UpdateCheckCache;
+        if (parsed.currentVersion !== currentVersion) return null; // app aggiornata → invalida
+        if (Date.now() - parsed.timestamp > CACHE_TTL_MS) return null;
+        return parsed.info;
+    } catch {
+        return null;
+    }
+};
+
+const writeCache = (currentVersion: string, info: UpdateInfo): void => {
+    try {
+        const payload: UpdateCheckCache = { timestamp: Date.now(), currentVersion, info };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
+    } catch { /* quota piena / privato — ignora */ }
+};
+
+export const checkForUpdates = async (currentVersion: string, force = false): Promise<UpdateInfo> => {
+    if (!force) {
+        const cached = readCache(currentVersion);
+        if (cached) return cached;
+    }
     try {
         // MODAL-05 (v1.3.5): timeout 5s sulla fetch del feed update.
         // Senza, una rete lenta o un DNS che non risolve lascia la Promise pendente
@@ -38,7 +79,9 @@ export const checkForUpdates = async (currentVersion: string): Promise<UpdateInf
         const data = await response.json();
         const remoteVersion: string = data.version;
         if (!remoteVersion || remoteVersion === currentVersion) {
-            return { hasUpdate: false, remoteVersion: currentVersion };
+            const info = { hasUpdate: false, remoteVersion: currentVersion };
+            writeCache(currentVersion, info);
+            return info;
         }
 
         // Rileva la piattaforma corrente e prendi l'URL di download specifico
@@ -46,7 +89,7 @@ export const checkForUpdates = async (currentVersion: string): Promise<UpdateInf
         const platformKey = platform === 'darwin' ? 'darwin' : platform === 'linux' ? 'linux' : 'win32';
         const asset: PlatformAsset | undefined = data.platforms?.[platformKey];
 
-        return {
+        const info: UpdateInfo = {
             hasUpdate: true,
             remoteVersion,
             releaseNotes: data.releaseNotes || '',
@@ -54,9 +97,12 @@ export const checkForUpdates = async (currentVersion: string): Promise<UpdateInf
             downloadUrl: asset?.url || '',
             downloadFilename: asset?.filename || '',
         };
+        writeCache(currentVersion, info);
+        return info;
 
     } catch (error) {
         console.warn('[Updater] Controllo aggiornamenti fallito:', error);
+        // Non cachiamo i fallimenti — la prossima richiesta riproverà subito.
         return { hasUpdate: false, remoteVersion: '' };
     }
 };

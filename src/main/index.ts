@@ -700,6 +700,34 @@ ipcMain.handle('load-project-path', async (_event, filePath: string) => {
 });
 
 
+// BUILD-02 (v1.3.7): single-instance lock per evitare doppia esecuzione di RRLMP.
+// Una seconda istanza accidentale (doppio-click rapido su icona, drop di un .lmp su
+// app già aperta, taskbar pin lanciato due volte) produrrebbe DUE output audio
+// simultanei sullo stesso device — disastro in diretta. Con il lock la seconda
+// istanza esce immediatamente, e l'evento 'second-instance' nella prima istanza
+// porta la finestra in primo piano + inoltra l'eventuale .lmp passato come argv.
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
+if (!gotSingleInstanceLock) {
+    app.quit();
+} else {
+    app.on('second-instance', (_event, argv) => {
+        if (mainWindowRef && !mainWindowRef.isDestroyed()) {
+            if (mainWindowRef.isMinimized()) mainWindowRef.restore();
+            mainWindowRef.focus();
+            // Cerca un .lmp negli argv ricevuti dalla seconda istanza e inoltralo
+            // alla logica onOpenFile esistente nel renderer.
+            const lmpArg = argv.slice(1).find(arg =>
+                arg.endsWith('.lmp') &&
+                !arg.includes('app.asar') &&
+                fs.existsSync(arg)
+            );
+            if (lmpArg) {
+                mainWindowRef.webContents.send('open-file', lmpArg);
+            }
+        }
+    });
+}
+
 app.whenReady().then(() => {
     // Handle media:// protocol
     protocol.handle('media', (request) => {
@@ -833,7 +861,11 @@ app.whenReady().then(() => {
         }
     });
 
-    if (process.platform === 'win32') app.setAppUserModelId('com.electron');
+    // BUILD-01 (v1.3.7): AppUserModelId allineato a package.json build.appId.
+    // Prima era `'com.electron'` (placeholder Electron) → su Windows il jump list e
+    // la file association con .lmp soffrivano di mismatch (icona generica Electron,
+    // toast notification raggruppato sotto "Electron Framework").
+    if (process.platform === 'win32') app.setAppUserModelId('com.antigravity.rrlmp');
 
     // v1.2.3 — Rileva file .lmp passato come argomento (doppio click / file association OS)
     // Su Windows l'OS passa il path tra gli argv quando l'app è registrata come handler.
