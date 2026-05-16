@@ -1,3 +1,5 @@
+import { debugLog } from '../store/useDebugStore';
+
 export type MidiMessageCallback = (note: number, velocity: number, command: number) => void;
 export type MidiStatusCallback = (supported: boolean, inputCount: number) => void;
 
@@ -31,8 +33,9 @@ class MidiManager {
         if (nav.requestMIDIAccess) {
             this.init();
         } else {
-            // M2 Fix: segnala anche visualmente che MIDI non è disponibile
-            console.warn("MIDI API not supported in this environment.");
+            // M2 Fix: segnala anche visualmente che MIDI non è disponibile.
+            // MIDI-03 (v1.3.2): debugLog strutturato invece di console.warn (pattern LI-03).
+            debugLog('MIDI API non disponibile in questo ambiente', 'error');
             this._notifyStatus(false, 0);
         }
     }
@@ -71,8 +74,16 @@ class MidiManager {
 
                 // Listen for new connections
                 this.access.onstatechange = (e: { port: MidiPort }) => {
-                    if (e.port.type === 'input' && e.port.state === 'connected') {
-                        e.port.onmidimessage = this.handleMidiMessage.bind(this);
+                    if (e.port.type === 'input') {
+                        if (e.port.state === 'connected') {
+                            e.port.onmidimessage = this.handleMidiMessage.bind(this);
+                        } else if (e.port.state === 'disconnected') {
+                            // MIDI-01 (v1.3.2): azzera onmidimessage sulla porta disconnessa.
+                            // Senza questo, alla riconnessione della STESSA porta il browser può
+                            // mantenere il listener precedente E aggiungere il nuovo bind → ogni
+                            // nota MIDI verrebbe processata due volte (trigger duplicato).
+                            e.port.onmidimessage = null;
+                        }
                     }
                     // Aggiorna il conteggio ad ogni cambio di stato
                     if (this.access) {
@@ -87,8 +98,8 @@ class MidiManager {
                 this._notifyStatus(true, this._inputCount);
             }
         } catch (err) {
-            // M2 Fix: log nel debug store visibile in UI + console
-            console.error("MIDI Init Failed:", err);
+            // MIDI-03 (v1.3.2): debugLog strutturato invece di console.error (pattern LI-03).
+            debugLog(`MIDI Init Failed: ${err instanceof Error ? err.message : String(err)}`, 'error');
             this._notifyStatus(false, 0);
         }
     }

@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
 **Ultima analisi**: 16 maggio 2026 — Blocco 1 revisione esaustiva (Recording + MIDI) post-v1.3.0  
-**Versione corrente**: 1.3.1  
+**Versione corrente**: 1.3.2  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -34,6 +34,7 @@
 | v1.2.27 | 5de2756 | **NEW-LI-01..07** (cumulativa): reset `_isMicActiveGlobal` su cleanup App · `import-m3u` normalize path · `destroyAudioStoreLoop()` esportato · `crypto.randomUUID()` su runId/playoutLog · `PlayoutLogModal` distingue cancel/error · `unhandledrejection` listener a module-load. NEW-LI-05 già coperta da v1.2.22 |
 | **v1.3.0** | — | **Milestone Zero Criticità** — promozione di versione minore. Tutte le 18 criticità della revisione globale 2026-05-16 chiuse in v1.2.17–v1.2.27. Nessuna modifica codice rispetto a v1.2.27. |
 | **v1.3.1** | — | **REC-01..08** (cumulativa Recording): validazione path `delete-temp-recording` (allow-list dir+regex basename) · `convert-recording` con `withIpcTimeout` 30 min · cap FIFO chunks 14400 + auto-stop pulito · reset esplicito store su start/stop fallito · cleanup difensivo `onExportProgress` · reset store su unmount App · sanitize filename Windows · try/catch su `ondataavailable`. |
+| **v1.3.2** | — | **MIDI-01..03** (cumulativa MIDI): `onstatechange` azzera `onmidimessage` su disconnect (no doppio trigger su riconnessione) · clamp `note`/`velocity` a `[0,127]` in `handleMidiMessage` · `console.warn/error` → `debugLog()` strutturato in MidiManager e App.tsx. **Blocco 1 completo: 11/11 chiuse.** |
 
 ---
 
@@ -86,20 +87,15 @@
 ✅ **REC-06** · `timerIntervalId` non clearato su window-close — risolto in v1.3.1  
 ✅ **REC-07** · `defaultName` non sanitizza caratteri Windows — risolto in v1.3.1  
 ✅ **REC-08** · `ondataavailable` senza try/catch — risolto in v1.3.1  
+✅ **MIDI-01** · `onstatechange` non azzerava `onmidimessage` su disconnect (doppio trigger) — risolto in v1.3.2  
+✅ **MIDI-02** · `velocity` MIDI non validata a monte (`[0,127]`) — risolto in v1.3.2  
+✅ **MIDI-03** · `console.warn/error` invece di `debugLog()` strutturato — risolto in v1.3.2  
 
 ---
 
 ## CRITICITÀ APERTE
 
-**3 criticità** aperte (tutte sottosistema MIDI) dalla revisione Blocco 1 del 2026-05-16. Le 8 Recording sono state chiuse in v1.3.1. Le 18 della revisione globale precedente restano tutte chiuse.
-
-### Blocco 1 — MIDI (3)
-
-| ID | Sev | File | Problema | Fix suggerito |
-| -- | --- | ---- | -------- | ------------- |
-| **MIDI-01** | Media | `src/renderer/src/engine/MidiManager.ts:73–76` | `onstatechange` su `disconnected` non azzera `onmidimessage`: riconnessione stessa porta → doppio listener fantasma | `else if (e.port.state === 'disconnected') { e.port.onmidimessage = null; }` |
-| **MIDI-02** | Media | `src/renderer/src/store/useAudioStore.ts:272–274` | `velocityGain` clampato a 1.5 ma `velocity` MIDI non validato a monte (`[0,127]`) | Guard in `handleMidiMessage` di `App.tsx` prima di `velocity/127` |
-| **MIDI-03** | Lieve | `src/renderer/src/engine/MidiManager.ts:35,91` + `src/renderer/src/App.tsx:252` | `console.warn/error` invece di `debugLog()` strutturato (pattern LI-03) | Sostituire con `debugLog()` |
+**0 criticità aperte.** Il Blocco 1 della revisione esaustiva 2026-05-16 è interamente chiuso (11/11 fix tra v1.3.1 Recording e v1.3.2 MIDI). Le 18 della revisione globale precedente restano tutte chiuse.
 
 ### Aree non ispezionate (secondo passaggio consigliato per future iterazioni)
 
@@ -156,7 +152,7 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ### Criticità aperte
 
-**3** (2 medie + 1 lieve) — tutte sottosistema MIDI, dal Blocco 1 revisione esaustiva 2026-05-16. Le 8 Recording sono state chiuse in v1.3.1. Le 18 criticità della revisione globale precedente (GR-01..LI-05 + NEW-*) restano tutte chiuse.
+**0** — Blocco 1 interamente chiuso (11 fix tra v1.3.1 Recording e v1.3.2 MIDI). Le 18 della revisione globale precedente (GR-01..LI-05 + NEW-*) restano tutte chiuse. Da ispezionare: Blocco 2 (persistenza) e Blocco 3 (drag&drop, media://).
 
 ### Roadmap attiva
 
@@ -172,4 +168,4 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ---
 
-*Aggiornato a v1.3.1 (cumulativa Recording REC-01..08) + Blocco 1 revisione esaustiva 2026-05-16. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
+*Aggiornato a v1.3.2 (cumulativa MIDI MIDI-01..03; Blocco 1 chiuso 11/11) + Blocco 1 revisione esaustiva 2026-05-16. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
