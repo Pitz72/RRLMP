@@ -30,7 +30,8 @@
       "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" merge --no-ff claude/silly-swirles-1e7360 -m \"Merge v1.2.20: fix NEW-GR-05 MicManager session token\")",
       "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" status --short)",
       "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" merge --no-ff claude/silly-swirles-1e7360 -m \"Merge v1.2.21: fix NEW-GR-06 CSP production hardening\")",
-      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" merge --no-ff claude/silly-swirles-1e7360 -m \"Merge v1.2.22: fix NEW-ME-01 toast IPC rate-limited\")"
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" merge --no-ff claude/silly-swirles-1e7360 -m \"Merge v1.2.22: fix NEW-ME-01 toast IPC rate-limited\")",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" merge --no-ff claude/silly-swirles-1e7360 -m \"Merge v1.2.23: fix NEW-ME-02 playClip race\")"
     ]
   }
 }
