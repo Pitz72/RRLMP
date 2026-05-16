@@ -119,10 +119,19 @@ function createWindow(initialFilePath?: string): void {
     // GR6 Fix: Content Security Policy header.
     // BUGFIX v0.10.3: In produzione (file://), la CSP iniettata tramite onHeadersReceived
     // può bloccare il bundle JS se troppo restrittiva. Aggiungiamo compatibilità specifica.
+    // v1.2.21 (NEW-GR-06): in produzione rimuoviamo 'unsafe-eval' dal script-src.
+    // 'unsafe-eval' è necessario solo per il fast refresh di Vite in dev. Il bundle
+    // prodotto da Vite per la produzione non usa eval() — tenerlo abilitato in prod
+    // amplifica la superficie XSS per nulla. 'unsafe-inline' resta necessario per
+    // gli style inline generati da React (style={{...}}) e da alcune librerie.
+    const isDev = process.env.NODE_ENV === 'development';
+    const scriptSrc = isDev
+        ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+        : "script-src 'self' 'unsafe-inline'; ";
     mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
         const cspHeader = [
             "default-src 'self' 'unsafe-inline' data: blob:; " +
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " + // unsafe-eval necessario per HMR in dev
+            scriptSrc +
             "style-src 'self' 'unsafe-inline'; " +
             "media-src 'self' media: blob:; " +
             "font-src 'self' data:; " +

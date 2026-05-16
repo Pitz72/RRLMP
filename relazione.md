@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
 **Ultima analisi**: 16 maggio 2026 (revisione globale post-v1.2.16)  
-**Versione corrente**: 1.2.20  
+**Versione corrente**: 1.2.21  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -24,7 +24,8 @@
 | v1.2.17 | 5c31078 | **NEW-GR-01** `convertAudio()` con registro globale + hard timeout 30 min + kill su window-close/before-quit · **NEW-GR-02** `onOpenFile` (apertura `.lmp` da OS) ora gate `isDirty` con confirmThree Salva/Non Salvare/Annulla — niente più stopAll() accidentale in onda |
 | v1.2.18 | f4b70c8 | **NEW-GR-03** timeout IPC `detect-smart-cues` 35s → 50s — copre sub-timeout FFmpeg interni (10s+30s=40s) + 10s grace, no più IPC_RATE_LIMITED a catena |
 | v1.2.19 | 4d53ef4 | **NEW-GR-04** cap FIFO `playoutLog` a 2000 entry — niente più degrado memoria su sessioni broadcast lunghe |
-| v1.2.20 | — | **NEW-GR-05** MicManager session token su `_poll`/`_setActive`/timer callbacks — re-arm rapido non lascia più `isMicActive=true` fantasma |
+| v1.2.20 | 0628c42 | **NEW-GR-05** MicManager session token su `_poll`/`_setActive`/timer callbacks — re-arm rapido non lascia più `isMicActive=true` fantasma |
+| v1.2.21 | — | **NEW-GR-06** CSP `'unsafe-eval'` rimosso in produzione — superficie XSS ridotta, fast-refresh Vite preservato in dev |
 
 ---
 
@@ -56,19 +57,13 @@
 ✅ **NEW-GR-03** · Timeout IPC `detect-smart-cues` troppo stretto — risolto in v1.2.18  
 ✅ **NEW-GR-04** · `playoutLog` array senza cap → degrado memoria sessioni lunghe — risolto in v1.2.19  
 ✅ **NEW-GR-05** · `MicManager._poll` callback dopo cleanup (race re-arm) — risolto in v1.2.20  
+✅ **NEW-GR-06** · CSP `'unsafe-eval'` in produzione — risolto in v1.2.21  
 
 ---
 
 ## CRITICITÀ APERTE (post-revisione globale 2026-05-16)
 
 Revisione globale post-v1.2.16 ha identificato 18 criticità non documentate. Le 2 gravissime sono state chiuse in v1.2.17. Restano 16 aperte.
-
-### GRAVI (1)
-
-- **NEW-GR-06** · CSP `'unsafe-eval'` + `'unsafe-inline'` anche in produzione  
-  `src/main/index.ts:122`  
-  Superficie XSS amplificata su apertura `.lmp` di terzi.  
-  **Fix**: branch su `process.env.NODE_ENV !== 'development'` per rimuovere `'unsafe-eval'` in prod.
 
 ### MEDIE (5)
 
@@ -133,7 +128,7 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ### Criticità aperte
 
-**13 criticità** aperte post-revisione globale: 1 grave (NEW-GR-06), 5 medie (NEW-ME-01..05), 7 lievi (NEW-LI-01..07). Le 2 gravissime (NEW-GR-01, NEW-GR-02) sono state risolte in v1.2.17. NEW-GR-03 in v1.2.18. NEW-GR-04 in v1.2.19. NEW-GR-05 in v1.2.20. Storico GR-01..LI-05 chiuso in v1.2.6–v1.2.12.
+**12 criticità** aperte post-revisione globale: 0 gravi, 5 medie (NEW-ME-01..05), 7 lievi (NEW-LI-01..07). **Tutte le gravissime e gravi sono state chiuse**: NEW-GR-01/02 in v1.2.17, NEW-GR-03 in v1.2.18, NEW-GR-04 in v1.2.19, NEW-GR-05 in v1.2.20, NEW-GR-06 in v1.2.21. Storico GR-01..LI-05 chiuso in v1.2.6–v1.2.12.
 
 ### Roadmap attiva
 
@@ -149,4 +144,4 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ---
 
-*Aggiornato a v1.2.20. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
+*Aggiornato a v1.2.21. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
