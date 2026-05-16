@@ -1,5 +1,36 @@
 import { create } from 'zustand';
-import { Column, AudioClip } from '../types';
+import { Column, AudioClip, ClipType } from '../types';
+
+const VALID_CLIP_TYPES = new Set<ClipType>(['asset', 'music', 'voice', 'sfx', 'preshow']);
+
+/** ME-02: Valida la struttura grezza di un .lmp prima di caricarla nello store.
+ *  Lancia un Error con messaggio descrittivo se la struttura non è conforme. */
+export function validateLmpProjectData(raw: unknown): { columns: Column[] } {
+    if (!raw || typeof raw !== 'object') throw new Error('struttura radice non è un oggetto');
+    const obj = raw as Record<string, unknown>;
+    if (!Array.isArray(obj.columns)) throw new Error('"columns" mancante o non è un array');
+
+    for (let i = 0; i < obj.columns.length; i++) {
+        const col = obj.columns[i];
+        if (!col || typeof col !== 'object') throw new Error(`colonna[${i}] non è un oggetto`);
+        const c = col as Record<string, unknown>;
+        if (typeof c.id !== 'string') throw new Error(`colonna[${i}].id non è una stringa`);
+        if (!VALID_CLIP_TYPES.has(c.type as ClipType)) throw new Error(`colonna[${i}].type non valido: "${c.type}"`);
+        if (!Array.isArray(c.clips)) throw new Error(`colonna[${i}].clips non è un array`);
+
+        for (let j = 0; j < c.clips.length; j++) {
+            const clip = c.clips[j];
+            if (!clip || typeof clip !== 'object') throw new Error(`clip[${i}][${j}] non è un oggetto`);
+            const cl = clip as Record<string, unknown>;
+            if (typeof cl.id !== 'string') throw new Error(`clip[${i}][${j}].id non è una stringa`);
+            if (typeof cl.name !== 'string') throw new Error(`clip[${i}][${j}].name non è una stringa`);
+            if (typeof cl.path !== 'string') throw new Error(`clip[${i}][${j}].path non è una stringa`);
+            if (!VALID_CLIP_TYPES.has(cl.type as ClipType)) throw new Error(`clip[${i}][${j}].type non valido: "${cl.type}"`);
+        }
+    }
+
+    return raw as { columns: Column[] };
+}
 
 const DEFAULT_COLUMNS: Column[] = [
     {
@@ -59,7 +90,7 @@ interface ProjectState {
     addClipFromPath: (columnId: string, filePath: string) => AudioClip | undefined;
     removeClip: (columnId: string, clipId: string) => void;
     updateClip: (columnId: string, clipId: string, updates: Partial<AudioClip>) => void;
-    loadProject: (state: ProjectState, filePath?: string) => void; // Added filePath
+    loadProject: (data: { columns: Column[] }, filePath?: string) => void;
     moveClip: (sourceColId: string, destColId: string, oldIndex: number, newIndex: number) => void;
 
     setColumnColor: (columnId: string, color: string) => void;
@@ -252,7 +283,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
     })),
 
     // Persistence
-    loadProject: (stateToLoad: ProjectState, filePath?: string) => {
+    loadProject: (stateToLoad: { columns: Column[] }, filePath?: string) => {
         // Reset isMissing on all clips before integrity check
         const cleanColumns = stateToLoad.columns.map(col => ({
             ...col,

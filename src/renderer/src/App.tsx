@@ -3,7 +3,7 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { MainGrid } from './components/layout/MainGrid';
 import DebugOverlay from './components/debug/DebugOverlay';
 import { useDebugStore } from './store/useDebugStore';
-import { useProjectStore } from './store/useProjectStore';
+import { useProjectStore, validateLmpProjectData } from './store/useProjectStore';
 import { GlobalControls } from './components/ui/GlobalControls';
 import { DigitalClock } from './components/ui/DigitalClock';
 import MidiManager from './engine/MidiManager';
@@ -37,14 +37,15 @@ function App() {
             try {
                 const result = await window.electron.loadProjectFromPath(filePath);
                 if (result.success && result.data) {
-                    const parsed = JSON.parse(result.data);
-                    if (parsed.project && parsed.project.columns) {
-                        useProjectStore.getState().loadProject(parsed.project, filePath);
+                    try {
+                        const parsed = JSON.parse(result.data);
+                        const projectData = validateLmpProjectData(parsed.project);
+                        useProjectStore.getState().loadProject(projectData, filePath);
                         useAudioStore.getState().stopAll();
                         useProjectStore.getState().setDirty(false);
                         setShowWelcome(false);
-                    } else {
-                        toast('File LMP non valido o corrotto.', 'error');
+                    } catch (e) {
+                        toast('File LMP non valido: ' + (e instanceof Error ? e.message : 'struttura non riconosciuta'), 'error');
                     }
                 } else {
                     toast('Impossibile aprire il file: ' + (result.error ?? 'errore sconosciuto'), 'error');
@@ -65,26 +66,28 @@ function App() {
     // Se il device corrente non è più disponibile, fa fallback automatico a 'default'
     // e aggiorna lo store per consistenza.
     useEffect(() => {
-        const { outputDeviceId, setOutputDeviceId } = useSettingsStore.getState();
+        const { outputDeviceId } = useSettingsStore.getState();
         // Applica il device salvato (attiverà setSinkId sui nuovi player al momento del play)
         if (outputDeviceId && outputDeviceId !== 'default') {
             useAudioStore.getState().updateOutputDevice(outputDeviceId);
         }
 
-        // GR3: listener disconnessione dispositivo
+        // GR3 + ME-04: listener devicechange per disconnect E reconnect.
+        // Non sovrascriviamo outputDeviceId su disconnect — preserviamo la preferenza
+        // in modo che al reconnect il device venga ripristinato automaticamente.
         const handleDeviceChange = async () => {
-            const currentId = useSettingsStore.getState().outputDeviceId;
-            if (!currentId || currentId === 'default') return;
-            // Verifica se il device corrente è ancora disponibile
+            const preferredId = useSettingsStore.getState().outputDeviceId;
+            if (!preferredId || preferredId === 'default') return;
             const devices = await navigator.mediaDevices.enumerateDevices();
-            const stillAvailable = devices.some(
-                d => d.kind === 'audiooutput' && d.deviceId === currentId
-            );
-            if (!stillAvailable) {
-                console.warn(`GR3: Device ${currentId} disconnesso. Fallback a 'default'.`);
-                setOutputDeviceId('default');
+            const available = devices.some(d => d.kind === 'audiooutput' && d.deviceId === preferredId);
+            if (!available) {
+                console.warn(`[GR3] Device ${preferredId} disconnesso. Fallback a sistema.`);
                 useAudioStore.getState().updateOutputDevice('default');
                 useDebugStore.getState().log(`⚠️ Device audio disconnesso — fallback a sistema`, 'error');
+            } else {
+                // Device ancora disponibile o appena riconnesso — ri-applica la preferenza
+                useAudioStore.getState().updateOutputDevice(preferredId);
+                useDebugStore.getState().log(`Device audio ripristinato: ${preferredId}`, 'info');
             }
         };
 
@@ -269,16 +272,13 @@ function App() {
                             const store = useProjectStore.getState();
                             try {
                                 const parsed = JSON.parse(result.data);
-                                if (parsed.project && parsed.project.columns) {
-                                    store.loadProject(parsed.project, result.filePath);
-                                    useAudioStore.getState().stopAll();
-                                    store.setDirty(false);
-                                    setShowWelcome(false);
-                                } else {
-                                    toast('File LMP non valido o corrotto.', 'error');
-                                }
+                                const projectData = validateLmpProjectData(parsed.project);
+                                store.loadProject(projectData, result.filePath);
+                                useAudioStore.getState().stopAll();
+                                store.setDirty(false);
+                                setShowWelcome(false);
                             } catch (e) {
-                                toast('Errore lettura file.', 'error');
+                                toast('File LMP non valido: ' + (e instanceof Error ? e.message : 'struttura non riconosciuta'), 'error');
                             }
                         }
                     }}

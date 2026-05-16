@@ -7,7 +7,7 @@ import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2,
 import { useTranslation } from 'react-i18next';
 
 
-import { useProjectStore } from '../../store/useProjectStore';
+import { useProjectStore, validateLmpProjectData } from '../../store/useProjectStore';
 import { GeneralSettingsModal } from '../modals/GeneralSettingsModal';
 import { KeymappingModal } from '../modals/KeymappingModal';
 import { VUMeter } from './VUMeter';
@@ -443,7 +443,7 @@ export const GlobalControls = () => {
                                 // Direct save preserves path, so no change needed unless we want to be safe.
                                 // But loadProject signature is clumsy.
                                 // IF result.filePath is returned, update it.
-                                loadProject({ columns, isDirty: false } as unknown as Parameters<typeof loadProject>[0], result.filePath);
+                                loadProject({ columns }, result.filePath);
                             }
                         } else {
                             if (result.error) toast('Salvataggio fallito: ' + result.error, 'error');
@@ -468,7 +468,7 @@ export const GlobalControls = () => {
 
                         if (result.success && result.filePath) {
                             setDirty(false);
-                            loadProject({ columns, isDirty: false } as unknown as Parameters<typeof loadProject>[0], result.filePath);
+                            loadProject({ columns }, result.filePath);
                         }
                     }}
                 >
@@ -487,8 +487,9 @@ export const GlobalControls = () => {
                         if (result.success && result.data) {
                             try {
                                 const parsed = JSON.parse(result.data);
-                                if (parsed.project && parsed.project.columns) {
-                                    loadProject(parsed.project, result.filePath);
+                                const projectData = validateLmpProjectData(parsed.project);
+                                {
+                                    loadProject(projectData, result.filePath);
                                     stopAll();
                                     setDirty(false);
                                     // Integrity check (v0.14.2)
@@ -520,12 +521,10 @@ export const GlobalControls = () => {
                                             });
                                         });
                                     }
-                                } else {
-                                    toast('File LMP non valido o corrotto.', 'error');
                                 }
 
                             } catch (e) {
-                                toast('Errore lettura file.', 'error');
+                                toast('File LMP non valido: ' + (e instanceof Error ? e.message : 'struttura non riconosciuta'), 'error');
                             }
                         }
                     }}

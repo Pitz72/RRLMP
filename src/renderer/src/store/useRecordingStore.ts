@@ -42,7 +42,7 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
                 isConverting: false,
                 startTime: Date.now(),
                 elapsedSeconds: 0,
-                timerIntervalId: intervalId as unknown as number
+                timerIntervalId: intervalId
             });
 
         } catch (error) {
