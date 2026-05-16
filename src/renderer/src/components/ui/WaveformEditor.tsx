@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Play, Pause, Scissors, Flag, Music, ZoomIn, ZoomOut, Zap } from 'lucide-react';
 import { toFileUrl } from '../../utils/pathUtils';
+import { toast } from '../../store/useToastStore';
 
 type DraggingMarker = 'trimStart' | 'trimEnd' | 'intro' | 'outro' | null;
 
@@ -152,7 +153,19 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                 const updates: Parameters<typeof onChange>[0] = {};
                 if (res.data.introCue > 0) updates.introMarker = res.data.introCue;
                 if (res.data.outroCue > 0) updates.outroMarker = res.data.outroCue;
-                if (Object.keys(updates).length > 0) onChange(updates);
+                if (Object.keys(updates).length > 0) {
+                    onChange(updates);
+                    toast(`Smart Cues — Intro: ${res.data.introCue.toFixed(2)}s · Outro: ${res.data.outroCue.toFixed(2)}s`, 'success');
+                } else {
+                    toast('Smart Cues: nessun cue significativo rilevato.', 'warning');
+                }
+            } else {
+                // v1.2.22 (NEW-ME-01): distinguere rate-limit dagli errori reali
+                if (res.error === 'IPC_RATE_LIMITED') {
+                    toast('Smart Cues in coda — troppe operazioni FFmpeg parallele. Riprova tra qualche secondo.', 'warning');
+                } else {
+                    toast('Smart Cues: ' + (res.error ?? 'errore durante l\'analisi FFmpeg'), 'error');
+                }
             }
         } finally {
             setIsDetectingCues(false);
