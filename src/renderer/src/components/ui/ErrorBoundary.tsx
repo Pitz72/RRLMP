@@ -4,6 +4,22 @@ import { toast } from '../../store/useToastStore';
 // Installato una sola volta per tutta la sessione (più istanze ErrorBoundary non duplicano il listener)
 let _asyncHandlerInstalled = false;
 
+// v1.2.27 (NEW-LI-07): installazione a livello modulo invece che in componentDidMount.
+// Prima il listener veniva agganciato solo dopo il primo render dell'ErrorBoundary,
+// perdendo eventuali unhandled rejection del bootstrap iniziale (import sincroni,
+// IIFE, side-effect dei singleton in App.tsx). Ora viene attaccato all'IMPORT del
+// modulo — che è la primissima fase, prima ancora del primo render React.
+if (typeof window !== 'undefined' && !_asyncHandlerInstalled) {
+    _asyncHandlerInstalled = true;
+    window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
+        const message = event.reason instanceof Error
+            ? event.reason.message
+            : String(event.reason ?? 'Promise rejection non gestita');
+        console.error('[ErrorBoundary] Unhandled async rejection:', event.reason);
+        toast(`Errore asincrono: ${message}`, 'error');
+    });
+}
+
 interface Props {
     children: ReactNode;
     /** Fallback UI personalizzato. Se omesso, mostra il pannello di default. */
@@ -32,18 +48,8 @@ export class ErrorBoundary extends Component<Props, State> {
         return { hasError: true, error };
     }
 
-    componentDidMount() {
-        if (!_asyncHandlerInstalled) {
-            _asyncHandlerInstalled = true;
-            window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
-                const message = event.reason instanceof Error
-                    ? event.reason.message
-                    : String(event.reason ?? 'Promise rejection non gestita');
-                console.error('[ErrorBoundary] Unhandled async rejection:', event.reason);
-                toast(`Errore asincrono: ${message}`, 'error');
-            });
-        }
-    }
+    // v1.2.27 (NEW-LI-07): listener unhandledrejection ora attivato al module load,
+    // non più in componentDidMount.
 
     componentDidCatch(error: Error, info: React.ErrorInfo) {
         const zone = this.props.zone || 'Unknown';

@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
 **Ultima analisi**: 16 maggio 2026 (revisione globale post-v1.2.16)  
-**Versione corrente**: 1.2.26  
+**Versione corrente**: 1.2.27  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -31,6 +31,7 @@
 | v1.2.24 | 05b9dfd | **NEW-ME-03** sanitize numerici in `validateLmpProjectData` (volume/pan/trim/marker/fade/duration) — niente più bus muto da volume=NaN |
 | v1.2.25 | cc9460e | **NEW-ME-04** ClipCard `currentTime` derivato da `activeState.progress` invece di `setInterval` 200ms locale — niente più 30 timer paralleli su cartwall pieno |
 | v1.2.26 | b2dc97a | **NEW-ME-05** `setPermissionRequestHandler` ora nega `mediaTypes.video` — webcam non concessa anche se richiesta da terze parti |
+| v1.2.27 | — | **NEW-LI-01..07** (cumulativa): reset `_isMicActiveGlobal` su cleanup App · `import-m3u` normalize path · `destroyAudioStoreLoop()` esportato · `crypto.randomUUID()` su runId/playoutLog · `PlayoutLogModal` distingue cancel/error · `unhandledrejection` listener a module-load. NEW-LI-05 già coperta da v1.2.22 |
 
 ---
 
@@ -68,24 +69,21 @@
 ✅ **NEW-ME-03** · `validateLmpProjectData` non sanitizzava numerici — risolto in v1.2.24  
 ✅ **NEW-ME-04** · `ClipCard` setInterval per-clip ridondante — risolto in v1.2.25  
 ✅ **NEW-ME-05** · `setPermissionRequestHandler` approvava anche video — risolto in v1.2.26  
+✅ **NEW-LI-01** · `_isMicActiveGlobal` non resettato su cleanup App — risolto in v1.2.27  
+✅ **NEW-LI-02** · `import-m3u` non normalizzava path — risolto in v1.2.27  
+✅ **NEW-LI-03** · Loop progress useAudioStore non distruttibile — risolto in v1.2.27  
+✅ **NEW-LI-04** · UUID via `Math.random()` (runId/playoutLog) — risolto in v1.2.27  
+✅ **NEW-LI-05** · Smart Cues senza toast su `success:false` — risolto in v1.2.22  
+✅ **NEW-LI-06** · `PlayoutLogModal.handleExport` cancel vs error — risolto in v1.2.27  
+✅ **NEW-LI-07** · `unhandledrejection` listener post-bootstrap — risolto in v1.2.27  
 
 ---
 
-## CRITICITÀ APERTE (post-revisione globale 2026-05-16)
+## CRITICITÀ APERTE
 
-Revisione globale post-v1.2.16 ha identificato 18 criticità non documentate. Chiuse 11 (2 gravissime + 4 gravi + 5 medie) in v1.2.17–v1.2.26. **Restano 7, tutte lievi.**
+**Nessuna.** Tutte le 18 criticità identificate dalla revisione globale 2026-05-16 sono state risolte in v1.2.17–v1.2.27 (2 gravissime + 4 gravi + 5 medie + 7 lievi). Storico GR-01..LI-05 già chiuso in v1.2.6–v1.2.12.
 
-### LIEVI (7)
-
-- **NEW-LI-01** · `_isMicActiveGlobal` non resettato su cleanup App.
-- **NEW-LI-02** · `import-m3u` non normalizza path risolti.
-- **NEW-LI-03** · Loop progress di `useAudioStore` non distruttibile (test/E2E).
-- **NEW-LI-04** · UUID via `Math.random()` (preferire `crypto.randomUUID()`).
-- **NEW-LI-05** · Smart Cues senza toast su `success:false`.
-- **NEW-LI-06** · `PlayoutLogModal.handleExport` non distingue cancel vs error.
-- **NEW-LI-07** · `unhandledrejection` listener installato dopo bootstrap.
-
-### Aree non ispezionate (secondo passaggio consigliato)
+### Aree non ispezionate (secondo passaggio consigliato per future iterazioni)
 
 `useRecordingStore.ts`, `AudioRecorder.ts`, `MidiManager.ts`, drag&drop in `MainGrid.tsx`, ciclo di vita `MediaRecorder` su sessioni lunghe.
 
@@ -130,7 +128,7 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ### Criticità aperte
 
-**7 criticità lievi** aperte (NEW-LI-01..07). **Tutte le criticità gravissime, gravi e medie sono state chiuse**: v1.2.17 (GR-01/02), v1.2.18 (GR-03), v1.2.19 (GR-04), v1.2.20 (GR-05), v1.2.21 (GR-06), v1.2.22 (ME-01), v1.2.23 (ME-02), v1.2.24 (ME-03), v1.2.25 (ME-04), v1.2.26 (ME-05). Storico GR-01..LI-05 chiuso in v1.2.6–v1.2.12.
+**Nessuna.** Tutte le 18 criticità identificate dalla revisione globale sono state risolte in v1.2.17–v1.2.27: 2 gravissime, 4 gravi, 5 medie, 7 lievi. Storico GR-01..LI-05 chiuso in v1.2.6–v1.2.12.
 
 ### Roadmap attiva
 
@@ -146,4 +144,4 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ---
 
-*Aggiornato a v1.2.26. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
+*Aggiornato a v1.2.27. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*

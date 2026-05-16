@@ -2,6 +2,7 @@ import React from 'react';
 import { X, Download, Trash2, Clock, Radio } from 'lucide-react';
 import { useAudioStore } from '../../store/useAudioStore';
 import { PlayoutLogEntry } from '../../types';
+import { toast } from '../../store/useToastStore';
 
 interface PlayoutLogModalProps {
     onClose: () => void;
@@ -38,7 +39,14 @@ export const PlayoutLogModal: React.FC<PlayoutLogModalProps> = ({ onClose }) => 
         });
         const csv = lines.join('\r\n');
         const suggestedName = `playout_log_${new Date().toISOString().slice(0, 10)}.csv`;
-        await window.electron.savePlayoutLog(csv, suggestedName);
+        // v1.2.27 (NEW-LI-06): distinguere cancel (silenzioso) da errore (toast)
+        const res = await window.electron.savePlayoutLog(csv, suggestedName);
+        if (res.success) {
+            toast('Playout log esportato.', 'success');
+        } else if (res.error) {
+            toast('Errore export: ' + res.error, 'error');
+        }
+        // else: utente ha annullato il dialog — nessun toast
     };
 
     return (

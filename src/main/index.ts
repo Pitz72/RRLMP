@@ -327,10 +327,13 @@ ipcMain.handle('import-m3u', async (event) => {
         const content = fs.readFileSync(m3uPath, 'utf-8');
         const lines = content.split(/\r?\n/).map((l: string) => l.trim()).filter((l: string) => l && !l.startsWith('#'));
         const AUDIO_EXTS = ['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac', '.opus', '.wma'];
+        // v1.2.27 (NEW-LI-02): normalize del path risolto per appiattire `..` e separatori
+        // duplicati, coerentemente con il filtro whitelist del protocollo media://.
+        const _path = require('path');
         const paths: string[] = lines
-            .map((line: string) => require('path').isAbsolute(line) ? line : require('path').resolve(m3uDir, line))
+            .map((line: string) => _path.normalize(_path.isAbsolute(line) ? line : _path.resolve(m3uDir, line)))
             .filter((p: string) => {
-                const ext = require('path').extname(p).toLowerCase();
+                const ext = _path.extname(p).toLowerCase();
                 return AUDIO_EXTS.includes(ext) && fs.existsSync(p);
             });
         return { success: true, paths };
