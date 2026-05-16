@@ -44,31 +44,17 @@
 
 ---
 
-## 1. FUNZIONALITÀ A BUON PUNTO
+## 1. FUNZIONALITÀ MIGLIORABILI
 
-| Area | Stato | Note |
-|------|-------|------|
-| Streaming `media://` | Solido | Nessun caricamento RAM; path traversal bloccato (v1.2.6) |
-| Waveform Editor | Buono | 4 handle drag + zoom + ruler adattivo funzionano |
-| Crossfade / Segue / Gapless | Solido | Race condition sequencer risolta (v1.2.6) |
-| Session Recording | Buono | Pipeline completa: arm → record → export WAV/FLAC/MP3/OGG/WEBM |
-| i18n 8 lingue | Completo | react-i18next, tutte le chiavi presenti |
-| MIDI Learn | Funzionale | Bind per clip, countdown 15s, VU meter MIDI |
-| Auto-Silence Detection | Funzionale | Batch su Music, on-drop su PRE-SHOW; errori IPC gestiti correttamente |
-| Smart Mic Ducking | Funzionale | Noise gate con isteresi, ramp duck 60ms/400ms |
-| Master Chain (HPF+Comp+Limiter) | Solido | Implementazione corretta via Web Audio API |
-| Toast notification system | Solido | Nessun `alert()` bloccante |
-| Export Self-Contained | Funzionale | Loop interrotto su chiusura finestra (v1.2.7); timeout IPC (v1.2.6) |
-| ConfirmDialog / ThreeWayDialog | Solido | Promise-based, non bloccante |
-| Column Color Picker | Solido | `effectiveColor` dinamico, ereditarietà corretta |
-| Auto-save 5min | Solido | Senza race condition UI (ME-03 risolto in v1.2.9) |
-| Emergency Stop (Escape) | Solido | `globalShortcut` main-side, non intercettabile dal renderer |
-| Drop OS con Drop Indicator | Solido | Posizione precisa, linea blu luminosa |
-| LMP Integrity Check | Solido | Validazione schema completa (ME-02 risolto in v1.2.10) |
-| Open-file da OS (.lmp association) | Funzionale | macOS `open-file` + Windows `argv` |
-| Preview Transizione | Solido | `previewingClipIds` resettato su stopAll (v1.2.6) |
-| StreamPlayer cleanup | Solido | Tutte le chiusure rilasciate, loop bloccato pre-cleanup (v1.2.7) |
-| IPC handler FFmpeg | Solido | Timeout 10s/30s su tutti gli handler critici (v1.2.6) |
+| Area | Stato | Cosa manca |
+| ------ | ------- | ------------ |
+| Waveform Editor | Buono | Smart Cues: analisi IA per suggerire Intro/Outro automatici (backlog) |
+| Session Recording | Buono | Voice Tracking: registrazione singoli inserti voce con pre/post-roll (F-12) |
+| MIDI Learn | Funzionale | Supporto OSC; velocity non usata come controllo di volume |
+| Auto-Silence Detection | Funzionale | Smart Cues: analisi intelligente invece di soglia dB fissa |
+| Smart Mic Ducking | Funzionale | Talkback separato; IFB per ospiti in studio (F-17) |
+| Export Self-Contained | Funzionale | Nessun Playout Log automatico; export solo on-demand manuale (F-03) |
+| Open-file da OS (.lmp association) | Funzionale | Associazione icona e "Apri con..." non garantiti su tutte le config Windows |
 
 ---
 
