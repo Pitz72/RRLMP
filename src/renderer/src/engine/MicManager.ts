@@ -21,7 +21,7 @@ export type MicActivityCallback = (isMicActive: boolean) => void;
 export type MicLevelCallback = (dbFS: number) => void;
 
 class MicManager {
-    private static instance: MicManager;
+    private static instance: MicManager | null = null;
 
     private stream: MediaStream | null = null;
     private analyser: AnalyserNode | null = null;
@@ -69,6 +69,19 @@ class MicManager {
             MicManager.instance = new MicManager();
         }
         return MicManager.instance;
+    }
+
+    public static destroy(): void {
+        if (MicManager.instance) {
+            MicManager.instance._cleanup();
+            if (MicManager.instance._isMicActive) {
+                MicManager.instance._isMicActive = false;
+                MicManager.instance.activityListeners.forEach(cb => cb(false));
+            }
+            MicManager.instance.activityListeners = [];
+            MicManager.instance.levelListeners = [];
+        }
+        MicManager.instance = null;
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -144,7 +157,6 @@ class MicManager {
             this._currentLevel = -100;
 
             this.pollHandle = setInterval(() => this._poll(), MicManager.POLL_INTERVAL_MS);
-            console.log('[MicManager] Armed —', deviceId, 'Mix:', this._mixEnabled ? 'ON' : 'OFF');
 
         } catch (err) {
             console.error('[MicManager] arm() failed:', err);
@@ -208,7 +220,6 @@ class MicManager {
             this.activityListeners.forEach(cb => cb(false));
         }
         this._currentLevel = -100;
-        console.log('[MicManager] Disarmed');
     }
 
     private _cleanup(): void {

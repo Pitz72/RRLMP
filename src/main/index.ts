@@ -3,6 +3,7 @@ import { join, normalize, isAbsolute, extname } from 'path';
 import * as fs from 'fs';
 import { Readable } from 'stream';
 import { AudioProcessor } from './AudioProcessor';
+import { logger } from './logger';
 
 // GR-03 Fix: timeout wrapper per IPC handler asincroni che invocano FFmpeg.
 // Evita hang permanenti dell'app se FFmpeg si blocca o il file è illeggibile.
@@ -17,6 +18,18 @@ const withIpcTimeout = <T>(promise: Promise<T>, ms: number, label: string): Prom
 // GR-04 Fix: whitelist estensioni audio per il protocollo media://.
 // Blocca path traversal e accesso a file non audio.
 const ALLOWED_MEDIA_EXTENSIONS = new Set(['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac', '.opus', '.wma', '.webm', '.mp4']);
+
+// LI-02: semaforo di concorrenza per gli IPC handler FFmpeg-heavy.
+// Limita le chiamate parallele per tipo per evitare flood dal renderer.
+const _ipcInflight = new Map<string, number>();
+function withConcurrencyLimit<T>(key: string, max: number, fn: () => Promise<T>): Promise<T> {
+    const current = _ipcInflight.get(key) ?? 0;
+    if (current >= max) {
+        return Promise.resolve({ success: false, error: 'IPC_RATE_LIMITED' } as unknown as T);
+    }
+    _ipcInflight.set(key, current + 1);
+    return fn().finally(() => _ipcInflight.set(key, (_ipcInflight.get(key) ?? 1) - 1));
+}
 
 // CRITICAL: Disable GPU Acceleration to prevent 0xC0000005 Access Violation crashes on some Windows systems
 // especially when using multiple Canvas elements (Waveform Editor).
@@ -125,11 +138,11 @@ function createWindow(initialFilePath?: string): void {
 
     // DIAGNOSTICS: Catch Renderer Hangs/Crashes (White Screen)
     mainWindow.on('unresponsive', () => {
-        console.warn('!!! RENDERER PROCESS IS HANGING (White Screen detected) !!!');
+        logger.warn('!!! RENDERER PROCESS IS HANGING (White Screen detected) !!!');
     });
 
     mainWindow.webContents.on('render-process-gone', (_event, details) => {
-        console.error(`!!! RENDERER PROCESS GONE: ${details.reason} (Exit Code: ${details.exitCode}) !!!`);
+        logger.error(`!!! RENDERER PROCESS GONE: ${details.reason} (Exit Code: ${details.exitCode}) !!!`);
     });
 
     if (process.env.NODE_ENV === 'development') {
@@ -143,18 +156,21 @@ function createWindow(initialFilePath?: string): void {
 
 // Audio Processing (Main-Side-Heavy Architecture)
 ipcMain.handle('get-audio-metadata', async (_event, filePath: string) => {
-    return await withIpcTimeout(AudioProcessor.extractMetadata(filePath), 10_000, 'get-audio-metadata')
-        .catch((err: Error) => ({ success: false, error: err.message }));
+    return withConcurrencyLimit('get-audio-metadata', 5, () =>
+        withIpcTimeout(AudioProcessor.extractMetadata(filePath), 10_000, 'get-audio-metadata')
+    ).catch((err: Error) => ({ success: false, error: err.message }));
 });
 
 ipcMain.handle('get-waveform-data', async (_event, filePath: string) => {
-    return await withIpcTimeout(AudioProcessor.generateWaveformData(filePath), 30_000, 'get-waveform-data')
-        .catch((err: Error) => ({ success: false, error: err.message }));
+    return withConcurrencyLimit('get-waveform-data', 2, () =>
+        withIpcTimeout(AudioProcessor.generateWaveformData(filePath), 30_000, 'get-waveform-data')
+    ).catch((err: Error) => ({ success: false, error: err.message }));
 });
 
 ipcMain.handle('detect-silence', async (_event, filePath: string) => {
-    return await withIpcTimeout(AudioProcessor.detectSilence(filePath), 30_000, 'detect-silence')
-        .catch((err: Error) => ({ success: false, error: err.message }));
+    return withConcurrencyLimit('detect-silence', 3, () =>
+        withIpcTimeout(AudioProcessor.detectSilence(filePath), 30_000, 'detect-silence')
+    ).catch((err: Error) => ({ success: false, error: err.message }));
 });
 
 ipcMain.handle('check-files-exist', async (_event, paths: string[]) => {
@@ -219,7 +235,7 @@ ipcMain.handle('dialog:save-project', async (event, content: string) => {
         fs.writeFileSync(filePath, content, 'utf-8');
         return { success: true, filePath };
     } catch (error) {
-        console.error('Save failed:', error);
+        logger.error('Save failed:', error);
         return { success: false, error: String(error) };
     }
 });
@@ -268,7 +284,7 @@ ipcMain.handle('dialog:load-project', async (event) => {
             return { success: true, data: content, filePath: filePaths[0] };
         }
     } catch (error) {
-        console.error('Load failed:', error);
+        logger.error('Load failed:', error);
         return { success: false, error: String(error) };
     }
 });
@@ -379,7 +395,7 @@ ipcMain.handle('export-project', async (event, projectJsonString: string) => {
         return { success: true, path: exportDir, stats: successParams };
 
     } catch (error) {
-        console.error('Export failed:', error);
+        logger.error('Export failed:', error);
         return { success: false, error: String(error) };
     }
 });
@@ -417,7 +433,7 @@ ipcMain.handle('save-project-silent', async (_event: Electron.IpcMainInvokeEvent
 
         return { success: true, path: targetPath };
     } catch (error) {
-        console.error('Auto-save failed:', error);
+        logger.error('Auto-save failed:', error);
         return { success: false, error: String(error) };
     }
 });
@@ -434,11 +450,11 @@ ipcMain.handle('start-recording', async (_event) => {
         currentTempRecordingPath = join(tempDir, `rrlmp_temp_${timestamp}.webm`);
         
         recordingWriteStream = fs.createWriteStream(currentTempRecordingPath);
-        console.log(`[Main] Temp recording started: ${currentTempRecordingPath}`);
+        logger.info(`[Main] Temp recording started: ${currentTempRecordingPath}`);
         
         return { success: true, path: currentTempRecordingPath };
     } catch (error) {
-        console.error('[Main] Failed to start temp recording:', error);
+        logger.error('[Main] Failed to start temp recording:', error);
         return { success: false, error: String(error) };
     }
 });
@@ -451,7 +467,7 @@ ipcMain.handle('append-record-chunk', async (_event, arrayBuffer: ArrayBuffer) =
         recordingWriteStream.write(buffer);
         return { success: true };
     } catch (error) {
-        console.error('[Main] Failed to append chunk:', error);
+        logger.error('[Main] Failed to append chunk:', error);
         return { success: false, error: String(error) };
     }
 });
@@ -464,7 +480,7 @@ ipcMain.handle('stop-recording', async (_event) => {
 
         const path = currentTempRecordingPath;
         recordingWriteStream.end(() => {
-            console.log(`[Main] Temp recording stopped: ${path}`);
+            logger.info(`[Main] Temp recording stopped: ${path}`);
             recordingWriteStream = null;
             resolve({ success: true, path });
         });
@@ -516,7 +532,7 @@ ipcMain.handle('convert-recording', async (event, inputPath: string, outputPath:
 
         return result;
     } catch (error) {
-        console.error('[Main] Conversion failed:', error);
+        logger.error('[Main] Conversion failed:', error);
         return { success: false, error: String(error) };
     }
 });
@@ -529,10 +545,10 @@ ipcMain.handle('save-recording-buffer', async (_event, arrayBuffer: ArrayBuffer)
         const tempPath = join(tempDir, `rrlmp_temp_${timestamp}.webm`);
         const buffer = Buffer.from(arrayBuffer);
         fs.writeFileSync(tempPath, buffer);
-        console.log(`[Main] Recording buffer saved to: ${tempPath}`);
+        logger.info(`[Main] Recording buffer saved to: ${tempPath}`);
         return { success: true, path: tempPath };
     } catch (error) {
-        console.error('[Main] Failed to save recording buffer:', error);
+        logger.error('[Main] Failed to save recording buffer:', error);
         return { success: false, error: String(error) };
     }
 });
@@ -573,7 +589,7 @@ ipcMain.handle('load-project-path', async (_event, filePath: string) => {
             return { success: true, data: content, filePath };
         }
     } catch (error) {
-        console.error('[Main] load-project-path failed:', error);
+        logger.error('[Main] load-project-path failed:', error);
         return { success: false, error: String(error) };
     }
 });
@@ -613,11 +629,11 @@ app.whenReady().then(() => {
             // La whitelist estensioni impedisce l'accesso a file non audio.
             filePath = normalize(filePath);
             if (!isAbsolute(filePath)) {
-                console.warn(`[Media] Blocked non-absolute path: ${filePath}`);
+                logger.warn(`[Media] Blocked non-absolute path: ${filePath}`);
                 return new Response('Forbidden', { status: 403 });
             }
             if (!ALLOWED_MEDIA_EXTENSIONS.has(extname(filePath).toLowerCase())) {
-                console.warn(`[Media] Blocked non-audio extension: ${filePath}`);
+                logger.warn(`[Media] Blocked non-audio extension: ${filePath}`);
                 return new Response('Forbidden', { status: 403 });
             }
 
@@ -650,8 +666,8 @@ app.whenReady().then(() => {
                 const isStartup = start === 0;
                 const bufferSize = isStartup ? 128 * 1024 : 1024 * 1024;
                 const nodeStream = fs.createReadStream(filePath, { start, end, highWaterMark: bufferSize });
-                nodeStream.on('error', (err) => console.error('[Media] ReadStream Range error:', err));
-                
+                nodeStream.on('error', (err) => logger.error('[Media] ReadStream Range error:', err));
+
                 const webStream = Readable.toWeb(nodeStream) as unknown as ReadableStream;
 
                 return new Response(webStream, {
@@ -666,7 +682,7 @@ app.whenReady().then(() => {
                 });
             } else {
                 const nodeStream = fs.createReadStream(filePath, { highWaterMark: 1024 * 1024 });
-                nodeStream.on('error', (err) => console.error('[Media] ReadStream Full error:', err));
+                nodeStream.on('error', (err) => logger.error('[Media] ReadStream Full error:', err));
                 
                 const webStream = Readable.toWeb(nodeStream) as unknown as ReadableStream;
 
@@ -682,7 +698,7 @@ app.whenReady().then(() => {
             }
 
         } catch (error) {
-            console.error('Media Protocol Error:', error);
+            logger.error('Media Protocol Error:', error);
             return new Response('Internal Error', { status: 500 });
         }
     });

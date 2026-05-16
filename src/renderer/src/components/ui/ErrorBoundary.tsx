@@ -1,4 +1,8 @@
 import React, { Component, ReactNode } from 'react';
+import { toast } from '../../store/useToastStore';
+
+// Installato una sola volta per tutta la sessione (più istanze ErrorBoundary non duplicano il listener)
+let _asyncHandlerInstalled = false;
 
 interface Props {
     children: ReactNode;
@@ -26,6 +30,19 @@ export class ErrorBoundary extends Component<Props, State> {
 
     static getDerivedStateFromError(error: Error): State {
         return { hasError: true, error };
+    }
+
+    componentDidMount() {
+        if (!_asyncHandlerInstalled) {
+            _asyncHandlerInstalled = true;
+            window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
+                const message = event.reason instanceof Error
+                    ? event.reason.message
+                    : String(event.reason ?? 'Promise rejection non gestita');
+                console.error('[ErrorBoundary] Unhandled async rejection:', event.reason);
+                toast(`Errore asincrono: ${message}`, 'error');
+            });
+        }
     }
 
     componentDidCatch(error: Error, info: React.ErrorInfo) {

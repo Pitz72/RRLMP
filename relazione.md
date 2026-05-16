@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
-**Ultima analisi**: 15 maggio 2026  
-**Versione corrente**: 1.2.7 (commit d7fe551)  
+**Ultima analisi**: 16 maggio 2026  
+**Versione corrente**: 1.2.10 (commit 12dc386)  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -9,212 +9,42 @@
 ## STORICO FIX
 
 | Versione | Commit | Criticità risolte |
-|----------|--------|-------------------|
+| ---------- | -------- | ------------------- |
 | v1.2.6 | 7cfefe2 | GR-01, GR-02, GR-03, GR-04, GR-08 (bonus) |
 | v1.2.7 | d7fe551 | GR-05, GR-07 (GR-06 già risolto nel codebase) |
+| v1.2.8 | 061f41b | ME-01, ME-05 |
+| v1.2.9 | 177aa98 | ME-03, ME-07 |
+| v1.2.10 | 12dc386 | ME-02, ME-04, ME-06 |
+| v1.2.11 | — | LI-01, LI-02, LI-03, LI-04, LI-05 |
 
 ---
 
-## 1. CRITICITÀ GRAVISSIME — TUTTE RISOLTE
+## CRITICITÀ RISOLTE
 
-### ~~GR-01~~ · `setInterval` eterno nel corpo di `create()` Zustand
-**Risolto in v1.2.6** · `src/renderer/src/store/useAudioStore.ts`
-
-Aggiunta variabile module-level `_progressLoopStarted` che garantisce un singolo interval per lifetime del modulo, indipendentemente da quante volte React StrictMode o il hot-reload reinizializzano il callback di Zustand.
-
----
-
-### ~~GR-02~~ · Race condition nel sequencer con generazioni di caricamento
-**Risolto in v1.2.6** · `src/renderer/src/store/useAudioStore.ts`
-
-Sostituito il contatore intero `playGenerations` con `playRunIds`: ogni invocazione di `playClip` genera un run-ID UUID casuale. Il load viene accettato solo se il suo ID è ancora il più recente per quella clip, eliminando l'edge case del reset del contatore.
-
----
-
-### ~~GR-03~~ · Nessun timeout sugli IPC handler asincroni
-**Risolto in v1.2.6** · `src/main/index.ts`
-
-Aggiunto `withIpcTimeout()` wrapper con `Promise.race()`. Timeout: 10s per `get-audio-metadata`, 30s per `get-waveform-data` e `detect-silence`. In caso di timeout l'handler ritorna `{ success: false, error: 'IPC_TIMEOUT' }`.
-
----
-
-### ~~GR-04~~ · Path traversal non validato nel protocollo `media://`
-**Risolto in v1.2.6** · `src/main/index.ts`
-
-Aggiunta validazione in tre livelli: `path.normalize()` per risolvere segmenti `..`, `path.isAbsolute()` per bloccare path relativi, whitelist `ALLOWED_MEDIA_EXTENSIONS` per bloccare file non audio (HTTP 403).
+✅ **GR-01** · `setInterval` eterno nel corpo di `create()` Zustand — risolto in v1.2.6  
+✅ **GR-02** · Race condition nel sequencer con generazioni di caricamento — risolto in v1.2.6  
+✅ **GR-03** · Nessun timeout sugli IPC handler asincroni — risolto in v1.2.6  
+✅ **GR-04** · Path traversal non validato nel protocollo `media://` — risolto in v1.2.6  
+✅ **GR-05** · StreamPlayer: chiusure orfane e loop post-cleanup — risolto in v1.2.7  
+✅ **GR-06** · `isAnalyzing: true` permanente su errore IPC silence detection — già risolto nel codebase  
+✅ **GR-07** · Export zombie: loop continua dopo chiusura finestra — risolto in v1.2.7  
+✅ **GR-08** · Stato `fadingClipIds` e `previewingClipIds` non puliti su `stopAll` — risolto in v1.2.6  
+✅ **ME-01** · FFmpeg zombie in `AudioProcessor.ts` — risolto in v1.2.8  
+✅ **ME-02** · Nessuna validazione struttura `.lmp` al caricamento — risolto in v1.2.10  
+✅ **ME-03** · Auto-backup: race condition badge "Auto-saved" — risolto in v1.2.9  
+✅ **ME-04** · Output device hot-switch senza retry su device ricollegato — risolto in v1.2.10  
+✅ **ME-05** · `MicManager.arm()` lascia stream zombie su eccezione parziale — risolto in v1.2.8  
+✅ **ME-06** · Typecast `as unknown as` su tipi noti — risolto in v1.2.10  
+✅ **ME-07** · `evaluateMix` accede allo store ad ogni chiamata — risolto in v1.2.9  
+✅ **LI-01** · `ErrorBoundary` non cattura errori asincroni — risolto in v1.2.11  
+✅ **LI-02** · Nessun rate-limit sugli IPC handler dal renderer — risolto in v1.2.11  
+✅ **LI-03** · `console.*` non strutturato in produzione — risolto in v1.2.11  
+✅ **LI-04** · Singleton audio non distrutti su ricarica webview — risolto in v1.2.11  
+✅ **LI-05** · Countdown MIDI Learn attivabile in doppio — risolto in v1.2.11  
 
 ---
 
-## 2. CRITICITÀ GRAVI — TUTTE RISOLTE
-
-### ~~GR-05~~ · StreamPlayer: chiusure orfane e loop post-cleanup
-**Risolto in v1.2.7** · `src/renderer/src/engine/StreamPlayer.ts`
-
-Aggiunto `this.isLooping = false` come prima istruzione di `cleanup()` per bloccare race con `restartLoop()`. Aggiunti `onIntroReachedCallback = null` e `onOutroReachedCallback = null` completando il rilascio di tutte le chiusure (in precedenza mancavano).
-
----
-
-### ~~GR-06~~ · `isAnalyzing: true` permanente su errore IPC silence detection
-**Già risolto nel codebase** · `src/renderer/src/components/layout/MainGrid.tsx`
-
-Entrambi i path (batch al caricamento progetto e on-drop da OS) presentavano già blocchi `catch` con reset corretto di `isAnalyzing: false`, decremento contatore UI e `silenceChecked: true`. Nessuna modifica necessaria.
-
----
-
-### ~~GR-07~~ · Export zombie: loop continua dopo chiusura finestra
-**Risolto in v1.2.7** · `src/main/index.ts`
-
-Aggiunto `if (win.isDestroyed()) return { success: false }` immediatamente dopo ogni `await setTimeout(5)` nel loop di copia. Il loop si interrompe pulitamente al primo yield successivo alla chiusura della finestra.
-
----
-
-### ~~GR-08~~ · Stato `fadingClipIds` e `previewingClipIds` non puliti su `stopAll`
-**Risolto in v1.2.6** · `src/renderer/src/store/useAudioStore.ts`
-
-`stopAll()` resetta ora entrambi gli array: `fadingClipIds: []` e `previewingClipIds: []`. Badge FADE OUT e stato preview non rimangono orfani dopo Stop All.
-
----
-
-## 3. CRITICITÀ MEDIE — APERTE (7)
-
-### ME-01 · FFmpeg zombie in `AudioProcessor.ts`
-**File**: `src/main/AudioProcessor.ts`  
-**Impatto**: processo FFmpeg figlio in esecuzione indefinita su file corrotti o codec non supportati
-
-Il timeout IPC (GR-03) protegge il renderer dall'hang, ma non termina il processo FFmpeg figlio: quando la promise IPC scade, il processo figlio lanciato da `fluent-ffmpeg` rimane in esecuzione consumando CPU finché non produce output o viene terminato dall'OS.
-
-**Fix**: aggiungere `command.kill()` nel handler di timeout interno ad `AudioProcessor`, prima che la promise si risolva con errore.
-
----
-
-### ME-02 · Nessuna validazione struttura `.lmp` al caricamento
-**File**: `src/main/index.ts` (handler `dialog:load-project` e `load-project-path`)  
-**Impatto**: stato globale corrotto con file `.lmp` parzialmente scritti o manomessi
-
-```typescript
-const parsed = JSON.parse(content) as any;
-// clip.path potrebbe essere null, number, array — nessuna verifica
-col.clips.forEach((clip: any) => {
-    clip.isMissing = !fs.existsSync(clip.path); // crash se clip.path non è stringa
-});
-```
-
-Un file `.lmp` scritto parzialmente (crash durante auto-save) o con struttura inattesa può corrompere lo stato al caricamento.
-
-**Fix**: validatore di schema (funzione `validateLmpSchema()` o libreria Zod) da eseguire prima del parsing.
-
----
-
-### ME-03 · Auto-backup: race condition badge "Auto-saved"
-**File**: `src/renderer/src/components/ui/GlobalControls.tsx`  
-**Impatto**: badge visivo inaffidabile; in casi rari due `setTimeout` paralleli invertono il flag
-
-```typescript
-const result = await window.electron.saveProjectSilent(json, ...);
-if (result.success) {
-    setShowAutoSaved(true);
-    setTimeout(() => setShowAutoSaved(false), 3000); // ← nessun cancel del precedente
-}
-```
-
-Se `saveProjectSilent` impiega > 3s e l'interval di 5 minuti scatta di nuovo, si generano due timeout in conflitto.
-
-**Fix**:
-```typescript
-if (badgeTimerRef.current) clearTimeout(badgeTimerRef.current);
-badgeTimerRef.current = setTimeout(() => setShowAutoSaved(false), 3000);
-```
-
----
-
-### ME-04 · Output device hot-switch senza retry su device ricollegato
-**File**: `src/renderer/src/engine/StreamPlayer.ts`  
-**Impatto**: audio rimane sullo speaker di sistema per il resto della sessione dopo riconnessione cuffie
-
-Se il device audio si scollega durante il playback, `setSinkId()` fallisce e fa fallback a `'default'`. Quando il device viene ricollegato, nessun codice ritenta con il device preferito.
-
-**Fix**: sottoscrivere `navigator.mediaDevices.ondevicechange` in `AudioContextManager` e ritentare `setOutputDevice()` su tutti i player attivi.
-
----
-
-### ME-05 · `MicManager.arm()` lascia stream zombie su eccezione parziale
-**File**: `src/renderer/src/engine/MicManager.ts`  
-**Impatto**: LED microfono acceso nel browser, accesso audio non rilasciato
-
-Se un'eccezione viene lanciata dopo `getUserMedia()` ma prima che `this.source` venga registrato, il `_cleanup()` nel catch non trova `this.source` e non stoppa le tracce del `MediaStream`. Il browser mantiene il microfono attivo.
-
-**Fix**: salvare immediatamente il riferimento allo stream in una variabile locale prima di qualsiasi operazione che possa lanciare, e garantire `stream.getTracks().forEach(t => t.stop())` nel cleanup indipendentemente dallo stato di `this.source`.
-
----
-
-### ME-06 · Typecast `as unknown as` su tipi noti
-**File**: `useRecordingStore.ts`, `MidiManager.ts`, `main/index.ts`  
-**Impatto**: perdita type-safety, errori runtime non rilevati in compile time
-
-```typescript
-timerIntervalId: intervalId as unknown as number  // già number, cast ridondante
-navigator as unknown as { requestMIDIAccess?: () => Promise<any> }
-Readable.toWeb(nodeStream) as unknown as ReadableStream
-```
-
-**Fix**: tipizzare correttamente `timerIntervalId` come `ReturnType<typeof setInterval>`, usare type guard per MIDI API, aggiungere `@types/node` override per `Readable.toWeb`.
-
----
-
-### ME-07 · `evaluateMix` accede allo store ad ogni chiamata
-**File**: `src/renderer/src/store/useAudioStore.ts`  
-**Impatto**: overhead inutile con molte clip attive e transizioni rapide
-
-`evaluateMix()` chiama `useSettingsStore.getState()` ad ogni invocazione per leggere `duckingFactor` e `duckingDuration`. Con transizioni rapide viene chiamata decine di volte al secondo.
-
-**Fix**: passare `duckingFactor` e `duckingDuration` come parametri a `evaluateMix()`, leggendoli una sola volta nello store chiamante.
-
----
-
-## 4. CRITICITÀ LIEVI — APERTE (5)
-
-### LI-01 · `ErrorBoundary` non cattura errori asincroni
-**File**: `src/renderer/src/components/ui/ErrorBoundary.tsx`
-
-React Error Boundaries catturano solo errori sincroni nel render tree. Promise rigettate, setTimeout e handler IPC che lanciano eccezioni non vengono intercettati: crash silenziosi in console senza mostrare l'error screen.
-
-**Fix**: `window.addEventListener('unhandledrejection', handler)` che mostra un toast di errore non bloccante.
-
----
-
-### LI-02 · Nessun rate-limit sugli IPC handler dal renderer
-**File**: `src/main/index.ts`
-
-Un renderer buggy (loop infinito, click rapido) può spammare `detectSilence` o `get-waveform-data` saturando il main process con N promise FFmpeg parallele.
-
-**Fix**: debounce/throttle per handler oppure semaforo che limita le chiamate concorrenti per tipo.
-
----
-
-### LI-03 · `console.*` non strutturato in produzione
-**File**: multipli
-
-Il codebase usa estensivamente `console.log/warn/error` anche in path critici. In produzione, i log Electron non vengono strutturati né ruotati: in sessioni 24/7 possono occupare GB.
-
-**Fix**: `electron-log` con rotazione automatica e livelli, rimozione dei `console.*` non essenziali.
-
----
-
-### LI-04 · Singleton audio non distrutti su ricarica webview
-**File**: `engine/MicManager.ts`, `engine/MidiManager.ts`, `engine/AudioContextManager.ts`
-
-In hot-reload dev i singleton non espongono `destroy()` e non vengono ripuliti, causando duplicati di listener e AudioContext orfani.
-
----
-
-### LI-05 · Countdown MIDI Learn attivabile in doppio
-**File**: `src/renderer/src/components/ui/GlobalControls.tsx`
-
-Con toggle rapido (< 100ms) di MIDI Learn mode possono coesistere due `setInterval` del countdown per 1-2 cicli prima che il cleanup dell'effect si attivi. Effetto cosmetic (contatore a valori doppi).
-
----
-
-## 5. FUNZIONALITÀ A BUON PUNTO
+## 1. FUNZIONALITÀ A BUON PUNTO
 
 | Area | Stato | Note |
 |------|-------|------|
@@ -231,10 +61,10 @@ Con toggle rapido (< 100ms) di MIDI Learn mode possono coesistere due `setInterv
 | Export Self-Contained | Funzionale | Loop interrotto su chiusura finestra (v1.2.7); timeout IPC (v1.2.6) |
 | ConfirmDialog / ThreeWayDialog | Solido | Promise-based, non bloccante |
 | Column Color Picker | Solido | `effectiveColor` dinamico, ereditarietà corretta |
-| Auto-save 5min | Funzionale | Con race condition UI minore (ME-03) |
+| Auto-save 5min | Solido | Senza race condition UI (ME-03 risolto in v1.2.9) |
 | Emergency Stop (Escape) | Solido | `globalShortcut` main-side, non intercettabile dal renderer |
 | Drop OS con Drop Indicator | Solido | Posizione precisa, linea blu luminosa |
-| LMP Integrity Check | Parziale | Controlla `isMissing` ma non valida schema (ME-02) |
+| LMP Integrity Check | Solido | Validazione schema completa (ME-02 risolto in v1.2.10) |
 | Open-file da OS (.lmp association) | Funzionale | macOS `open-file` + Windows `argv` |
 | Preview Transizione | Solido | `previewingClipIds` resettato su stopAll (v1.2.6) |
 | StreamPlayer cleanup | Solido | Tutte le chiusure rilasciate, loop bloccato pre-cleanup (v1.2.7) |
@@ -242,18 +72,7 @@ Con toggle rapido (< 100ms) di MIDI Learn mode possono coesistere due `setInterv
 
 ---
 
-## 6. FUNZIONALITÀ ROTTE O A RISCHIO
-
-| Funzionalità | Severità | Problema |
-|---|---|---|
-| Waveform su file corrotti | A rischio | FFmpeg zombie nel main process (ME-01) — UI non si blocca più (GR-03 risolto) ma il processo figlio sopravvive |
-| Output audio su device ricollegato | Rotto | Non ritenta `setSinkId` dopo riconnessione (ME-04) |
-| Caricamento `.lmp` parzialmente corrotto | A rischio | Nessuna validazione schema (ME-02) |
-| Arm microfono con permission error | A rischio | Stream zombie non rilasciato (ME-05) |
-
----
-
-## 7. FEATURE INDISPENSABILI MANCANTI
+## 2. FEATURE INDISPENSABILI MANCANTI
 
 ### TIER 1 — Critiche per uso professionale quotidiano
 
@@ -321,24 +140,11 @@ Analisi R128 e scrittura del tag nel file audio per normalize il volume clip-by-
 
 ---
 
-## 8. RIEPILOGO PRIORITÀ ATTUALE
+## 3. RIEPILOGO PRIORITÀ ATTUALE
 
 ### Criticità aperte da pianificare
 
-| ID | Severità | Effort | Descrizione |
-|----|----------|--------|-------------|
-| ME-01 | MEDIA | Media | FFmpeg zombie in AudioProcessor — aggiungere command.kill() |
-| ME-02 | MEDIA | Alta | Validazione schema .lmp — funzione validateLmpSchema() o Zod |
-| ME-03 | MEDIA | Bassa | Race condition badge auto-saved — useRef per il timeout |
-| ME-04 | MEDIA | Media | No retry setSinkId su device ricollegato — ondevicechange listener |
-| ME-05 | MEDIA | Media | MicManager stream zombie su arm() parziale |
-| ME-06 | LIEVE | Bassa | Typecast as unknown as su tipi noti |
-| ME-07 | LIEVE | Bassa | evaluateMix legge store ad ogni chiamata |
-| LI-01 | LIEVE | Bassa | ErrorBoundary non cattura async — unhandledrejection listener |
-| LI-02 | LIEVE | Media | Nessun rate-limit IPC dal renderer |
-| LI-03 | LIEVE | Media | console.* non strutturato — electron-log con rotazione |
-| LI-04 | LIEVE | Media | Singleton audio non distrutti su ricarica webview |
-| LI-05 | LIEVE | Bassa | Countdown MIDI Learn attivabile in doppio |
+Nessuna. Tutte le criticità note sono state risolte in v1.2.6–v1.2.11.
 
 ### Feature da valutare per roadmap
 
@@ -359,4 +165,4 @@ Analisi R128 e scrittura del tag nel file audio per normalize il volume clip-by-
 
 ---
 
-*Aggiornato a v1.2.7. Tutte le criticità gravissime e gravi sono state risolte. Rimangono 7 medie e 5 lievi.*
+*Aggiornato a v1.2.11. Tutte le criticità note (gravissime, gravi, medie e lievi) sono state risolte.*

@@ -38,7 +38,7 @@ export const DEFAULT_MASTER_CHAIN: MasterChainSettings = {
 };
 
 class AudioContextManager {
-    private static instance: AudioContextManager;
+    private static instance: AudioContextManager | null = null;
     private context: AudioContext;
     private masterGain: GainNode;
     private hpf: BiquadFilterNode;
@@ -130,6 +130,13 @@ class AudioContextManager {
             AudioContextManager.instance = new AudioContextManager();
         }
         return AudioContextManager.instance;
+    }
+
+    public static destroy(): void {
+        if (AudioContextManager.instance) {
+            try { AudioContextManager.instance.context.close(); } catch { /* noop */ }
+        }
+        AudioContextManager.instance = null;
     }
 
     public getContext(): AudioContext {

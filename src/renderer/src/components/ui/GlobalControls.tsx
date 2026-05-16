@@ -40,6 +40,7 @@ export const GlobalControls = () => {
     const [micLevel, setMicLevel] = useState(-100);
     const micArmingRef = useRef(false); // evita doppio arm in StrictMode
     const autoSavedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const midiLearnIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     // M2 Fix: stato MIDI per badge visivo
     const [midiInputCount, setMidiInputCount] = useState(0);
@@ -149,17 +150,25 @@ export const GlobalControls = () => {
     }, [isMidiLearnMode, pendingBind]);
 
     // M3 Fix: timeout automatico MIDI Learn (15s) con countdown visivo
+    // LI-05 Fix: ref-based interval per prevenire doppio setInterval su toggle rapido
     useEffect(() => {
+        if (midiLearnIntervalRef.current !== null) {
+            clearInterval(midiLearnIntervalRef.current);
+            midiLearnIntervalRef.current = null;
+        }
         if (!isMidiLearnMode) {
             setMidiLearnCountdown(null);
             return;
         }
         const TIMEOUT_SEC = 15;
         setMidiLearnCountdown(TIMEOUT_SEC);
-        const interval = setInterval(() => {
+        midiLearnIntervalRef.current = setInterval(() => {
             setMidiLearnCountdown(prev => {
                 if (prev === null || prev <= 1) {
-                    clearInterval(interval);
+                    if (midiLearnIntervalRef.current !== null) {
+                        clearInterval(midiLearnIntervalRef.current);
+                        midiLearnIntervalRef.current = null;
+                    }
                     setIsMidiLearnMode(false);
                     setPendingBind(null);
                     debugLog('MIDI Learn: timeout — modalità disattivata automaticamente', 'info');
@@ -168,7 +177,12 @@ export const GlobalControls = () => {
                 return prev - 1;
             });
         }, 1000);
-        return () => clearInterval(interval);
+        return () => {
+            if (midiLearnIntervalRef.current !== null) {
+                clearInterval(midiLearnIntervalRef.current);
+                midiLearnIntervalRef.current = null;
+            }
+        };
     }, [isMidiLearnMode]);
 
     // M3 Fix: Escape per uscire da MIDI Learn

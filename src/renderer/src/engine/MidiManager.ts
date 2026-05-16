@@ -19,7 +19,7 @@ interface MidiAccess extends EventTarget {
 }
 
 class MidiManager {
-    private static instance: MidiManager;
+    private static instance: MidiManager | null = null;
     private listeners: MidiMessageCallback[] = [];
     private statusListeners: MidiStatusCallback[] = [];
     private access: MidiAccess | null = null;
@@ -42,6 +42,21 @@ class MidiManager {
             MidiManager.instance = new MidiManager();
         }
         return MidiManager.instance;
+    }
+
+    public static destroy(): void {
+        if (MidiManager.instance) {
+            if (MidiManager.instance.access) {
+                MidiManager.instance.access.inputs.forEach((input: MidiPort) => {
+                    input.onmidimessage = null;
+                });
+                MidiManager.instance.access.onstatechange = null;
+                MidiManager.instance.access = null;
+            }
+            MidiManager.instance.listeners = [];
+            MidiManager.instance.statusListeners = [];
+        }
+        MidiManager.instance = null;
     }
 
     private async init() {
@@ -68,7 +83,6 @@ class MidiManager {
 
                 this._supported = true;
                 this._inputCount = this.access.inputs.size;
-                console.log("MIDI System Initialized. Inputs found:", this._inputCount);
                 // M2 Fix: notifica listeners (incluso UI)
                 this._notifyStatus(true, this._inputCount);
             }

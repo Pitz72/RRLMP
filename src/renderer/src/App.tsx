@@ -7,6 +7,7 @@ import { useProjectStore, validateLmpProjectData } from './store/useProjectStore
 import { GlobalControls } from './components/ui/GlobalControls';
 import { DigitalClock } from './components/ui/DigitalClock';
 import MidiManager from './engine/MidiManager';
+import MicManager from './engine/MicManager';
 import { useAudioStore } from './store/useAudioStore';
 import { useSettingsStore } from './store/useSettingsStore';
 import AudioContextManager from './engine/AudioContextManager';
@@ -25,6 +26,15 @@ import appLogo from './assets/logo.png';
 function App() {
     const [showWelcome, setShowWelcome] = useState(true);
     const masterChain = useSettingsStore((s) => s.masterChain);
+
+    // LI-04: cleanup singleton audio/MIDI all'unmount (hot-reload dev + ricarica pagina)
+    useEffect(() => {
+        return () => {
+            MicManager.destroy();
+            MidiManager.destroy();
+            AudioContextManager.destroy();
+        };
+    }, []);
 
     // v0.16.2 — Sincronizzazione Master Chain con AudioContextManager
     useEffect(() => {
