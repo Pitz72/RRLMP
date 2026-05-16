@@ -214,6 +214,19 @@ let _isMicActiveGlobal = false;
 // GR-01 Fix: flag module-level che garantisce un solo interval attivo,
 // anche con React 18 StrictMode (double-invoke in dev) o hot reload multipli.
 let _progressLoopStarted = false;
+// v1.2.27 (NEW-LI-03): handle al loop globale per consentire teardown deterministico
+// in scenari di test/E2E (Vitest, Playwright) — vedi `destroyAudioStoreLoop()`.
+let _progressLoopHandle: ReturnType<typeof setInterval> | null = null;
+
+/** v1.2.27 (NEW-LI-03): teardown esplicito del loop di progress globale.
+ *  Usato dai test e dall'unmount finale di App.tsx (idempotente). */
+export function destroyAudioStoreLoop(): void {
+    if (_progressLoopHandle !== null) {
+        clearInterval(_progressLoopHandle);
+        _progressLoopHandle = null;
+    }
+    _progressLoopStarted = false;
+}
 
 // ME-07 Fix: cache module-level per i parametri ducking di useSettingsStore.
 // evaluateMix() è definita fuori da create() — non può usare hooks né chiamare
@@ -230,7 +243,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
     // GR-01 Fix: avvia il loop di progresso una sola volta per lifetime del modulo.
     if (!_progressLoopStarted) {
         _progressLoopStarted = true;
-        setInterval(() => {
+        _progressLoopHandle = setInterval(() => {
             if (Object.keys(get().activeClips).length > 0) {
                 get()._syncProgress();
             }
@@ -327,7 +340,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             }
 
             // GR-02 Fix: registra run-ID univoco prima del load asincrono.
-            const runId = Math.random().toString(36).slice(2, 10);
+            // v1.2.27 (NEW-LI-04): crypto.randomUUID per evitare collisioni rare su sessioni lunghe
+            const runId = crypto.randomUUID();
             playRunIds.set(freshClip.id, runId);
 
             let player: IAudioPlayer = new StreamPlayer();
@@ -474,7 +488,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 player.play();
 
                 const logEntry: PlayoutLogEntry = {
-                    id: Math.random().toString(36).slice(2, 10),
+                    id: crypto.randomUUID(), // v1.2.27 (NEW-LI-04)
                     clipId: freshClip.id,
                     clipName: freshClip.name,
                     artist: freshClip.artist,

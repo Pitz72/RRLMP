@@ -34,7 +34,10 @@
       "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" merge --no-ff claude/silly-swirles-1e7360 -m \"Merge v1.2.23: fix NEW-ME-02 playClip race\")",
       "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" merge --no-ff claude/silly-swirles-1e7360 -m \"Merge v1.2.24: fix NEW-ME-03 sanitize numerici .lmp\")",
       "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" merge --no-ff claude/silly-swirles-1e7360 -m \"Merge v1.2.25: fix NEW-ME-04 ClipCard interval\")",
-      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" merge --no-ff claude/silly-swirles-1e7360 -m \"Merge v1.2.26: fix NEW-ME-05 permission audio-only\")"
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" merge --no-ff claude/silly-swirles-1e7360 -m \"Merge v1.2.26: fix NEW-ME-05 permission audio-only\")",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" checkout -- relazione.md)",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" merge --no-ff claude/silly-swirles-1e7360 -m \"Merge: relazione.md commit hash + CRITICITÀ APERTE update\")",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" merge --no-ff claude/silly-swirles-1e7360 -m \"Merge v1.2.27: chiude tutte le criticità lievi \\(cumulativa\\)\")"
     ]
   }
 }

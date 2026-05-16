@@ -31,8 +31,12 @@ function App() {
     const masterChain = useSettingsStore((s) => s.masterChain);
 
     // LI-04: cleanup singleton audio/MIDI all'unmount (hot-reload dev + ricarica pagina)
+    // v1.2.27 (NEW-LI-01): chiamata esplicita a setMicActive(false) PRIMA di destroy()
+    // per garantire che `_isMicActiveGlobal` in useAudioStore venga azzerato anche se
+    // i listener MicManager non riescono a propagare il false in tempo.
     useEffect(() => {
         return () => {
+            try { useAudioStore.getState().setMicActive(false); } catch { /* noop */ }
             MicManager.destroy();
             MidiManager.destroy();
             AudioContextManager.destroy();
