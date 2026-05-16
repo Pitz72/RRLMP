@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
 **Ultima analisi**: 16 maggio 2026 — Blocco 1 revisione esaustiva (Recording + MIDI) post-v1.3.0  
-**Versione corrente**: 1.3.2  
+**Versione corrente**: 1.3.3  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -35,6 +35,7 @@
 | **v1.3.0** | — | **Milestone Zero Criticità** — promozione di versione minore. Tutte le 18 criticità della revisione globale 2026-05-16 chiuse in v1.2.17–v1.2.27. Nessuna modifica codice rispetto a v1.2.27. |
 | **v1.3.1** | — | **REC-01..08** (cumulativa Recording): validazione path `delete-temp-recording` (allow-list dir+regex basename) · `convert-recording` con `withIpcTimeout` 30 min · cap FIFO chunks 14400 + auto-stop pulito · reset esplicito store su start/stop fallito · cleanup difensivo `onExportProgress` · reset store su unmount App · sanitize filename Windows · try/catch su `ondataavailable`. |
 | **v1.3.2** | — | **MIDI-01..03** (cumulativa MIDI): `onstatechange` azzera `onmidimessage` su disconnect (no doppio trigger su riconnessione) · clamp `note`/`velocity` a `[0,127]` in `handleMidiMessage` · `console.warn/error` → `debugLog()` strutturato in MidiManager e App.tsx. **Blocco 1 completo: 11/11 chiuse.** |
+| **v1.3.3** | — | **PERSIST-01/02/04/06/09** (cumulativa Persistenza): auto-backup ora gate `isDirty` (no I/O su progetto pulito) · save atomico via `writeFileAtomicSync` (tmp+rename) su tutti i 3 handler · load JSON malformato torna ora errore esplicito + toast · log esplicito errori rotazione autosave · `loadProject` azzera selezione e MIDI Learn (con `preserveUiState` per Save/Save As). |
 
 ---
 
@@ -90,16 +91,21 @@
 ✅ **MIDI-01** · `onstatechange` non azzerava `onmidimessage` su disconnect (doppio trigger) — risolto in v1.3.2  
 ✅ **MIDI-02** · `velocity` MIDI non validata a monte (`[0,127]`) — risolto in v1.3.2  
 ✅ **MIDI-03** · `console.warn/error` invece di `debugLog()` strutturato — risolto in v1.3.2  
+✅ **PERSIST-01** · auto-backup ignorava `isDirty` (I/O su progetto pulito) — risolto in v1.3.3  
+✅ **PERSIST-02** · save non-atomico (crash mid-write = file corrotto) — risolto in v1.3.3  
+✅ **PERSIST-04** · load JSON malformato tornava `success:true` con raw string — risolto in v1.3.3  
+✅ **PERSIST-06** · rotazione autosave silenziava errori `unlinkSync` — risolto in v1.3.3  
+✅ **PERSIST-09** · `loadProject` non azzerava `selectedClipIds` / `isMidiLearnMode` — risolto in v1.3.3  
 
 ---
 
 ## CRITICITÀ APERTE
 
-**0 criticità aperte.** Il Blocco 1 della revisione esaustiva 2026-05-16 è interamente chiuso (11/11 fix tra v1.3.1 Recording e v1.3.2 MIDI). Le 18 della revisione globale precedente restano tutte chiuse.
+**0 criticità aperte.** Blocco 1 (11/11) e prima ondata Blocco 2 — Persistenza (5/5) chiusi. Le 18 della revisione globale precedente restano tutte chiuse.
 
 ### Aree non ispezionate (secondo passaggio consigliato per future iterazioni)
 
-Blocco 2: Persistenza progetto (auto-backup, recovery crash, migrazione `.lmp`). Blocco 3: Drag&drop `MainGrid.tsx`, protocollo `media://` (range/abort). Inoltre: modali residui, output device multi-routing, asset library, build/distribution.
+Blocco 3: Drag&drop `MainGrid.tsx`, protocollo `media://` (range/abort). Inoltre: modali residui, output device multi-routing, asset library, build/distribution.
 
 ### Aree pulite confermate nel Blocco 1
 
@@ -152,7 +158,7 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ### Criticità aperte
 
-**0** — Blocco 1 interamente chiuso (11 fix tra v1.3.1 Recording e v1.3.2 MIDI). Le 18 della revisione globale precedente (GR-01..LI-05 + NEW-*) restano tutte chiuse. Da ispezionare: Blocco 2 (persistenza) e Blocco 3 (drag&drop, media://).
+**0** — Blocco 1 (11) + prima ondata Blocco 2 — Persistenza (5) chiusi tra v1.3.1 e v1.3.3. Le 18 della revisione globale precedente (GR-01..LI-05 + NEW-*) restano tutte chiuse. Da ispezionare: Blocco 3 (drag&drop MainGrid, media:// range/abort) + aree minori (modali residui, output device multi-routing, asset library, build/distribution).
 
 ### Roadmap attiva
 
@@ -168,4 +174,4 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ---
 
-*Aggiornato a v1.3.2 (cumulativa MIDI MIDI-01..03; Blocco 1 chiuso 11/11) + Blocco 1 revisione esaustiva 2026-05-16. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
+*Aggiornato a v1.3.3 (cumulativa Persistenza PERSIST-01/02/04/06/09; Blocco 2 Persistenza 5/5) + Blocco 1 revisione esaustiva 2026-05-16. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*

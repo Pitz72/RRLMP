@@ -115,7 +115,7 @@ interface ProjectState {
     addClipFromPath: (columnId: string, filePath: string) => AudioClip | undefined;
     removeClip: (columnId: string, clipId: string) => void;
     updateClip: (columnId: string, clipId: string, updates: Partial<AudioClip>) => void;
-    loadProject: (data: { columns: Column[] }, filePath?: string) => void;
+    loadProject: (data: { columns: Column[] }, filePath?: string, opts?: { preserveUiState?: boolean }) => void;
     moveClip: (sourceColId: string, destColId: string, oldIndex: number, newIndex: number) => void;
 
     setColumnColor: (columnId: string, color: string) => void;
@@ -158,7 +158,9 @@ export const useProjectStore = create<ProjectState>((set) => ({
         }))
     })),
 
-    resetProject: () => set({ columns: JSON.parse(JSON.stringify(DEFAULT_COLUMNS)), isDirty: false, currentFilePath: null, isMidiLearnMode: false }),
+    // PERSIST-09 (v1.3.3): resetProject ora azzera anche selectedClipIds (era l'unica
+    // azione che cambia tutte le colonne senza ripulire la selezione).
+    resetProject: () => set({ columns: JSON.parse(JSON.stringify(DEFAULT_COLUMNS)), isDirty: false, currentFilePath: null, isMidiLearnMode: false, selectedClipIds: [] }),
 
     setColumnColor: (columnId, color) => set((state) => ({
         isDirty: true,
@@ -308,13 +310,26 @@ export const useProjectStore = create<ProjectState>((set) => ({
     })),
 
     // Persistence
-    loadProject: (stateToLoad: { columns: Column[] }, filePath?: string) => {
+    loadProject: (stateToLoad: { columns: Column[] }, filePath?: string, opts?: { preserveUiState?: boolean }) => {
         // Reset isMissing on all clips before integrity check
         const cleanColumns = stateToLoad.columns.map(col => ({
             ...col,
             clips: col.clips.map(c => ({ ...c, isMissing: false }))
         }));
-        set({ columns: cleanColumns, isDirty: false, currentFilePath: filePath || null });
+        // PERSIST-09 (v1.3.3): caricamento di un progetto NUOVO azzera selectedClipIds
+        // e isMidiLearnMode (gli ID precedenti non esistono più → dangling selection).
+        // Il flag opts.preserveUiState=true è usato dai chiamanti Save/Save As che
+        // riutilizzano questa azione solo per aggiornare currentFilePath senza
+        // perturbare selezione corrente e modalità MIDI Learn dell'utente.
+        const uiReset = opts?.preserveUiState
+            ? {}
+            : { selectedClipIds: [], isMidiLearnMode: false };
+        set({
+            columns: cleanColumns,
+            isDirty: false,
+            currentFilePath: filePath || null,
+            ...uiReset
+        });
     },
 
     // Integrity Check (v0.14.2)
