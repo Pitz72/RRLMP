@@ -3,8 +3,22 @@ import { Column, AudioClip, ClipType } from '../types';
 
 const VALID_CLIP_TYPES = new Set<ClipType>(['asset', 'music', 'voice', 'sfx', 'preshow']);
 
+// v1.2.24 (NEW-ME-03): clamp + fallback per campi numerici di clip.
+// NaN/Infinity/numeri fuori range nel .lmp causavano in passato volumi muti
+// (volume=NaN nel gain node → bus silente) o trim assurdi (trimEnd=1e10).
+// Strategia: sanitize silenzioso con default sensati, niente throw — un .lmp
+// con numerici malformati resta caricabile, l'utente può poi correggere manualmente.
+const finiteOrDefault = (val: unknown, def: number, min?: number, max?: number): number => {
+    if (typeof val !== 'number' || !isFinite(val)) return def;
+    let v = val;
+    if (min !== undefined && v < min) v = min;
+    if (max !== undefined && v > max) v = max;
+    return v;
+};
+
 /** ME-02: Valida la struttura grezza di un .lmp prima di caricarla nello store.
- *  Lancia un Error con messaggio descrittivo se la struttura non è conforme. */
+ *  Lancia un Error con messaggio descrittivo se la struttura non è conforme.
+ *  v1.2.24 (NEW-ME-03): sanitize numerici (volume/pan/trim/marker/fade/duration). */
 export function validateLmpProjectData(raw: unknown): { columns: Column[] } {
     if (!raw || typeof raw !== 'object') throw new Error('struttura radice non è un oggetto');
     const obj = raw as Record<string, unknown>;
@@ -26,6 +40,17 @@ export function validateLmpProjectData(raw: unknown): { columns: Column[] } {
             if (typeof cl.name !== 'string') throw new Error(`clip[${i}][${j}].name non è una stringa`);
             if (typeof cl.path !== 'string') throw new Error(`clip[${i}][${j}].path non è una stringa`);
             if (!VALID_CLIP_TYPES.has(cl.type as ClipType)) throw new Error(`clip[${i}][${j}].type non valido: "${cl.type}"`);
+
+            // v1.2.24 (NEW-ME-03): sanitize numerici — mutazione in place
+            cl.volume      = finiteOrDefault(cl.volume,      1.0, 0,    1.5);
+            cl.pan         = finiteOrDefault(cl.pan,         0,  -1,    1);
+            cl.duration    = finiteOrDefault(cl.duration,    0,   0);
+            cl.trimStart   = finiteOrDefault(cl.trimStart,   0,   0);
+            cl.trimEnd     = finiteOrDefault(cl.trimEnd,     0,   0);
+            cl.introMarker = finiteOrDefault(cl.introMarker, 0,   0);
+            cl.outroMarker = finiteOrDefault(cl.outroMarker, 0,   0);
+            cl.fadeIn      = finiteOrDefault(cl.fadeIn,      0,   0,   60_000);
+            cl.fadeOut     = finiteOrDefault(cl.fadeOut,     0,   0,   60_000);
         }
     }
 
