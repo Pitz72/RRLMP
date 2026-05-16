@@ -533,20 +533,26 @@ ipcMain.handle('convert-recording', async (event, inputPath: string, outputPath:
     if (!win) return { success: false, error: 'No window found' };
 
     try {
-        const result = await AudioProcessor.convertAudio(
-            inputPath, 
-            outputPath, 
-            options,
-            (progress) => {
-                if (!win.isDestroyed()) {
-                    // Riutilizziamo l'evento export-progress per la barra UI
-                    win.webContents.send('export-progress', {
-                        current: progress,
-                        total: 100,
-                        filename: 'Conversione in corso...'
-                    });
+        // REC-02 (v1.3.1): hard timeout IPC 30 min — allineato al cap interno di AudioProcessor.convertAudio
+        // (NEW-GR-01 v1.2.17). Evita che il renderer resti appeso indefinitamente se FFmpeg hang.
+        const result = await withIpcTimeout(
+            AudioProcessor.convertAudio(
+                inputPath,
+                outputPath,
+                options,
+                (progress) => {
+                    if (!win.isDestroyed()) {
+                        // Riutilizziamo l'evento export-progress per la barra UI
+                        win.webContents.send('export-progress', {
+                            current: progress,
+                            total: 100,
+                            filename: 'Conversione in corso...'
+                        });
+                    }
                 }
-            }
+            ),
+            1_800_000,
+            'convert-recording'
         );
 
         if (result.success) {
@@ -579,10 +585,30 @@ ipcMain.handle('save-recording-buffer', async (_event, arrayBuffer: ArrayBuffer)
     }
 });
 
-ipcMain.handle('delete-temp-recording', async (_event, path: string) => {
+// REC-01 (v1.3.1): valida che il path sia dentro temp dir + matchi il pattern del nostro recorder.
+// Impedisce eliminazione di file arbitrari via IPC compromesso (path traversal o path random).
+ipcMain.handle('delete-temp-recording', async (_event, filePath: string) => {
     try {
-        if (fs.existsSync(path)) {
-            fs.unlinkSync(path);
+        if (typeof filePath !== 'string' || !filePath) {
+            return { success: false, error: 'Invalid path' };
+        }
+        const tempDir = fs.realpathSync(app.getPath('temp'));
+        let resolved: string;
+        try {
+            resolved = fs.realpathSync(filePath);
+        } catch {
+            resolved = require('path').resolve(filePath);
+        }
+        const relative = require('path').relative(tempDir, resolved);
+        const insideTemp = relative && !relative.startsWith('..') && !require('path').isAbsolute(relative);
+        const baseName = require('path').basename(resolved);
+        const allowedPattern = /^rrlmp_temp_\d+\.webm$/;
+        if (!insideTemp || !allowedPattern.test(baseName)) {
+            logger.warn(`[Main] delete-temp-recording rifiutato (path non sicuro): ${filePath}`);
+            return { success: false, error: 'Path not allowed' };
+        }
+        if (fs.existsSync(resolved)) {
+            fs.unlinkSync(resolved);
             return { success: true };
         }
         return { success: false, error: 'File not found' };

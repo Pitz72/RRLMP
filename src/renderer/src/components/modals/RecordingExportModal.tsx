@@ -42,12 +42,18 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
             setExportProgress(null);
             return;
         }
+        // REC-05 (v1.3.1): cleanup difensivo — se onExportProgress restituisce undefined/null
+        // (preload non aggiornato, mock test, ecc.), un cleanup non-function farebbe crashare React.
         const unsub = window.electron.onExportProgress((_event, data) => {
             if (data.total > 0) {
                 setExportProgress(Math.round((data.current / data.total) * 100));
             }
         });
-        return unsub;
+        return () => {
+            if (typeof unsub === 'function') {
+                try { unsub(); } catch { /* noop */ }
+            }
+        };
     }, [isConverting]);
 
     const selectedFmt = FORMAT_OPTIONS.find(f => f.id === format)!;

@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
 **Ultima analisi**: 16 maggio 2026 — Blocco 1 revisione esaustiva (Recording + MIDI) post-v1.3.0  
-**Versione corrente**: 1.3.0  
+**Versione corrente**: 1.3.1  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -33,6 +33,7 @@
 | v1.2.26 | b2dc97a | **NEW-ME-05** `setPermissionRequestHandler` ora nega `mediaTypes.video` — webcam non concessa anche se richiesta da terze parti |
 | v1.2.27 | 5de2756 | **NEW-LI-01..07** (cumulativa): reset `_isMicActiveGlobal` su cleanup App · `import-m3u` normalize path · `destroyAudioStoreLoop()` esportato · `crypto.randomUUID()` su runId/playoutLog · `PlayoutLogModal` distingue cancel/error · `unhandledrejection` listener a module-load. NEW-LI-05 già coperta da v1.2.22 |
 | **v1.3.0** | — | **Milestone Zero Criticità** — promozione di versione minore. Tutte le 18 criticità della revisione globale 2026-05-16 chiuse in v1.2.17–v1.2.27. Nessuna modifica codice rispetto a v1.2.27. |
+| **v1.3.1** | — | **REC-01..08** (cumulativa Recording): validazione path `delete-temp-recording` (allow-list dir+regex basename) · `convert-recording` con `withIpcTimeout` 30 min · cap FIFO chunks 14400 + auto-stop pulito · reset esplicito store su start/stop fallito · cleanup difensivo `onExportProgress` · reset store su unmount App · sanitize filename Windows · try/catch su `ondataavailable`. |
 
 ---
 
@@ -77,25 +78,20 @@
 ✅ **NEW-LI-05** · Smart Cues senza toast su `success:false` — risolto in v1.2.22  
 ✅ **NEW-LI-06** · `PlayoutLogModal.handleExport` cancel vs error — risolto in v1.2.27  
 ✅ **NEW-LI-07** · `unhandledrejection` listener post-bootstrap — risolto in v1.2.27  
+✅ **REC-01** · `delete-temp-recording` senza validazione path — risolto in v1.3.1  
+✅ **REC-02** · `convert-recording` IPC senza timeout — risolto in v1.3.1  
+✅ **REC-03** · `AudioRecorder.chunks[]` senza cap — risolto in v1.3.1  
+✅ **REC-04** · `useRecordingStore` stato corrotto su stop fallito — risolto in v1.3.1  
+✅ **REC-05** · `onExportProgress` cleanup non difensivo — risolto in v1.3.1  
+✅ **REC-06** · `timerIntervalId` non clearato su window-close — risolto in v1.3.1  
+✅ **REC-07** · `defaultName` non sanitizza caratteri Windows — risolto in v1.3.1  
+✅ **REC-08** · `ondataavailable` senza try/catch — risolto in v1.3.1  
 
 ---
 
 ## CRITICITÀ APERTE
 
-**11 criticità** aperte dalla revisione Blocco 1 (Recording + MIDI) del 2026-05-16 — successiva alla milestone v1.3.0. Le 18 criticità della revisione globale precedente restano tutte chiuse.
-
-### Blocco 1 — Recording (8)
-
-| ID | Sev | File | Problema | Fix suggerito |
-| -- | --- | ---- | -------- | ------------- |
-| **REC-01** | Grave | `src/main/index.ts:582` (`delete-temp-recording`) | Handler IPC cancella path arbitrari senza validazione: rischio eliminazione file fuori `app.getPath('temp')` | Validare prefisso temp dir + bloccare `..` traversal, oppure generare UUID lato main e accettare solo l'ID dal renderer |
-| **REC-02** | Media | `src/main/index.ts:531` (`convert-recording`) | IPC senza `withIpcTimeout` wrapper — renderer blocca indefinitamente se FFmpeg hang | Wrappare con `withIpcTimeout(..., 60_000, 'convert-recording')` |
-| **REC-03** | Media | `src/renderer/src/engine/AudioRecorder.ts:6,48,63` | `chunks: BlobPart[]` cresce illimitato — su 1h+ può causare OOM renderer | Cap FIFO (es. 5000) o streaming append via IPC chunk-per-chunk |
-| **REC-04** | Media | `src/renderer/src/store/useRecordingStore.ts:54–79` | Se `recorder.stop()` fallisce a metà, `isRecording=false` ma `tempPath` + chunks restano: secondo start riusa singleton corrotto | Reset esplicito di `tempPath` + UUID per-invocation |
-| **REC-05** | Media | `src/renderer/src/components/modals/RecordingExportModal.tsx:45` | `onExportProgress` callback registrata ma cleanup non garantito su unmount | `return () => { if (unsub) unsub(); }` nel useEffect |
-| **REC-06** | Media | `src/renderer/src/store/useRecordingStore.ts:34–46` | `timerIntervalId` non clearato se finestra chiusa durante recording — store Zustand sopravvive | Hook cleanup globale o destructor store |
-| **REC-07** | Lieve | `src/renderer/src/store/useRecordingStore.ts:85–88` | `defaultName` non sanitizza caratteri illegali Windows (`: < > ? " \|`) | `replace(/[:<>?"\|]/g, '_')` |
-| **REC-08** | Lieve | `src/renderer/src/engine/AudioRecorder.ts:63–67` | `ondataavailable` senza try/catch — chunk corrotto perso in silenzio | try/catch + log |
+**3 criticità** aperte (tutte sottosistema MIDI) dalla revisione Blocco 1 del 2026-05-16. Le 8 Recording sono state chiuse in v1.3.1. Le 18 della revisione globale precedente restano tutte chiuse.
 
 ### Blocco 1 — MIDI (3)
 
@@ -160,7 +156,7 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ### Criticità aperte
 
-**11** (1 grave + 7 medie + 3 lievi) — tutte dal Blocco 1 revisione esaustiva 2026-05-16 (Recording + MIDI). Dettaglio nella sezione "CRITICITÀ APERTE" sopra. Le 18 criticità della revisione globale precedente (GR-01..LI-05 + NEW-*) restano tutte chiuse.
+**3** (2 medie + 1 lieve) — tutte sottosistema MIDI, dal Blocco 1 revisione esaustiva 2026-05-16. Le 8 Recording sono state chiuse in v1.3.1. Le 18 criticità della revisione globale precedente (GR-01..LI-05 + NEW-*) restano tutte chiuse.
 
 ### Roadmap attiva
 
@@ -176,4 +172,4 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ---
 
-*Aggiornato a v1.3.0 + Blocco 1 revisione esaustiva 2026-05-16. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
+*Aggiornato a v1.3.1 (cumulativa Recording REC-01..08) + Blocco 1 revisione esaustiva 2026-05-16. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*

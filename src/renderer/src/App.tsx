@@ -9,6 +9,7 @@ import { DigitalClock } from './components/ui/DigitalClock';
 import MidiManager from './engine/MidiManager';
 import MicManager from './engine/MicManager';
 import { useAudioStore } from './store/useAudioStore';
+import { useRecordingStore } from './store/useRecordingStore';
 import { useSettingsStore } from './store/useSettingsStore';
 import AudioContextManager from './engine/AudioContextManager';
 import { WelcomeScreen } from './components/modals/WelcomeScreen';
@@ -37,10 +38,27 @@ function App() {
     useEffect(() => {
         return () => {
             try { useAudioStore.getState().setMicActive(false); } catch { /* noop */ }
+            // REC-06 (v1.3.1): reset esplicito del recording store — chiude timerIntervalId
+            // se la finestra viene chiusa durante una registrazione attiva.
+            try { useRecordingStore.getState().reset(); } catch { /* noop */ }
             MicManager.destroy();
             MidiManager.destroy();
             AudioContextManager.destroy();
         };
+    }, []);
+
+    // REC-03 (v1.3.1): se il recorder raggiunge il cap chunks, interrompi la sessione
+    // in modo pulito tramite lo store (no perdita di audio: ferma + salva quanto raccolto).
+    useEffect(() => {
+        const onCap = () => {
+            try {
+                if (useRecordingStore.getState().isRecording) {
+                    void useRecordingStore.getState().stopRecording();
+                }
+            } catch { /* noop */ }
+        };
+        window.addEventListener('audiorecorder:cap-reached', onCap);
+        return () => window.removeEventListener('audiorecorder:cap-reached', onCap);
     }, []);
 
     // v0.16.2 — Sincronizzazione Master Chain con AudioContextManager

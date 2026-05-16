@@ -25,15 +25,28 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
     timerIntervalId: null,
 
     startRecording: async () => {
+        // REC-04 (v1.3.1): reset esplicito di tempPath/elapsed PRIMA di avviare —
+        // evita di riusare uno stato corrotto da uno stop fallito precedente.
+        const prev = get();
+        if (prev.timerIntervalId) window.clearInterval(prev.timerIntervalId);
+        set({
+            isRecording: false,
+            isConverting: false,
+            startTime: null,
+            elapsedSeconds: 0,
+            tempPath: null,
+            timerIntervalId: null
+        });
+
         const recorder = AudioRecorder.getInstance();
         recorder.initialize();
 
         try {
             await recorder.start();
-            
+
             const intervalId = window.setInterval(() => {
-                set((state) => ({ 
-                    elapsedSeconds: state.startTime ? Math.floor((Date.now() - state.startTime) / 1000) : 0 
+                set((state) => ({
+                    elapsedSeconds: state.startTime ? Math.floor((Date.now() - state.startTime) / 1000) : 0
                 }));
             }, 1000);
 
@@ -73,8 +86,16 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
                 timerIntervalId: null
             });
         } catch (error) {
+            // REC-04 (v1.3.1): stop fallito → reset COMPLETO di tempPath/elapsed/startTime,
+            // così la sessione successiva parte pulita.
             console.error('[RecordingStore] Failed to stop recording:', error);
-            set({ isRecording: false, timerIntervalId: null });
+            set({
+                isRecording: false,
+                startTime: null,
+                elapsedSeconds: 0,
+                tempPath: null,
+                timerIntervalId: null
+            });
         }
     },
 
@@ -85,7 +106,11 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
         const now = new Date();
         const dateStr = now.toISOString().split('T')[0];
         const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-');
-        const defaultName = `RLMP_REC_${dateStr}_${timeStr}.${format}`;
+        // REC-07 (v1.3.1): sanitize caratteri illegali Windows (: < > ? " | * / \).
+        // Difesa in profondità: i template attuali non li producono, ma se in futuro si aggiungono
+        // suffissi dinamici (es. nome show) il dialog non fallirà più con "filename non valido".
+        const rawName = `RLMP_REC_${dateStr}_${timeStr}.${format}`;
+        const defaultName = rawName.replace(/[:<>?"|*\\/]/g, '_');
 
         const result = await window.electron.showSaveDialogRecording(defaultName, format);
         if (result.canceled || !result.filePath) {
