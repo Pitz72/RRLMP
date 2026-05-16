@@ -17,7 +17,14 @@
       "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" push github master)",
       "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" log --oneline -5)",
       "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" rev-parse master origin/master github/master)",
-      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" merge --no-ff claude/silly-swirles-1e7360 -m \"Merge v1.2.18: fix NEW-GR-03 timeout IPC smart-cues\")"
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" merge --no-ff claude/silly-swirles-1e7360 -m \"Merge v1.2.18: fix NEW-GR-03 timeout IPC smart-cues\")",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" stash push -m \"settings.local.json autosave\")",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" stash pop)",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" checkout --theirs .claude/settings.local.json)",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" status)",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" reset HEAD .claude/settings.local.json)",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" checkout -- .claude/settings.local.json)",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" stash drop)"
     ]
   }
 }
