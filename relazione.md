@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
 **Ultima analisi**: 16 maggio 2026  
-**Versione corrente**: 1.2.12 (commit ab4cbd4)  
+**Versione corrente**: 1.2.15  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -52,7 +52,7 @@
 | ------ | ------- | ------------ |
 | Waveform Editor | Buono | Smart Cues: il backend IPC/FFmpeg restituisce solo trimStart/trimEnd; manca rilevazione automatica di introCue/outroCue (primo picco energetico e punto di dissolvenza naturale) da integrare nei marker del WaveformEditor |
 | MIDI Learn | Funzionale | Velocity ricevuta ma ignorata (\_velocity nei callback) — non usata come controllo di volume per le clip; OSC rimandato a roadmap (F-25, Tier 3) |
-| Auto-Silence Detection | Funzionale | Soglia FFmpeg fissa a -40 dB hardcoded in AudioProcessor.detectSilence(); nessuna analisi del noise floor del file per adattare la soglia dinamicamente |
+| Auto-Silence Detection | Buono | Soglia ora dinamica (volumedetect → mean − 25 dB, clamped −55/−20) da v1.2.15; override manuale opzionale; mancano ancora introCue/outroCue automatici |
 | Smart Mic Ducking | Buono | Hold time configurabili da v1.2.14 (con nota per loopback USB mixer); Talkback/IFB (F-17) rimandato a roadmap |
 | Export Self-Contained | Funzionale | Nessun Playout Log automatico; export solo on-demand manuale (F-03) |
 | Open-file da OS (.lmp association) | Funzionale | Associazione icona e "Apri con..." non garantiti su tutte le config Windows |

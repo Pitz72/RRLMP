@@ -198,23 +198,77 @@ export class AudioProcessor {
                 }
 
                 /**
-                * Rileva il silenzio iniziale e finale del file audio tramite FFmpeg silencedetect.
-
-   * Viene eseguito nel main process (Node.js) per evitare OOM nel renderer su file grandi.
-   * Ritorna trimStart e trimEnd in secondi.
-   */
-  static async detectSilence(filePath: string): Promise<any> {
+                * Stima il livello medio del file tramite FFmpeg volumedetect (analizza max 60s).
+                * Usato da detectSilence per calcolare la soglia di silenzio dinamica.
+                * Ritorna mean_volume in dBFS o null se il processo fallisce.
+                */
+  private static async _estimateMeanLevel(filePath: string): Promise<number | null> {
     return new Promise((resolve) => {
         try {
-            if (!fs.existsSync(filePath)) {
-                return resolve({ success: false, error: 'File non trovato' });
-            }
+            const proc = spawn(safeFfmpegPath, [
+                '-i', filePath,
+                '-t', '60',
+                '-af', 'volumedetect',
+                '-f', 'null', '-'
+            ]);
+            let stderrData = '';
 
-            console.log(`[AudioProcessor] Silence detection per: ${filePath}`);
+            const killTimeout = setTimeout(() => {
+                try { proc.kill('SIGKILL'); } catch { /* noop */ }
+                resolve(null);
+            }, 10000);
 
+            proc.stderr.on('data', (chunk: Buffer) => { stderrData += chunk.toString(); });
+            proc.on('error', () => { clearTimeout(killTimeout); resolve(null); });
+            proc.on('close', () => {
+                clearTimeout(killTimeout);
+                const match = stderrData.match(/mean_volume:\s*(-?[\d.]+)\s*dB/);
+                if (!match) return resolve(null);
+                const v = parseFloat(match[1]);
+                resolve(isFinite(v) ? v : null);
+            });
+        } catch {
+            resolve(null);
+        }
+    });
+  }
+
+                /**
+                * Rileva il silenzio iniziale e finale del file audio tramite FFmpeg silencedetect.
+                * v1.2.15: analisi intelligente con soglia dinamica basata su volumedetect.
+                *
+                * Viene eseguito nel main process (Node.js) per evitare OOM nel renderer su file grandi.
+                * Ritorna trimStart, trimEnd e thresholdUsed in secondi/dBFS.
+                *
+                * @param overrideThresholdDb  Se fornito, usa questa soglia fissa invece del calcolo dinamico.
+                */
+  static async detectSilence(filePath: string, overrideThresholdDb?: number): Promise<any> {
+    if (!fs.existsSync(filePath)) {
+        return { success: false, error: 'File non trovato' };
+    }
+
+    // Step 1: calcola soglia — override manuale o analisi dinamica del livello medio
+    let thresholdDb: number;
+    if (overrideThresholdDb !== undefined) {
+        thresholdDb = overrideThresholdDb;
+    } else {
+        const meanLevel = await AudioProcessor._estimateMeanLevel(filePath);
+        if (meanLevel !== null) {
+            // Soglia = livello medio − 25 dB, clamped tra −55 e −20 dBFS
+            // Es: file mastered a −10 dBFS → soglia −35 dBFS (rimuove code quasi-silenti)
+            // Es: registrazione vocale a −25 dBFS → soglia −50 dBFS (cattura anche pause brevi)
+            thresholdDb = Math.max(-55, Math.min(-20, meanLevel - 25));
+        } else {
+            thresholdDb = -40; // fallback legacy
+        }
+    }
+
+    // Step 2: silencedetect con soglia calcolata
+    return new Promise((resolve) => {
+        try {
             const args = [
                 '-i', filePath,
-                '-af', 'silencedetect=noise=-40dB:d=0.1',
+                '-af', `silencedetect=noise=${thresholdDb.toFixed(1)}dB:d=0.1`,
                 '-f', 'null', '-'
             ];
 
@@ -226,13 +280,10 @@ export class AudioProcessor {
                 resolve({ success: false, error: 'Timeout: silence detection exceeded 28s' });
             }, 28000);
 
-            proc.stderr.on('data', (chunk: Buffer) => {
-                stderrData += chunk.toString();
-            });
+            proc.stderr.on('data', (chunk: Buffer) => { stderrData += chunk.toString(); });
 
             proc.on('error', (err: Error) => {
                 clearTimeout(_silenceKillTimeout);
-                console.error('[AudioProcessor] detectSilence spawn error:', err);
                 resolve({ success: false, error: err.message });
             });
 
@@ -269,23 +320,20 @@ export class AudioProcessor {
                     }
 
                     if (trimStart === 0 && trimEnd === 0) {
-                        return resolve({ success: true, data: { trimStart: 0, trimEnd: 0, noSilence: true } });
+                        return resolve({ success: true, data: { trimStart: 0, trimEnd: 0, noSilence: true, thresholdUsed: thresholdDb } });
                     }
 
                     if (duration > 0 && duration - trimEnd <= trimStart + 0.1) {
                         return resolve({ success: false, error: 'Il file sembra essere tutto silenzio o il volume è troppo basso.' });
                     }
 
-                    console.log(`[AudioProcessor] Silence OK: trimStart=${trimStart}, trimEnd=${trimEnd}, dur=${duration.toFixed(2)}`);
-                    resolve({ success: true, data: { trimStart, trimEnd } });
+                    resolve({ success: true, data: { trimStart, trimEnd, thresholdUsed: thresholdDb } });
                 } catch (parseErr) {
-                    console.error('[AudioProcessor] Parse error silence:', parseErr);
                     resolve({ success: false, error: String(parseErr) });
                 }
             });
 
         } catch (error) {
-            console.error('[AudioProcessor] detectSilence error:', error);
             resolve({ success: false, error: String(error) });
         }
     });

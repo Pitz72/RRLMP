@@ -167,9 +167,9 @@ ipcMain.handle('get-waveform-data', async (_event, filePath: string) => {
     ).catch((err: Error) => ({ success: false, error: err.message }));
 });
 
-ipcMain.handle('detect-silence', async (_event, filePath: string) => {
+ipcMain.handle('detect-silence', async (_event, filePath: string, thresholdDb?: number) => {
     return withConcurrencyLimit('detect-silence', 3, () =>
-        withIpcTimeout(AudioProcessor.detectSilence(filePath), 30_000, 'detect-silence')
+        withIpcTimeout(AudioProcessor.detectSilence(filePath, thresholdDb), 45_000, 'detect-silence')
     ).catch((err: Error) => ({ success: false, error: err.message }));
 });
 

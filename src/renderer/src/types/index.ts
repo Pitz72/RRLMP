@@ -16,7 +16,7 @@ declare global {
             getFilePath: (file: File) => string;
             getAudioMetadata: (filePath: string) => Promise<{success: boolean, data?: unknown, error?: string}>;
             getWaveformData: (filePath: string) => Promise<{success: boolean, data?: number[], error?: string}>;
-            detectSilence: (filePath: string) => Promise<{success: boolean, data?: {trimStart: number, trimEnd: number, noSilence?: boolean}, error?: string}>;
+            detectSilence: (filePath: string, thresholdDb?: number) => Promise<{success: boolean, data?: {trimStart: number, trimEnd: number, noSilence?: boolean, thresholdUsed?: number}, error?: string}>;
             checkFilesExist: (paths: string[]) => Promise<{ missing: string[] }>;
             saveProject: (content: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
             loadProject: () => Promise<{ success: boolean; data?: string; filePath?: string; error?: string }>;
