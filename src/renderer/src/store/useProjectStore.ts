@@ -51,6 +51,14 @@ export function validateLmpProjectData(raw: unknown): { columns: Column[] } {
             cl.outroMarker = finiteOrDefault(cl.outroMarker, 0,   0);
             cl.fadeIn      = finiteOrDefault(cl.fadeIn,      0,   0,   60_000);
             cl.fadeOut     = finiteOrDefault(cl.fadeOut,     0,   0,   60_000);
+
+            // ASSET-07 (v1.3.6): normalizza keybind a string vuota se undefined/null/non-string.
+            // Senza, clip caricate da .lmp v1.2.x (prima dell'introduzione del campo keybind)
+            // restano `keybind: undefined` e il check `c.keybind === e.code` in MainGrid
+            // accidentalmente farebbe match se anche `e.code` fosse undefined (improbabile ma
+            // pulizia logica). Anche `midiBind` per analogia.
+            if (typeof cl.keybind !== 'string') cl.keybind = '';
+            if (typeof cl.midiBind !== 'string') cl.midiBind = '';
         }
     }
 

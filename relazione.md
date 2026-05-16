@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
 **Ultima analisi**: 16 maggio 2026 — Blocco 1 revisione esaustiva (Recording + MIDI) post-v1.3.0  
-**Versione corrente**: 1.3.5  
+**Versione corrente**: 1.3.6  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -38,6 +38,7 @@
 | **v1.3.3** | — | **PERSIST-01/02/04/06/09** (cumulativa Persistenza): auto-backup ora gate `isDirty` (no I/O su progetto pulito) · save atomico via `writeFileAtomicSync` (tmp+rename) su tutti i 3 handler · load JSON malformato torna ora errore esplicito + toast · log esplicito errori rotazione autosave · `loadProject` azzera selezione e MIDI Learn (con `preserveUiState` per Save/Save As). |
 | **v1.3.4** | — | **DND-02/04/05 + MEDIA-03/04** (cumulativa DnD + media://): `moveClip` bounds check `oldIndex` + clamp `newIndex` · drop nativo rifiutato su colonna locked · filter renderer allineato a main (aggiunto webm/mp4) · Range header validato (416 su invalid) + clamp `end` a `fileSize-1` · `nodeStream.destroy(err)` su errore stream per propagare cancellazione al client. |
 | **v1.3.5** | — | **MODAL-02/03/04/05/08** (cumulativa Modali): ESC chiude `GeneralSettingsModal` e `KeymappingModal` senza propagare a Emergency Stop · timeout 5s su `enumerateDevices` · timeout 5s su `checkForUpdates` (AbortController) · MIDI Learn valida esistenza clip prima di scrivere bind. |
+| **v1.3.6** | — | **ASSET-02/06/07** (cumulativa Asset): **ASSET-02 GRAVE** `e.repeat` ignorato → autorepeat OS lanciava jingle 30×/s in diretta; ora bloccato · KeymappingModal detect conflitto keybind con `confirm()` Promise-based (no `window.confirm` che freezerebbe l'audio) · `validateLmpProjectData` normalizza `keybind`/`midiBind` undefined → `''` per `.lmp` v1.2.x. |
 
 ---
 
@@ -108,6 +109,9 @@
 ✅ **MODAL-04** · `enumerateDevices` senza timeout (modal freezeato su USB hang) — risolto in v1.3.5  
 ✅ **MODAL-05** · `checkForUpdates` senza timeout (Promise pendente fino a TCP timeout) — risolto in v1.3.5  
 ✅ **MODAL-08** · MIDI Learn senza validazione clip esistente — risolto in v1.3.5  
+✅ **ASSET-02** · keydown global senza `e.repeat` guard → autorepeat OS = jingle balbettante — risolto in v1.3.6  
+✅ **ASSET-06** · KeymappingModal accettava silenziosamente conflitti keybind — risolto in v1.3.6  
+✅ **ASSET-07** · `validateLmpProjectData` non sanitizzava `keybind`/`midiBind` undefined — risolto in v1.3.6  
 
 ---
 
@@ -170,7 +174,7 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ### Criticità aperte
 
-**0** — Blocco 1 (11) + Blocco 2 Persistenza (5) + Blocco 3 DnD+Media (5) + Modali residui (5 in v1.3.5) chiusi. Cumulative 26 fix dal 2026-05-16. Le 18 della revisione globale precedente restano tutte chiuse. Pianificate: v1.3.6 Asset (3 fix), v1.3.7 Build (3 fix). Skipped deliberatamente: Output Device multi-routing (richiede test hardware).
+**0** — Blocco 1 (11) + Blocco 2 Persistenza (5) + Blocco 3 DnD+Media (5) + Modali (5) + Asset (3 in v1.3.6) chiusi. Cumulative 29 fix dal 2026-05-16. Le 18 della revisione globale precedente restano tutte chiuse. Pianificata: v1.3.7 Build (3 fix). Skipped deliberatamente: Output Device multi-routing (richiede test hardware).
 
 ### Roadmap attiva
 
@@ -186,4 +190,4 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ---
 
-*Aggiornato a v1.3.5 (cumulativa Modali MODAL-02/03/04/05/08; 5/5 selezionati) — totale 26 fix dal 2026-05-16. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
+*Aggiornato a v1.3.6 (cumulativa Asset ASSET-02/06/07; 3/3 selezionati) — totale 29 fix dal 2026-05-16. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*

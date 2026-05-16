@@ -79,6 +79,13 @@ export const MainGrid: React.FC = () => {
     // GLOBAL HOTKEYS
     React.useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            // ASSET-02 (v1.3.6): blocca eventi keydown da OS autorepeat.
+            // Tenere premuto un tasto bound a un jingle (es. F1) generava 30+ keydown/s
+            // → la stessa clip veniva toggle on/off ripetutamente, con risultato udibile
+            // catastrofico in diretta (jingle balbettante / stop immediato). Solo il
+            // primo evento "fisico" del tasto deve scatenare il trigger.
+            if (e.repeat) return;
+
             // 1. Modal Guard
             if (editingClip) return;
 
