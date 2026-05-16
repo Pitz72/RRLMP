@@ -37,6 +37,12 @@ class MicManager {
     private _isMicActive = false;
     private _currentLevel = -100; // dBFS
 
+    // v1.2.20 (NEW-GR-05): token di sessione incrementato a ogni cleanup.
+    // Tutti i callback async (poll, activation/release timer) catturano il valore
+    // al momento dello scheduling e bail-out se il token cambia: previene
+    // "fantasmi" su re-arm rapido o disarm durante l'esecuzione di un listener.
+    private _sessionId = 0;
+
     // Routing state (v1.0.0+)
     private _mixEnabled = false;
     private _bypassProcessing = false;
@@ -232,6 +238,8 @@ class MicManager {
     }
 
     private _cleanup(): void {
+        // v1.2.20 (NEW-GR-05): invalida tutte le callback ancora in volo
+        this._sessionId++;
         if (this.pollHandle !== null) {
             clearInterval(this.pollHandle);
             this.pollHandle = null;
@@ -272,7 +280,9 @@ class MicManager {
     // ─────────────────────────────────────────────────────────────
 
     private _poll(): void {
-        if (!this.analyser) return;
+        // v1.2.20 (NEW-GR-05): bail-out se la sessione è terminata
+        if (!this._isArmed || !this.analyser) return;
+        const session = this._sessionId;
 
         const buf = new Float32Array(this.analyser.fftSize);
         this.analyser.getFloatTimeDomainData(buf);
@@ -285,6 +295,8 @@ class MicManager {
 
         this._currentLevel = db;
         this.levelListeners.forEach(cb => cb(db));
+        // Un listener (es. UI) potrebbe aver chiamato disarm() durante forEach
+        if (session !== this._sessionId) return;
 
         // Noise Gate — macchina a stati
         if (!this._isMicActive) {
@@ -292,6 +304,7 @@ class MicManager {
             if (db > this.activationThresholdDb) {
                 if (!this._activationTimer) {
                     this._activationTimer = setTimeout(() => {
+                        if (session !== this._sessionId) return; // sessione invalidata
                         this._activationTimer = null;
                         this._setActive(true);
                     }, this.activationHoldMs);
@@ -307,6 +320,7 @@ class MicManager {
             if (db < this.releaseThresholdDb) {
                 if (!this._releaseTimer) {
                     this._releaseTimer = setTimeout(() => {
+                        if (session !== this._sessionId) return; // sessione invalidata
                         this._releaseTimer = null;
                         this._setActive(false);
                     }, this.releaseHoldMs);
@@ -322,6 +336,8 @@ class MicManager {
     }
 
     private _setActive(active: boolean): void {
+        // v1.2.20 (NEW-GR-05): non notificare attività se la sessione è terminata
+        if (!this._isArmed) return;
         if (this._isMicActive === active) return;
         this._isMicActive = active;
         this.activityListeners.forEach(cb => cb(active));
