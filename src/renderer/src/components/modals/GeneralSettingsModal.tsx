@@ -80,8 +80,18 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
     const [activeTab, setActiveTab] = useState<SettingsTab>('general');
 
     useEffect(() => {
-        if (isOpen) {
-            navigator.mediaDevices.enumerateDevices().then(devs => {
+        if (!isOpen) return;
+        // MODAL-04 (v1.3.5): timeout 5s su enumerateDevices.
+        // Su Windows un device USB in stato anomalo (driver crash, transizione hot-plug)
+        // può far ritardare arbitrariamente la enumerate → modal freezeato in stato
+        // "vuoto" senza che l'utente capisca cosa sta succedendo. Con Promise.race
+        // facciamo cadere graceful e mostriamo liste vuote che il fallback alla scheda
+        // di default copre via outputDeviceId='default'.
+        const timeout = new Promise<MediaDeviceInfo[]>((_, reject) =>
+            window.setTimeout(() => reject(new Error('enumerateDevices timeout')), 5000)
+        );
+        Promise.race([navigator.mediaDevices.enumerateDevices(), timeout])
+            .then(devs => {
                 setDevices(devs.filter(d => d.kind === 'audiooutput').map(d => ({
                     deviceId: d.deviceId,
                     label: d.label || `Device ${d.deviceId.substring(0, 5)}...`
@@ -90,9 +100,30 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     deviceId: d.deviceId,
                     label: d.label || `Input ${d.deviceId.substring(0, 5)}...`
                 })));
+            })
+            .catch(err => {
+                console.warn('[Settings] enumerateDevices fallito:', err);
+                setDevices([]);
+                setInputDevices([]);
             });
-        }
     }, [isOpen]);
+
+    // MODAL-02 (v1.3.5): ESC chiude la modale senza propagare al window
+    // (dove c'è il globalShortcut Emergency Stop). Prima ESC su Settings aperta
+    // triggera STOP ALL invece di chiudere → operatore in diretta voleva chiudere
+    // Settings e si trovava tutto in mute.
+    useEffect(() => {
+        if (!isOpen) return;
+        const handler = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                e.stopPropagation();
+                e.preventDefault();
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handler, true); // capture phase
+        return () => window.removeEventListener('keydown', handler, true);
+    }, [isOpen, onClose]);
 
     const handleChangeDevice = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newId = e.target.value;

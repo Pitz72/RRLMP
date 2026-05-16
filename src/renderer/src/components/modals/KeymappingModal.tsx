@@ -63,7 +63,15 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
             if (pendingMidiTarget.type === 'global') {
                 setGlobalMidiBind(pendingMidiTarget.id, bindString);
             } else if (pendingMidiTarget.type === 'clip' && pendingMidiTarget.colId) {
-                updateClip(pendingMidiTarget.colId, pendingMidiTarget.id, { midiBind: bindString });
+                // MODAL-08 (v1.3.5): valida che colonna e clip esistano ancora prima
+                // di scrivere. Se l'utente rimuove la clip in un'altra UI (selezione +
+                // Canc) mentre il countdown Learn è attivo, `updateClip` su id orfano
+                // sarebbe un no-op silenzioso, ma il bind verrebbe perso senza segnale.
+                const col = columns.find(c => c.id === pendingMidiTarget.colId);
+                const stillExists = col?.clips.some(cl => cl.id === pendingMidiTarget.id);
+                if (stillExists) {
+                    updateClip(pendingMidiTarget.colId, pendingMidiTarget.id, { midiBind: bindString });
+                }
             }
 
             setPendingMidiTarget(null);
@@ -71,7 +79,24 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
 
         const unsubscribe = MidiManager.getInstance().addListener(handleMidi);
         return () => unsubscribe();
-    }, [isOpen, pendingMidiTarget, setGlobalMidiBind, updateClip]);
+    }, [isOpen, pendingMidiTarget, setGlobalMidiBind, updateClip, columns]);
+
+    // MODAL-03 (v1.3.5): ESC chiude la modale senza propagare al globalShortcut
+    // Emergency Stop. Il `handleKeydownCapture` interno (sui cell input) gestisce
+    // ESC come "clear keybind" e fa già stopPropagation: questo handler quindi
+    // si attiva solo quando la modale è aperta ma nessun input cell ha focus.
+    useEffect(() => {
+        if (!isOpen) return;
+        const handler = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                e.stopPropagation();
+                e.preventDefault();
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handler, true);
+        return () => window.removeEventListener('keydown', handler, true);
+    }, [isOpen, onClose]);
 
     useEffect(() => {
         if (!isOpen) setPendingMidiTarget(null);

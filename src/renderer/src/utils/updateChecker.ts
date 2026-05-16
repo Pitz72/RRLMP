@@ -16,7 +16,15 @@ export interface UpdateInfo {
 
 export const checkForUpdates = async (currentVersion: string): Promise<UpdateInfo> => {
     try {
-        const response = await fetch(UPDATE_URL, { cache: 'no-store' });
+        // MODAL-05 (v1.3.5): timeout 5s sulla fetch del feed update.
+        // Senza, una rete lenta o un DNS che non risolve lascia la Promise pendente
+        // per minuti. Le UI che chiamano checkForUpdates (WelcomeScreen, AboutModal)
+        // restano in stato "Checking..." fino al timeout TCP del browser (default ~30s
+        // su Chromium) — durante una diretta è inaccettabile.
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const response = await fetch(UPDATE_URL, { cache: 'no-store', signal: controller.signal });
+        clearTimeout(timeoutId);
         if (!response.ok) {
             return { hasUpdate: false, remoteVersion: '' };
         }

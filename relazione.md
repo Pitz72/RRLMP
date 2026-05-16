@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
 **Ultima analisi**: 16 maggio 2026 — Blocco 1 revisione esaustiva (Recording + MIDI) post-v1.3.0  
-**Versione corrente**: 1.3.4  
+**Versione corrente**: 1.3.5  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -37,6 +37,7 @@
 | **v1.3.2** | — | **MIDI-01..03** (cumulativa MIDI): `onstatechange` azzera `onmidimessage` su disconnect (no doppio trigger su riconnessione) · clamp `note`/`velocity` a `[0,127]` in `handleMidiMessage` · `console.warn/error` → `debugLog()` strutturato in MidiManager e App.tsx. **Blocco 1 completo: 11/11 chiuse.** |
 | **v1.3.3** | — | **PERSIST-01/02/04/06/09** (cumulativa Persistenza): auto-backup ora gate `isDirty` (no I/O su progetto pulito) · save atomico via `writeFileAtomicSync` (tmp+rename) su tutti i 3 handler · load JSON malformato torna ora errore esplicito + toast · log esplicito errori rotazione autosave · `loadProject` azzera selezione e MIDI Learn (con `preserveUiState` per Save/Save As). |
 | **v1.3.4** | — | **DND-02/04/05 + MEDIA-03/04** (cumulativa DnD + media://): `moveClip` bounds check `oldIndex` + clamp `newIndex` · drop nativo rifiutato su colonna locked · filter renderer allineato a main (aggiunto webm/mp4) · Range header validato (416 su invalid) + clamp `end` a `fileSize-1` · `nodeStream.destroy(err)` su errore stream per propagare cancellazione al client. |
+| **v1.3.5** | — | **MODAL-02/03/04/05/08** (cumulativa Modali): ESC chiude `GeneralSettingsModal` e `KeymappingModal` senza propagare a Emergency Stop · timeout 5s su `enumerateDevices` · timeout 5s su `checkForUpdates` (AbortController) · MIDI Learn valida esistenza clip prima di scrivere bind. |
 
 ---
 
@@ -102,6 +103,11 @@
 ✅ **DND-05** · filter renderer mancava `webm`/`mp4` (incoerente con main) — risolto in v1.3.4  
 ✅ **MEDIA-03** · Range header `end` non clampato a `fileSize-1` — risolto in v1.3.4  
 ✅ **MEDIA-04** · errore stream non propagato al client (solo log) — risolto in v1.3.4  
+✅ **MODAL-02** · GeneralSettingsModal ESC propagava a Emergency Stop — risolto in v1.3.5  
+✅ **MODAL-03** · KeymappingModal ESC propagava a Emergency Stop — risolto in v1.3.5  
+✅ **MODAL-04** · `enumerateDevices` senza timeout (modal freezeato su USB hang) — risolto in v1.3.5  
+✅ **MODAL-05** · `checkForUpdates` senza timeout (Promise pendente fino a TCP timeout) — risolto in v1.3.5  
+✅ **MODAL-08** · MIDI Learn senza validazione clip esistente — risolto in v1.3.5  
 
 ---
 
@@ -164,7 +170,7 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ### Criticità aperte
 
-**0** — Blocco 1 (11) + Blocco 2 Persistenza (5) + Blocco 3 prima ondata DnD+Media (5) chiusi tra v1.3.1 e v1.3.4. Cumulative 21 fix dal 2026-05-16. Le 18 della revisione globale precedente (GR-01..LI-05 + NEW-*) restano tutte chiuse. Da ispezionare: aree minori (modali residui, output device multi-routing, asset library, build/distribution).
+**0** — Blocco 1 (11) + Blocco 2 Persistenza (5) + Blocco 3 DnD+Media (5) + Modali residui (5 in v1.3.5) chiusi. Cumulative 26 fix dal 2026-05-16. Le 18 della revisione globale precedente restano tutte chiuse. Pianificate: v1.3.6 Asset (3 fix), v1.3.7 Build (3 fix). Skipped deliberatamente: Output Device multi-routing (richiede test hardware).
 
 ### Roadmap attiva
 
@@ -180,4 +186,4 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ---
 
-*Aggiornato a v1.3.4 (cumulativa DnD+Media DND-02/04/05+MEDIA-03/04; Blocco 3 prima ondata 5/5) — totale 21 fix dal 2026-05-16. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
+*Aggiornato a v1.3.5 (cumulativa Modali MODAL-02/03/04/05/08; 5/5 selezionati) — totale 26 fix dal 2026-05-16. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
