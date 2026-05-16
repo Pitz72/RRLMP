@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
 **Ultima analisi**: 16 maggio 2026 (revisione globale post-v1.2.16)  
-**Versione corrente**: 1.2.17  
+**Versione corrente**: 1.2.18  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -21,7 +21,8 @@
 | v1.2.14 | e2c235c | Smart Mic Ducking: hold times configurabili + nota loopback USB mixer — miglioramento |
 | v1.2.15 | c3b1bf6 | Auto-Silence Detection: soglia dinamica da volumedetect — miglioramento |
 | v1.2.16 | e9a9df3 | **MIDI Velocity**: `playClip(velocityGain?)` scala volume per riproduzione, evaluateMix usa valore scalato per ducking · **Smart Cues**: `detectSmartCues()` silencedetect con soglia mean−3dB, bottone Auto in WaveformEditor · **Playout Log**: store runtime `playoutLog[]`, modal con badge ON AIR live, Export CSV · **Open-file OS**: NSIS `oneClick:false` + argv parsing con `fs.existsSync` guard |
-| v1.2.17 | — | **NEW-GR-01** `convertAudio()` con registro globale + hard timeout 30 min + kill su window-close/before-quit · **NEW-GR-02** `onOpenFile` (apertura `.lmp` da OS) ora gate `isDirty` con confirmThree Salva/Non Salvare/Annulla — niente più stopAll() accidentale in onda |
+| v1.2.17 | 5c31078 | **NEW-GR-01** `convertAudio()` con registro globale + hard timeout 30 min + kill su window-close/before-quit · **NEW-GR-02** `onOpenFile` (apertura `.lmp` da OS) ora gate `isDirty` con confirmThree Salva/Non Salvare/Annulla — niente più stopAll() accidentale in onda |
+| v1.2.18 | — | **NEW-GR-03** timeout IPC `detect-smart-cues` 35s → 50s — copre sub-timeout FFmpeg interni (10s+30s=40s) + 10s grace, no più IPC_RATE_LIMITED a catena |
 
 ---
 
@@ -50,6 +51,7 @@
 ✅ **ESC** · Emergency Stop globale attivo anche fuori focus — risolto in v1.2.12  
 ✅ **NEW-GR-01** · `convertAudio()` senza timeout/kill su finestra chiusa — risolto in v1.2.17  
 ✅ **NEW-GR-02** · Apertura `.lmp` da OS bypassava il gate `isDirty` — risolto in v1.2.17  
+✅ **NEW-GR-03** · Timeout IPC `detect-smart-cues` troppo stretto — risolto in v1.2.18  
 
 ---
 
@@ -57,12 +59,7 @@
 
 Revisione globale post-v1.2.16 ha identificato 18 criticità non documentate. Le 2 gravissime sono state chiuse in v1.2.17. Restano 16 aperte.
 
-### GRAVI (4)
-
-- **NEW-GR-03** · Timeout IPC `detect-smart-cues` (35s) < timeout interni FFmpeg (10s+30s=40s)  
-  `src/main/index.ts:178` vs `src/main/AudioProcessor.ts:256`  
-  IPC rigetta prima del kill → `withConcurrencyLimit` satura → `IPC_RATE_LIMITED` a catena.  
-  **Fix**: portare timeout IPC a 45s e decrementare `_ipcInflight` solo a terminazione effettiva del processo.
+### GRAVI (3)
 
 - **NEW-GR-04** · `playoutLog` array senza cap, modal non virtualizzata  
   `src/renderer/src/store/useAudioStore.ts:239,463-487`  
@@ -142,7 +139,7 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ### Criticità aperte
 
-**16 criticità** post-revisione globale: 4 gravi (NEW-GR-03..06), 5 medie (NEW-ME-01..05), 7 lievi (NEW-LI-01..07). Le 2 gravissime (NEW-GR-01, NEW-GR-02) sono state risolte in v1.2.17. Storico GR-01..LI-05 chiuso in v1.2.6–v1.2.12.
+**15 criticità** aperte post-revisione globale: 3 gravi (NEW-GR-04..06), 5 medie (NEW-ME-01..05), 7 lievi (NEW-LI-01..07). Le 2 gravissime (NEW-GR-01, NEW-GR-02) sono state risolte in v1.2.17. NEW-GR-03 risolta in v1.2.18. Storico GR-01..LI-05 chiuso in v1.2.6–v1.2.12.
 
 ### Roadmap attiva
 
@@ -158,4 +155,4 @@ Rilevazione BPM via FFmpeg per sincronizzare crossfade al beat della traccia. Ut
 
 ---
 
-*Aggiornato a v1.2.17. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
+*Aggiornato a v1.2.18. Scope: regia umana per show finiti (podcast, eventi, web radio). Funzionalità di automazione 24h, scheduling orario, cart automation, RDS, archivio musicale a rotazione non rientrano nel perimetro del progetto.*
