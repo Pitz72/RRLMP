@@ -11,7 +11,13 @@
       "Bash(mkdir -p '/c/Users/Utente/Documents/GitHub/RRLMP/builds/v0.14.8')",
       "Bash(cp '/c/Users/Utente/Documents/GitHub/RRLMP/.claude/worktrees/elegant-tharp/builds/v0.14.8/Runtime Live Machine Setup 0.14.8.exe' '/c/Users/Utente/Documents/GitHub/RRLMP/builds/v0.14.8/')",
       "Bash(mkdir -p '/c/Users/Utente/Documents/GitHub/RRLMP/builds/v0.14.9')",
-      "Bash(cp '/c/Users/Utente/Documents/GitHub/RRLMP/.claude/worktrees/elegant-tharp/builds/v0.14.9/Runtime Live Machine Setup 0.14.9.exe' '/c/Users/Utente/Documents/GitHub/RRLMP/builds/v0.14.9/')"
+      "Bash(cp '/c/Users/Utente/Documents/GitHub/RRLMP/.claude/worktrees/elegant-tharp/builds/v0.14.9/Runtime Live Machine Setup 0.14.9.exe' '/c/Users/Utente/Documents/GitHub/RRLMP/builds/v0.14.9/')",
+      "Bash(git commit -m ' *)",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" push origin master)",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" push github master)",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" log --oneline -5)",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" rev-parse master origin/master github/master)",
+      "Bash(git -C \"C:/Users/Utente/Documents/GitHub/RRLMP\" merge --no-ff claude/silly-swirles-1e7360 -m \"Merge v1.2.18: fix NEW-GR-03 timeout IPC smart-cues\")"
     ]
   }
 }

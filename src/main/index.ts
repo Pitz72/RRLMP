@@ -177,8 +177,13 @@ ipcMain.handle('detect-silence', async (_event, filePath: string, thresholdDb?: 
 });
 
 ipcMain.handle('detect-smart-cues', async (_event, filePath: string) => {
+    // v1.2.18 (NEW-GR-03): timeout IPC = 50s.
+    // Coperti i sub-timeout interni FFmpeg: _estimateMeanLevel (10s) + silencedetect (30s) = 40s,
+    // + 10s di grace per garantire che il kill interno fissi sempre lo stato prima che
+    // withIpcTimeout rigetti — altrimenti withConcurrencyLimit decrementerebbe il semaforo
+    // con processi FFmpeg ancora vivi, saturando i tentativi successivi (IPC_RATE_LIMITED a catena).
     return withConcurrencyLimit('detect-smart-cues', 2, () =>
-        withIpcTimeout(AudioProcessor.detectSmartCues(filePath), 35_000, 'detect-smart-cues')
+        withIpcTimeout(AudioProcessor.detectSmartCues(filePath), 50_000, 'detect-smart-cues')
     ).catch((err: Error) => ({ success: false, error: err.message }));
 });
 
