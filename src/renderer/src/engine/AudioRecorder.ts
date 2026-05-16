@@ -1,11 +1,17 @@
 import AudioContextManager from './AudioContextManager';
 
+// REC-03 (v1.3.1): cap FIFO chunks per evitare OOM su sessioni broadcast molto lunghe.
+// 14400 chunk × 1s = 4h di registrazione massima. Oltre il cap viene emesso un evento
+// che il store usa per interrompere la sessione in modo pulito (no drop di audio).
+const MAX_RECORDING_CHUNKS = 14400;
+
 export class AudioRecorder {
     private static instance: AudioRecorder | null = null;
     private mediaRecorder: MediaRecorder | null = null;
     private chunks: BlobPart[] = [];
     private destinationNode: MediaStreamAudioDestinationNode | null = null;
     private isInitialized = false;
+    private capReached = false;
 
     private constructor() {
         // Singleton
@@ -46,7 +52,8 @@ export class AudioRecorder {
         }
 
         this.chunks = [];
-        
+        this.capReached = false;
+
         // Broadcast quality settings: 320kbps Opus in WebM container
         const options: MediaRecorderOptions = {
             mimeType: 'audio/webm;codecs=opus',
@@ -60,9 +67,25 @@ export class AudioRecorder {
             this.mediaRecorder = new MediaRecorder(this.destinationNode.stream);
         }
 
+        // REC-08 (v1.3.1): try/catch difensivo — un chunk malformato non deve uccidere il recorder.
+        // REC-03 (v1.3.1): cap FIFO + evento di stop pulito su overflow.
         this.mediaRecorder.ondataavailable = (e) => {
-            if (e.data.size > 0) {
-                this.chunks.push(e.data);
+            try {
+                if (e.data && e.data.size > 0) {
+                    if (this.chunks.length >= MAX_RECORDING_CHUNKS) {
+                        if (!this.capReached) {
+                            this.capReached = true;
+                            console.error(`[AudioRecorder] Cap chunks raggiunto (${MAX_RECORDING_CHUNKS}). Stop forzato per evitare OOM.`);
+                            try {
+                                window.dispatchEvent(new CustomEvent('audiorecorder:cap-reached'));
+                            } catch { /* noop */ }
+                        }
+                        return;
+                    }
+                    this.chunks.push(e.data);
+                }
+            } catch (err) {
+                console.error('[AudioRecorder] ondataavailable error:', err);
             }
         };
 
