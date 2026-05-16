@@ -53,10 +53,8 @@
 
 | Area | Stato | Cosa manca |
 | ------ | ------- | ------------ |
-| Waveform Editor | Buono | Smart Cues: il backend IPC/FFmpeg restituisce solo trimStart/trimEnd; manca rilevazione automatica di introCue/outroCue (primo picco energetico e punto di dissolvenza naturale) da integrare nei marker del WaveformEditor |
+| Waveform Editor | Buono | Smart Cues: manca rilevazione automatica di introCue/outroCue (primo picco energetico e punto di dissolvenza naturale) da integrare nei marker esistenti del WaveformEditor |
 | MIDI Learn | Funzionale | Velocity ricevuta ma ignorata (\_velocity nei callback) — non usata come controllo di volume per le clip; OSC rimandato a roadmap (F-25, Tier 3) |
-| Auto-Silence Detection | Buono | Soglia ora dinamica (volumedetect → mean − 25 dB, clamped −55/−20) da v1.2.15; override manuale opzionale; mancano ancora introCue/outroCue automatici |
-| Smart Mic Ducking | Buono | Hold time configurabili da v1.2.14 (con nota per loopback USB mixer); Talkback/IFB (F-17) rimandato a roadmap |
 | Export Self-Contained | Funzionale | Nessun Playout Log automatico; export solo on-demand manuale (F-03) |
 | Open-file da OS (.lmp association) | Funzionale | Associazione icona e "Apri con..." non garantiti su tutte le config Windows |
 
