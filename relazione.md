@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
-**Ultima analisi**: 29 maggio 2026 — Audit globale (4 agenti) + chiusura MEDIE/LIEVI a blocchi (Blocchi 1-6 completati)  
-**Versione corrente**: 1.3.14  
+**Ultima analisi**: 29 maggio 2026 — Audit globale (4 agenti) + chiusura MEDIE/LIEVI a blocchi (Blocchi 1-6) + Blocco Cleanup  
+**Versione corrente**: 1.3.15  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -47,6 +47,7 @@
 | **v1.3.12** | — | **Audit MEDIE/LIEVI — Blocco 4 Recording**: **recording stato globale** (`useRecordingStore`) — `_stopInFlight` ora azzerato anche in `startRecording`/`reset` (un flag bloccato da uno stop appeso o hot-reload non impedisce più di fermare le sessioni successive) · **RecordingExportModal `?.` mancante** — optional chaining su `data` nel listener `onExportProgress` (no crash su payload IPC assente). |
 | **v1.3.13** | — | **Audit MEDIE — Blocco 5 Project/Grid**: **moveClip same-column fragile** (`useProjectStore`) — il riordino intra-colonna riusa l'array già privato di `oldIndex` invece di ri-derivare da `sourceCol` originale (logica unificata, risultato identico) · **id clip duplicati** — dedup al load in `validateLmpProjectData` (id ripetuti rigenerati con `crypto.randomUUID`, la prima occorrenza vince) · **MainGrid hotkey deps** — `columns` letto via `getState()`, deps ridotte a `[editingClip, playColumn]` (no ri-registrazione del listener a ogni mutazione), rimosso `stopAll` inutilizzato. |
 | **v1.3.14** | — | **Audit MEDIE/LIEVI — Blocco 6 Utils/Misc** (ultimo): **updateChecker non-semver** — `compareSemver` (no prompt di downgrade su versione remota più vecchia) · **useVUMeter analyser stale** — analyser ri-letti a ogni frame + buffer dinamici (no livelli congelati al cambio device) · **toast timer leak** — timer auto-remove tracciati e cancellati in `removeToast` · **PlayoutLog clear senza confirm** — conferma Promise-based prima dello svuotamento · **console.log path in prod** (`AudioProcessor`) — 5 log path → `logger.info` dev-gated. **Rinviati con motivazione:** pathUtils UNC (richiede coord. main+renderer + test rete), DragHandle inline (micro-perf senza impatto). |
+| **v1.3.15** | — | **Blocco Cleanup (post-audit)** — basso rischio, nessun cambio comportamento runtime: **DragHandle estratto a componente top-level** (`WaveformEditor`) con props esplicite (`duration`/`dragging`/`startDrag` + leftPct/marker/color/label/show) — niente più remount dei 4 handle a ogni render (chiude il rinvio "DragHandle inline" di v1.3.14) · **rimozione simboli morti** — `DebugOverlay` (import `useProjectStore`/`useEffect`/`useState` + var `audioStoreState`), `MainGrid` (destrutturazione `addClip` mai usata): renderer da 13 → 8 errori TS, 0 aggiunti. **Non eseguito:** rimozione `suppressedClips` — verificato attivamente scritto/letto nel path `stacco` del mix, NON è codice morto. **Rinviato:** pathUtils UNC (invariato). |
 
 ---
 

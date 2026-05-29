@@ -5,6 +5,68 @@ import { toast } from '../../store/useToastStore';
 
 type DraggingMarker = 'trimStart' | 'trimEnd' | 'intro' | 'outro' | null;
 
+/**
+ * Handle trascinabile sulla waveform (Trim Start/End, Intro, Outro).
+ *
+ * v1.3.15: estratto a componente top-level (prima era definito INLINE nel body di
+ * WaveformEditor → nuova identità a ogni render → React remontava i 4 handle).
+ * Stateless: riceve duration/dragging/startDrag come props esplicite.
+ */
+interface DragHandleProps {
+    leftPct: number;
+    marker: Exclude<DraggingMarker, null>;
+    color: string;
+    label: string;
+    show?: boolean;
+    duration: number;
+    dragging: DraggingMarker;
+    startDrag: (marker: DraggingMarker) => (e: React.MouseEvent) => void;
+}
+
+const DragHandle: React.FC<DragHandleProps> = ({
+    leftPct, marker, color, label, show = true, duration, dragging, startDrag,
+}) => {
+    if (!show || duration === 0) return null;
+    const isActive = dragging === marker;
+    return (
+        <div
+            className="absolute inset-y-0 z-40 flex items-center justify-center"
+            style={{ left: `${leftPct}%`, width: '20px', marginLeft: '-10px', cursor: 'ew-resize' }}
+            onMouseDown={startDrag(marker)}
+            title={`Trascina per spostare ${label}`}
+        >
+            {/* Grip bar */}
+            <div
+                className="flex flex-col items-center justify-center gap-[3px] rounded-sm transition-all duration-75"
+                style={{
+                    width:   isActive ? '8px' : '6px',
+                    height:  '40px',
+                    backgroundColor: color,
+                    opacity: isActive ? 1 : 0.75,
+                    boxShadow: isActive ? `0 0 10px ${color}` : 'none',
+                }}
+            >
+                <div style={{ width: '2px', height: '10px', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: '1px' }} />
+                <div style={{ width: '2px', height: '10px', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: '1px' }} />
+            </div>
+            {/* Label */}
+            <span
+                className="absolute text-[7px] font-bold whitespace-nowrap px-1 rounded pointer-events-none select-none"
+                style={{
+                    bottom: '2px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    color,
+                    backgroundColor: '#09090b',
+                    border: `1px solid ${color}30`,
+                }}
+            >
+                {label}
+            </span>
+        </div>
+    );
+};
+
 interface WaveformEditorProps {
     path: string;
     trimStart: number;
@@ -214,61 +276,6 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
         return Array.from({ length: count }, (_, i) => (duration * i) / (count - 1));
     }, [zoom, duration]);
 
-    // ─── Componente handle trascinabile ─────────────────────────────────────────
-    const DragHandle = ({
-        leftPct,
-        marker,
-        color,
-        label,
-        show = true,
-    }: {
-        leftPct: number;
-        marker: DraggingMarker;
-        color: string;
-        label: string;
-        show?: boolean;
-    }) => {
-        if (!show || duration === 0) return null;
-        const isActive = dragging === marker;
-        return (
-            <div
-                className="absolute inset-y-0 z-40 flex items-center justify-center"
-                style={{ left: `${leftPct}%`, width: '20px', marginLeft: '-10px', cursor: 'ew-resize' }}
-                onMouseDown={startDrag(marker)}
-                title={`Trascina per spostare ${label}`}
-            >
-                {/* Grip bar */}
-                <div
-                    className="flex flex-col items-center justify-center gap-[3px] rounded-sm transition-all duration-75"
-                    style={{
-                        width:   isActive ? '8px' : '6px',
-                        height:  '40px',
-                        backgroundColor: color,
-                        opacity: isActive ? 1 : 0.75,
-                        boxShadow: isActive ? `0 0 10px ${color}` : 'none',
-                    }}
-                >
-                    <div style={{ width: '2px', height: '10px', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: '1px' }} />
-                    <div style={{ width: '2px', height: '10px', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: '1px' }} />
-                </div>
-                {/* Label */}
-                <span
-                    className="absolute text-[7px] font-bold whitespace-nowrap px-1 rounded pointer-events-none select-none"
-                    style={{
-                        bottom: '2px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        color,
-                        backgroundColor: '#09090b',
-                        border: `1px solid ${color}30`,
-                    }}
-                >
-                    {label}
-                </span>
-            </div>
-        );
-    };
-
     // ─── Render ──────────────────────────────────────────────────────────────────
     return (
         <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 space-y-4 select-none">
@@ -447,12 +454,18 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                         marker="trimStart"
                         color="#ef4444"
                         label="TRIM S"
+                        duration={duration}
+                        dragging={dragging}
+                        startDrag={startDrag}
                     />
                     <DragHandle
                         leftPct={trimEndPct}
                         marker="trimEnd"
                         color="#ef4444"
                         label="TRIM E"
+                        duration={duration}
+                        dragging={dragging}
+                        startDrag={startDrag}
                     />
                     <DragHandle
                         leftPct={pct(introMarker)}
@@ -460,6 +473,9 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                         color="#22d3ee"
                         label="INTRO"
                         show={introMarker > 0}
+                        duration={duration}
+                        dragging={dragging}
+                        startDrag={startDrag}
                     />
                     <DragHandle
                         leftPct={pct(outroMarker)}
@@ -467,6 +483,9 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                         color="#fb923c"
                         label="OUTRO"
                         show={outroMarker > 0}
+                        duration={duration}
+                        dragging={dragging}
+                        startDrag={startDrag}
                     />
                 </div>
                 </div>

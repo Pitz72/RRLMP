@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useDebugStore } from '../../store/useDebugStore';
 import { useAudioStore } from '../../store/useAudioStore';
-import { useProjectStore } from '../../store/useProjectStore';
 
 const DebugOverlay: React.FC = () => {
     const { isVisible, logs, clear } = useDebugStore();
     const activeClips = useAudioStore((state) => state.activeClips);
-    const audioStoreState = useAudioStore.getState(); // Static check setup
-    // Fetch a relevant clip for inspection? Maybe just show active ones.
 
     if (!isVisible) return null;
 

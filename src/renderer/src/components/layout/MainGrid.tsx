@@ -62,7 +62,7 @@ const SortableColumn: React.FC<SortableColumnProps> = ({ column, children, onNat
 
 
 export const MainGrid: React.FC = () => {
-    const { columns, addClip, addClipAtIndex, updateClip, removeClip, moveClip, currentFilePath } = useProjectStore();
+    const { columns, addClipAtIndex, updateClip, removeClip, moveClip, currentFilePath } = useProjectStore();
     const { loadClip, playColumn } = useAudioStore((state) => ({
         loadClip: state.loadClip,
         playColumn: state.playColumn
