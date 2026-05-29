@@ -1,104 +1,104 @@
 {
-    "name": "runtime-live-machine-pro",
-    "version": "1.3.8",
-    "description": "Professional Broadcast Audio Architecture",
-    "homepage": "https://gitlab.com/pizzisimone1972/RRLMP",
-    "main": "out/main/index.js",
-    "scripts": {
-        "dev:renderer": "vite",
-        "dev": "npm run build:main && npm run build:preload && start /b npm run dev:renderer && set NODE_ENV=development && electron .",
-        "build:main": "tsc -p tsconfig.main.json",
-        "build:preload": "tsc -p tsconfig.preload.json",
-        "build": "npm run build:main && npm run build:preload && vite build && electron-builder",
-        "preview": "vite preview"
+  "name": "runtime-live-machine-pro",
+  "version": "1.3.9",
+  "description": "Professional Broadcast Audio Architecture",
+  "homepage": "https://gitlab.com/pizzisimone1972/RRLMP",
+  "main": "out/main/index.js",
+  "scripts": {
+    "dev:renderer": "vite",
+    "dev": "npm run build:main && npm run build:preload && start /b npm run dev:renderer && set NODE_ENV=development && electron .",
+    "build:main": "tsc -p tsconfig.main.json",
+    "build:preload": "tsc -p tsconfig.preload.json",
+    "build": "npm run build:main && npm run build:preload && vite build && electron-builder",
+    "preview": "vite preview"
+  },
+  "build": {
+    "appId": "com.antigravity.rrlmp",
+    "productName": "Runtime Live Machine Pro",
+    "directories": {
+      "output": "builds/v${version}"
     },
-    "build": {
-        "appId": "com.antigravity.rrlmp",
-        "productName": "Runtime Live Machine Pro",
-        "directories": {
-            "output": "builds/v${version}"
-        },
-        "files": [
-            "out/**/*",
-            "package.json",
-            "build/icon.png"
-        ],
-        "asarUnpack": [
-            "node_modules/ffmpeg-static/ffmpeg*",
-            "node_modules/ffprobe-static/ffprobe*"
-        ],
-        "win": {
-            "target": "nsis",
-            "icon": "build/icon.png"
-        },
-        "nsis": {
-            "oneClick": false,
-            "allowElevation": true,
-            "allowToChangeInstallationDirectory": false,
-            "createDesktopShortcut": "always",
-            "createStartMenuShortcut": true,
-            "shortcutName": "Runtime Live Machine Pro"
-        },
-        "mac": {
-            "target": "dmg",
-            "icon": "build/icon.png",
-            "entitlementsInherit": "build/entitlements.mac.plist",
-            "extendInfo": {
-                "NSMicrophoneUsageDescription": "Runtime Live Machine Pro richiede l'accesso al microfono per Smart Mic Auto-Ducking e il Canale Mix."
-            }
-        },
-        "linux": {
-            "target": [
-                "AppImage",
-                "deb"
-            ],
-            "icon": "build/icons"
-        },
-        "fileAssociations": [
-            {
-                "ext": "lmp",
-                "name": "RRLMP Project",
-                "role": "Editor",
-                "icon": "build/icon.png"
-            }
-        ]
+    "files": [
+      "out/**/*",
+      "package.json",
+      "build/icon.png"
+    ],
+    "asarUnpack": [
+      "node_modules/ffmpeg-static/ffmpeg*",
+      "node_modules/ffprobe-static/ffprobe*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.png"
     },
-    "keywords": [],
-    "author": "Simone Pizzi <pizzisimone1972@gmail.com>",
-    "license": "ISC",
-    "dependencies": {
-        "@dnd-kit/core": "^6.3.1",
-        "@dnd-kit/sortable": "^10.0.0",
-        "@dnd-kit/utilities": "^3.2.2",
-        "clsx": "^2.1.0",
-        "ffmpeg-static": "^5.3.0",
-        "ffprobe-static": "^3.1.0",
-        "fluent-ffmpeg": "^2.1.3",
-        "i18next": "^25.8.0",
-        "i18next-browser-languagedetector": "^8.2.0",
-        "lucide-react": "^0.300.0",
-        "music-metadata": "^7.14.0",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "react-i18next": "^16.5.4",
-        "tailwind-merge": "^2.2.0",
-        "uuid": "^9.0.1",
-        "zustand": "^4.5.0"
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Runtime Live Machine Pro"
     },
-    "devDependencies": {
-        "@types/fluent-ffmpeg": "^2.1.28",
-        "@types/node": "^20.11.0",
-        "@types/react": "^18.2.0",
-        "@types/react-dom": "^18.2.0",
-        "@types/react-i18next": "^7.8.3",
-        "@types/uuid": "^9.0.7",
-        "@vitejs/plugin-react": "^4.2.1",
-        "autoprefixer": "^10.4.16",
-        "electron": "28.3.3",
-        "electron-builder": "^24.9.1",
-        "postcss": "^8.4.33",
-        "tailwindcss": "^3.4.1",
-        "typescript": "^5.3.3",
-        "vite": "^5.0.11"
-    }
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.png",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "Runtime Live Machine Pro richiede l'accesso al microfono per Smart Mic Auto-Ducking e il Canale Mix."
+      }
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "build/icons"
+    },
+    "fileAssociations": [
+      {
+        "ext": "lmp",
+        "name": "RRLMP Project",
+        "role": "Editor",
+        "icon": "build/icon.png"
+      }
+    ]
+  },
+  "keywords": [],
+  "author": "Simone Pizzi <pizzisimone1972@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "clsx": "^2.1.0",
+    "ffmpeg-static": "^5.3.0",
+    "ffprobe-static": "^3.1.0",
+    "fluent-ffmpeg": "^2.1.3",
+    "i18next": "^25.8.0",
+    "i18next-browser-languagedetector": "^8.2.0",
+    "lucide-react": "^0.300.0",
+    "music-metadata": "^7.14.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-i18next": "^16.5.4",
+    "tailwind-merge": "^2.2.0",
+    "uuid": "^9.0.1",
+    "zustand": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/fluent-ffmpeg": "^2.1.28",
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/react-i18next": "^7.8.3",
+    "@types/uuid": "^9.0.7",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.16",
+    "electron": "28.3.3",
+    "electron-builder": "^24.9.1",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.11"
+  }
 }

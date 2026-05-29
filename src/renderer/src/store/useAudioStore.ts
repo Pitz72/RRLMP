@@ -151,7 +151,15 @@ const evaluateMix = (activeClips: Record<string, ActiveClipState>, newClipId?: s
         // APPLY: istantaneo per la clip appena avviata (evita glitch ducking),
         // smooth per le clip già in play. overrideDuration usato per mic-ducking rapido.
         const applyDuration = (newClipId && clip.id === newClipId) ? 0 : (overrideDuration ?? duckingDuration);
-        player.fadeTo(targetVolume, applyDuration);
+        // AUDIT-ME (2026-05-29): guardia finita sul volume target. Se clip.volume o
+        // duckingFactor risultano NaN/Infinity (settings corrotti, dati esterni), il
+        // prodotto propagherebbe un valore non finito a fadeTo → GainNode in stato
+        // indefinito (clip muta o bus compromesso). Clamp difensivo a [0, 1.5];
+        // su valore non finito si forza il silenzio (più sicuro di un gain impazzito).
+        const safeVolume = Number.isFinite(targetVolume)
+            ? Math.max(0, Math.min(1.5, targetVolume))
+            : 0;
+        player.fadeTo(safeVolume, applyDuration);
     });
 };
 
@@ -764,7 +772,13 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 Object.entries(state.activeClips).forEach(([id, clipState]) => {
                     const time = clipState.player.getCurrentTime();
                     const duration = clipState.player.getDuration();
-                    const progress = duration > 0 ? time / duration : 0;
+                    // AUDIT-ME (2026-05-29): se time/duration non sono finiti (player non
+                    // ancora pronto, getCurrentTime → NaN), progress diventava NaN. Poiché
+                    // NaN !== NaN, il check sotto era SEMPRE vero → re-render ogni 100ms a
+                    // vuoto + ClipCard riceveva progress NaN. Ora progress è sempre finito
+                    // e clampato a [0, 1].
+                    const rawProgress = duration > 0 && Number.isFinite(time) ? time / duration : 0;
+                    const progress = Math.max(0, Math.min(1, rawProgress));
 
                     if (progress !== clipState.progress) {
                         updates[id] = { ...clipState, progress };
