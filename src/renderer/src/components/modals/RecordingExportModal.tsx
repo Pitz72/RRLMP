@@ -45,7 +45,10 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
         // REC-05 (v1.3.1): cleanup difensivo — se onExportProgress restituisce undefined/null
         // (preload non aggiornato, mock test, ecc.), un cleanup non-function farebbe crashare React.
         const unsub = window.electron.onExportProgress((_event, data) => {
-            if (data.total > 0) {
+            // AUDIT-LI (2026-05-29): optional chaining su `data`. Un evento IPC senza payload
+            // (preload non aggiornato / pacchetto malformato) faceva crashare la callback su
+            // `data.total`. Ora il progresso si aggiorna solo con payload valido.
+            if (data?.total && data.total > 0) {
                 setExportProgress(Math.round((data.current / data.total) * 100));
             }
         });

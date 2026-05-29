@@ -32,6 +32,11 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
     startRecording: async () => {
         // REC-04 (v1.3.1): reset esplicito di tempPath/elapsed PRIMA di avviare —
         // evita di riusare uno stato corrotto da uno stop fallito precedente.
+        // AUDIT-ME (2026-05-29): azzera anche il flag module-level _stopInFlight. Se un
+        // precedente stopRecording fosse rimasto appeso (o lo store fosse stato ricreato
+        // da un hot-reload), un flag bloccato impedirebbe per sempre di fermare le sessioni
+        // successive. Una nuova sessione riparte sempre da stato pulito.
+        _stopInFlight = false;
         const prev = get();
         if (prev.timerIntervalId) window.clearInterval(prev.timerIntervalId);
         set({
@@ -157,6 +162,8 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
     },
 
     reset: () => {
+        // AUDIT-ME (2026-05-29): reset anche del flag anti-doppio-stop module-level.
+        _stopInFlight = false;
         const { timerIntervalId } = get();
         if (timerIntervalId) window.clearInterval(timerIntervalId);
         set({
