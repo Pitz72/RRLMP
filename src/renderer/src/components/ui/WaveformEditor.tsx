@@ -62,18 +62,25 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
 
     // ─── Waveform peaks dal Main Process (FFmpeg) ───────────────────────────────
     useEffect(() => {
+        // AUDIT-ME (2026-05-29): guardia anti-race. Cambiando clip rapidamente, una
+        // getWaveformData() precedente poteva risolversi DOPO quella nuova e
+        // sovrascrivere i peaks con la waveform del file sbagliato. Il flag `cancelled`
+        // scarta i risultati di effetti ormai superati.
+        let cancelled = false;
         setIsAnalyzing(true);
         setPeaks([]);
         if (window.electron?.getWaveformData) {
             window.electron.getWaveformData(path)
                 .then(res => {
+                    if (cancelled) return;
                     if (res.success && res.data) setPeaks(res.data);
                     setIsAnalyzing(false);
                 })
-                .catch(() => setIsAnalyzing(false));
+                .catch(() => { if (!cancelled) setIsAnalyzing(false); });
         } else {
             setIsAnalyzing(false);
         }
+        return () => { cancelled = true; };
     }, [path]);
 
     // ─── Sync stato audio ───────────────────────────────────────────────────────
@@ -498,7 +505,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
             {/* ── Quick Set Buttons ── */}
             <div className="grid grid-cols-4 gap-2">
                 <button
-                    onClick={() => onChange({ trimStart: currentTime })}
+                    onClick={() => onChange({ trimStart: Math.max(0, Math.min(currentTime, Math.max(0, duration - trimEnd - 0.05))) })}
                     className="flex flex-col items-center p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-500/50 rounded transition-all group"
                     title="Imposta Trim Start alla posizione corrente"
                 >
@@ -506,7 +513,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                     <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">Trim Start</span>
                 </button>
                 <button
-                    onClick={() => onChange({ trimEnd: Math.max(0, duration - currentTime) })}
+                    onClick={() => onChange({ trimEnd: Math.min(Math.max(0, duration - currentTime), Math.max(0, duration - trimStart - 0.05)) })}
                     className="flex flex-col items-center p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-500/50 rounded transition-all group"
                     title="Imposta Trim End alla posizione corrente"
                 >
