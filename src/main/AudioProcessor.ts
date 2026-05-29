@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as mm from 'music-metadata';
 import * as ffmpeg from 'fluent-ffmpeg';
 import { spawn } from 'child_process';
+import { logger } from './logger';
 
 // Fix ESM/CJS interop per questi pacchetti old-school exports
 const ffmpegStatic = require('ffmpeg-static');
@@ -43,7 +44,7 @@ export class AudioProcessor {
         throw new Error('File non trovato');
       }
 
-      console.log(`[AudioProcessor] Estrazione metadati per: ${filePath}`);
+      logger.info(`[AudioProcessor] Estrazione metadati per: ${filePath}`);
       // L'operazione è molto più veloce e non satura il buffer come decodificare l'intero file.
       const metadata = await mm.parseFile(filePath, { duration: true, skipCovers: true });
 
@@ -70,7 +71,7 @@ export class AudioProcessor {
   static async generateWaveformData(filePath: string): Promise<{ success: boolean; data?: number[]; error?: string }> {
     return new Promise((resolve) => {
         try {
-            console.log(`[AudioProcessor] Generazione Peak Data per: ${filePath}`);
+            logger.info(`[AudioProcessor] Generazione Peak Data per: ${filePath}`);
 
             // Utilizziamo un semplice child process chiamando ffmpeg statico
             // Estrarrà i peak grezzi su un frame ristretto per velocità, per poi buildare i dati omettendo
@@ -143,7 +144,7 @@ export class AudioProcessor {
                     reducedPeaks.push(Math.min(max * 2.0, 1.0));
                 }
 
-                console.log(`[AudioProcessor] Peak Data estratti con successo! Punti: ${reducedPeaks.length}`);
+                logger.info(`[AudioProcessor] Peak Data estratti con successo! Punti: ${reducedPeaks.length}`);
                 resolve({ success: true, data: reducedPeaks });
                 });
 
@@ -166,7 +167,7 @@ export class AudioProcessor {
                 ): Promise<{ success: boolean; error?: string }> {
                 return new Promise((resolve) => {
                 try {
-                console.log(`[AudioProcessor] Conversione: ${inputPath} -> ${outputPath} (format=${options.format})`);
+                logger.info(`[AudioProcessor] Conversione: ${inputPath} -> ${outputPath} (format=${options.format})`);
 
                 let killTimer: NodeJS.Timeout | null = null;
                 let settled = false;
@@ -190,7 +191,7 @@ export class AudioProcessor {
                 finish({ success: false, error: err.message });
                 })
                 .on('end', () => {
-                console.log(`[AudioProcessor] Conversione completata: ${outputPath}`);
+                logger.info(`[AudioProcessor] Conversione completata: ${outputPath}`);
                 finish({ success: true });
                 });
 

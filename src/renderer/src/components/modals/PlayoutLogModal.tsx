@@ -3,6 +3,7 @@ import { X, Download, Trash2, Clock, Radio } from 'lucide-react';
 import { useAudioStore } from '../../store/useAudioStore';
 import { PlayoutLogEntry } from '../../types';
 import { toast } from '../../store/useToastStore';
+import { confirm } from '../../store/useConfirmStore';
 
 interface PlayoutLogModalProps {
     onClose: () => void;
@@ -49,6 +50,20 @@ export const PlayoutLogModal: React.FC<PlayoutLogModalProps> = ({ onClose }) => 
         // else: utente ha annullato il dialog — nessun toast
     };
 
+    // AUDIT-LI (2026-05-29): lo svuotamento del playout log era immediato e irreversibile.
+    // In diretta il log è la prova di ciò che è andato in onda (export SIAE/scaletta): un
+    // click accidentale lo cancellava senza appello. Conferma Promise-based (mai window.confirm,
+    // che bloccherebbe il thread audio).
+    const handleClear = async () => {
+        if (playoutLog.length === 0) return;
+        const ok = await confirm(
+            `Svuotare il Playout Log? ${playoutLog.length} element${playoutLog.length === 1 ? 'o' : 'i'} verranno eliminati definitivamente. Esporta il CSV prima, se ti serve la scaletta.`,
+            'Svuota',
+            'Annulla'
+        );
+        if (ok) clearPlayoutLog();
+    };
+
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}>
             <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col">
@@ -71,7 +86,7 @@ export const PlayoutLogModal: React.FC<PlayoutLogModalProps> = ({ onClose }) => 
                             <Download size={12} /> Export CSV
                         </button>
                         <button
-                            onClick={clearPlayoutLog}
+                            onClick={handleClear}
                             disabled={playoutLog.length === 0}
                             className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold bg-red-950/40 hover:bg-red-900/60 border border-red-800/50 text-red-400 rounded transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                         >

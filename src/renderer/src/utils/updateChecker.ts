@@ -25,6 +25,24 @@ export interface UpdateInfo {
 const CACHE_KEY = 'rrlmp.updateCheckCache';
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
+// AUDIT-ME (2026-05-29): confronto semver (major.minor.patch). Prima si usava solo
+// `remoteVersion !== currentVersion` → qualsiasi differenza (anche una versione remota
+// PIÙ VECCHIA, es. dopo un rollback del feed) veniva segnalata come aggiornamento
+// disponibile, proponendo un downgrade. Ritorna > 0 se a > b, < 0 se a < b, 0 se uguali.
+// Suffissi pre-release (es. "-beta") vengono ignorati nel confronto numerico.
+const compareSemver = (a: string, b: string): number => {
+    const parse = (v: string) =>
+        v.trim().replace(/^v/i, '').split('-')[0].split('.').map(n => parseInt(n, 10) || 0);
+    const pa = parse(a);
+    const pb = parse(b);
+    for (let i = 0; i < 3; i++) {
+        const da = pa[i] ?? 0;
+        const db = pb[i] ?? 0;
+        if (da !== db) return da - db;
+    }
+    return 0;
+};
+
 interface UpdateCheckCache {
     timestamp: number;
     currentVersion: string;
@@ -78,7 +96,8 @@ export const checkForUpdates = async (currentVersion: string, force = false): Pr
 
         const data = await response.json();
         const remoteVersion: string = data.version;
-        if (!remoteVersion || remoteVersion === currentVersion) {
+        // hasUpdate solo se la versione remota è STRETTAMENTE più recente (semver).
+        if (!remoteVersion || compareSemver(remoteVersion, currentVersion) <= 0) {
             const info = { hasUpdate: false, remoteVersion: currentVersion };
             writeCache(currentVersion, info);
             return info;

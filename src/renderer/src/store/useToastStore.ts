@@ -16,6 +16,16 @@ interface ToastStore {
     removeToast: (id: string) => void;
 }
 
+// AUDIT-LI (2026-05-29): handle dei timer di auto-rimozione per id. Senza, un toast
+// rimosso manualmente (removeToast) o scartato dallo slice(-4) lasciava un setTimeout
+// pendente che scattava comunque a vuoto. Tracciandoli, removeToast cancella il timer
+// associato — niente callback differite orfane.
+const _toastTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const clearToastTimer = (id: string) => {
+    const h = _toastTimers.get(id);
+    if (h) { clearTimeout(h); _toastTimers.delete(id); }
+};
+
 export const useToastStore = create<ToastStore>((set) => ({
     toasts: [],
     addToast: (message, type, duration) => {
@@ -24,11 +34,15 @@ export const useToastStore = create<ToastStore>((set) => ({
         set(state => ({
             toasts: [...state.toasts.slice(-4), { id, message, type, duration: d }]
         }));
-        setTimeout(() => {
+        _toastTimers.set(id, setTimeout(() => {
+            _toastTimers.delete(id);
             set(state => ({ toasts: state.toasts.filter(t => t.id !== id) }));
-        }, d);
+        }, d));
     },
-    removeToast: (id) => set(state => ({ toasts: state.toasts.filter(t => t.id !== id) })),
+    removeToast: (id) => {
+        clearToastTimer(id);
+        set(state => ({ toasts: state.toasts.filter(t => t.id !== id) }));
+    },
 }));
 
 // Helper callable da qualsiasi file senza hook React

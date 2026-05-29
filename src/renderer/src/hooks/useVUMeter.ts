@@ -6,23 +6,35 @@ export const useVUMeter = () => {
     const requestRef = useRef<number>();
 
     useEffect(() => {
-        let analysers: { left: AnalyserNode, right: AnalyserNode } | null = null;
-        try {
-            analysers = AudioContextManager.getInstance().getAnalysers();
-        } catch (e) {
-            console.warn("VU Meter: AudioContext not ready");
-            return;
-        }
-
-        const { left, right } = analysers;
-        const bufferLength = left.frequencyBinCount;
-        const dataArrayL = new Uint8Array(bufferLength);
-        const dataArrayR = new Uint8Array(bufferLength);
+        // AUDIT-ME (2026-05-29): gli AnalyserNode venivano catturati UNA sola volta al mount.
+        // Se il grafo audio cambia (es. cambio output device → ricreazione del contesto/analyser),
+        // i riferimenti restavano stale e il VU meter leggeva da nodi disconnessi (livelli a 0
+        // o congelati). Ora gli analyser sono ri-letti via getAnalysers() a ogni frame: cheap
+        // (ritorna riferimenti) e sempre allineato al grafo corrente. I buffer sono dimensionati
+        // dinamicamente dal frequencyBinCount reale (no assunzioni sulla fftSize).
+        let dataArrayL = new Uint8Array(0);
+        let dataArrayR = new Uint8Array(0);
 
         const updateMeter = () => {
-            if (AudioContextManager.getInstance().getContext().state !== 'running') {
+            const mgr = AudioContextManager.getInstance();
+            if (mgr.getContext().state !== 'running') {
                 requestRef.current = requestAnimationFrame(updateMeter);
                 return;
+            }
+
+            let left: AnalyserNode, right: AnalyserNode;
+            try {
+                ({ left, right } = mgr.getAnalysers());
+            } catch {
+                // grafo non ancora pronto / in ricostruzione — riprova al frame successivo
+                requestRef.current = requestAnimationFrame(updateMeter);
+                return;
+            }
+
+            // (Ri)alloca i buffer se la dimensione dell'analyser è cambiata
+            if (dataArrayL.length !== left.frequencyBinCount) {
+                dataArrayL = new Uint8Array(left.frequencyBinCount);
+                dataArrayR = new Uint8Array(right.frequencyBinCount);
             }
 
             // Get Time Domain Data for RMS (Volume)
