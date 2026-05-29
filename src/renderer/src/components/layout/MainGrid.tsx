@@ -63,10 +63,9 @@ const SortableColumn: React.FC<SortableColumnProps> = ({ column, children, onNat
 
 export const MainGrid: React.FC = () => {
     const { columns, addClip, addClipAtIndex, updateClip, removeClip, moveClip, currentFilePath } = useProjectStore();
-    const { loadClip, playColumn, stopAll } = useAudioStore((state) => ({
+    const { loadClip, playColumn } = useAudioStore((state) => ({
         loadClip: state.loadClip,
-        playColumn: state.playColumn,
-        stopAll: state.stopAll
+        playColumn: state.playColumn
     }));
 
     const [editingClip, setEditingClip] = useState<AudioClip | null>(null);
@@ -95,7 +94,12 @@ export const MainGrid: React.FC = () => {
 
             // 3. Custom Keybinds (Priority)
             // Nota: Escape è gestito dal globalShortcut Electron (main process) — non serve qui.
-            const allClips = columns.flatMap(col => col.clips);
+            // AUDIT-ME (2026-05-29): legge `columns` fresco via getState() invece dalla closure.
+            // Prima `columns` era in deps → il listener veniva ri-registrato a ogni mutazione
+            // (add/remove clip, ma anche ogni updateClip di analisi/trim). Ora si registra solo
+            // al cambio di `editingClip` (apertura/chiusura modale) e il keybind è sempre
+            // confrontato con lo stato corrente al momento della pressione.
+            const allClips = useProjectStore.getState().columns.flatMap(col => col.clips);
             const bindMatch = allClips.find(c => c.keybind === e.code);
 
             if (bindMatch) {
@@ -121,7 +125,7 @@ export const MainGrid: React.FC = () => {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [editingClip, playColumn, stopAll, columns]); // Added columns to dependency
+    }, [editingClip, playColumn]); // columns letto via getState(); stopAll non usato qui
 
     // AUTO-SILENCE DETECTION BATCH — colonna Music al caricamento progetto
     useEffect(() => {

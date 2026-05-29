@@ -24,6 +24,13 @@ export function validateLmpProjectData(raw: unknown): { columns: Column[] } {
     const obj = raw as Record<string, unknown>;
     if (!Array.isArray(obj.columns)) throw new Error('"columns" mancante o non è un array');
 
+    // AUDIT-ME (2026-05-29): dedup degli id clip. Un .lmp prodotto da versioni vecchie o
+    // editato a mano può contenere clip con id ripetuti: poiché activeClips/playRunIds sono
+    // keyed by id e getColumnForClip/moveClip cercano per id, due clip omonime si
+    // confonderebbero (play/stop e MIDI ambigui). Le sequenze del playout sono basate sulla
+    // POSIZIONE in array, non sugli id, quindi rigenerare un id duplicato è sicuro.
+    const seenClipIds = new Set<string>();
+
     for (let i = 0; i < obj.columns.length; i++) {
         const col = obj.columns[i];
         if (!col || typeof col !== 'object') throw new Error(`colonna[${i}] non è un oggetto`);
@@ -37,6 +44,11 @@ export function validateLmpProjectData(raw: unknown): { columns: Column[] } {
             if (!clip || typeof clip !== 'object') throw new Error(`clip[${i}][${j}] non è un oggetto`);
             const cl = clip as Record<string, unknown>;
             if (typeof cl.id !== 'string') throw new Error(`clip[${i}][${j}].id non è una stringa`);
+            // dedup: se l'id è già visto, rigenera (la prima occorrenza vince)
+            if (seenClipIds.has(cl.id as string)) {
+                cl.id = crypto.randomUUID();
+            }
+            seenClipIds.add(cl.id as string);
             if (typeof cl.name !== 'string') throw new Error(`clip[${i}][${j}].name non è una stringa`);
             if (typeof cl.path !== 'string') throw new Error(`clip[${i}][${j}].path non è una stringa`);
             if (!VALID_CLIP_TYPES.has(cl.type as ClipType)) throw new Error(`clip[${i}][${j}].type non valido: "${cl.type}"`);
@@ -406,11 +418,15 @@ export const useProjectStore = create<ProjectState>((set) => ({
         // splice fuori range (es. dnd-kit calcola un indice basato su uno snapshot
         // delle colonne precedente a una rimozione concorrente).
         if (sourceColId === destColId) {
-            const upClips = [...sourceCol.clips];
-            const [movedItem] = upClips.splice(oldIndex, 1);
-            const safeIndex = Math.max(0, Math.min(newIndex, upClips.length));
-            upClips.splice(safeIndex, 0, movedItem);
-            newColumns[sourceColIndex] = { ...sourceCol, clips: upClips };
+            // AUDIT-ME (2026-05-29): il riordino intra-colonna riusa l'array GIÀ privato di
+            // oldIndex (newColumns[sourceColIndex], calcolato sopra) invece di ri-derivare da
+            // `sourceCol` (stato originale, ancora con la clip). Prima i due rami divergevano:
+            // la rimozione a riga ~389 veniva di fatto scartata e ricalcolata, rendendo il
+            // codice fragile a future modifiche. Risultato identico, logica unificata.
+            const reordered = [...newColumns[sourceColIndex].clips];
+            const safeIndex = Math.max(0, Math.min(newIndex, reordered.length));
+            reordered.splice(safeIndex, 0, clipToMove);
+            newColumns[sourceColIndex] = { ...newColumns[sourceColIndex], clips: reordered };
         } else {
             const destClips = [...newColumns[destColIndex].clips];
             const safeIndex = Math.max(0, Math.min(newIndex, destClips.length));

@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
-**Ultima analisi**: 29 maggio 2026 — Audit globale (4 agenti) + chiusura MEDIE/LIEVI a blocchi (Blocco 4 Recording)  
-**Versione corrente**: 1.3.12  
+**Ultima analisi**: 29 maggio 2026 — Audit globale (4 agenti) + chiusura MEDIE/LIEVI a blocchi (Blocco 5 Project/Grid)  
+**Versione corrente**: 1.3.13  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -45,6 +45,7 @@
 | **v1.3.10** | — | **Audit MEDIE/LIEVI — Blocco 2 Waveform/Editor**: **peaks stale** in `WaveformEditor` — guardia `cancelled` anti-race su `getWaveformData` (cambio clip rapido non sovrascrive più con la waveform del file sbagliato) · **marker/trim senza clamp** — i Quick Set Trim Start/End ora clampano come il drag (no regione di taglio invalida) · **optimizeTime no guard** (`helpers.ts`) — formatter mm:ss normalizza input NaN/negativo a 0 (niente più "NaN:NaN"). |
 | **v1.3.11** | — | **Audit MEDIE/LIEVI — Blocco 3 MIDI**: **canale/Note-Off/modificatori** — `MidiManager` e `App.tsx` mascherano il nibble alto (`command & 0xF0`) per riconoscere Note On/CC su tutti i 16 canali (prima solo canale 1: `144`/`176`); Note Off e Note On vel-0 restano filtrati; bind channel-agnostic invariato · **click MIDI-Learn suona** (`ClipCard`) — in Learn mode il click semplice ora fa selezione singola invece di `playClip` (niente più clip in onda durante l'assegnazione). |
 | **v1.3.12** | — | **Audit MEDIE/LIEVI — Blocco 4 Recording**: **recording stato globale** (`useRecordingStore`) — `_stopInFlight` ora azzerato anche in `startRecording`/`reset` (un flag bloccato da uno stop appeso o hot-reload non impedisce più di fermare le sessioni successive) · **RecordingExportModal `?.` mancante** — optional chaining su `data` nel listener `onExportProgress` (no crash su payload IPC assente). |
+| **v1.3.13** | — | **Audit MEDIE — Blocco 5 Project/Grid**: **moveClip same-column fragile** (`useProjectStore`) — il riordino intra-colonna riusa l'array già privato di `oldIndex` invece di ri-derivare da `sourceCol` originale (logica unificata, risultato identico) · **id clip duplicati** — dedup al load in `validateLmpProjectData` (id ripetuti rigenerati con `crypto.randomUUID`, la prima occorrenza vince) · **MainGrid hotkey deps** — `columns` letto via `getState()`, deps ridotte a `[editingClip, playColumn]` (no ri-registrazione del listener a ogni mutazione), rimosso `stopAll` inutilizzato. |
 
 ---
 
