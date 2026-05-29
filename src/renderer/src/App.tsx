@@ -246,7 +246,11 @@ function App() {
             const { globalMidiBinds } = useSettingsStore.getState();
 
             // GLOBAL CHECK
-            const type = command === 144 ? 'NOTE' : (command === 176 ? 'CC' : null);
+            // AUDIT-ME (2026-05-29): maschera il nibble alto per riconoscere Note On (0x9n)
+            // e CC (0xBn) su tutti i 16 canali, non solo il canale 1 (144/176). Il bind
+            // resta channel-agnostic (`NOTE:<note>` / `CC:<note>`).
+            const status = command & 0xf0;
+            const type = status === 0x90 ? 'NOTE' : (status === 0xb0 ? 'CC' : null);
             if (!type) return;
             const bindKey = `${type}:${note}`;
 
@@ -268,8 +272,8 @@ function App() {
 
 
             if (isMidiLearnMode) {
-                // Ignore CC for Clip Assignment (Only Note On)
-                if (command !== 144) return;
+                // Ignore CC for Clip Assignment (Only Note On, qualsiasi canale)
+                if (status !== 0x90) return;
 
                 if (selectedClipIds.length === 1) {
                     assignMidiToClip(selectedClipIds[0], note);
@@ -278,8 +282,8 @@ function App() {
                     useDebugStore.getState().log('MIDI Learn: seleziona una sola clip per assegnare il MIDI', 'event');
                 }
             } else {
-                // Trigger (Only Note On)
-                if (command !== 144) return;
+                // Trigger (Only Note On, qualsiasi canale)
+                if (status !== 0x90) return;
 
                 const bindKeyNote = `NOTE:${note}`;
 

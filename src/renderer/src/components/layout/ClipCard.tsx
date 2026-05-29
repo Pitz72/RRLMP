@@ -86,6 +86,19 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
 
+        // AUDIT-LI (2026-05-29): in MIDI Learn mode un click normale faceva clearSelection()
+        // + playClip() → la clip andava in onda durante l'assegnazione del MIDI. Ora un click
+        // semplice seleziona la clip (selezione singola, richiesta da handleMidiMessage per
+        // assegnare la nota) senza riprodurla. ctrl/cmd-click resta il toggle multi-selezione.
+        if (isMidiLearnMode) {
+            if (e.ctrlKey || e.metaKey) {
+                selectClip(clip.id, 'toggle');
+            } else {
+                selectClip(clip.id, 'single');
+            }
+            return;
+        }
+
         // Selection Logic
         if (e.ctrlKey || e.metaKey) {
             selectClip(clip.id, 'toggle');

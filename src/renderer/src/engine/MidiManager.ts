@@ -112,9 +112,13 @@ class MidiManager {
 
     private handleMidiMessage(event: MidiEvent) {
         const [command, note, velocity] = event.data;
-        // Command 144 (0x90) is Note On.
-        // Some devices send Note On with 0 velocity as Note Off. We filter those.
-        if ((command === 144 && velocity > 0) || command === 176) {
+        // AUDIT-ME (2026-05-29): il nibble basso del command byte è il CANALE MIDI (1-16).
+        // Prima si confrontava `command === 144`/`176` = solo canale 1 → controller su
+        // qualsiasi altro canale venivano ignorati. Ora si maschera il nibble alto
+        // (& 0xF0) per riconoscere Note On (0x9n) e Control Change (0xBn) su tutti i 16
+        // canali. Note Off (0x8n) e Note On con velocity 0 restano filtrati (no trigger).
+        const status = command & 0xf0;
+        if ((status === 0x90 && velocity > 0) || status === 0xb0) {
             this.listeners.forEach(fn => fn(note, velocity, command));
         }
     }
