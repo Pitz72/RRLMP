@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import AudioRecorder from '../engine/AudioRecorder';
 
+// GRAVE #5 (audit 2026-05-29): flag anti-doppio-stop. Click "Stop" + evento cap-reached
+// possono chiamare stopRecording() in parallelo: la seconda chiamata troverebbe il recorder
+// inattivo e nel catch resetterebbe tempPath, scartando la registrazione appena conclusa.
+let _stopInFlight = false;
+
 interface RecordingState {
     isRecording: boolean;
     isConverting: boolean;
@@ -66,7 +71,8 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
 
     stopRecording: async () => {
         const { isRecording, timerIntervalId } = get();
-        if (!isRecording) return;
+        if (!isRecording || _stopInFlight) return;
+        _stopInFlight = true;
 
         const recorder = AudioRecorder.getInstance();
 
@@ -96,6 +102,8 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
                 tempPath: null,
                 timerIntervalId: null
             });
+        } finally {
+            _stopInFlight = false;
         }
     },
 

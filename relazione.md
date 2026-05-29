@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
-**Ultima analisi**: 16 maggio 2026 — Blocco 1 revisione esaustiva (Recording + MIDI) post-v1.3.0  
-**Versione corrente**: 1.3.7  
+**Ultima analisi**: 29 maggio 2026 — Audit globale (4 agenti) + integrazione 3 feature, post-v1.3.7  
+**Versione corrente**: 1.3.8  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -40,6 +40,7 @@
 | **v1.3.5** | — | **MODAL-02/03/04/05/08** (cumulativa Modali): ESC chiude `GeneralSettingsModal` e `KeymappingModal` senza propagare a Emergency Stop · timeout 5s su `enumerateDevices` · timeout 5s su `checkForUpdates` (AbortController) · MIDI Learn valida esistenza clip prima di scrivere bind. |
 | **v1.3.6** | — | **ASSET-02/06/07** (cumulativa Asset): **ASSET-02 GRAVE** `e.repeat` ignorato → autorepeat OS lanciava jingle 30×/s in diretta; ora bloccato · KeymappingModal detect conflitto keybind con `confirm()` Promise-based (no `window.confirm` che freezerebbe l'audio) · `validateLmpProjectData` normalizza `keybind`/`midiBind` undefined → `''` per `.lmp` v1.2.x. |
 | **v1.3.7** | — | **BUILD-01/02/05** (cumulativa Build): **BUILD-02 GRAVE** `requestSingleInstanceLock` + handler `second-instance` (con focus + restore + inoltro `.lmp` argv) — niente più doppia istanza audio in diretta · `setAppUserModelId('com.antigravity.rrlmp')` allineato a build.appId · cache localStorage 24h su `checkForUpdates` (param `force` per bypass). |
+| **v1.3.8** | — | **AUDIT-GR-01..06 + 3 feature** (cumulativa audit 2026-05-29): **6 GRAVI** — validazione path `save-project-direct` (.lmp assoluto) · `convert-recording` valida input (temp recording) + output (estensione audio) prima di convertire/unlink · `open-external`/`setWindowOpenHandler` solo http/https (helper `isSafeExternalUrl`) · recording stream con handler `'error'` + backpressure + guard doppio-start · `AudioRecorder.stop()` idempotente + flag `_stopInFlight` (no perdita registrazione su doppio-stop/cap) · setTimeout crossfade/segue tracciati in `_transitionTimeouts` e cancellati in stopClip/stopAll. **3 FEATURE** — sync archivio audio in `export-project` (pruning orfani, no accumulo) · `moveClip` cross-colonna usa `destCol.customColor` e preserva proprietà clip · nextAction/transitionType LIVE su clip in esecuzione (`getFreshClipById`). |
 
 ---
 

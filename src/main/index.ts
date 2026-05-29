@@ -31,6 +31,40 @@ function withConcurrencyLimit<T>(key: string, max: number, fn: () => Promise<T>)
     return fn().finally(() => _ipcInflight.set(key, (_ipcInflight.get(key) ?? 1) - 1));
 }
 
+// SEC (audit 2026-05-29): valida che un path appartenga al nostro recorder temporaneo
+// (dentro la temp dir di sistema + pattern rrlmp_temp_*.webm). Riusato da convert-recording
+// prima della unlink, con la stessa logica di delete-temp-recording (REC-01).
+function isTempRecordingPath(filePath: unknown): boolean {
+    if (typeof filePath !== 'string' || !filePath) return false;
+    try {
+        const tempDir = fs.realpathSync(app.getPath('temp'));
+        let resolved: string;
+        try { resolved = fs.realpathSync(filePath); } catch { resolved = require('path').resolve(filePath); }
+        const relative = require('path').relative(tempDir, resolved);
+        const insideTemp = !!relative && !relative.startsWith('..') && !require('path').isAbsolute(relative);
+        const baseName = require('path').basename(resolved);
+        return insideTemp && /^rrlmp_temp_\d+\.webm$/.test(baseName);
+    } catch {
+        return false;
+    }
+}
+
+// SEC (audit 2026-05-29): consenti l'apertura esterna solo a URL http/https.
+// shell.openExternal apre qualsiasi schema (file://, javascript:, handler custom):
+// un downloadUrl proveniente dal feed di aggiornamento remoto va validato.
+function isSafeExternalUrl(url: unknown): boolean {
+    if (typeof url !== 'string' || !url) return false;
+    try {
+        const parsed = new URL(url);
+        return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+    } catch {
+        return false;
+    }
+}
+
+// SEC (audit 2026-05-29): estensioni consentite come output di una conversione registrazione.
+const ALLOWED_RECORDING_OUTPUT_EXT = new Set(['.wav', '.mp3', '.flac', '.ogg', '.webm', '.m4a', '.aac']);
+
 // CRITICAL: Disable GPU Acceleration to prevent 0xC0000005 Access Violation crashes on some Windows systems
 // especially when using multiple Canvas elements (Waveform Editor).
 app.disableHardwareAcceleration();
@@ -112,7 +146,12 @@ function createWindow(initialFilePath?: string): void {
     });
 
     mainWindow.webContents.setWindowOpenHandler((details) => {
-        shell.openExternal(details.url);
+        // SEC (audit 2026-05-29): apri solo URL http/https — mai file://, javascript:, ecc.
+        if (isSafeExternalUrl(details.url)) {
+            shell.openExternal(details.url);
+        } else {
+            logger.warn(`[Main] window-open bloccato (schema non sicuro): ${details.url}`);
+        }
         return { action: 'deny' };
     });
 
@@ -281,6 +320,12 @@ ipcMain.handle('dialog:save-project', async (event, content: string) => {
 // New: Direct Save (Overwrite)
 ipcMain.handle('save-project-direct', async (_event: Electron.IpcMainInvokeEvent, content: string, filePath: string) => {
     try {
+        // SEC (audit 2026-05-29): filePath arriva dal renderer. Era l'unica scrittura su disco
+        // senza validazione (a differenza di delete-temp-recording). Accetta solo path .lmp assoluti.
+        if (typeof filePath !== 'string' || !isAbsolute(filePath) || extname(filePath).toLowerCase() !== '.lmp') {
+            logger.warn(`[Main] save-project-direct rifiutato (path non valido): ${String(filePath)}`);
+            return { success: false, error: 'Path non valido (atteso file .lmp con percorso assoluto)' };
+        }
         writeFileAtomicSync(filePath, content);
         return { success: true, filePath };
     } catch (error) {
@@ -381,11 +426,19 @@ ipcMain.handle('export-project', async (event, projectJsonString: string) => {
         }
 
         const projectData = JSON.parse(projectJsonString);
+        // SYNC (audit 2026-05-29): guard sulla struttura — un .lmp leggermente corrotto
+        // non deve produrre un TypeError opaco.
+        if (!projectData?.project || !Array.isArray(projectData.project.columns)) {
+            return { success: false, error: 'Struttura progetto non valida' };
+        }
         const { columns } = projectData.project;
-        let successParams = { copied: 0, skipped: 0 };
+        let successParams = { copied: 0, skipped: 0, pruned: 0 };
+        // SYNC: nomi-destinazione effettivamente usati da QUESTO export. Serve sia per il
+        // dedup interno (due clip con stesso filename) sia per il pruning degli orfani dopo.
+        const usedDestNames = new Set<string>();
         let totalFiles = 0;
         columns.forEach((col: any) => {
-            totalFiles += col.clips.length;
+            totalFiles += Array.isArray(col.clips) ? col.clips.length : 0;
         });
 
         let processed = 0;
@@ -421,9 +474,14 @@ ipcMain.handle('export-project', async (event, projectJsonString: string) => {
                         const base = ext ? fileName.slice(0, -(ext.length + 1)) : fileName;
                         let destFileName = fileName;
                         let counter = 1;
-                        while (fs.existsSync(join(audioDir, destFileName))) {
+                        // SYNC: il dedup è SOLO rispetto ai file di questo export (usedDestNames),
+                        // non rispetto ai file già presenti sul disco. Così i nomi restano stabili
+                        // tra un export e l'altro: copyFileSync sovrascrive il file aggiornato,
+                        // e gli orfani vengono rimossi dopo (pruning). Niente accumulo di _1, _2…
+                        while (usedDestNames.has(destFileName.toLowerCase())) {
                             destFileName = `${base}_${counter++}.${ext}`;
                         }
+                        usedDestNames.add(destFileName.toLowerCase());
                         const destPath = join(audioDir, destFileName);
                         fs.copyFileSync(originalPath, destPath);
                         clip.path = `audio/${destFileName}`;
@@ -433,6 +491,27 @@ ipcMain.handle('export-project', async (event, projectJsonString: string) => {
                     successParams.skipped++;
                 }
             }
+        }
+
+        // SYNC (audit 2026-05-29): pruning — la cartella audio deve rispecchiare lo stato reale
+        // del progetto. Rimuove i file non più referenziati (clip eliminate, rinominate o sostituite)
+        // invece di lasciarli accumulare.
+        try {
+            for (const f of fs.readdirSync(audioDir)) {
+                if (!usedDestNames.has(f.toLowerCase())) {
+                    const full = join(audioDir, f);
+                    try {
+                        if (fs.statSync(full).isFile()) {
+                            fs.unlinkSync(full);
+                            successParams.pruned++;
+                        }
+                    } catch (e) {
+                        logger.warn(`[Main] Export prune: impossibile rimuovere ${f}: ${e instanceof Error ? e.message : String(e)}`);
+                    }
+                }
+            }
+        } catch (e) {
+            logger.warn(`[Main] Export prune: lettura cartella audio fallita: ${e instanceof Error ? e.message : String(e)}`);
         }
 
         const newLmpPath = join(exportDir, 'project.lmp');
@@ -496,16 +575,34 @@ ipcMain.handle('save-project-silent', async (_event: Electron.IpcMainInvokeEvent
 
 let recordingWriteStream: fs.WriteStream | null = null;
 let currentTempRecordingPath: string | null = null;
+// SEC/STAB (audit 2026-05-29): primo errore dello stream di registrazione (disco pieno,
+// USB scollegata). Senza handler 'error' un evento non gestito può terminare il main process
+// e far perdere la diretta. Lo memorizziamo e lo restituiamo al renderer al chunk successivo.
+let recordingStreamError: string | null = null;
 
 ipcMain.handle('start-recording', async (_event) => {
     try {
+        // STAB: se uno stream precedente è ancora aperto (start senza stop / doppio start),
+        // chiudilo prima per non perdere il file descriptor (handle leak).
+        if (recordingWriteStream) {
+            try { recordingWriteStream.end(); } catch { /* ignore */ }
+            recordingWriteStream = null;
+        }
+        recordingStreamError = null;
+
         const tempDir = app.getPath('temp');
         const timestamp = Date.now();
         currentTempRecordingPath = join(tempDir, `rrlmp_temp_${timestamp}.webm`);
-        
-        recordingWriteStream = fs.createWriteStream(currentTempRecordingPath);
+
+        const stream = fs.createWriteStream(currentTempRecordingPath);
+        // STAB: handler 'error' obbligatorio — evita unhandled 'error' event → crash main process.
+        stream.on('error', (err) => {
+            recordingStreamError = err instanceof Error ? err.message : String(err);
+            logger.error('[Main] Recording stream error:', err);
+        });
+        recordingWriteStream = stream;
         logger.info(`[Main] Temp recording started: ${currentTempRecordingPath}`);
-        
+
         return { success: true, path: currentTempRecordingPath };
     } catch (error) {
         logger.error('[Main] Failed to start temp recording:', error);
@@ -515,10 +612,22 @@ ipcMain.handle('start-recording', async (_event) => {
 
 ipcMain.handle('append-record-chunk', async (_event, arrayBuffer: ArrayBuffer) => {
     if (!recordingWriteStream) return { success: false, error: 'No active recording stream' };
-    
+    // STAB: se lo stream è andato in errore (disco pieno/USB), segnalalo al renderer
+    // che potrà fermare la sessione in modo pulito invece di accumulare chunk in RAM.
+    if (recordingStreamError) return { success: false, error: recordingStreamError };
+
     try {
         const buffer = Buffer.from(arrayBuffer);
-        recordingWriteStream.write(buffer);
+        const ok = recordingWriteStream.write(buffer);
+        // STAB: backpressure — se il buffer interno è pieno (disco/USB lento), attendi 'drain'
+        // prima di accettare altri chunk, così la RAM non cresce senza limite su sessioni lunghe.
+        if (!ok) {
+            await new Promise<void>((resolve) => {
+                const stream = recordingWriteStream;
+                if (!stream) return resolve();
+                stream.once('drain', resolve);
+            });
+        }
         return { success: true };
     } catch (error) {
         logger.error('[Main] Failed to append chunk:', error);
@@ -533,10 +642,18 @@ ipcMain.handle('stop-recording', async (_event) => {
         }
 
         const path = currentTempRecordingPath;
+        const streamError = recordingStreamError;
         recordingWriteStream.end(() => {
             logger.info(`[Main] Temp recording stopped: ${path}`);
             recordingWriteStream = null;
-            resolve({ success: true, path });
+            recordingStreamError = null;
+            // Se lo stream aveva accumulato un errore, riportiamo il file comunque scritto
+            // fin dove possibile, ma segnaliamo l'anomalia.
+            if (streamError) {
+                resolve({ success: false, path, error: streamError });
+            } else {
+                resolve({ success: true, path });
+            }
         });
     });
 });
@@ -559,6 +676,18 @@ ipcMain.handle('show-save-dialog-recording', async (event, defaultName: string, 
 ipcMain.handle('convert-recording', async (event, inputPath: string, outputPath: string, options: { bitrate?: number, format?: string }) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     if (!win) return { success: false, error: 'No window found' };
+
+    // SEC (audit 2026-05-29): valida i path renderer-controlled. outputPath deve essere assoluto
+    // con estensione audio whitelisted; inputPath deve essere un nostro temp recording.
+    if (typeof inputPath !== 'string' || typeof outputPath !== 'string'
+        || !isAbsolute(outputPath) || !ALLOWED_RECORDING_OUTPUT_EXT.has(extname(outputPath).toLowerCase())) {
+        logger.warn('[Main] convert-recording rifiutato (path non valido)');
+        return { success: false, error: 'Path di conversione non valido' };
+    }
+    if (!isTempRecordingPath(inputPath)) {
+        logger.warn('[Main] convert-recording rifiutato (inputPath non è un temp recording)');
+        return { success: false, error: 'File di input non consentito' };
+    }
 
     try {
         // REC-02 (v1.3.1): hard timeout IPC 30 min — allineato al cap interno di AudioProcessor.convertAudio
@@ -584,7 +713,8 @@ ipcMain.handle('convert-recording', async (event, inputPath: string, outputPath:
         );
 
         if (result.success) {
-            // Se la conversione è riuscita e il file è diverso dall'input, eliminiamo il temporaneo
+            // Se la conversione è riuscita e il file è diverso dall'input, eliminiamo il temporaneo.
+            // SEC: inputPath è già stato validato come temp recording sopra → unlink sicura.
             if (inputPath !== outputPath && fs.existsSync(inputPath)) {
                 try { fs.unlinkSync(inputPath); } catch (e) { /* ignore */ }
             }
@@ -668,7 +798,14 @@ ipcMain.handle('save-playout-log', async (event, csvContent: string, suggestedNa
 
 // Apre un URL nel browser di sistema (usato dall'update checker)
 ipcMain.handle('open-external', async (_event, url: string) => {
+    // SEC (audit 2026-05-29): il downloadUrl proviene dal feed di aggiornamento remoto.
+    // Consenti solo http/https per evitare apertura di schemi pericolosi via feed compromesso.
+    if (!isSafeExternalUrl(url)) {
+        logger.warn(`[Main] open-external rifiutato (schema non sicuro): ${String(url)}`);
+        return { success: false, error: 'URL non consentito' };
+    }
     await shell.openExternal(url);
+    return { success: true };
 });
 
 // v1.2.3 — Carica un progetto direttamente dal path (senza dialog) — usato da open-file / argv

@@ -95,7 +95,17 @@ export class AudioRecorder {
 
     public stop(): Promise<ArrayBuffer> {
         return new Promise((resolve, reject) => {
+            // GRAVE #5 (audit 2026-05-29): se il recorder è già fermo (doppio-stop, oppure
+            // cap-reached che ha già scatenato uno stop), NON rigettare scartando l'audio:
+            // restituisci i chunk raccolti finora. Evita di perdere la registrazione della puntata.
             if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') {
+                if (this.chunks.length > 0) {
+                    const blob = new Blob(this.chunks, { type: 'audio/webm' });
+                    blob.arrayBuffer()
+                        .then(ab => { this.chunks = []; resolve(ab); })
+                        .catch(reject);
+                    return;
+                }
                 return reject('Recorder not active');
             }
 

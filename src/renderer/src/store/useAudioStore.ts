@@ -192,6 +192,22 @@ const getColumnForClip = (clipId: string): string | null => {
     return null;
 }
 
+// Feature live-edit (audit 2026-05-29): restituisce la versione PIÙ AGGIORNATA della clip
+// dal project store (non lo snapshot catturato all'avvio del play). Serve perché l'operatore
+// può cambiare nextAction/transitionType di una clip GIÀ in esecuzione: la decisione di fine
+// brano (stop vs play_next) deve leggere il valore corrente, non quello di quando è partita.
+const getFreshClipById = (clipId: string): AudioClip | undefined =>
+    useProjectStore.getState().columns.flatMap(c => c.clips).find(c => c.id === clipId);
+
+// GRAVE #6 (audit 2026-05-29): handle dei setTimeout di transizione (crossfade/segue) per clipId.
+// Vanno cancellati in stopClip/stopAll, altrimenti un re-trigger rapido della stessa clip entro
+// la durata del crossfade verrebbe fermato dal timeout della transizione precedente.
+const _transitionTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
+const clearTransitionTimeout = (clipId: string) => {
+    const h = _transitionTimeouts.get(clipId);
+    if (h) { clearTimeout(h); _transitionTimeouts.delete(clipId); }
+};
+
 // GR-02 Fix: Mappa run-ID per evitare race condition in playClip.
 // Ogni invocazione di playClip genera un UUID unico per clipId;
 // se al ritorno dell'await load() il run-ID non corrisponde più,
@@ -365,7 +381,9 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 // v0.13.2 — Helper per applicare la transizione corretta tra clip in sequenza.
                 // Legge il tipo di transizione dalla clip corrente (override) o dal default globale.
                 const applyTransitionAndPlayNext = (clipId: string) => {
-                    const currentClip = get().activeClips[clipId]?.clip;
+                    // Live-edit: leggi nextAction/transitionType dal project store (valore corrente),
+                    // con fallback allo snapshot dell'active clip se non più presente nel progetto.
+                    const currentClip = getFreshClipById(clipId) ?? get().activeClips[clipId]?.clip;
                     if (!currentClip || currentClip.nextAction !== 'play_next') return;
 
                     const nextClip = getNextClipInColumn(currentClip.id);
@@ -390,10 +408,12 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                         if (currentPlayer) {
                             set(state => ({ fadingClipIds: [...state.fadingClipIds, clipId] }));
                             currentPlayer.fadeTo(0, crossfadeDuration);
-                            setTimeout(() => {
+                            clearTransitionTimeout(clipId);
+                            _transitionTimeouts.set(clipId, setTimeout(() => {
+                                _transitionTimeouts.delete(clipId);
                                 get().stopClip(clipId);
                                 set(state => ({ fadingClipIds: state.fadingClipIds.filter(id => id !== clipId) }));
-                            }, crossfadeDuration + 200);
+                            }, crossfadeDuration + 200));
                         }
                         // Imposta il fadeIn one-shot per la clip entrante
                         pendingCrossfadeFadeIn = crossfadeDuration;
@@ -405,10 +425,12 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                             set(state => ({ fadingClipIds: [...state.fadingClipIds, clipId] }));
                             // Segue usa la propria durata (fade-out rapido, entrante a pieno volume subito)
                             currentPlayer.fadeTo(0, segueDuration);
-                            setTimeout(() => {
+                            clearTransitionTimeout(clipId);
+                            _transitionTimeouts.set(clipId, setTimeout(() => {
+                                _transitionTimeouts.delete(clipId);
                                 get().stopClip(clipId);
                                 set(state => ({ fadingClipIds: state.fadingClipIds.filter(id => id !== clipId) }));
-                            }, segueDuration + 200);
+                            }, segueDuration + 200));
                         }
                         // La clip entrante parte subito a volume pieno (nessun fade-in forzato)
                         get().playClip(nextClip);
@@ -422,10 +444,13 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
                 // Sequencer Logic
                 player.onPreEnd((clipId) => {
+                    // Live-edit: legge il valore corrente di nextAction (l'operatore può averlo
+                    // cambiato a clip già in esecuzione).
+                    const live = getFreshClipById(freshClip.id) ?? freshClip;
                     // Gapless: la clip termina naturalmente, onEnded gestirà il play_next
-                    if (freshClip.nextAction !== 'play_next') return;
+                    if (live.nextAction !== 'play_next') return;
                     // Se c'è un Outro Marker, onOutroReached gestirà la transizione
-                    if ((freshClip.outroMarker || 0) > 0) return;
+                    if ((live.outroMarker || 0) > 0) return;
                     applyTransitionAndPlayNext(clipId);
                 });
 
@@ -435,7 +460,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 });
 
                 player.onOutroReached((clipId) => {
-                    const currentClip = get().activeClips[clipId]?.clip;
+                    // Live-edit: nextAction corrente dal project store.
+                    const currentClip = getFreshClipById(freshClip.id) ?? get().activeClips[clipId]?.clip;
                     if (!currentClip) return;
                     debugLog(`🔊 Outro Reached for ${currentClip.name}`, 'info');
                     if (currentClip.nextAction === 'play_next') {
@@ -447,8 +473,11 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     debugLog(`AudioStore: Ended ${freshClip.name}`, 'info');
                     get().stopClip(freshClip.id);
 
-                    if (freshClip.nextAction === 'play_next') {
-                        const transition = freshClip.transitionType
+                    // Live-edit: legge nextAction/transitionType correnti — se l'operatore ha
+                    // cambiato la clip in corsa da 'stop' a 'play_next', la modifica vale comunque.
+                    const live = getFreshClipById(freshClip.id) ?? freshClip;
+                    if (live.nextAction === 'play_next') {
+                        const transition = live.transitionType
                             ?? useSettingsStore.getState().defaultPreshowTransition;
 
                         // Gapless o Fallback: Se non è ancora partita la prossima clip, falla partire ora
@@ -591,6 +620,9 @@ export const useAudioStore = create<AudioStore>((set, get) => {
         },
 
         stopClip: (clipId: string) => {
+            // GRAVE #6: annulla un eventuale timeout di transizione pendente per questa clip,
+            // così un re-trigger non viene fermato dal vecchio crossfade/segue.
+            clearTransitionTimeout(clipId);
             set((state) => {
                 const active = state.activeClips[clipId];
                 if (active) {
@@ -641,6 +673,9 @@ export const useAudioStore = create<AudioStore>((set, get) => {
         },
 
         stopAll: () => {
+            // GRAVE #6: annulla tutti i timeout di transizione pendenti.
+            _transitionTimeouts.forEach(h => clearTimeout(h));
+            _transitionTimeouts.clear();
             set((state) => {
                 Object.values(state.activeClips).forEach(ac => {
                     ac.player.stop();

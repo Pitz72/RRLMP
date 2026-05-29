@@ -391,10 +391,15 @@ export const useProjectStore = create<ProjectState>((set) => ({
             clips: newColumns[sourceColIndex].clips.filter((_, i) => i !== oldIndex)
         };
 
-        // Update Clip Properties if changing column type
+        // Update Clip Properties if changing column type.
+        // Spostando una clip in un'altra colonna ne aggiorniamo type (routing bus/colore) e
+        // colore base. FIX (audit 2026-05-29): usa il colore EFFETTIVO della colonna destinazione
+        // (customColor ha precedenza sul color di default), prima veniva persa la tinta scelta.
+        // L'eventuale override colore della singola clip (clipToMove.customColor) resta intatto,
+        // così come nextAction/behavior/marker: lo spostamento non altera la logica di playout.
         if (sourceColId !== destColId) {
             clipToMove.type = destCol.type;
-            clipToMove.color = destCol.color;
+            clipToMove.color = destCol.customColor || destCol.color;
         }
 
         // Insert into destination — DND-02 (v1.3.4): clamp newIndex per evitare
