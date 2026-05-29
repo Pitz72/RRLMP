@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { AudioClip } from '../../types';
+import { AudioClip, TransitionType } from '../../types';
+
+// v1.3.16 — Sentinel UI: il valore 'default' nella dropdown rappresenta "usa il default globale".
+// Non è un TransitionType valido (modello: 'gapless' | 'segue' | 'crossfade'). Il widening del
+// tipo dello state separa la scelta UI dal valore persistito senza alterare il comportamento runtime.
+type TransitionUIChoice = TransitionType | 'default';
 import { debugLog } from '../../store/useDebugStore';
 import { Wand2, Settings2, Scissors, FileText, PlayCircle, StopCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -59,7 +64,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
     const [trimEnd, setTrimEnd] = useState(clip.trimEnd || 0);
     const [introMarker, setIntroMarker] = useState(clip.introMarker || 0);
     const [outroMarker, setOutroMarker] = useState(clip.outroMarker || 0);
-    const [transitionType, setTransitionType] = useState<AudioClip['transitionType']>(clip.transitionType || 'default');
+    const [transitionType, setTransitionType] = useState<TransitionUIChoice>(clip.transitionType || 'default');
     const [notes, setNotes] = useState(clip.notes || '');
 
     // Colore effettivo da mostrare: custom clip > custom colonna > colore colonna > fallback
@@ -82,7 +87,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             setTrimEnd(clip.trimEnd || 0);
             setIntroMarker(clip.introMarker || 0);
             setOutroMarker(clip.outroMarker || 0);
-            setTransitionType(clip.transitionType || 'default');
+            setTransitionType((clip.transitionType as TransitionUIChoice) || 'default');
             setNotes(clip.notes || '');
             setActiveTab('general'); // Reset tab
         }
@@ -106,7 +111,10 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             trimEnd: Number(trimEnd),
             introMarker: Number(introMarker),
             outroMarker: Number(outroMarker),
-            transitionType,
+            // v1.3.16 — cast deliberato: preserva il comportamento runtime pre-v1.3.16 in cui
+            // 'default' viene persistito come stringa nel .lmp (la lettura in useAudioStore fa
+            // `clip.transitionType ?? fallback`, con stringa 'default' non-matchata dagli switch).
+            transitionType: transitionType as AudioClip['transitionType'],
             notes,
         };
         debugLog(`Saving Clip: ${clip.name} Intro=${updatedClip.introMarker} Outro=${updatedClip.outroMarker}`, 'info');
@@ -350,7 +358,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                         <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">{t('modal.clip.transitionType')}</span>
                                         <select
                                             value={transitionType}
-                                            onChange={(e) => setTransitionType(e.target.value as AudioClip['transitionType'])}
+                                            onChange={(e) => setTransitionType(e.target.value as TransitionUIChoice)}
                                             className="bg-zinc-900 border border-zinc-800 rounded text-xs p-1 text-white outline-none focus:border-emerald-500"
                                         >
                                             <option value="default">{t('modal.clip.trans.default')}</option>

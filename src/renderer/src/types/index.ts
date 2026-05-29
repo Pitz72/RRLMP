@@ -56,9 +56,16 @@ declare global {
             startRecording: () => Promise<{ success: boolean; path?: string; error?: string }>;
             appendRecordChunk: (arrayBuffer: ArrayBuffer) => Promise<{ success: boolean; error?: string }>;
             stopRecording: () => Promise<{ success: boolean; path?: string; error?: string }>;
-            showSaveDialogRecording: (defaultName: string, format: 'wav' | 'webm') => Promise<{ canceled: boolean; filePath?: string }>;
-            convertRecording: (inputPath: string, outputPath: string, options: { bitrate?: number, format?: string }) => Promise<{ success: boolean; error?: string }>;
+            // v1.3.16 — formato esteso allineato a exportRecording (wav/mp3/flac/ogg/webm)
+            showSaveDialogRecording: (defaultName: string, format: 'webm' | 'wav' | 'mp3' | 'flac' | 'ogg') => Promise<{ canceled: boolean; filePath?: string }>;
+            // v1.3.16 — sampleDepth esposto (già presente nel preload), allinea convertRecording all'opzione passata da exportRecording
+            convertRecording: (inputPath: string, outputPath: string, options: { bitrate?: number; format?: string; sampleDepth?: number }) => Promise<{ success: boolean; error?: string }>;
             deleteTempRecording: (path: string) => Promise<{ success: boolean; error?: string }>;
+            // v1.3.16 — handler IPC già esposti dal preload, qui dichiarati per allineare i tipi (nessun cambio runtime).
+            saveRecordingBuffer: (arrayBuffer: ArrayBuffer) => Promise<{ success: boolean; path?: string; error?: string }>;
+            // Utilities (esposte dal preload da tempo, mai dichiarate)
+            openExternal: (url: string) => Promise<{ success: boolean; error?: string }>;
+            getPlatform: () => string;
         }
 
 

@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
-**Ultima analisi**: 29 maggio 2026 — Audit globale (4 agenti) + chiusura MEDIE/LIEVI a blocchi (Blocchi 1-6) + Blocco Cleanup  
-**Versione corrente**: 1.3.15  
+**Ultima analisi**: 29 maggio 2026 — Audit globale (4 agenti) + chiusura MEDIE/LIEVI a blocchi (Blocchi 1-6) + Blocco Cleanup + Blocco Types `window.electron`  
+**Versione corrente**: 1.3.16  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -48,6 +48,7 @@
 | **v1.3.13** | — | **Audit MEDIE — Blocco 5 Project/Grid**: **moveClip same-column fragile** (`useProjectStore`) — il riordino intra-colonna riusa l'array già privato di `oldIndex` invece di ri-derivare da `sourceCol` originale (logica unificata, risultato identico) · **id clip duplicati** — dedup al load in `validateLmpProjectData` (id ripetuti rigenerati con `crypto.randomUUID`, la prima occorrenza vince) · **MainGrid hotkey deps** — `columns` letto via `getState()`, deps ridotte a `[editingClip, playColumn]` (no ri-registrazione del listener a ogni mutazione), rimosso `stopAll` inutilizzato. |
 | **v1.3.14** | — | **Audit MEDIE/LIEVI — Blocco 6 Utils/Misc** (ultimo): **updateChecker non-semver** — `compareSemver` (no prompt di downgrade su versione remota più vecchia) · **useVUMeter analyser stale** — analyser ri-letti a ogni frame + buffer dinamici (no livelli congelati al cambio device) · **toast timer leak** — timer auto-remove tracciati e cancellati in `removeToast` · **PlayoutLog clear senza confirm** — conferma Promise-based prima dello svuotamento · **console.log path in prod** (`AudioProcessor`) — 5 log path → `logger.info` dev-gated. **Rinviati con motivazione:** pathUtils UNC (richiede coord. main+renderer + test rete), DragHandle inline (micro-perf senza impatto). |
 | **v1.3.15** | — | **Blocco Cleanup (post-audit)** — basso rischio, nessun cambio comportamento runtime: **DragHandle estratto a componente top-level** (`WaveformEditor`) con props esplicite (`duration`/`dragging`/`startDrag` + leftPct/marker/color/label/show) — niente più remount dei 4 handle a ogni render (chiude il rinvio "DragHandle inline" di v1.3.14) · **rimozione simboli morti** — `DebugOverlay` (import `useProjectStore`/`useEffect`/`useState` + var `audioStoreState`), `MainGrid` (destrutturazione `addClip` mai usata): renderer da 13 → 8 errori TS, 0 aggiunti. **Non eseguito:** rimozione `suppressedClips` — verificato attivamente scritto/letto nel path `stacco` del mix, NON è codice morto. **Rinviato:** pathUtils UNC (invariato). |
+| **v1.3.16** | — | **Blocco Types `window.electron`** — solo tipi, zero modifiche runtime: renderer typecheck **8 → 0 errori** (nuova baseline 0). **`types/index.ts`** — aggiunti `openExternal`, `getPlatform`, `saveRecordingBuffer` (handler già esposti dal preload ma mai dichiarati); `showSaveDialogRecording.format` ampliato a `webm\|wav\|mp3\|flac\|ogg`; `convertRecording.options` aggiunge `sampleDepth?: number`. **`BufferPlayer.ts`** — stub no-op `onIntroReached`/`onOutroReached` coerenti con altri callback non supportati (era TS2420 incompleto rispetto a `IAudioPlayer`). **`ClipSettingsModal.tsx`** — type alias locale `TransitionUIChoice = TransitionType \| 'default'` per lo state della dropdown (il valore `'default'` è sentinel UI, non un `TransitionType`); cast esplicito `as AudioClip['transitionType']` nel `handleSave` per preservare il comportamento runtime corrente. **Rinviato:** pathUtils UNC (invariato). |
 
 ---
 

@@ -125,7 +125,15 @@ export class BufferPlayer implements IAudioPlayer {
     }
 
     onPreEnd(_callback: (clipId: string) => void): void {
-        // BufferPlayer functionality limited 
+        // BufferPlayer functionality limited
+    }
+
+    onIntroReached(_callback: (clipId: string) => void): void {
+        // BufferPlayer functionality limited
+    }
+
+    onOutroReached(_callback: (clipId: string) => void): void {
+        // BufferPlayer functionality limited
     }
 
     fadeTo(volume: number, duration: number): void {
