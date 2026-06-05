@@ -48,7 +48,10 @@ Richiesta utente (2026-06-05). **Confinata alla sola colonna PRE-SHOW** (la fase
 - Collegato a **F-04** (soundboard) e a "Layout Regia 5.0" (colonne configurabili/rinominabili).
 
 ### Device/Routing audio + Mic Ducking (test hardware + cross-platform)
-- **Problema noto (Rødecaster II)**: con mic muto sul mixer il ducking percepisce comunque suono, perché l'ingresso USB del Rødecaster presenta a Windows il **mix principale** (non il solo microfono); `getUserMedia` legge quel device → l'analyser RMS rileva il programma in onda. È un limite di **routing del device**, non un bug software puro.
+- **Problema noto**: con mic muto sul mixer il ducking percepisce comunque suono, perché l'ingresso USB del Rødecaster presenta a Windows il **mix principale** (non il solo microfono); `getUserMedia` legge quel device → l'analyser RMS rileva il programma in onda. È un limite di **routing del device**, non un bug software puro.
+- **Hardware di riferimento**:
+  - **Rødecaster Pro (modello I)** — una sola fonte USB, NON multitraccia: **escluso dalla compatibilità piena**. Usabile solo manualmente (ducking mic OFF, registrazione software OFF; mixaggio a mano dal banco).
+  - **Rødecaster Pro II** — mixer **di riferimento**: volendo multitraccia, **2 canali input USB** (forse anche output). Su questo va costruita la gestione avanzata. ⚠️ Quando si affronta: **verificare via ricerca web tecnica** le specifiche reali (canali USB in/out, isolamento mic dal mix, multitraccia su Win/Linux/Mac).
 - **Direzioni**: selezione di un input isolato/mix-minus dal banco; combinare il livello hardware con lo **stato interno del mix** (`evaluateMix` sa già quali clip sono attive) per ridurre i falsi positivi; ridefinizione gestione periferiche tenendo conto di **Win/Linux/Mac**.
 - Comprende anche **Output Device multi-routing** (uscite separate Main/Cue/Monitor/Recording, scheda multitraccia, hot-swap USB) — area già marcata come da-fare-con-test-hardware.
 
