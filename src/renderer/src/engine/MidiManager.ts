@@ -123,6 +123,18 @@ class MidiManager {
         }
     }
 
+    /**
+     * Strumento di TEST (no hardware): inietta un messaggio MIDI grezzo come se
+     * arrivasse da una porta fisica. Passa per lo STESSO `handleMidiMessage`, quindi
+     * esercita identicamente il masking dei 16 canali (& 0xF0) e fa fan-out ai listener
+     * (App.handleMidiMessage). Usato dalla MidiSimulatorModal (hotkey Ctrl+Shift+M).
+     * @param data terzina raw [command, note, velocity]; command codifica tipo+canale.
+     */
+    public simulateMessage(data: number[]) {
+        const bytes = Uint8Array.from(data.map(b => Math.max(0, Math.min(255, b | 0))));
+        this.handleMidiMessage({ data: bytes } as MidiEvent);
+    }
+
     public addListener(callback: MidiMessageCallback) {
         this.listeners.push(callback);
         return () => {

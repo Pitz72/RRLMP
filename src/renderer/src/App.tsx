@@ -16,6 +16,7 @@ import { WelcomeScreen } from './components/modals/WelcomeScreen';
 import { OnAirTimer } from './components/ui/OnAirTimer';
 import { RecordingButton } from './components/ui/RecordingButton';
 import { PlayoutLogModal } from './components/modals/PlayoutLogModal';
+import { MidiSimulatorModal } from './components/modals/MidiSimulatorModal';
 import { NoteBoard } from './components/ui/NoteBoard';
 import { ToastContainer } from './components/ui/ToastContainer';
 import { ConfirmDialog } from './components/ui/ConfirmDialog';
@@ -29,6 +30,7 @@ import appLogo from './assets/logo.png';
 function App() {
     const [showWelcome, setShowWelcome] = useState(true);
     const [showPlayoutLog, setShowPlayoutLog] = useState(false);
+    const [showMidiSim, setShowMidiSim] = useState(false);
     const masterChain = useSettingsStore((s) => s.masterChain);
 
     // LI-04: cleanup singleton audio/MIDI all'unmount (hot-reload dev + ricarica pagina)
@@ -172,6 +174,11 @@ function App() {
             // Complex Toggle: Ctrl + Shift + D
             if (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
                 useDebugStore.getState().toggle();
+            }
+
+            // Simulatore MIDI (strumento di test, no hardware): Ctrl + Shift + M
+            if (e.ctrlKey && e.shiftKey && (e.key === 'M' || e.key === 'm')) {
+                setShowMidiSim(prev => !prev);
             }
 
             // Input Guard
@@ -336,6 +343,7 @@ function App() {
             <ToastContainer />
             <ConfirmDialog />
             {showPlayoutLog && <PlayoutLogModal onClose={() => setShowPlayoutLog(false)} />}
+            <MidiSimulatorModal isOpen={showMidiSim} onClose={() => setShowMidiSim(false)} />
 
             {showWelcome && (
                 <WelcomeScreen
