@@ -1032,6 +1032,14 @@ app.whenReady().then(() => {
                 return;
             }
             callback(true);
+        } else if (permission === 'clipboard-sanitized-write') {
+            // v1.4.1: il bottone COPY del LOG STREAM (Debug Overlay) usa
+            // navigator.clipboard.writeText, che in Electron 28 richiede questo
+            // permesso. Senza, la richiesta veniva negata dal ramo else → la Promise
+            // di writeText rigettava ("error" segnalato in regia). Concediamo SOLO la
+            // scrittura sanitizzata (testo su gesto utente): basso rischio, niente
+            // lettura clipboard né altri permessi.
+            callback(true);
         } else {
             callback(false);
         }

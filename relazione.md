@@ -1,7 +1,7 @@
 # Relazione Tecnica — Runtime Live Machine Pro
 
 **Ultima analisi**: 5 giugno 2026 — Audit globale (4 agenti) + chiusura MEDIE/LIEVI a blocchi (Blocchi 1-6) + Blocco Cleanup + Blocco Types `window.electron` + Simulatore MIDI (test tool) + fix script dev + fix drop assets + consolidamento doc roadmap + design brief Jingle&Promo + **feature Colonne Jingle&Promo + rotazione PRE-SHOW**  
-**Versione corrente**: 1.4.0  
+**Versione corrente**: 1.4.1  
 **Stack**: Electron 28.3.3 · React 18.2.0 · TypeScript 5.3.3 · Zustand · Web Audio API · FFmpeg
 
 ---
@@ -10,6 +10,7 @@
 
 | Versione | Commit | Modifiche |
 | ---------- | -------- | --------- |
+| **v1.4.1** | — | **Fix bottone COPY del LOG STREAM (Debug Overlay)** — dava errore e non copiava. Causa: `setPermissionRequestHandler` (main) negava tutto tranne `media` (NEW-ME-05 v1.2.26) → `navigator.clipboard.writeText` richiede `clipboard-sanitized-write`, negato → Promise rigettata. Fix: handler concede SOLO `clipboard-sanitized-write` (scrittura testo su gesto utente, basso rischio; webcam e resto restano negati) + `DebugOverlay.copyLogs()` reso async con try/catch e fallback `execCommand('copy')`. Typecheck 0 errori. |
 | **v1.4.0** | — | **Colonne Jingle&Promo + rotazione automatica PRE-SHOW** (feature — bump MINOR, lavorata come 1.3.21 e promossa a 1.4.0). Due nuove colonne fisse JINGLE/PROMO (2ª/3ª posizione, riusano `type:'asset'` — id stabili `col-jingle`/`col-promo`, nessun nuovo ClipType: una clip lanciata da sola resta un normale asset). Motore di rotazione **confinato alla sola PRE-SHOW** (modello AzuraCast, NON automazione dello show — vedi VISION): ogni X brani un jingle a caso, ogni Y un promo, a fine brano con le transizioni esistenti, **mai sovrapposti**, poi ripresa playlist. Due contatori indipendenti (collisione → jingle poi promo in sequenza). `resolvePreshowNext` con **decisione memoizzata per clip-sorgente** (coerenza tra `onPreEnd` ~50ms e fallback `onEnded` in gapless: niente doppio incremento/avvio). Anti-repeat, colonna vuota saltata. Config persistita su `col-preshow.rotation` (**default spenta** → comportamento invariato), contatori runtime (reset su STOP ALL e su lancio Show Asset). **Migrazione `.lmp`**: colonne iniettate a destra di assets se assenti, rotation sanitizzata; progetti a 5 colonne restano validi. Nuovo `RotationSettingsModal` + trigger in `ColumnHeader` (solo PRE-SHOW). Typecheck 0 errori, `vite build` OK. |
 | v1.2.6 | 7cfefe2 | GR-01, GR-02, GR-03, GR-04, GR-08 (bonus) |
 | v1.2.7 | d7fe551 | GR-05, GR-07 (GR-06 già risolto nel codebase) |
