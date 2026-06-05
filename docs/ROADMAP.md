@@ -1,7 +1,29 @@
 # RRLMP — Roadmap & Backlog
 
-**Versione corrente:** 1.3.18
-**Ultimo aggiornamento:** 2026-06-05
+**Versione corrente:** 1.4.1
+**Ultimo aggiornamento:** 2026-06-05 (priorità ridefinite dall'utente dopo v1.4.1)
+
+---
+
+## 🎯 PRIORITÀ DECISE DALL'UTENTE (2026-06-05)
+
+### 🔴 Da fare subito (ordine indicato)
+1. **Verifica qualità audio + Test motore audio** — *priorità assoluta*. Dubbio dell'utente: in alcuni casi l'audio in onda pare **ricompresso/degradato**. Indagare la pipeline `media://` → Web Audio → Master Chain → output. + copertura test (Vitest) su `useAudioStore`/`evaluateMix`.
+2. **Undo/Redo playlist** (F-11) — "assolutamente subito".
+3. **Compressore multibanda sul master** (evoluzione di F-06) — non solo loudness uniforme: deve dare anche **spunta e calore**, se fattibile in Web Audio (crossover + N compressori).
+4. **Modalità "solo controllo" da tablet touch / laptop** (evoluzione di F-25/OSC) — comandare l'app da un secondo dispositivo touch, UX più intuitiva senza mouse.
+5. **BPM Detection** (F-13) — sì.
+
+### 🟡 Sessione dedicata / da analizzare
+- **Rødecaster II + Device/Routing + Mic Ducking** — sessione di discussione a sé (né subito, né rimandata, né sospesa).
+- **"Now Playing" streaming** (F-07) — rimandata, da definire (cosa mostrare quando si torna al sottofondo parlato dello show?).
+- **Soundboard** (F-04) — rimandata: ha senso ma va ripensata l'interfaccia.
+
+### 🟢 Futuro
+- **Layout regia configurabile** — focus: attivare/disattivare le colonne esistenti secondo necessità dello speaker; aggiungerne solo se con funzione preconfigurata.
+
+### ⏸️ Sospeso
+- **Voice Tracking** (F-12) — sospeso: l'utente non è convinto serva (non è regia automatizzata).
 
 > Fonte canonica della roadmap attiva: la tabella in `relazione.md` (sezione "FEATURE IN SCOPE"). Questo documento la riassume e la contestualizza. La filosofia di prodotto è in `VISION.md`.
 
