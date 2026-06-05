@@ -83,7 +83,7 @@ const DEFAULT_COLUMNS: Column[] = [
         title: 'SHOW ASSETS',
         type: 'asset',
         color: '#10B981', // Emerald-500 (Green)
-        isLocked: true,
+        isLocked: false, // v1.3.18: assets accetta i file trascinati come tutte le colonne (era true fino a v1.3.17, vedi MainGrid.handleNativeDrop)
         clips: []
     },
     {

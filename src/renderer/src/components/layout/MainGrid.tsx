@@ -186,15 +186,14 @@ export const MainGrid: React.FC = () => {
         // Allow only files
         if (!e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
 
-        // DND-04 (v1.3.4): rifiuta drop su colonna locked (es. SHOW ASSETS).
-        // Prima il drop nativo bypassava il flag isLocked che invece protegge
-        // l'editing tramite UI → l'utente poteva sporcare la colonna protetta
-        // trascinandoci file dal File Explorer.
-        const targetCol = columns.find(c => c.id === colId);
-        if (targetCol?.isLocked) {
-            setDropIndicator(null);
-            return;
-        }
+        // v1.3.18: rimosso il rifiuto del drop su colonna `isLocked` (era DND-04 in
+        // v1.3.4). Per richiesta esplicita dell'utente la colonna SHOW ASSETS deve
+        // accettare i file trascinati dall'OS esattamente come tutte le altre colonne
+        // (comportamento pre-v1.3.4). Il flag `isLocked` resta nel modello dati ma non
+        // blocca più il drop nativo — non esiste alcuna UI per attivarlo e l'unica
+        // colonna che lo aveva (assets) ora è sbloccata anche di default. La rimozione
+        // del guard qui copre anche i progetti .lmp già salvati con assets isLocked:true
+        // (il validatore non normalizza isLocked).
 
         // GR12 Fix: filtra solo file audio supportati.
         // File non audio (immagini, PDF, exe...) vengono ignorati silenziosamente
