@@ -3,38 +3,61 @@
  *
  * Manages the global Web Audio API context and the main routing graph.
  *
- * Audio Graph Topology (v0.16.2 — Master Chain):
+ * Audio Graph Topology (v1.4.2 — Master Glue Multibanda):
  *
  *   Bus (Music/Voice/SFX/Assets)
  *       → masterGain
- *           → HPF (HighPassFilter, 80 Hz, bypass via 'allpass')
- *               → Compressor (broadcast: -18 dBFS, 4:1, 5 ms / 200 ms)
- *                   → Limiter (brickwall: -1 dBFS, 20:1, 1 ms / 100 ms)
- *                       → destination
- *                       → ChannelSplitter → AnalyserL, AnalyserR
+ *           → HPF (HighPassFilter, 30 Hz, bypass via 'allpass')
+ *               ├─ WET: crossover LR4 (3 bande) → 3 compressori gentili → mbSum(0.47) → wetGain
+ *               └─ DRY: passthrough pulito                                            → dryGain
+ *                       (wetGain/dryGain in mutua esclusione: glue ON = wet, glue OFF = dry)
+ *                   → preLimiter
+ *                       → Limiter (brickwall: -1 dBFS, 20:1, 2 ms / 100 ms)
+ *                           → destination
+ *                           → ChannelSplitter → AnalyserL, AnalyserR
+ *                           → recordingBus
  *
- * Quando masterChainEnabled = false ogni stadio è bypassato tramite
- * parametri neutri (HPF → allpass, Compressor/Limiter → threshold 0 / ratio 1).
+ * NOTA DI PROGETTO (v1.4.2): il `DynamicsCompressorNode` di Chromium applica un
+ * makeup gain implicito anche a ratio 1 → mettere i compressori in "pass-through"
+ * NON è neutro (verificato: +4 LU e clipping). Per questo i 3 compressori di banda
+ * sono SEMPRE configurati con i parametri glue e SEMPRE nel grafo; quando il glue è
+ * disattivo si AGGIRANO azzerando `wetGain` e aprendo `dryGain` (passthrough reale),
+ * non toccando mai i loro parametri. Il preset multibanda è fisso e tarato offline
+ * (livello neutro ±0.5 LU, riduzione LRA gentile ~0.6 LU, true peak sicuro).
+ *
+ * Quando masterChainEnabled = false: HPF→allpass, dry path attivo, limiter→passthrough
+ * (ratio 1 / threshold 0, knee 0) → catena trasparente, identica al segnale d'ingresso.
  */
 
 export interface MasterChainSettings {
     enabled: boolean;
     hpfEnabled: boolean;
-    hpfFrequency: number;        // Hz  — default 80
-    compressorEnabled: boolean;
-    compressorThreshold: number; // dBFS — default -18
-    compressorRatio: number;     // default 4
+    hpfFrequency: number;        // Hz  — default 30
+    compressorEnabled: boolean;  // abilita il Glue Multibanda (wet path)
+    compressorThreshold: number; // dBFS — vestigiale (preset multibanda fisso), mantenuto per compat persistenza
+    compressorRatio: number;     // vestigiale (preset multibanda fisso)
     limiterThreshold: number;    // dBFS — default -1
 }
 
 export const DEFAULT_MASTER_CHAIN: MasterChainSettings = {
     enabled: true,
     hpfEnabled: true,
-    hpfFrequency: 80,
+    hpfFrequency: 30,
     compressorEnabled: true,
-    compressorThreshold: -18,
-    compressorRatio: 4,
+    compressorThreshold: -24,
+    compressorRatio: 2,
     limiterThreshold: -1,
+};
+
+// --- Preset Glue Multibanda (FISSO, tarato offline) ---
+const MB_PRESET = {
+    xLow: 200,        // Hz — crossover basse/medie
+    xHigh: 2500,      // Hz — crossover medie/alte
+    outGain: 0.47,    // calibrazione che neutralizza il makeup implicito dei 3 compressori
+    smooth: 0.02,     // costante di tempo per switch wet/dry click-free
+    low:  { threshold: -30, ratio: 2.0, knee: 12, attack: 0.012, release: 0.25 },
+    mid:  { threshold: -26, ratio: 2.0, knee: 14, attack: 0.015, release: 0.20 },
+    high: { threshold: -30, ratio: 1.6, knee: 14, attack: 0.006, release: 0.15 },
 };
 
 class AudioContextManager {
@@ -42,7 +65,16 @@ class AudioContextManager {
     private context: AudioContext;
     private masterGain: GainNode;
     private hpf: BiquadFilterNode;
-    private compressor: DynamicsCompressorNode;
+
+    // Glue multibanda (wet)
+    private compLow: DynamicsCompressorNode;
+    private compMid: DynamicsCompressorNode;
+    private compHigh: DynamicsCompressorNode;
+    private mbSum: GainNode;
+    private wetGain: GainNode;
+    private dryGain: GainNode;
+    private preLimiter: GainNode;
+
     private limiter: DynamicsCompressorNode;
     private analyserL: AnalyserNode;
     private analyserR: AnalyserNode;
@@ -59,61 +91,102 @@ class AudioContextManager {
         const WindowContext = window as unknown as { webkitAudioContext: typeof AudioContext };
         const AudioContextClass = (window.AudioContext || WindowContext.webkitAudioContext) as typeof AudioContext;
         this.context = new AudioContextClass();
+        const ctx = this.context;
 
         // --- 1. Master Gain ---
-        this.masterGain = this.context.createGain();
+        this.masterGain = ctx.createGain();
         this.masterGain.gain.value = 1.0;
 
         // --- 2. HPF (High-Pass Filter) ---
-        this.hpf = this.context.createBiquadFilter();
+        this.hpf = ctx.createBiquadFilter();
         this.hpf.type = 'highpass';
         this.hpf.frequency.value = DEFAULT_MASTER_CHAIN.hpfFrequency;
         this.hpf.Q.value = 0.7;
 
-        // --- 3. Broadcast Compressor ---
-        this.compressor = this.context.createDynamicsCompressor();
-        this.compressor.threshold.value = DEFAULT_MASTER_CHAIN.compressorThreshold;
-        this.compressor.knee.value = 6;
-        this.compressor.ratio.value = DEFAULT_MASTER_CHAIN.compressorRatio;
-        this.compressor.attack.value = 0.005;  // 5 ms
-        this.compressor.release.value = 0.200; // 200 ms
+        // --- 3. Crossover LR4 (cascata di 2 biquad Q=0.7071 per ramo) ---
+        const lr = (type: BiquadFilterType, freq: number): [BiquadFilterNode, BiquadFilterNode] => {
+            const a = ctx.createBiquadFilter(); const b = ctx.createBiquadFilter();
+            a.type = type; b.type = type; a.frequency.value = freq; b.frequency.value = freq;
+            a.Q.value = 0.7071; b.Q.value = 0.7071; a.connect(b);
+            return [a, b];
+        };
+        const [lowLPa, lowLPb] = lr('lowpass', MB_PRESET.xLow);
+        const [highHPa, highHPb] = lr('highpass', MB_PRESET.xHigh);
+        const [midHPa, midHPb] = lr('highpass', MB_PRESET.xLow);
+        const [midLPa, midLPb] = lr('lowpass', MB_PRESET.xHigh);
+        midHPb.connect(midLPa); // banda media: HP(xLow) → LP(xHigh)
 
-        // --- 4. Brickwall Limiter ---
-        this.limiter = this.context.createDynamicsCompressor();
+        // --- 4. Compressori di banda (gentili, SEMPRE configurati glue) ---
+        const mkComp = (p: { threshold: number; ratio: number; knee: number; attack: number; release: number }) => {
+            const c = ctx.createDynamicsCompressor();
+            c.threshold.value = p.threshold; c.ratio.value = p.ratio; c.knee.value = p.knee;
+            c.attack.value = p.attack; c.release.value = p.release;
+            return c;
+        };
+        this.compLow = mkComp(MB_PRESET.low);
+        this.compMid = mkComp(MB_PRESET.mid);
+        this.compHigh = mkComp(MB_PRESET.high);
+
+        // --- 5. Somma bande (wet) + gain calibrazione ---
+        this.mbSum = ctx.createGain();
+        this.mbSum.gain.value = MB_PRESET.outGain;
+        lowLPb.connect(this.compLow);   this.compLow.connect(this.mbSum);
+        midLPb.connect(this.compMid);   this.compMid.connect(this.mbSum);
+        highHPb.connect(this.compHigh); this.compHigh.connect(this.mbSum);
+
+        // --- 6. Mix wet/dry (mutua esclusione) ---
+        this.wetGain = ctx.createGain();
+        this.dryGain = ctx.createGain();
+        this.preLimiter = ctx.createGain();
+        // default chain attiva + glue attivo
+        this.wetGain.gain.value = 1.0;
+        this.dryGain.gain.value = 0.0;
+        this.mbSum.connect(this.wetGain);
+        this.wetGain.connect(this.preLimiter);
+        this.dryGain.connect(this.preLimiter);
+
+        // --- 7. Brickwall Limiter ---
+        this.limiter = ctx.createDynamicsCompressor();
         this.limiter.threshold.value = DEFAULT_MASTER_CHAIN.limiterThreshold;
         this.limiter.knee.value = 0;
         this.limiter.ratio.value = 20;
-        this.limiter.attack.value = 0.001;  // 1 ms
+        this.limiter.attack.value = 0.002;  // 2 ms
         this.limiter.release.value = 0.100; // 100 ms
 
-        // --- 5. Metering ---
-        this.splitter = this.context.createChannelSplitter(2);
-        this.analyserL = this.context.createAnalyser();
-        this.analyserR = this.context.createAnalyser();
+        // --- 8. Metering ---
+        this.splitter = ctx.createChannelSplitter(2);
+        this.analyserL = ctx.createAnalyser();
+        this.analyserR = ctx.createAnalyser();
         this.analyserL.fftSize = 64;
         this.analyserR.fftSize = 64;
         this.analyserL.smoothingTimeConstant = 0.8;
         this.analyserR.smoothingTimeConstant = 0.8;
 
         // v1.2.2 — Recording bus: riceve il segnale dal limiter + mic diretto (quando mixEnabled=false)
-        this.recordingBus = this.context.createGain();
+        this.recordingBus = ctx.createGain();
         this.recordingBus.gain.value = 1.0;
 
-        // --- Wiring: masterGain → HPF → Compressor → Limiter → destination + splitter + recordingBus ---
+        // --- Wiring principale ---
         this.masterGain.connect(this.hpf);
-        this.hpf.connect(this.compressor);
-        this.compressor.connect(this.limiter);
-        this.limiter.connect(this.context.destination);
+        // WET branch
+        this.hpf.connect(lowLPa);
+        this.hpf.connect(highHPa);
+        this.hpf.connect(midHPa);
+        // DRY branch
+        this.hpf.connect(this.dryGain);
+        // preLimiter → limiter → destination + splitter + recordingBus
+        this.preLimiter.connect(this.limiter);
+        this.limiter.connect(ctx.destination);
         this.limiter.connect(this.splitter);
         this.limiter.connect(this.recordingBus);
         this.splitter.connect(this.analyserL, 0);
         this.splitter.connect(this.analyserR, 1);
 
-        // --- 6. Buses ---
-        this.musicBus = this.context.createGain();
-        this.voiceBus = this.context.createGain();
-        this.sfxBus = this.context.createGain();
-        this.assetsBus = this.context.createGain();
+        // --- 9. Buses ---
+        this.musicBus = ctx.createGain();
+        this.voiceBus = ctx.createGain();
+        this.sfxBus = ctx.createGain();
+        this.assetsBus = ctx.createGain();
         this.musicBus.gain.value = 1.0;
         this.voiceBus.gain.value = 1.0;
         this.sfxBus.gain.value = 1.0;
@@ -189,39 +262,40 @@ class AudioContextManager {
     // Master Chain Controls
     // -------------------------------------------------------------------------
 
-    /** Applica in blocco tutte le impostazioni della chain. */
+    /** Applica in blocco tutte le impostazioni della chain.
+     * I parametri dei compressori di banda NON vengono toccati (preset fisso): si
+     * commuta solo il routing wet/dry e lo stato di HPF e Limiter. */
     public applyMasterChainSettings(s: MasterChainSettings): void {
+        const now = this.context.currentTime;
+        const t = MB_PRESET.smooth;
+        const chainOn = s.enabled;
+        const glueOn = s.enabled && s.compressorEnabled;
+
         // HPF
-        if (!s.enabled || !s.hpfEnabled) {
+        if (!chainOn || !s.hpfEnabled) {
             this.hpf.type = 'allpass'; // pass-through neutro
         } else {
             this.hpf.type = 'highpass';
-            this.hpf.frequency.setTargetAtTime(s.hpfFrequency, this.context.currentTime, 0.05);
+            this.hpf.frequency.setTargetAtTime(s.hpfFrequency, now, 0.05);
         }
 
-        // Compressor
-        if (!s.enabled || !s.compressorEnabled) {
-            // Ratio 1:1 = pass-through; threshold a 0 per non intervenire mai
-            this.compressor.threshold.setTargetAtTime(0, this.context.currentTime, 0.05);
-            this.compressor.ratio.setTargetAtTime(1, this.context.currentTime, 0.05);
-        } else {
-            this.compressor.threshold.setTargetAtTime(s.compressorThreshold, this.context.currentTime, 0.05);
-            this.compressor.ratio.setTargetAtTime(s.compressorRatio, this.context.currentTime, 0.05);
-        }
+        // Glue Multibanda — wet/dry in mutua esclusione (click-free)
+        this.wetGain.gain.setTargetAtTime(glueOn ? 1 : 0, now, t);
+        this.dryGain.gain.setTargetAtTime(glueOn ? 0 : 1, now, t);
 
         // Limiter — sempre presente quando la chain è attiva (sicurezza broadcast)
-        if (!s.enabled) {
-            this.limiter.threshold.setTargetAtTime(0, this.context.currentTime, 0.05);
-            this.limiter.ratio.setTargetAtTime(1, this.context.currentTime, 0.05);
+        if (!chainOn) {
+            this.limiter.threshold.setTargetAtTime(0, now, 0.05);
+            this.limiter.ratio.setTargetAtTime(1, now, 0.05);
         } else {
-            this.limiter.threshold.setTargetAtTime(s.limiterThreshold, this.context.currentTime, 0.05);
-            this.limiter.ratio.setTargetAtTime(20, this.context.currentTime, 0.05);
+            this.limiter.threshold.setTargetAtTime(s.limiterThreshold, now, 0.05);
+            this.limiter.ratio.setTargetAtTime(20, now, 0.05);
         }
     }
 
-    /** Legge il valore di riduzione (gain reduction) del compressor in dB. */
+    /** Legge la massima riduzione (gain reduction) tra i 3 compressori di banda in dB. */
     public getCompressorReduction(): number {
-        return this.compressor.reduction;
+        return Math.min(this.compLow.reduction, this.compMid.reduction, this.compHigh.reduction);
     }
 
     /** Legge il valore di riduzione (gain reduction) del limiter in dB. */

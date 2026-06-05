@@ -469,7 +469,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h3 className="text-[10px] uppercase text-sky-400 font-bold tracking-wider">Master Chain</h3>
-                                    <p className="text-[10px] text-zinc-600 mt-0.5 italic">Pipeline broadcast-grade: HPF → Compressore → Limiter brickwall sul master bus.</p>
+                                    <p className="text-[10px] text-zinc-600 mt-0.5 italic">Pipeline broadcast-grade: HPF → Glue Multibanda → Limiter brickwall sul master bus.</p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className="text-xs text-zinc-400">{masterChain.enabled ? 'Attiva' : 'Bypass'}</span>
@@ -491,32 +491,16 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     disabled={!masterChain.hpfEnabled}
                                     onChange={(v) => setMasterChain({ hpfFrequency: v })}
                                 />
-                                <p className="text-[10px] text-zinc-600 italic">Elimina rumble, fruscio basso, DC offset. Standard: 80 Hz.</p>
+                                <p className="text-[10px] text-zinc-600 italic">Elimina rumble, fruscio basso, DC offset. Default: 30 Hz (preserva il calore dei bassi).</p>
                             </div>
 
-                            {/* COMPRESSOR */}
+                            {/* GLUE MULTIBANDA */}
                             <div className={`space-y-3 p-3 bg-zinc-950/50 rounded-lg border border-zinc-800 transition-opacity ${masterChain.enabled ? '' : 'opacity-40 pointer-events-none'}`}>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium text-zinc-300">Compressore Broadcast</span>
+                                    <span className="text-xs font-medium text-zinc-300">Glue Multibanda — Calore & Morbidezza</span>
                                     <Toggle enabled={masterChain.compressorEnabled} onToggle={() => setMasterChain({ compressorEnabled: !masterChain.compressorEnabled })} />
                                 </div>
-                                <LabeledSlider
-                                    label="Soglia"
-                                    value={masterChain.compressorThreshold} min={-40} max={-6} step={1}
-                                    display={`${masterChain.compressorThreshold} dBFS`}
-                                    accent="accent-sky-500"
-                                    disabled={!masterChain.compressorEnabled}
-                                    onChange={(v) => setMasterChain({ compressorThreshold: v })}
-                                />
-                                <LabeledSlider
-                                    label="Ratio"
-                                    value={masterChain.compressorRatio} min={1} max={20} step={1}
-                                    display={`${masterChain.compressorRatio}:1`}
-                                    accent="accent-sky-500"
-                                    disabled={!masterChain.compressorEnabled}
-                                    onChange={(v) => setMasterChain({ compressorRatio: v })}
-                                />
-                                <p className="text-[10px] text-zinc-600 italic">Standard broadcast: -18 dBFS / 4:1, 5 ms att. / 200 ms rel.</p>
+                                <p className="text-[10px] text-zinc-600 italic">Compressore a 3 bande (basse/medie/alte) con preset gentile tarato: allinea le dinamiche e dà calore senza alzare il volume né indurire il suono. Quando disattivo, il segnale passa pulito (solo HPF + Limiter di sicurezza).</p>
                             </div>
 
                             {/* LIMITER */}
@@ -532,7 +516,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     accent="accent-red-500"
                                     onChange={(v) => setMasterChain({ limiterThreshold: v })}
                                 />
-                                <p className="text-[10px] text-zinc-600 italic">Blocco assoluto per protezione trasmittente. 20:1, 1 ms att. Default: -1 dBFS.</p>
+                                <p className="text-[10px] text-zinc-600 italic">Blocco assoluto per protezione trasmittente. 20:1, 2 ms att. Default: -1 dBFS.</p>
                             </div>
 
                             <button
