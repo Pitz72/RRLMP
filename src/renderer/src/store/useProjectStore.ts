@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Column, AudioClip, ClipType } from '../types';
+import { Column, AudioClip, ClipType, RotationConfig } from '../types';
 
 const VALID_CLIP_TYPES = new Set<ClipType>(['asset', 'music', 'voice', 'sfx', 'preshow']);
 
@@ -74,8 +74,41 @@ export function validateLmpProjectData(raw: unknown): { columns: Column[] } {
         }
     }
 
+    // v1.3.21 — MIGRAZIONE Jingle&Promo: i .lmp salvati prima di v1.3.21 hanno 5 colonne
+    // fisse. Iniettiamo col-jingle/col-promo (vuote) a destra di col-assets se assenti, e
+    // garantiamo una config rotazione valida su col-preshow. Nessun dato esistente viene
+    // toccato; i progetti vecchi restano caricabili (colonne nuove vuote, rotazione spenta).
+    const cols = obj.columns as Record<string, unknown>[];
+    const hasId = (id: string) => cols.some((c) => c.id === id);
+    let anchor = cols.findIndex((c) => c.id === 'col-assets');
+    if (anchor === -1) anchor = 0;
+    let offset = 1;
+    if (!hasId('col-jingle')) {
+        cols.splice(anchor + offset, 0, { id: 'col-jingle', title: 'JINGLE', type: 'asset', color: '#F59E0B', isLocked: false, clips: [] });
+        offset++;
+    }
+    if (!hasId('col-promo')) {
+        cols.splice(anchor + offset, 0, { id: 'col-promo', title: 'PROMO', type: 'asset', color: '#06B6D4', isLocked: false, clips: [] });
+        offset++;
+    }
+    // Sanitize/inietta la config rotazione sulla PRE-SHOW (clamp every >= 1).
+    const preshow = cols.find((c) => c.id === 'col-preshow');
+    if (preshow) {
+        const r = (preshow.rotation && typeof preshow.rotation === 'object') ? preshow.rotation as Record<string, unknown> : {};
+        preshow.rotation = {
+            jingleEnabled: r.jingleEnabled === true,
+            jingleEvery: finiteOrDefault(r.jingleEvery, 4, 1),
+            promoEnabled: r.promoEnabled === true,
+            promoEvery: finiteOrDefault(r.promoEvery, 6, 1),
+        };
+    }
+
     return raw as { columns: Column[] };
 }
+
+// v1.3.21: default rotazione PRE-SHOW. Disattivata di default → comportamento
+// identico alle versioni precedenti finché l'operatore non la abilita.
+const DEFAULT_ROTATION = { jingleEnabled: false, jingleEvery: 4, promoEnabled: false, promoEvery: 6 } as const;
 
 const DEFAULT_COLUMNS: Column[] = [
     {
@@ -84,6 +117,26 @@ const DEFAULT_COLUMNS: Column[] = [
         type: 'asset',
         color: '#10B981', // Emerald-500 (Green)
         isLocked: false, // v1.3.18: assets accetta i file trascinati come tutte le colonne (era true fino a v1.3.17, vedi MainGrid.handleNativeDrop)
+        clips: []
+    },
+    {
+        // v1.3.21: colonna JINGLE. Riusa type 'asset' (stesso profilo: nextAction stop,
+        // ducking none, fadeOut 500ms) → una clip lanciata da sola si comporta come un asset.
+        // È sorgente della rotazione PRE-SHOW (identificata per id stabile, non per type).
+        id: 'col-jingle',
+        title: 'JINGLE',
+        type: 'asset',
+        color: '#F59E0B', // Amber-500
+        isLocked: false,
+        clips: []
+    },
+    {
+        // v1.3.21: colonna PROMO. Vedi nota col-jingle.
+        id: 'col-promo',
+        title: 'PROMO',
+        type: 'asset',
+        color: '#06B6D4', // Cyan-500
+        isLocked: false,
         clips: []
     },
     {
@@ -116,7 +169,8 @@ const DEFAULT_COLUMNS: Column[] = [
         type: 'preshow',
         color: '#8B5CF6', // Violet-500
         isLocked: false,
-        clips: []
+        clips: [],
+        rotation: { ...DEFAULT_ROTATION }
     }
 ];
 
@@ -139,6 +193,8 @@ interface ProjectState {
     moveClip: (sourceColId: string, destColId: string, oldIndex: number, newIndex: number) => void;
 
     setColumnColor: (columnId: string, color: string) => void;
+    /** v1.3.21: aggiorna la config rotazione Jingle&Promo (solo col-preshow). */
+    setColumnRotation: (columnId: string, rotation: RotationConfig) => void;
 
     /** Verifica l'esistenza su disco di tutti i file delle clip. Imposta isMissing. Ritorna il numero di file mancanti. */
     runIntegrityCheck: () => Promise<number>;
@@ -186,6 +242,13 @@ export const useProjectStore = create<ProjectState>((set) => ({
         isDirty: true,
         columns: state.columns.map((col) =>
             col.id === columnId ? { ...col, customColor: color } : col
+        )
+    })),
+
+    setColumnRotation: (columnId, rotation) => set((state) => ({
+        isDirty: true,
+        columns: state.columns.map((col) =>
+            col.id === columnId ? { ...col, rotation } : col
         )
     })),
 

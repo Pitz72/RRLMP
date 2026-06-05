@@ -2,8 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Column } from '../../types';
 import { useAudioStore } from '../../store/useAudioStore';
 import { useProjectStore } from '../../store/useProjectStore';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { RotationSettingsModal } from '../modals/RotationSettingsModal';
 
 interface ColumnHeaderProps {
     column: Column;
@@ -29,9 +30,12 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
     const setColumnColor = useProjectStore((s) => s.setColumnColor);
     const [isDeadAirWarning, setIsDeadAirWarning] = useState(false);
     const [showPicker, setShowPicker] = useState(false);
+    const [showRotation, setShowRotation] = useState(false); // v1.3.21
     const pickerRef = useRef<HTMLDivElement>(null);
 
     const effectiveColor = column.customColor || column.color;
+    const isPreshow = column.type === 'preshow'; // v1.3.21: bottone rotazione
+    const rotationActive = !!(column.rotation && (column.rotation.jingleEnabled || column.rotation.promoEnabled));
 
     // Chiudi il picker cliccando fuori
     useEffect(() => {
@@ -94,6 +98,17 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
                     {column.type.toUpperCase()}
                 </div>
 
+                {/* v1.3.21 — Rotazione PRE-SHOW (Jingle&Promo) */}
+                {isPreshow && !isDeadAirWarning && (
+                    <button
+                        onClick={() => setShowRotation(true)}
+                        className={`shrink-0 transition-all hover:scale-110 ${rotationActive ? 'text-violet-300' : 'text-white/40 hover:text-white/80'}`}
+                        title={rotationActive ? 'Rotazione Jingle&Promo attiva' : 'Configura rotazione Jingle&Promo'}
+                    >
+                        <RefreshCw size={14} className={rotationActive ? 'animate-[spin_4s_linear_infinite]' : ''} />
+                    </button>
+                )}
+
                 {/* Color Picker Trigger */}
                 {!isDeadAirWarning && (
                     <button
@@ -134,6 +149,11 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
                     </div>
                 )}
             </div>
+
+            {/* v1.3.21 — Modale rotazione (montata a livello root, fuori dal picker) */}
+            {isPreshow && (
+                <RotationSettingsModal isOpen={showRotation} onClose={() => setShowRotation(false)} />
+            )}
         </div>
     );
 };

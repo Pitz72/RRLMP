@@ -235,6 +235,107 @@ let pendingCrossfadeFadeIn: number | null = null;
 // da evaluateMix() che è definita fuori dal create() callback.
 let _isMicActiveGlobal = false;
 
+// === v1.3.21 — Rotazione PRE-SHOW (Jingle&Promo) — stato runtime (NON persistito) ===
+// Filosofia: NON è automazione dello show (vedi docs/VISION.md). Vive solo nella
+// PRE-SHOW: ogni X brani si inserisce a caso un jingle, ogni Y un promo, a fine
+// brano seguendo le transizioni esistenti, mai sovrapposti. Gli intervalli sono
+// persistiti su col-preshow.rotation; i contatori invece sono runtime (ripartono
+// a ogni stopAll). Il jingle/promo lanciato da solo resta un normale asset.
+let _jingleRotationCounter = 0;
+let _promoRotationCounter = 0;
+let _lastJingleId: string | null = null; // anti-repeat immediato
+let _lastPromoId: string | null = null;
+// Decisione di rotazione memoizzata per clip-sorgente PRE-SHOW. onPreEnd e il
+// fallback di onEnded possono entrambi risolvere il "prossimo" per la stessa clip:
+// la memo garantisce decisione unica (niente doppio incremento contatori né scelta
+// random divergente). value=null → nessun inserto, prosegue la sequenza.
+const _rotationDecisions = new Map<string, { inserts: AudioClip[]; resumeClipId: string } | null>();
+// Coda inserti rimanenti dopo quello attualmente in onda + brano di ripresa playlist.
+let _pendingInserts: AudioClip[] = [];
+let _pendingResumeClipId: string | null = null;
+let _activeInsertId: string | null = null; // id dell'inserto jingle/promo ora in onda
+
+/** Reset completo dello stato di rotazione (chiamato da stopAll). */
+const resetPreshowRotation = (): void => {
+    _jingleRotationCounter = 0;
+    _promoRotationCounter = 0;
+    _rotationDecisions.clear();
+    _pendingInserts = [];
+    _pendingResumeClipId = null;
+    _activeInsertId = null;
+    // _lastJingleId/_lastPromoId non azzerati: l'anti-repeat può sopravvivere a uno stop.
+};
+
+/** Pesca a caso una clip dalla colonna indicata, evitando l'ultima usata (anti-repeat). */
+const pickRandomFromColumn = (colId: string, lastId: string | null): AudioClip | null => {
+    const col = useProjectStore.getState().columns.find((c) => c.id === colId);
+    if (!col || col.clips.length === 0) return null;
+    const candidates = col.clips.filter((c) => !c.isMissing);
+    if (candidates.length === 0) return null;
+    if (candidates.length === 1) return candidates[0];
+    const pool = candidates.filter((c) => c.id !== lastId);
+    const arr = pool.length > 0 ? pool : candidates;
+    return arr[Math.floor(Math.random() * arr.length)];
+};
+
+/**
+ * Decide il prossimo clip nella sequenza PRE-SHOW: il successivo sequenziale, oppure
+ * (se scatta la rotazione) il primo inserto jingle/promo. La decisione è memoizzata
+ * per clipId-sorgente così i due end-path restano coerenti. Imposta una sola volta lo
+ * stato di coda/ripresa quando ci sono inserti. Per colonne ≠ PRE-SHOW ritorna il
+ * sequenziale senza effetti collaterali.
+ */
+const resolvePreshowNext = (currentClip: AudioClip, colId: string | null): AudioClip | null => {
+    const sequentialNext = getNextClipInColumn(currentClip.id);
+    if (colId !== 'col-preshow') return sequentialNext;
+
+    // Non applicare rotazione durante la Preview Transizione (test, non on-air reale).
+    if (useAudioStore.getState().previewingClipIds.includes(currentClip.id)) return sequentialNext;
+
+    if (_rotationDecisions.has(currentClip.id)) {
+        const d = _rotationDecisions.get(currentClip.id);
+        return d ? d.inserts[0] : sequentialNext;
+    }
+
+    const preshowCol = useProjectStore.getState().columns.find((c) => c.id === 'col-preshow');
+    const rot = preshowCol?.rotation;
+    // Senza config o senza brano di ripresa (fine lista) non si inserisce nulla.
+    if (!rot || !sequentialNext) {
+        _rotationDecisions.set(currentClip.id, null);
+        return sequentialNext;
+    }
+
+    const inserts: AudioClip[] = [];
+    if (rot.jingleEnabled && rot.jingleEvery > 0) {
+        _jingleRotationCounter++;
+        if (_jingleRotationCounter >= rot.jingleEvery) {
+            _jingleRotationCounter = 0;
+            const j = pickRandomFromColumn('col-jingle', _lastJingleId);
+            if (j) { inserts.push(j); _lastJingleId = j.id; }
+        }
+    }
+    if (rot.promoEnabled && rot.promoEvery > 0) {
+        _promoRotationCounter++;
+        if (_promoRotationCounter >= rot.promoEvery) {
+            _promoRotationCounter = 0;
+            const p = pickRandomFromColumn('col-promo', _lastPromoId);
+            if (p) { inserts.push(p); _lastPromoId = p.id; }
+        }
+    }
+
+    if (inserts.length > 0) {
+        _rotationDecisions.set(currentClip.id, { inserts, resumeClipId: sequentialNext.id });
+        // Stato coda/ripresa impostato UNA volta (la memo evita la doppia entrata).
+        _activeInsertId = inserts[0].id;
+        _pendingInserts = inserts.slice(1);
+        _pendingResumeClipId = sequentialNext.id;
+        debugLog(`AudioStore: Rotazione PRE-SHOW → ${inserts.map((c) => c.name).join(' + ')} prima di ${sequentialNext.name}`, 'event');
+        return inserts[0];
+    }
+    _rotationDecisions.set(currentClip.id, null);
+    return sequentialNext;
+};
+
 // GR-01 Fix: flag module-level che garantisce un solo interval attivo,
 // anche con React 18 StrictMode (double-invoke in dev) o hot reload multipli.
 let _progressLoopStarted = false;
@@ -287,6 +388,11 @@ export const useAudioStore = create<AudioStore>((set, get) => {
         playClip: async (clipArg: AudioClip, velocityGain?: number) => {
             const currentStore = get();
 
+            // v1.3.21: una nuova riproduzione di questa clip invalida una eventuale
+            // decisione di rotazione memoizzata su di essa (al replay i contatori vanno
+            // rivalutati). Entro una singola transizione di fine brano la memo resta.
+            _rotationDecisions.delete(clipArg.id);
+
             // FRESH DATA FETCH
             const { columns } = useProjectStore.getState();
             const freshClip = columns.flatMap(col => col.clips).find(c => c.id === clipArg.id) || clipArg;
@@ -328,6 +434,10 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     // G7 Fix: usa get() invece di currentStore (riferimento potenzialmente stale)
                     preShowClips.forEach(ac => get().stopClip(ac.clip.id));
                 }
+                // v1.3.21: l'operatore prende il comando dello show → annulla qualsiasi
+                // ripresa rotazione pendente (un eventuale inserto jingle/promo ancora in
+                // onda finirà senza far ripartire la PRE-SHOW sotto lo show).
+                resetPreshowRotation();
             }
 
             // Handle Intra-Column Conflict
@@ -394,7 +504,11 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     const currentClip = getFreshClipById(clipId) ?? get().activeClips[clipId]?.clip;
                     if (!currentClip || currentClip.nextAction !== 'play_next') return;
 
-                    const nextClip = getNextClipInColumn(currentClip.id);
+                    // v1.3.21: in PRE-SHOW il "prossimo" può essere un inserto jingle/promo
+                    // (rotazione). resolvePreshowNext è la stessa decisione usata dal fallback
+                    // di onEnded (memoizzata per coerenza). Fuori dalla PRE-SHOW = sequenziale.
+                    const colId = getColumnForClip(currentClip.id);
+                    const nextClip = resolvePreshowNext(currentClip, colId);
                     if (!nextClip) return;
 
                     // v0.16.5: se la clip corrente è in preview, anche la clip successiva
@@ -404,7 +518,6 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     }
 
                     const { defaultPreshowTransition, crossfadeDuration, segueDuration } = useSettingsStore.getState();
-                    const colId = getColumnForClip(currentClip.id);
                     const isPreshow = colId === 'col-preshow';
                     const effectiveType = currentClip.transitionType
                         ?? (isPreshow ? defaultPreshowTransition : 'gapless');
@@ -481,6 +594,29 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     debugLog(`AudioStore: Ended ${freshClip.name}`, 'info');
                     get().stopClip(freshClip.id);
 
+                    // v1.3.21: ripresa rotazione. Se la clip che è finita era l'inserto
+                    // jingle/promo attualmente in onda, suona il prossimo inserto in coda
+                    // (collisione jingle+promo) oppure riprende la playlist PRE-SHOW dal brano
+                    // che era stato messo da parte. Ritorno alla musica gapless (taglio pulito).
+                    if (_activeInsertId === freshClip.id) {
+                        _activeInsertId = null;
+                        if (_pendingInserts.length > 0) {
+                            const nextInsert = _pendingInserts.shift()!;
+                            _activeInsertId = nextInsert.id;
+                            debugLog(`AudioStore: Rotazione → inserto successivo ${nextInsert.name}`, 'event');
+                            setTimeout(() => get().playClip(nextInsert), 20);
+                        } else if (_pendingResumeClipId) {
+                            const resumeId = _pendingResumeClipId;
+                            _pendingResumeClipId = null;
+                            const resumeClip = getFreshClipById(resumeId);
+                            if (resumeClip) {
+                                debugLog(`AudioStore: Rotazione → ripresa PRE-SHOW ${resumeClip.name}`, 'event');
+                                setTimeout(() => get().playClip(resumeClip), 20);
+                            }
+                        }
+                        return; // l'inserto non segue la logica play_next standard
+                    }
+
                     // Live-edit: legge nextAction/transitionType correnti — se l'operatore ha
                     // cambiato la clip in corsa da 'stop' a 'play_next', la modifica vale comunque.
                     const live = getFreshClipById(freshClip.id) ?? freshClip;
@@ -488,8 +624,12 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                         const transition = live.transitionType
                             ?? useSettingsStore.getState().defaultPreshowTransition;
 
-                        // Gapless o Fallback: Se non è ancora partita la prossima clip, falla partire ora
-                        const nextClip = getNextClipInColumn(freshClip.id);
+                        // Gapless o Fallback: Se non è ancora partita la prossima clip, falla partire ora.
+                        // v1.3.21: usa la stessa decisione di rotazione di onPreEnd (memoizzata) così,
+                        // se la rotazione ha già avviato un inserto, qui non si avvia il brano sequenziale
+                        // (doppio avvio) — la guardia isNextAlreadyActive lo riconosce come già attivo.
+                        const colId = getColumnForClip(freshClip.id);
+                        const nextClip = resolvePreshowNext(live, colId);
                         if (nextClip) {
                             const isNextAlreadyActive = Object.values(get().activeClips).some(ac => ac.clip.id === nextClip.id);
                             if (!isNextAlreadyActive) {
@@ -684,6 +824,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             // GRAVE #6: annulla tutti i timeout di transizione pendenti.
             _transitionTimeouts.forEach(h => clearTimeout(h));
             _transitionTimeouts.clear();
+            // v1.3.21: azzera contatori/coda/decisioni di rotazione PRE-SHOW.
+            resetPreshowRotation();
             set((state) => {
                 Object.values(state.activeClips).forEach(ac => {
                     ac.player.stop();

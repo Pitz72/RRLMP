@@ -176,6 +176,26 @@ export interface AudioClip {
 }
 
 
+/**
+ * Configurazione rotazione automatica Jingle&Promo (v1.3.21).
+ * Persistita SOLO sulla colonna PRE-SHOW. Governa l'inserimento periodico di
+ * clip prese a caso dalle colonne `col-jingle` / `col-promo` durante la
+ * riproduzione sequenziale della PRE-SHOW. NON è automazione dello show:
+ * vive solo nella fase di riempitivo PRE-SHOW (vedi docs/VISION.md).
+ * Il jingle/promo parte a fine brano seguendo le transizioni esistenti, mai
+ * sovrapposto. Due contatori indipendenti (jingle ogni X, promo ogni Y).
+ */
+export interface RotationConfig {
+    /** Inserimento jingle attivo */
+    jingleEnabled: boolean;
+    /** Un jingle ogni N brani PRE-SHOW (>=1) */
+    jingleEvery: number;
+    /** Inserimento promo attivo */
+    promoEnabled: boolean;
+    /** Un promo ogni N brani PRE-SHOW (>=1) */
+    promoEvery: number;
+}
+
 export interface Column {
     id: string;
     title: string;
@@ -184,4 +204,6 @@ export interface Column {
     color: string;          // Colore base della colonna (immutabile, default)
     customColor?: string;   // Override colore scelto dall'utente (v0.16.1)
     isLocked: boolean;      // Impedisce modifiche accidentali
+    /** Solo PRE-SHOW (v1.3.21): config rotazione Jingle&Promo. Persistita nel .lmp. */
+    rotation?: RotationConfig;
 }
