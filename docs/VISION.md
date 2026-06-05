@@ -1,5 +1,5 @@
 # RRLMP — Documento di Visione Tecnica
-**Versione**: 1.2.0 | **Data**: 2026-04-11
+**Versione**: 1.3.18 | **Data**: 2026-06-05
 
 Questo documento sintetizza la filosofia di **Runtime Live Machine Pro (RRLMP)**, le scelte architettoniche fondamentali e la visione a lungo termine del progetto.
 
@@ -7,37 +7,50 @@ Questo documento sintetizza la filosofia di **Runtime Live Machine Pro (RRLMP)**
 
 ## 1. FILOSOFIA: "On Air. Al Tuo Controllo."
 
-RRLMP non è un software di automazione H24. È uno strumento di **performance broadcast**. È progettato per il regista che vuole "suonare" lo show, garantendo:
+RRLMP non è un software di automazione H24. È uno strumento di **performance broadcast** per **conduttori umani in sessioni finite** — show live, podcast, eventi, web radio. È progettato per il regista che vuole "suonare" lo show, garantendo:
 - **Latenza Zero**: Risposta immediata al trigger (MIDI/Tastiera).
 - **Stabilità Professionale**: Nessun crash durante il live (Architettura Main-Side-Heavy).
 - **Fluidità Visiva**: Feedback in tempo reale (Cues, Countdown, VU Meter).
+
+### Confine di scopo (cosa NON è)
+Restano **fuori perimetro**: scheduling orario 24h, cart automation generalizzata, RDS, archivio musicale a rotazione continua, spot break automatici. Lo **show** è sempre guidato dall'operatore.
+
+### Eccezione controllata: la colonna PRE-SHOW
+La colonna **PRE-SHOW** è l'unica fase "che suona da sola": è il riempitivo che gira **prima** che inizi la diretta, finché lo speaker non fa partire manualmente la sigla dello show. In questa specifica fase è ammessa una **rotazione semi-automatica controllata** (es. inserire jingle/promo ogni X brani della playlist di attesa). Questo **non** contraddice la filosofia: non è automazione dello show, è solo rendere più professionale l'attesa pre-diretta. Appena lo speaker entra, il controllo è di nuovo 100% umano.
 
 ---
 
 ## 2. PILASTRI ARCHITETTONICI
 
 ### Main-Side-Heavy Architecture
-Abbiamo separato la **UI (Renderer)** dal **Motore di Processing (Main Process)**. Tutti i compiti pesanti (FFmpeg, analisi audio, gestione file) sono delegati a Node.js. Il Renderer rimane leggero, garantendo un'interfaccia sempre reattiva a 60fps.
+La **UI (Renderer)** è separata dal **Motore di Processing (Main Process)**. Tutti i compiti pesanti (FFmpeg, analisi audio, gestione file) sono delegati a Node.js. Il Renderer resta leggero, garantendo un'interfaccia reattiva a 60fps.
 
 ### Streaming Nativo via `media://`
-Non carichiamo i file audio nella RAM. Utilizziamo un protocollo custom che streamma i dati direttamente dal disco al player HTML5, permettendo di gestire librerie audio di centinaia di gigabyte con un consumo di memoria minimo e costante.
+I file audio non vengono caricati in RAM. Un protocollo custom streamma i dati dal disco al player HTML5, gestendo librerie audio di centinaia di GB con consumo di memoria minimo e costante.
 
 ### Safety First (Broadcast Grade)
-- **Auto-Backup**: Ogni 5 minuti il progetto viene salvato silenziosamente.
-- **Integrity Check**: Ogni caricamento verifica l'esistenza fisica dei file.
-- **Emergency Stop**: Un unico tasto (Escape) per il silenzio immediato in caso di emergenza.
+- **Auto-Backup**: il progetto viene salvato silenziosamente (gate `isDirty`).
+- **Integrity Check**: ogni caricamento verifica l'esistenza fisica dei file.
+- **Emergency Stop**: un unico tasto (Escape) per il silenzio immediato in emergenza.
+- **Save atomico** (tmp+rename) + validazione/sanitizzazione `.lmp` in apertura.
+
+### Multi-piattaforma (obiettivo)
+Target primario **Windows**, con supporto previsto anche per **Linux** e **macOS**. La gestione delle periferiche audio (input/output, routing) dovrà essere ridefinita tenendo conto delle differenze di driver fra le piattaforme (vedi ROADMAP — area Device/Routing).
 
 ---
 
-## 3. ROADMAP EVOLUTIVA (Post-v1.2.0)
+## 3. DIREZIONE EVOLUTIVA (Post-v1.3.x)
 
-La versione 1.2.0 ha completato il ciclo di Session Recording e stabilizzato l'UI. Il futuro:
+Lo stato del codice è stabile (0 criticità aperte, baseline typecheck 0). La direzione:
 
-1.  ✅ ~~**Session Recording**~~ — **Completato in v1.1.x–v1.2.0**. Export WAV/FLAC/MP3/OGG/WEBM.
-2.  **Smart Cues**: Analisi IA (via FFmpeg) per suggerire automaticamente i punti di Intro e Outro.
-3.  **Hardware Expansion**: Supporto esteso a protocolli OSC e integrazione profonda con mixer digitali (ASIO).
-4.  **Layout Regia 5.0**: Colonne configurabili e rinominabili (richiede migrazione .lmp).
+1. **Coerenza sonora & sicurezza d'uso** — Loudness LUFS per clip (F-06), Undo/Redo playlist (F-11).
+2. **PRE-SHOW più ricca** — colonne dedicate Jingle/Promo + rotazione controllata in PRE-SHOW (vedi ROADMAP, design strutturale).
+3. **Produzione contenuti** — Voice Tracking (F-12).
+4. **Integrazioni** — Metadata streaming Icecast/Shoutcast (F-07), OSC (F-25), BPM (F-13).
+5. **Device/Routing audio** — ridefinizione gestione periferiche (mic ducking, multi-routing output) con test hardware e cross-platform.
+
+> L'elenco operativo dettagliato, con effort e stato, vive in **`ROADMAP.md`** ed è allineato alla tabella in `relazione.md`.
 
 ---
 
-*Documento aggiornato il 2026-04-11 — allineato a v1.2.0.*
+*Documento aggiornato il 2026-06-05 — allineato a v1.3.18.*
