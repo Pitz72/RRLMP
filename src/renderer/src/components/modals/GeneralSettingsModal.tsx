@@ -71,6 +71,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
         defaultPreshowTransition, setDefaultPreshowTransition,
         crossfadeDuration, segueDuration, setPreshowTransition, setSegueDuration,
         masterChain, setMasterChain,
+        loudnessNormEnabled, loudnessTargetLufs, setLoudnessNorm,
         micInputDeviceId, micThresholdDb, micActivationHoldMs, micReleaseHoldMs, micEnabled, micMixEnabled, micVolume, micBypassProcessing, micFeedbackAcknowledged, setMicSettings,
         recordingFormat, setRecordingSettings
     } = useSettingsStore();
@@ -466,6 +467,26 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     {/* ── TAB: MASTER CHAIN ── */}
                     {activeTab === 'chain' && (
                         <div className="p-6 space-y-5">
+                            {/* OMOLOGAZIONE VOLUME CLIP */}
+                            <div className="space-y-3 p-3 bg-zinc-950/50 rounded-lg border border-zinc-800">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <span className="text-xs font-medium text-zinc-300">Omologazione Volume Clip</span>
+                                        <p className="text-[10px] text-zinc-600 mt-0.5 italic">Allinea automaticamente il volume percepito tra le clip (loudness EBU R128), con un guadagno statico — niente compressione, niente pompaggio.</p>
+                                    </div>
+                                    <Toggle enabled={loudnessNormEnabled} onToggle={() => setLoudnessNorm({ enabled: !loudnessNormEnabled })} />
+                                </div>
+                                <LabeledSlider
+                                    label="Target loudness"
+                                    value={loudnessTargetLufs} min={-23} max={-12} step={1}
+                                    display={`${loudnessTargetLufs} LUFS`}
+                                    accent="accent-emerald-500"
+                                    disabled={!loudnessNormEnabled}
+                                    onChange={(v) => setLoudnessNorm({ targetLufs: v })}
+                                />
+                                <p className="text-[10px] text-zinc-600 italic">Misurata una volta per clip (in background) e salvata nel progetto. Guadagno limitato a ±9 dB. Default: -16 LUFS.</p>
+                            </div>
+
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h3 className="text-[10px] uppercase text-sky-400 font-bold tracking-wider">Master Chain</h3>

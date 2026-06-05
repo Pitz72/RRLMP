@@ -23,6 +23,10 @@ interface SettingsState {
     // Master Chain (v0.16.2)
     masterChain: MasterChainSettings;
 
+    // Omologazione loudness clip (v1.4.3) — guadagno statico per clip verso un target comune
+    loudnessNormEnabled: boolean;   // default true
+    loudnessTargetLufs: number;     // LUFS, default -16
+
     // Smart Mic (v0.17.0)
     micInputDeviceId: string;        // 'default' o deviceId specifico
     micThresholdDb: number;          // soglia di attivazione noise gate (dBFS), default -30
@@ -46,6 +50,7 @@ interface SettingsState {
     setPreshowTransition: (updates: { type?: TransitionType; duration?: number }) => void;
     setSegueDuration: (ms: number) => void;
     setMasterChain: (updates: Partial<MasterChainSettings>) => void;
+    setLoudnessNorm: (updates: { enabled?: boolean; targetLufs?: number }) => void;
     setMicSettings: (updates: {
         inputDeviceId?: string;
         thresholdDb?: number;
@@ -68,6 +73,10 @@ export const useSettingsStore = create<SettingsState>()(
             globalMidiBinds: {},
             masterVolume: 1.0,
             masterChain: { ...DEFAULT_MASTER_CHAIN },
+
+            // Omologazione loudness clip (v1.4.3)
+            loudnessNormEnabled: true,
+            loudnessTargetLufs: -16,
 
             // Defaults mixing
             duckingFactor: 0.2,
@@ -111,6 +120,10 @@ export const useSettingsStore = create<SettingsState>()(
             setSegueDuration: (ms) => set({ segueDuration: ms }),
             setMasterChain: (updates) => set((state) => ({
                 masterChain: { ...state.masterChain, ...updates }
+            })),
+            setLoudnessNorm: (updates) => set((state) => ({
+                loudnessNormEnabled: updates.enabled ?? state.loudnessNormEnabled,
+                loudnessTargetLufs: updates.targetLufs ?? state.loudnessTargetLufs,
             })),
             setMicSettings: (updates) => set((state) => ({
                 micInputDeviceId:    updates.inputDeviceId    ?? state.micInputDeviceId,

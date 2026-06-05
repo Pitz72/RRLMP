@@ -342,6 +342,47 @@ export class AudioProcessor {
     });
   }
 
+  /**
+   * v1.4.3 — Misura la loudness integrata (EBU R128) del file in LUFS.
+   * Usata per l'omologazione del volume tra clip (guadagno statico per clip).
+   * Ritorna { success, data: { integratedLufs } } oppure success:false.
+   * Lettura read-only, nessuna modifica al file.
+   */
+  static async measureLoudness(filePath: string): Promise<{ success: boolean; data?: { integratedLufs: number }; error?: string }> {
+    if (!fs.existsSync(filePath)) return { success: false, error: 'File non trovato' };
+
+    return new Promise((resolve) => {
+        try {
+            // ebur128 stampa un riepilogo finale con "I:  -xx.x LUFS" (integrated loudness)
+            const proc = spawn(safeFfmpegPath, [
+                '-i', filePath,
+                '-af', 'ebur128=framelog=quiet',
+                '-f', 'null', '-'
+            ]);
+            let stderrData = '';
+
+            const killTimeout = setTimeout(() => {
+                try { proc.kill('SIGKILL'); } catch { /* noop */ }
+                resolve({ success: false, error: 'Timeout: loudness measurement exceeded 60s' });
+            }, 60000);
+
+            proc.stderr.on('data', (chunk: Buffer) => { stderrData += chunk.toString(); });
+            proc.on('error', (err: Error) => { clearTimeout(killTimeout); resolve({ success: false, error: err.message }); });
+            proc.on('close', () => {
+                clearTimeout(killTimeout);
+                // Prendi l'ULTIMA occorrenza di "I:  -xx.x LUFS" (il riepilogo finale)
+                const matches = [...stderrData.matchAll(/I:\s*(-?[\d.]+)\s*LUFS/g)];
+                if (matches.length === 0) return resolve({ success: false, error: 'Loudness non rilevabile' });
+                const v = parseFloat(matches[matches.length - 1][1]);
+                if (!isFinite(v)) return resolve({ success: false, error: 'Loudness non finita' });
+                resolve({ success: true, data: { integratedLufs: v } });
+            });
+        } catch (error) {
+            resolve({ success: false, error: String(error) });
+        }
+    });
+  }
+
   static async detectSilence(filePath: string, overrideThresholdDb?: number): Promise<any> {
     if (!fs.existsSync(filePath)) {
         return { success: false, error: 'File non trovato' };

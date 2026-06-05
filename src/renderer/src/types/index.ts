@@ -26,6 +26,7 @@ declare global {
         electron: {
             getFilePath: (file: File) => string;
             getAudioMetadata: (filePath: string) => Promise<{success: boolean, data?: unknown, error?: string}>;
+            measureLoudness: (filePath: string) => Promise<{success: boolean, data?: {integratedLufs: number}, error?: string}>;
             getWaveformData: (filePath: string) => Promise<{success: boolean, data?: number[], error?: string}>;
             detectSilence: (filePath: string, thresholdDb?: number) => Promise<{success: boolean, data?: {trimStart: number, trimEnd: number, noSilence?: boolean, thresholdUsed?: number}, error?: string}>;
             detectSmartCues: (filePath: string) => Promise<{success: boolean, data?: {introCue: number, outroCue: number}, error?: string}>;
@@ -173,6 +174,11 @@ export interface AudioClip {
     // Note/Script (v0.14.4)
     /** Testo libero: cue sheet, script, note di regia. Persistito nel .lmp. */
     notes?: string;
+
+    // Loudness homologation (v1.4.3) — persistito nel .lmp
+    /** Loudness integrata misurata (EBU R128, LUFS). Usata per omologare il volume tra clip
+     *  applicando un guadagno statico a runtime verso il target. Misurata una volta e cachata. */
+    loudnessLufs?: number;
 }
 
 

@@ -200,6 +200,44 @@ const getColumnForClip = (clipId: string): string | null => {
     return null;
 }
 
+// v1.4.3 — Omologazione loudness clip.
+// Calcola il fattore di guadagno STATICO (moltiplicatore) per portare la clip al target
+// loudness comune. Fail-safe: se disattivo o non ancora misurato → 1.0 (nessuna alterazione).
+// Il guadagno in dB è clampato a ±9 dB per evitare boost/cut estremi (sicurezza broadcast).
+const computeLoudnessGain = (clip: AudioClip): number => {
+    const { loudnessNormEnabled, loudnessTargetLufs } = useSettingsStore.getState();
+    if (!loudnessNormEnabled) return 1.0;
+    const lufs = clip.loudnessLufs;
+    if (lufs === undefined || !isFinite(lufs)) return 1.0;
+    let gainDb = loudnessTargetLufs - lufs;
+    gainDb = Math.max(-9, Math.min(9, gainDb));
+    return Math.pow(10, gainDb / 20);
+};
+
+// Misura la loudness una volta sola e la cacha sulla clip (fire-and-forget, non bloccante).
+// Guardata per-path per evitare misure concorrenti duplicate. Errori non fatali.
+const _loudnessInFlight = new Set<string>();
+const ensureLoudnessMeasured = async (clip: AudioClip): Promise<void> => {
+    if (clip.loudnessLufs !== undefined) return;
+    if (!useSettingsStore.getState().loudnessNormEnabled) return;
+    if (!clip.path || _loudnessInFlight.has(clip.path)) return;
+    _loudnessInFlight.add(clip.path);
+    try {
+        const res = await window.electron.measureLoudness(clip.path);
+        if (res.success && res.data && isFinite(res.data.integratedLufs)) {
+            const colId = getColumnForClip(clip.id);
+            if (colId) {
+                useProjectStore.getState().updateClip(colId, clip.id, { loudnessLufs: res.data.integratedLufs });
+                debugLog(`AudioStore: Loudness ${clip.name} = ${res.data.integratedLufs.toFixed(1)} LUFS`, 'info');
+            }
+        }
+    } catch {
+        // non fatale: senza misura la clip resta a guadagno 1.0
+    } finally {
+        _loudnessInFlight.delete(clip.path);
+    }
+};
+
 // Feature live-edit (audit 2026-05-29): restituisce la versione PIÙ AGGIORNATA della clip
 // dal project store (non lo snapshot catturato all'avvio del play). Serve perché l'operatore
 // può cambiare nextAction/transitionType di una clip GIÀ in esecuzione: la decisione di fine
@@ -398,10 +436,17 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             const freshClip = columns.flatMap(col => col.clips).find(c => c.id === clipArg.id) || clipArg;
             const columnId = getColumnForClip(freshClip.id);
 
-            // MIDI velocity scaling: scale volume without modifying the store
-            const effectiveVolume = velocityGain !== undefined
-                ? Math.max(0, Math.min(1.5, freshClip.volume * velocityGain))
+            // v1.4.3 — Omologazione loudness: misura lazy (fire-and-forget) se non ancora fatta.
+            // La riproduzione corrente usa il valore già cachato (1.0 se assente); le successive
+            // usano la misura. Self-healing anche per clip caricate da .lmp vecchi.
+            void ensureLoudnessMeasured(freshClip);
+            const loudnessGain = computeLoudnessGain(freshClip);
+
+            // MIDI velocity scaling + omologazione loudness: scala il volume senza toccare lo store
+            const baseVolume = velocityGain !== undefined
+                ? freshClip.volume * velocityGain
                 : freshClip.volume;
+            const effectiveVolume = Math.max(0, Math.min(1.5, baseVolume * loudnessGain));
             const effectiveClip = effectiveVolume !== freshClip.volume
                 ? { ...freshClip, volume: effectiveVolume }
                 : freshClip;
@@ -736,6 +781,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     { duration, trimStart, trimEnd, ...(artist !== undefined ? { artist } : {}), ...(title !== undefined ? { title } : {}) }
                 );
                 player.cleanup();
+                // v1.4.3 — misura loudness in background per omologazione (non blocca l'aggiunta clip)
+                void ensureLoudnessMeasured({ ...clip, loudnessLufs: undefined });
             } catch (e) {
                 // Standardized error handling
                 debugLog(`AudioStore: Failed to load metadata for ${clip.name}`, 'error');

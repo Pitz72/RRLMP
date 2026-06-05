@@ -212,6 +212,13 @@ ipcMain.handle('get-audio-metadata', async (_event, filePath: string) => {
     ).catch((err: Error) => ({ success: false, error: err.message }));
 });
 
+// v1.4.3 — Misura loudness EBU R128 per omologazione volume clip (read-only)
+ipcMain.handle('measure-loudness', async (_event, filePath: string) => {
+    return withConcurrencyLimit('measure-loudness', 2, () =>
+        withIpcTimeout(AudioProcessor.measureLoudness(filePath), 65_000, 'measure-loudness')
+    ).catch((err: Error) => ({ success: false, error: err.message }));
+});
+
 ipcMain.handle('get-waveform-data', async (_event, filePath: string) => {
     return withConcurrencyLimit('get-waveform-data', 2, () =>
         withIpcTimeout(AudioProcessor.generateWaveformData(filePath), 30_000, 'get-waveform-data')

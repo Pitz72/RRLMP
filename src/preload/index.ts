@@ -20,6 +20,7 @@ if (process.contextIsolated) {
             },
             // Audio Engine (Main-Side-Heavy)
             getAudioMetadata: (filePath: string) => ipcRenderer.invoke('get-audio-metadata', filePath),
+            measureLoudness: (filePath: string) => ipcRenderer.invoke('measure-loudness', filePath),
             getWaveformData: (filePath: string) => ipcRenderer.invoke('get-waveform-data', filePath),
             detectSilence: (filePath: string, thresholdDb?: number) => ipcRenderer.invoke('detect-silence', filePath, thresholdDb),
             detectSmartCues: (filePath: string) => ipcRenderer.invoke('detect-smart-cues', filePath),
