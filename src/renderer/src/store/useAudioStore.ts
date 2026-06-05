@@ -13,7 +13,8 @@ import * as AUDIO_CONST from '../constants/audioConstants';
 // possono superare 5–10k entry). 2000 entry coprono ampiamente una diretta
 // tipica; le più vecchie vengono droppate silenziosamente.
 const MAX_PLAYOUT_LOG_ENTRIES = 2000;
-const capPlayoutLog = (log: PlayoutLogEntry[]): PlayoutLogEntry[] =>
+// v1.4.5: esportato per i test unitari (Vitest). Funzione pura, nessun cambio di logica.
+export const capPlayoutLog = (log: PlayoutLogEntry[]): PlayoutLogEntry[] =>
     log.length > MAX_PLAYOUT_LOG_ENTRIES ? log.slice(-MAX_PLAYOUT_LOG_ENTRIES) : log;
 
 interface ActiveClipState {
@@ -88,7 +89,8 @@ const getBusForType = (type: string) => {
  * il glitch "parte a pieno volume poi scende" quando il ducking è attivo.
  * Per tutte le altre clip già in play si usa duckingDuration (smooth).
  */
-const evaluateMix = (activeClips: Record<string, ActiveClipState>, newClipId?: string, overrideDuration?: number) => {
+// v1.4.5: esportato per i test unitari (Vitest). Nessun cambio di logica.
+export const evaluateMix = (activeClips: Record<string, ActiveClipState>, newClipId?: string, overrideDuration?: number) => {
     const activeValues = Object.values(activeClips);
     const duckingFactor = _duckingFactor;
     const duckingDuration = _duckingDuration;
@@ -192,7 +194,7 @@ const getNextClipInColumn = (currentClipId: string): AudioClip | null => {
 };
 
 // Helper to find column ID for a clip
-const getColumnForClip = (clipId: string): string | null => {
+export const getColumnForClip = (clipId: string): string | null => {
     const { columns } = useProjectStore.getState();
     for (const col of columns) {
         if (col.clips.find(c => c.id === clipId)) return col.id;
@@ -204,7 +206,7 @@ const getColumnForClip = (clipId: string): string | null => {
 // Calcola il fattore di guadagno STATICO (moltiplicatore) per portare la clip al target
 // loudness comune. Fail-safe: se disattivo o non ancora misurato → 1.0 (nessuna alterazione).
 // Il guadagno in dB è clampato a ±9 dB per evitare boost/cut estremi (sicurezza broadcast).
-const computeLoudnessGain = (clip: AudioClip): number => {
+export const computeLoudnessGain = (clip: AudioClip): number => {
     const { loudnessNormEnabled, loudnessTargetLufs } = useSettingsStore.getState();
     if (!loudnessNormEnabled) return 1.0;
     const lufs = clip.loudnessLufs;
@@ -294,7 +296,7 @@ let _pendingResumeClipId: string | null = null;
 let _activeInsertId: string | null = null; // id dell'inserto jingle/promo ora in onda
 
 /** Reset completo dello stato di rotazione (chiamato da stopAll). */
-const resetPreshowRotation = (): void => {
+export const resetPreshowRotation = (): void => {
     _jingleRotationCounter = 0;
     _promoRotationCounter = 0;
     _rotationDecisions.clear();
@@ -305,7 +307,7 @@ const resetPreshowRotation = (): void => {
 };
 
 /** Pesca a caso una clip dalla colonna indicata, evitando l'ultima usata (anti-repeat). */
-const pickRandomFromColumn = (colId: string, lastId: string | null): AudioClip | null => {
+export const pickRandomFromColumn = (colId: string, lastId: string | null): AudioClip | null => {
     const col = useProjectStore.getState().columns.find((c) => c.id === colId);
     if (!col || col.clips.length === 0) return null;
     const candidates = col.clips.filter((c) => !c.isMissing);
@@ -323,7 +325,7 @@ const pickRandomFromColumn = (colId: string, lastId: string | null): AudioClip |
  * stato di coda/ripresa quando ci sono inserti. Per colonne ≠ PRE-SHOW ritorna il
  * sequenziale senza effetti collaterali.
  */
-const resolvePreshowNext = (currentClip: AudioClip, colId: string | null): AudioClip | null => {
+export const resolvePreshowNext = (currentClip: AudioClip, colId: string | null): AudioClip | null => {
     const sequentialNext = getNextClipInColumn(currentClip.id);
     if (colId !== 'col-preshow') return sequentialNext;
 
