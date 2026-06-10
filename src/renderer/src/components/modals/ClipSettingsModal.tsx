@@ -96,6 +96,20 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
     if (!isOpen) return null;
 
     const handleSave = () => {
+        // v1.4.10 (revisione 2026-06-10, #16): coerenza outro marker / trim. Un outro
+        // oltre la fine effettiva (duration − trimEnd) non scatterebbe MAI (la
+        // transizione configurata degrada in silenzio); un outro ≤ trimStart
+        // scatterebbe ALL'AVVIO (transizione immediata sulla clip appena partita).
+        // In entrambi i casi il marker viene azzerato (= disattivato) con avviso.
+        let safeOutro = Number(outroMarker);
+        const knownDuration = clip.duration || 0;
+        if (safeOutro > 0 && knownDuration > 0) {
+            const effectiveEnd = knownDuration - Number(trimEnd);
+            if (safeOutro >= effectiveEnd || safeOutro <= Number(trimStart)) {
+                toast('Outro marker incoerente con trim/durata — disattivato.', 'warning');
+                safeOutro = 0;
+            }
+        }
         const updatedClip: Partial<AudioClip> = {
             name,
             volume: Number(volume),
@@ -110,7 +124,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             trimStart: Number(trimStart),
             trimEnd: Number(trimEnd),
             introMarker: Number(introMarker),
-            outroMarker: Number(outroMarker),
+            outroMarker: safeOutro,
             // v1.4.7 (revisione 2026-06-10, #7): 'default' = "usa il default globale" →
             // NON si persiste più la stringa. Fino a v1.4.6 la stringa 'default' finiva nel
             // .lmp e i lettori (`clip.transitionType ?? fallback`) non facevano scattare il

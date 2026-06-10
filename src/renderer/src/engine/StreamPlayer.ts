@@ -16,6 +16,7 @@ export class StreamPlayer implements IAudioPlayer {
     private onPreEndCallback: ((clipId: string) => void) | null = null;
     private onIntroReachedCallback: ((clipId: string) => void) | null = null;
     private onOutroReachedCallback: ((clipId: string) => void) | null = null;
+    private onPlaybackErrorCallback: ((clipId: string) => void) | null = null;
     private fadeOutTriggered: boolean = false;
     private preEndTriggered: boolean = false;
     private introReached: boolean = false;
@@ -129,6 +130,10 @@ export class StreamPlayer implements IAudioPlayer {
             console.error("StreamPlayer Global Error", e, this.audioElement.error);
             const errorMsg = this.audioElement.error ? `Code ${this.audioElement.error.code} - ${this.audioElement.error.message}` : String(e);
             debugLog(`StreamPlayer: Error ${errorMsg}`, 'error');
+            // v1.4.10 (#20): notifica lo store — clip zombie e catena ferma altrimenti.
+            // Gli errori in fase di load sono già gestiti dal reject di load(); lo store
+            // ignora la notifica se la clip non è (ancora) attiva.
+            if (this.onPlaybackErrorCallback) this.onPlaybackErrorCallback(this.currentClipId);
         };
     }
 
@@ -262,6 +267,7 @@ export class StreamPlayer implements IAudioPlayer {
         this.onPreEndCallback = null;
         this.onIntroReachedCallback = null;
         this.onOutroReachedCallback = null;
+        this.onPlaybackErrorCallback = null;
         this.audioElement.onended = null;
         this.audioElement.ontimeupdate = null;
         this.audioElement.onerror = null;
@@ -321,6 +327,10 @@ export class StreamPlayer implements IAudioPlayer {
 
     onOutroReached(callback: (clipId: string) => void): void {
         this.onOutroReachedCallback = callback;
+    }
+
+    onPlaybackError(callback: (clipId: string) => void): void {
+        this.onPlaybackErrorCallback = callback;
     }
 
     updateSettings(clip: AudioClip): void {

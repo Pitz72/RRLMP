@@ -64,6 +64,17 @@ export function validateLmpProjectData(raw: unknown): { columns: Column[] } {
             cl.fadeIn      = finiteOrDefault(cl.fadeIn,      0,   0,   60_000);
             cl.fadeOut     = finiteOrDefault(cl.fadeOut,     0,   0,   60_000);
 
+            // v1.4.10 (#16): outroMarker incoerente con trim/durata → azzerato (mai
+            // raggiunto se oltre la fine effettiva; scatterebbe all'avvio se ≤ trimStart).
+            {
+                const durV = cl.duration as number;
+                const outroV = cl.outroMarker as number;
+                if (outroV > 0 && durV > 0) {
+                    const effEnd = durV - (cl.trimEnd as number);
+                    if (outroV >= effEnd || outroV <= (cl.trimStart as number)) cl.outroMarker = 0;
+                }
+            }
+
             // v1.4.7 (revisione 2026-06-10, #7): transitionType valido o assente. I .lmp
             // salvati fino a v1.4.6 persistevano la stringa 'default' (voce UI "Default
             // Globale") che i lettori non riconoscevano → la clip andava sempre gapless

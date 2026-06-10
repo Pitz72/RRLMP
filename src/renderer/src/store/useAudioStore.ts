@@ -326,6 +326,32 @@ const scheduleSequencerPlay = (fn: () => void, delay = 20): void => {
     _sequencerTimeouts.add(h);
 };
 
+// v1.4.10 (#17): preload della clip successiva. Il "gapless" caricava la next da disco
+// SOLO al momento della transizione (await canplaythrough): su file grossi o storage
+// lento il gap era udibile. Si tiene UN solo player precaricato (il sequenziale della
+// clip in onda); playClip lo riusa se id+path corrispondono, altrimenti lo scarta.
+let _preloadedNext: { clipId: string; path: string; player: IAudioPlayer } | null = null;
+const discardPreloadedNext = (): void => {
+    if (_preloadedNext) {
+        _preloadedNext.player.cleanup();
+        _preloadedNext = null;
+    }
+};
+const preloadNextClip = async (currentClipId: string): Promise<void> => {
+    const next = getNextClipInColumn(currentClipId);
+    if (!next || next.isMissing || !next.path) return;
+    if (_preloadedNext?.clipId === next.id && _preloadedNext.path === next.path) return;
+    discardPreloadedNext();
+    const p: IAudioPlayer = new StreamPlayer();
+    try {
+        await p.load(next.path);
+        _preloadedNext = { clipId: next.id, path: next.path, player: p };
+        debugLog(`AudioStore: Preload next ${next.name}`, 'info');
+    } catch {
+        p.cleanup(); // non fatale: al play si caricherà normalmente
+    }
+};
+
 // v0.13.2 — Transition System
 // Clip in fade-out per transizione: gestito come stato Zustand (v0.14.9)
 // Esposto come fadingClipIds[] per permettere a ClipCard di mostrare il badge "FADING OUT".
@@ -702,7 +728,18 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             const runId = crypto.randomUUID();
             playRunIds.set(freshClip.id, runId);
 
-            let player: IAudioPlayer = new StreamPlayer();
+            // v1.4.10 (#17): riusa il player precaricato se è proprio questa clip
+            // (gapless senza buco di I/O). Altrimenti player nuovo come sempre.
+            let usedPreload = false;
+            let player: IAudioPlayer;
+            if (_preloadedNext && _preloadedNext.clipId === freshClip.id && _preloadedNext.path === freshClip.path) {
+                player = _preloadedNext.player;
+                _preloadedNext = null;
+                usedPreload = true;
+                debugLog(`AudioStore: Avvio da preload per ${freshClip.name}`, 'info');
+            } else {
+                player = new StreamPlayer();
+            }
 
             try {
                 // Audio Routing
@@ -829,6 +866,44 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     debugLog(`🎤 Intro Ended for ${clipName} (Markers)`, 'event');
                 });
 
+                // v1.4.10 (#20): errore media a riproduzione in corso (drive scollegato,
+                // file corrotto a metà). Prima: clip "zombie" in activeClips, catena
+                // play_next ferma → dead air finché l'operatore non se ne accorgeva.
+                // Ora: stop pulito + avanzamento alla prossima clip / recupero rotazione.
+                player.onPlaybackError?.(() => {
+                    // Errori in fase di load: gestiti dal reject di load() (catch sotto).
+                    if (!get().activeClips[freshClip.id]) return;
+                    debugLog(`AudioStore: Errore media su ${freshClip.name} in onda — stop e avanzamento`, 'error');
+
+                    const wasActiveInsert = _activeInsertId === freshClip.id;
+                    const queuedInserts = wasActiveInsert ? [..._pendingInserts] : [];
+                    const queuedResumeId = wasActiveInsert ? _pendingResumeClipId : null;
+                    const queuedSourceId = wasActiveInsert ? _pendingResumeSourceId : null;
+                    const transitionAlreadyFired = _transitionFiredFor.delete(freshClip.id);
+
+                    get().stopClip(freshClip.id);
+
+                    if (wasActiveInsert) {
+                        // ripristina lo stato catturato (stopClip lo ha azzerato) e usa
+                        // il recupero standard della rotazione.
+                        _activeInsertId = freshClip.id;
+                        _pendingInserts = queuedInserts;
+                        _pendingResumeClipId = queuedResumeId;
+                        _pendingResumeSourceId = queuedSourceId;
+                        recoverFromInsertFailure(freshClip.id);
+                        return;
+                    }
+                    if (transitionAlreadyFired) return; // la next è già partita
+                    const live = getFreshClipById(freshClip.id) ?? freshClip;
+                    if (live.nextAction === 'play_next') {
+                        const nextClip = resolvePreshowNext(live, getColumnForClip(freshClip.id));
+                        if (nextClip && !get().activeClips[nextClip.id]) {
+                            debugLog(`AudioStore: Avanzamento dopo errore → ${nextClip.name}`, 'event');
+                            scheduleSequencerPlay(() => get().playClip(nextClip, undefined, { machine: true }));
+                        }
+                    }
+                });
+
                 player.onOutroReached((clipId) => {
                     // v1.4.8 (#9): guardia inserto — vedi onPreEnd.
                     if (_activeInsertId === freshClip.id) return;
@@ -937,9 +1012,13 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     }
                 });
 
-                await player.load(freshClip.path);
+                // v1.4.10 (#17): se il player viene dal preload il file è già pronto.
+                if (!usedPreload) {
+                    await player.load(freshClip.path);
+                }
 
                 // GR-02 Fix: verifica che questa operazione di load sia ancora la più recente.
+                // (v1.4.9 #3: vale anche per stop arrivati durante il load — entry rimossa.)
                 if (playRunIds.get(freshClip.id) !== runId) {
                     debugLog(`AudioStore: Load obsoleto scartato per ${freshClip.name} (runId ${runId})`, 'info');
                     player.cleanup();
@@ -1013,11 +1092,19 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     return newState;
                 });
 
+                // v1.4.10 (#17): precarica il sequenziale successivo (fire-and-forget).
+                if (freshClip.nextAction === 'play_next') {
+                    void preloadNextClip(freshClip.id);
+                }
+
             } catch (error: unknown) {
                 // Standardized L2 error handling
                 const errorMsg = error instanceof Error ? error.message : String(error);
                 debugLog(`AudioStore: Failed to play ${freshClip.name} - ${errorMsg}`, 'error');
                 console.error("Failed to play clip:", freshClip, error);
+                // v1.4.10 (#18): rilascia i nodi Web Audio del player fallito — prima
+                // restavano connessi al grafo (accumulo su tentativi ripetuti).
+                player.cleanup();
                 // v1.4.8 (#2 rotazione): inserto fallito al load → recupero (coda/ripresa),
                 // niente più PRE-SHOW in silenzio con stato stale.
                 recoverFromInsertFailure(freshClip.id);
@@ -1076,7 +1163,9 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             const currentStore = get();
 
             // Find first available clip (not currently playing)
-            const availableClip = targetCol.clips.find(clip => !currentStore.activeClips[clip.id]);
+            // v1.4.10 (#19): salta anche le clip con file mancante — prima l'hotkey
+            // colonna restava muta senza feedback se la prima clip libera era missing.
+            const availableClip = targetCol.clips.find(clip => !clip.isMissing && !currentStore.activeClips[clip.id]);
 
             if (availableClip) {
                 await get().playClip(availableClip);
@@ -1186,6 +1275,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             _sequencerTimeouts.forEach(h => clearTimeout(h));
             _sequencerTimeouts.clear();
             playRunIds.clear();
+            // v1.4.10 (#17): scarta l'eventuale player precaricato.
+            discardPreloadedNext();
             // v1.4.8 (#10): azzera i marcatori "transizione già eseguita".
             _transitionFiredFor.clear();
             // v1.3.21: azzera contatori/coda/decisioni di rotazione PRE-SHOW.

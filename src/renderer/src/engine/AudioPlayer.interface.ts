@@ -18,6 +18,11 @@ export interface IAudioPlayer {
     onPreEnd(callback: (clipId: string) => void): void;
     onIntroReached(callback: (clipId: string) => void): void;
     onOutroReached(callback: (clipId: string) => void): void;
+    // v1.4.10 (#20): errore media DURANTE la riproduzione (drive scollegato, file
+    // corrotto a metà). Opzionale: gli errori in fase di load restano gestiti dal
+    // reject di load(). Senza handler la clip restava "zombie" in activeClips e la
+    // catena play_next non avanzava (dead air).
+    onPlaybackError?(callback: (clipId: string) => void): void;
     updateSettings(clip: AudioClip): void;
     fadeTo(volume: number, duration: number): void;
 }
