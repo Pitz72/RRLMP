@@ -107,3 +107,46 @@ describe('resolvePreshowNext — collisione jingle + promo', () => {
         expect(resolvePreshowNext(s1, 'col-preshow')?.id).toBe('j1');
     });
 });
+
+// v1.4.8 (revisione 2026-06-10, #23): lo slot di rotazione NON va "bruciato" se la
+// colonna jingle è vuota/non disponibile — il contatore resta maturo e si ritenta
+// al brano successivo (prima: "ogni 2" diventava silenziosamente "ogni 4").
+describe('resolvePreshowNext — slot non bruciato su colonna vuota (#23)', () => {
+    it('riprova al brano successivo quando la colonna jingle torna disponibile', () => {
+        useProjectStore.setState({
+            columns: [
+                makeColumn('col-preshow', 'preshow', [s1, s2, s3], ROT({ jingleEnabled: true, jingleEvery: 2 })),
+                makeColumn('col-jingle', 'asset', []), // vuota: pick fallisce
+                makeColumn('col-promo', 'asset', []),
+            ],
+        });
+        // counter 0→1 (<2) → sequenziale
+        expect(resolvePreshowNext(s1, 'col-preshow')?.id).toBe('s2');
+        // counter 1→2 (>=2) ma colonna vuota → sequenziale, slot RESTA maturo
+        expect(resolvePreshowNext(s2, 'col-preshow')?.id).toBe('s3');
+        // la colonna si ripopola: al prossimo brano l'inserto scatta subito
+        useProjectStore.setState({
+            columns: [
+                makeColumn('col-preshow', 'preshow', [s1, s2, s3, makeClip({ id: 's4', name: 'S4', type: 'preshow' })], ROT({ jingleEnabled: true, jingleEvery: 2 })),
+                makeColumn('col-jingle', 'asset', [j1]),
+                makeColumn('col-promo', 'asset', []),
+            ],
+        });
+        expect(resolvePreshowNext(s3, 'col-preshow')?.id).toBe('j1');
+    });
+});
+
+// v1.4.8 (#13): la rotazione non deve pescare una clip attualmente in onda
+// (playClip la interpreterebbe come toggle-stop troncandola).
+describe('resolvePreshowNext — pick esclude le clip in onda (#13)', () => {
+    it('con il jingle unico già attivo, la pesca fallisce e si prosegue sequenziale', () => {
+        setup(ROT({ jingleEnabled: true, jingleEvery: 1 }));
+        const fakeActive = { player: {} as never, isPlaying: true, progress: 0, clip: j1 };
+        useAudioStore.setState({ activeClips: { j1: fakeActive } });
+        try {
+            expect(resolvePreshowNext(s1, 'col-preshow')?.id).toBe('s2'); // non j1
+        } finally {
+            useAudioStore.setState({ activeClips: {} });
+        }
+    });
+});

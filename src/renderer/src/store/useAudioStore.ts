@@ -345,6 +345,65 @@ const _rotationDecisions = new Map<string, { inserts: AudioClip[]; resumeClipId:
 let _pendingInserts: AudioClip[] = [];
 let _pendingResumeClipId: string | null = null;
 let _activeInsertId: string | null = null; // id dell'inserto jingle/promo ora in onda
+// v1.4.8 (#24): id del brano PRE-SHOW che ha originato l'inserto. Se la clip di
+// ripresa viene cancellata durante l'inserto, il fallback è il sequenziale del
+// sorgente (posizionale: con la clip rimossa, il next del sorgente è quella dopo).
+let _pendingResumeSourceId: string | null = null;
+
+// v1.4.8 (#10): clip-sorgente la cui transizione è GIÀ stata eseguita da
+// onPreEnd/onOutroReached. Il fallback onEnded non deve rilanciare il next:
+// se il next (inserto o brano corto) è più breve della coda di crossfade del
+// sorgente, al suo termine risultava "non attivo" e veniva suonato DUE volte.
+const _transitionFiredFor = new Set<string>();
+
+/** v1.4.8 (#4/#11/#12): azzera lo stato inserto/ripresa pendente (non i contatori). */
+const clearPendingInsertState = (reason: string): void => {
+    if (_activeInsertId || _pendingResumeClipId || _pendingInserts.length > 0) {
+        debugLog(`AudioStore: rotazione PRE-SHOW — stato inserto/ripresa azzerato (${reason})`, 'info');
+    }
+    _activeInsertId = null;
+    _pendingInserts = [];
+    _pendingResumeClipId = null;
+    _pendingResumeSourceId = null;
+};
+
+/**
+ * v1.4.8 (#2 rotazione): l'inserto deciso da resolvePreshowNext non è riuscito a
+ * partire (file sparito dopo l'integrity check, load fallito). Senza recupero la
+ * PRE-SHOW restava in silenzio con stato stale ("ghost resume" al successivo lancio
+ * manuale della stessa clip). Drena la coda inserti o riprende la playlist.
+ */
+const recoverFromInsertFailure = (clipId: string): void => {
+    if (_activeInsertId !== clipId) return;
+    const queuedInserts = [..._pendingInserts];
+    const resumeId = _pendingResumeClipId;
+    const sourceId = _pendingResumeSourceId;
+    clearPendingInsertState('inserto non riproducibile');
+    while (queuedInserts.length > 0) {
+        const cand = queuedInserts.shift()!;
+        const freshCand = getFreshClipById(cand.id) ?? cand;
+        if (freshCand.isMissing) continue;
+        _activeInsertId = freshCand.id;
+        _pendingInserts = queuedInserts;
+        _pendingResumeClipId = resumeId;
+        _pendingResumeSourceId = sourceId;
+        debugLog(`AudioStore: Rotazione → inserto di riserva ${freshCand.name}`, 'event');
+        setTimeout(() => useAudioStore.getState().playClip(freshCand), 20);
+        return;
+    }
+    if (resumeId) {
+        const resumeClip = getFreshClipById(resumeId);
+        const target = (resumeClip && !resumeClip.isMissing)
+            ? resumeClip
+            : (sourceId ? getNextClipInColumn(sourceId) : null);
+        if (target) {
+            debugLog(`AudioStore: Rotazione → ripresa PRE-SHOW dopo inserto fallito: ${target.name}`, 'event');
+            setTimeout(() => useAudioStore.getState().playClip(target), 20);
+        } else {
+            debugLog('AudioStore: Rotazione — nessuna clip di ripresa dopo inserto fallito', 'error');
+        }
+    }
+};
 
 /** Reset completo dello stato di rotazione (chiamato da stopAll). */
 export const resetPreshowRotation = (): void => {
@@ -354,6 +413,7 @@ export const resetPreshowRotation = (): void => {
     _pendingInserts = [];
     _pendingResumeClipId = null;
     _activeInsertId = null;
+    _pendingResumeSourceId = null;
     // _lastJingleId/_lastPromoId non azzerati: l'anti-repeat può sopravvivere a uno stop.
 };
 
@@ -361,7 +421,11 @@ export const resetPreshowRotation = (): void => {
 export const pickRandomFromColumn = (colId: string, lastId: string | null): AudioClip | null => {
     const col = useProjectStore.getState().columns.find((c) => c.id === colId);
     if (!col || col.clips.length === 0) return null;
-    const candidates = col.clips.filter((c) => !c.isMissing);
+    // v1.4.8 (#13): escludi anche le clip ATTUALMENTE in onda — se la rotazione
+    // pescava un jingle che l'operatore stava già suonando, playClip lo interpretava
+    // come toggle-stop e lo troncava di colpo.
+    const activeNow = useAudioStore.getState().activeClips;
+    const candidates = col.clips.filter((c) => !c.isMissing && !activeNow[c.id]);
     if (candidates.length === 0) return null;
     if (candidates.length === 1) return candidates[0];
     const pool = candidates.filter((c) => c.id !== lastId);
@@ -400,17 +464,18 @@ export const resolvePreshowNext = (currentClip: AudioClip, colId: string | null)
     if (rot.jingleEnabled && rot.jingleEvery > 0) {
         _jingleRotationCounter++;
         if (_jingleRotationCounter >= rot.jingleEvery) {
-            _jingleRotationCounter = 0;
+            // v1.4.8 (#23): il contatore si azzera SOLO a pesca riuscita. Se la colonna
+            // è vuota/tutta mancante lo slot resta "maturo" e si ritenta al prossimo
+            // brano (prima: slot bruciato → "ogni 4" diventava silenziosamente "ogni 8").
             const j = pickRandomFromColumn('col-jingle', _lastJingleId);
-            if (j) { inserts.push(j); _lastJingleId = j.id; }
+            if (j) { _jingleRotationCounter = 0; inserts.push(j); _lastJingleId = j.id; }
         }
     }
     if (rot.promoEnabled && rot.promoEvery > 0) {
         _promoRotationCounter++;
         if (_promoRotationCounter >= rot.promoEvery) {
-            _promoRotationCounter = 0;
             const p = pickRandomFromColumn('col-promo', _lastPromoId);
-            if (p) { inserts.push(p); _lastPromoId = p.id; }
+            if (p) { _promoRotationCounter = 0; inserts.push(p); _lastPromoId = p.id; }
         }
     }
 
@@ -420,6 +485,7 @@ export const resolvePreshowNext = (currentClip: AudioClip, colId: string | null)
         _activeInsertId = inserts[0].id;
         _pendingInserts = inserts.slice(1);
         _pendingResumeClipId = sequentialNext.id;
+        _pendingResumeSourceId = currentClip.id; // v1.4.8 (#24): per il fallback di ripresa
         debugLog(`AudioStore: Rotazione PRE-SHOW → ${inserts.map((c) => c.name).join(' + ')} prima di ${sequentialNext.name}`, 'event');
         return inserts[0];
     }
@@ -491,6 +557,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             // decisione di rotazione memoizzata su di essa (al replay i contatori vanno
             // rivalutati). Entro una singola transizione di fine brano la memo resta.
             _rotationDecisions.delete(clipArg.id);
+            // v1.4.8 (#10): idem per il marcatore "transizione già eseguita".
+            _transitionFiredFor.delete(clipArg.id);
 
             // FRESH DATA FETCH
             const { columns } = useProjectStore.getState();
@@ -515,6 +583,9 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             // Integrity Guard (v0.14.2): blocca playback per file mancanti
             if (freshClip.isMissing) {
                 debugLog(`AudioStore: PlayClip bloccato — file mancante: ${freshClip.path}`, 'error');
+                // v1.4.8 (#2 rotazione): se era l'inserto deciso dalla rotazione,
+                // recupera (prossimo inserto in coda o ripresa playlist).
+                recoverFromInsertFailure(freshClip.id);
                 return;
             }
 
@@ -544,6 +615,28 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 // ripresa rotazione pendente (un eventuale inserto jingle/promo ancora in
                 // onda finirà senza far ripartire la PRE-SHOW sotto lo show).
                 resetPreshowRotation();
+            }
+
+            // v1.4.8 (#12): lancio MANUALE di una clip PRE-SHOW mentre un inserto della
+            // rotazione è in onda → l'operatore sceglie il punto della playlist: l'inserto
+            // viene fermato e la ripresa pendente annullata (lo stop dell'inserto azzera
+            // lo stato — vedi stopClip). Prima l'inserto continuava sopra la clip scelta
+            // e a fine inserto la macchina la fermava per riprendere la sequenza vecchia.
+            // Nota: i lanci macchina (inserto successivo/ripresa) avvengono solo quando
+            // _activeInsertId è già stato gestito, quindi qui è sempre un gesto operatore.
+            if (columnId === 'col-preshow' && _activeInsertId && _activeInsertId !== freshClip.id) {
+                debugLog('AudioStore: lancio manuale PRE-SHOW durante inserto rotazione — inserto fermato', 'info');
+                get().stopClip(_activeInsertId);
+            }
+
+            // v1.4.8 (#11): lanciare musica o voce = lo show prende il comando. Una
+            // ripresa PRE-SHOW pendente non deve più scattare sotto lo show (prima solo
+            // col-assets la annullava). SFX e jingle/promo manuali NON annullano
+            // (compatibili col riempitivo PRE-SHOW). L'eventuale inserto ancora in onda
+            // finisce senza ripresa (con musica attiva viene comunque azzerato dalla
+            // Music Dominance di evaluateMix).
+            if (columnId === 'col-music' || columnId === 'col-voice') {
+                clearPendingInsertState(`lancio manuale da ${columnId}`);
             }
 
             // Handle Intra-Column Conflict
@@ -620,8 +713,12 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     // dall'operatore, o in loop), NON chiamare playClip: il toggle-stop
                     // la spegnerebbe → dead air totale. La clip corrente finisce con la
                     // sua fine naturale (il suo fade interno è già armato dal player).
+                    // v1.4.8 (#10): la transizione è comunque considerata GESTITA — il
+                    // fallback onEnded non deve rilanciare il next (se nel frattempo
+                    // fosse finito, verrebbe suonato di nuovo a sorpresa).
                     if (get().activeClips[nextClip.id]) {
                         debugLog(`AudioStore: Transizione saltata — ${nextClip.name} è già in onda`, 'info');
+                        _transitionFiredFor.add(clipId);
                         return;
                     }
 
@@ -637,6 +734,13 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     const effectiveType = resolveTransitionType(currentClip, colId);
 
                     debugLog(`AudioStore: Transition [${effectiveType}] ${currentClip.name} → ${nextClip.name}`, 'event');
+
+                    // v1.4.8 (#10): transizione eseguita QUI — il fallback onEnded di questa
+                    // clip non deve rilanciare il next. Senza questo marcatore, un next più
+                    // corto della coda di crossfade del sorgente (jingle 3s con crossfade 5s)
+                    // risultava "non più attivo" all'onEnded del sorgente e veniva suonato
+                    // una SECONDA volta sopra la clip di ripresa.
+                    _transitionFiredFor.add(clipId);
 
                     if (effectiveType === 'crossfade') {
                         const currentPlayer = get().activeClips[clipId]?.player;
@@ -679,6 +783,12 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
                 // Sequencer Logic
                 player.onPreEnd((clipId) => {
+                    // v1.4.8 (#9): l'inserto della rotazione non segue MAI la propria
+                    // play_next (una clip trascinata da PRE-SHOW a JINGLE conserva
+                    // nextAction='play_next' — moveClip preserva i campi): senza guardia
+                    // partiva ANCHE il jingle successivo della colonna, in doppio con la
+                    // ripresa PRE-SHOW gestita da onEnded.
+                    if (_activeInsertId === freshClip.id) return;
                     // Live-edit: legge il valore corrente di nextAction (l'operatore può averlo
                     // cambiato a clip già in esecuzione).
                     const live = getFreshClipById(freshClip.id) ?? freshClip;
@@ -695,6 +805,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 });
 
                 player.onOutroReached((clipId) => {
+                    // v1.4.8 (#9): guardia inserto — vedi onPreEnd.
+                    if (_activeInsertId === freshClip.id) return;
                     // Live-edit: nextAction corrente dal project store.
                     const currentClip = getFreshClipById(freshClip.id) ?? get().activeClips[clipId]?.clip;
                     if (!currentClip) return;
@@ -706,26 +818,65 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
                 player.onEnded(() => {
                     debugLog(`AudioStore: Ended ${freshClip.name}`, 'info');
+
+                    // v1.4.8 (#4/#10): cattura lo stato di rotazione e il marcatore
+                    // transizione PRIMA di stopClip — stopClip azzera lo stato inserto
+                    // (è il comportamento corretto per gli stop manuali/takeover) e qui
+                    // dobbiamo distinguere la FINE NATURALE, che invece deve riprendere.
+                    const wasActiveInsert = _activeInsertId === freshClip.id;
+                    const queuedInserts = wasActiveInsert ? [..._pendingInserts] : [];
+                    const queuedResumeId = wasActiveInsert ? _pendingResumeClipId : null;
+                    const queuedSourceId = wasActiveInsert ? _pendingResumeSourceId : null;
+                    const transitionAlreadyFired = _transitionFiredFor.delete(freshClip.id);
+
                     get().stopClip(freshClip.id);
 
                     // v1.3.21: ripresa rotazione. Se la clip che è finita era l'inserto
                     // jingle/promo attualmente in onda, suona il prossimo inserto in coda
                     // (collisione jingle+promo) oppure riprende la playlist PRE-SHOW dal brano
                     // che era stato messo da parte. Ritorno alla musica gapless (taglio pulito).
-                    if (_activeInsertId === freshClip.id) {
-                        _activeInsertId = null;
-                        if (_pendingInserts.length > 0) {
-                            const nextInsert = _pendingInserts.shift()!;
-                            _activeInsertId = nextInsert.id;
-                            debugLog(`AudioStore: Rotazione → inserto successivo ${nextInsert.name}`, 'event');
-                            setTimeout(() => get().playClip(nextInsert), 20);
-                        } else if (_pendingResumeClipId) {
-                            const resumeId = _pendingResumeClipId;
-                            _pendingResumeClipId = null;
-                            const resumeClip = getFreshClipById(resumeId);
-                            if (resumeClip) {
-                                debugLog(`AudioStore: Rotazione → ripresa PRE-SHOW ${resumeClip.name}`, 'event');
-                                setTimeout(() => get().playClip(resumeClip), 20);
+                    if (wasActiveInsert) {
+                        // v1.4.8 (#25): re-check della config — se l'operatore ha disattivato
+                        // jingle/promo mentre la coda era pendente, gli inserti della
+                        // categoria disattivata vengono saltati.
+                        const rot = useProjectStore.getState().columns.find((c) => c.id === 'col-preshow')?.rotation;
+                        while (queuedInserts.length > 0) {
+                            const nextInsert = queuedInserts.shift()!;
+                            const insCol = getColumnForClip(nextInsert.id);
+                            const stillEnabled = insCol === 'col-jingle' ? !!rot?.jingleEnabled
+                                : insCol === 'col-promo' ? !!rot?.promoEnabled
+                                : true;
+                            if (!stillEnabled) {
+                                debugLog(`AudioStore: Rotazione — inserto ${nextInsert.name} saltato (categoria disattivata)`, 'info');
+                                continue;
+                            }
+                            const freshInsert = getFreshClipById(nextInsert.id) ?? nextInsert;
+                            if (freshInsert.isMissing) {
+                                debugLog(`AudioStore: Rotazione — inserto ${nextInsert.name} saltato (file mancante)`, 'error');
+                                continue;
+                            }
+                            _activeInsertId = freshInsert.id;
+                            _pendingInserts = queuedInserts;
+                            _pendingResumeClipId = queuedResumeId;
+                            _pendingResumeSourceId = queuedSourceId;
+                            debugLog(`AudioStore: Rotazione → inserto successivo ${freshInsert.name}`, 'event');
+                            setTimeout(() => get().playClip(freshInsert), 20);
+                            return;
+                        }
+                        if (queuedResumeId) {
+                            const resumeClip = getFreshClipById(queuedResumeId);
+                            // v1.4.8 (#24): clip di ripresa cancellata/mancante durante
+                            // l'inserto → fallback al sequenziale del brano sorgente
+                            // (posizionale: con la clip rimossa, il next del sorgente è
+                            // ora la clip che la seguiva).
+                            const target = (resumeClip && !resumeClip.isMissing)
+                                ? resumeClip
+                                : (queuedSourceId ? getNextClipInColumn(queuedSourceId) : null);
+                            if (target) {
+                                debugLog(`AudioStore: Rotazione → ripresa PRE-SHOW ${target.name}`, 'event');
+                                setTimeout(() => get().playClip(target), 20);
+                            } else {
+                                debugLog('AudioStore: Rotazione — clip di ripresa non disponibile, playlist PRE-SHOW ferma', 'error');
                             }
                         }
                         return; // l'inserto non segue la logica play_next standard
@@ -735,6 +886,14 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     // cambiato la clip in corsa da 'stop' a 'play_next', la modifica vale comunque.
                     const live = getFreshClipById(freshClip.id) ?? freshClip;
                     if (live.nextAction === 'play_next') {
+                        // v1.4.8 (#10): se onPreEnd/onOutroReached hanno GIÀ eseguito la
+                        // transizione, questo fallback non deve rilanciare il next — con un
+                        // next più corto della coda di crossfade risultava già terminato
+                        // ("non attivo") e veniva suonato una seconda volta.
+                        if (transitionAlreadyFired) {
+                            debugLog(`AudioStore: Fallback onEnded saltato per ${freshClip.name} (transizione già eseguita)`, 'info');
+                            return;
+                        }
                         const transition = resolveTransitionType(live, getColumnForClip(freshClip.id));
 
                         // Gapless o Fallback: Se non è ancora partita la prossima clip, falla partire ora.
@@ -834,6 +993,9 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 const errorMsg = error instanceof Error ? error.message : String(error);
                 debugLog(`AudioStore: Failed to play ${freshClip.name} - ${errorMsg}`, 'error');
                 console.error("Failed to play clip:", freshClip, error);
+                // v1.4.8 (#2 rotazione): inserto fallito al load → recupero (coda/ripresa),
+                // niente più PRE-SHOW in silenzio con stato stale.
+                recoverFromInsertFailure(freshClip.id);
             }
         },
 
@@ -908,6 +1070,14 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             // GRAVE #6: annulla un eventuale timeout di transizione pendente per questa clip,
             // così un re-trigger non viene fermato dal vecchio crossfade/segue.
             clearTransitionTimeout(clipId);
+            // v1.4.8 (#4): fermare l'inserto della rotazione (stop manuale, takeover,
+            // conflict resolution) azzera lo stato pendente. Senza, restava un "ghost
+            // resume": al successivo lancio manuale della stessa clip jingle, a fine clip
+            // la vecchia PRE-SHOW ripartiva dal nulla sotto lo show. La fine NATURALE
+            // dell'inserto resta gestita: onEnded cattura lo stato PRIMA di chiamare qui.
+            if (_activeInsertId === clipId) {
+                clearPendingInsertState('stop inserto');
+            }
             set((state) => {
                 // v1.4.6 (#2): rimuovi SEMPRE la clip da fadingClipIds. Prima l'unica
                 // pulizia era nel timeout di transizione, ma stopClip stesso lo cancella
@@ -980,6 +1150,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             // GRAVE #6: annulla tutti i timeout di transizione pendenti.
             _transitionTimeouts.forEach(h => clearTimeout(h));
             _transitionTimeouts.clear();
+            // v1.4.8 (#10): azzera i marcatori "transizione già eseguita".
+            _transitionFiredFor.clear();
             // v1.3.21: azzera contatori/coda/decisioni di rotazione PRE-SHOW.
             resetPreshowRotation();
             set((state) => {
