@@ -26,6 +26,10 @@ interface ActiveClipState {
 
 interface AudioStore {
     activeClips: Record<string, ActiveClipState>;
+    // v1.4.11 (#29): mappa ID → volume al momento della soppressione. Il valore è di
+    // fatto un FLAG: il ripristino post-stacco usa sempre il clip.volume CORRENTE
+    // (scelta deliberata — se l'operatore cambia il volume durante la soppressione,
+    // vince il valore nuovo). Dal v1.4.6 evaluateMix tiene a 0 le clip presenti qui.
     suppressedClips: Record<string, number>; // ID -> Original Volume
 
     // v0.14.5 — Timer On Air
@@ -854,6 +858,11 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     // Live-edit: legge il valore corrente di nextAction (l'operatore può averlo
                     // cambiato a clip già in esecuzione).
                     const live = getFreshClipById(freshClip.id) ?? freshClip;
+                    // v1.4.11 (#27): il loop vince su play_next — la clip in loop non
+                    // transiziona mai (prima la transizione partiva e il suo timeout
+                    // uccideva il loop al secondo giro). Disattivando il loop in corsa
+                    // la catena riprende alla fine del giro.
+                    if (live.isLooping) return;
                     // Gapless: la clip termina naturalmente, onEnded gestirà il play_next
                     if (live.nextAction !== 'play_next') return;
                     // Se c'è un Outro Marker, onOutroReached gestirà la transizione
@@ -910,6 +919,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     // Live-edit: nextAction corrente dal project store.
                     const currentClip = getFreshClipById(freshClip.id) ?? get().activeClips[clipId]?.clip;
                     if (!currentClip) return;
+                    // v1.4.11 (#27): il loop vince su play_next — vedi onPreEnd.
+                    if (currentClip.isLooping) return;
                     debugLog(`🔊 Outro Reached for ${currentClip.name}`, 'info');
                     if (currentClip.nextAction === 'play_next') {
                         applyTransitionAndPlayNext(clipId);
@@ -1034,7 +1045,9 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 // → brano troncato di netto 2s prima della fine).
                 // v1.4.7 (#26): senza una clip successiva il fadeOut di transizione non va
                 // armato — l'ultima clip della catena finisce col suo finale naturale.
+                // v1.4.11 (#27): idem per le clip in loop (il loop vince su play_next).
                 if (freshClip.nextAction === 'play_next' && (freshClip.outroMarker || 0) <= 0
+                    && !freshClip.isLooping
                     && getNextClipInColumn(freshClip.id)) {
                     const { crossfadeDuration, segueDuration } = useSettingsStore.getState();
                     const transType = resolveTransitionType(freshClip, columnId);
@@ -1253,7 +1266,14 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                         ? state.playoutLog.map((e, i) => i === lastIdx ? { ...e, endTime: now } : e)
                         : state.playoutLog;
 
-                    return { activeClips: newActiveClips, suppressedClips: newSuppressedClips, previewingClipIds: newPreviewingClipIds, playoutLog: newPlayoutLog, fadingClipIds: newFadingClipIds };
+                    // v1.4.11 (#28): se non resta nulla in onda, azzera il timer ON AIR
+                    // (prima continuava a contare nel silenzio dopo l'ultimo stop manuale;
+                    // solo stopAll lo azzerava).
+                    const newOnAirStartTime = Object.keys(newActiveClips).length === 0
+                        ? null
+                        : state.onAirStartTime;
+
+                    return { activeClips: newActiveClips, suppressedClips: newSuppressedClips, previewingClipIds: newPreviewingClipIds, playoutLog: newPlayoutLog, fadingClipIds: newFadingClipIds, onAirStartTime: newOnAirStartTime };
                 }
                 // v1.4.6 (#2): anche se la clip non è (più) attiva, ripulisci un eventuale
                 // residuo in fadingClipIds (stop arrivato dopo la fine naturale).
@@ -1377,6 +1397,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
             let dynFadeOut: number | undefined;
             if (fresh.nextAction === 'play_next' && (fresh.outroMarker || 0) <= 0
+                && !fresh.isLooping // v1.4.11 (#27)
                 && getNextClipInColumn(clipId)) {
                 const { crossfadeDuration, segueDuration } = useSettingsStore.getState();
                 const t = resolveTransitionType(fresh, colId);
