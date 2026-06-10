@@ -45,7 +45,9 @@ interface AudioStore {
     clearPlayoutLog: () => void;
 
     // Actions
-    playClip: (clip: AudioClip, velocityGain?: number) => Promise<void>;
+    // v1.4.9 (#21): opts.machine distingue i lanci del sequencer/rotazione dai gesti
+    // operatore — solo i gesti operatore possono annullare un load in volo (toggle).
+    playClip: (clip: AudioClip, velocityGain?: number, opts?: { machine?: boolean }) => Promise<void>;
     loadClip: (clip: AudioClip) => Promise<void>;
     playColumn: (colIndex: number) => Promise<void>;
     updateOutputDevice: (deviceId: string) => void;
@@ -311,7 +313,18 @@ const clearTransitionTimeout = (clipId: string) => {
 // Ogni invocazione di playClip genera un UUID unico per clipId;
 // se al ritorno dell'await load() il run-ID non corrisponde più,
 // l'operazione è obsoleta (superata da un play successivo) e viene scartata.
+// v1.4.9 (#3): stopClip/stopAll INVALIDANO le entry — prima un load in volo
+// sopravviveva allo stop (Emergency Stop incluso) e l'audio partiva DOPO.
 const playRunIds = new Map<string, string>();
+
+// v1.4.9 (#3): i setTimeout del sequencer (avvio next/inserto/ripresa, 20ms) vanno
+// tracciati e cancellati da stopAll — sopravvivevano all'Emergency Stop facendo
+// partire la clip successiva subito dopo lo stop.
+const _sequencerTimeouts = new Set<ReturnType<typeof setTimeout>>();
+const scheduleSequencerPlay = (fn: () => void, delay = 20): void => {
+    const h = setTimeout(() => { _sequencerTimeouts.delete(h); fn(); }, delay);
+    _sequencerTimeouts.add(h);
+};
 
 // v0.13.2 — Transition System
 // Clip in fade-out per transizione: gestito come stato Zustand (v0.14.9)
@@ -388,7 +401,7 @@ const recoverFromInsertFailure = (clipId: string): void => {
         _pendingResumeClipId = resumeId;
         _pendingResumeSourceId = sourceId;
         debugLog(`AudioStore: Rotazione → inserto di riserva ${freshCand.name}`, 'event');
-        setTimeout(() => useAudioStore.getState().playClip(freshCand), 20);
+        scheduleSequencerPlay(() => useAudioStore.getState().playClip(freshCand, undefined, { machine: true }));
         return;
     }
     if (resumeId) {
@@ -398,7 +411,7 @@ const recoverFromInsertFailure = (clipId: string): void => {
             : (sourceId ? getNextClipInColumn(sourceId) : null);
         if (target) {
             debugLog(`AudioStore: Rotazione → ripresa PRE-SHOW dopo inserto fallito: ${target.name}`, 'event');
-            setTimeout(() => useAudioStore.getState().playClip(target), 20);
+            scheduleSequencerPlay(() => useAudioStore.getState().playClip(target, undefined, { machine: true }));
         } else {
             debugLog('AudioStore: Rotazione — nessuna clip di ripresa dopo inserto fallito', 'error');
         }
@@ -542,7 +555,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
         playoutLog: [],
         clearPlayoutLog: () => set({ playoutLog: [] }),
 
-        playClip: async (clipArg: AudioClip, velocityGain?: number) => {
+        playClip: async (clipArg: AudioClip, velocityGain?: number, opts?: { machine?: boolean }) => {
             const currentStore = get();
 
             // v1.4.6 (#15): consumo one-shot dell'override fadeIn del crossfade QUI,
@@ -596,6 +609,18 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             if (currentStore.activeClips[freshClip.id]) {
                 debugLog(`AudioStore: PlayClip toggle-stop su ${freshClip.name} (già attiva)`, 'info');
                 currentStore.stopClip(freshClip.id);
+                return;
+            }
+
+            // v1.4.9 (#21): la clip non è ancora attiva ma ha un load IN VOLO (primo
+            // click/hotkey/MIDI di pochi istanti fa): il secondo gesto OPERATORE annulla
+            // il lancio. Prima veniva di fatto ignorato (il primo run veniva scartato dal
+            // run-ID ma il secondo partiva comunque) — l'operatore che premeva due volte
+            // per annullare se la ritrovava in onda. I lanci macchina (transizioni,
+            // rotazione) NON annullano: sostituiscono il run come prima.
+            if (!opts?.machine && playRunIds.has(freshClip.id)) {
+                playRunIds.delete(freshClip.id);
+                debugLog(`AudioStore: PlayClip annullato durante il caricamento di ${freshClip.name}`, 'info');
                 return;
             }
 
@@ -756,7 +781,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                         }
                         // Imposta il fadeIn one-shot per la clip entrante
                         pendingCrossfadeFadeIn = crossfadeDuration;
-                        get().playClip(nextClip);
+                        get().playClip(nextClip, undefined, { machine: true });
 
                     } else if (effectiveType === 'segue') {
                         const currentPlayer = get().activeClips[clipId]?.player;
@@ -772,12 +797,12 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                             }, segueDuration + 200));
                         }
                         // La clip entrante parte subito a volume pieno (nessun fade-in forzato)
-                        get().playClip(nextClip);
+                        get().playClip(nextClip, undefined, { machine: true });
 
                     } else {
                         // gapless: comportamento esistente — la clip precedente viene fermata
                         // dalla conflict resolution di playClip in modo immediato.
-                        get().playClip(nextClip);
+                        get().playClip(nextClip, undefined, { machine: true });
                     }
                 };
 
@@ -860,7 +885,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                             _pendingResumeClipId = queuedResumeId;
                             _pendingResumeSourceId = queuedSourceId;
                             debugLog(`AudioStore: Rotazione → inserto successivo ${freshInsert.name}`, 'event');
-                            setTimeout(() => get().playClip(freshInsert), 20);
+                            scheduleSequencerPlay(() => get().playClip(freshInsert, undefined, { machine: true }));
                             return;
                         }
                         if (queuedResumeId) {
@@ -874,7 +899,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                                 : (queuedSourceId ? getNextClipInColumn(queuedSourceId) : null);
                             if (target) {
                                 debugLog(`AudioStore: Rotazione → ripresa PRE-SHOW ${target.name}`, 'event');
-                                setTimeout(() => get().playClip(target), 20);
+                                scheduleSequencerPlay(() => get().playClip(target, undefined, { machine: true }));
                             } else {
                                 debugLog('AudioStore: Rotazione — clip di ripresa non disponibile, playlist PRE-SHOW ferma', 'error');
                             }
@@ -906,7 +931,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                             const isNextAlreadyActive = Object.values(get().activeClips).some(ac => ac.clip.id === nextClip.id);
                             if (!isNextAlreadyActive) {
                                 debugLog(`AudioStore: Sequencer Play Next (${transition} at End)`, 'event');
-                                setTimeout(() => get().playClip(nextClip), 20);
+                                scheduleSequencerPlay(() => get().playClip(nextClip, undefined, { machine: true }));
                             }
                         }
                     }
@@ -1078,6 +1103,10 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             if (_activeInsertId === clipId) {
                 clearPendingInsertState('stop inserto');
             }
+            // v1.4.9 (#3): invalida un eventuale load in volo per questa clip — al ritorno
+            // dell'await load() il run-ID non corrisponde più e l'avvio viene scartato.
+            // Prima lo stop NON toccava playRunIds: la clip partiva DOPO lo stop.
+            playRunIds.delete(clipId);
             set((state) => {
                 // v1.4.6 (#2): rimuovi SEMPRE la clip da fadingClipIds. Prima l'unica
                 // pulizia era nel timeout di transizione, ma stopClip stesso lo cancella
@@ -1150,6 +1179,13 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             // GRAVE #6: annulla tutti i timeout di transizione pendenti.
             _transitionTimeouts.forEach(h => clearTimeout(h));
             _transitionTimeouts.clear();
+            // v1.4.9 (#3): Emergency Stop totale — cancella i timeout del sequencer
+            // (next/inserto/ripresa in partenza) e invalida TUTTI i load in volo.
+            // Prima una clip in caricamento al momento dello stop partiva comunque
+            // (es. la catena PRE-SHOW che ripartiva sotto la sigla).
+            _sequencerTimeouts.forEach(h => clearTimeout(h));
+            _sequencerTimeouts.clear();
+            playRunIds.clear();
             // v1.4.8 (#10): azzera i marcatori "transizione già eseguita".
             _transitionFiredFor.clear();
             // v1.3.21: azzera contatori/coda/decisioni di rotazione PRE-SHOW.
