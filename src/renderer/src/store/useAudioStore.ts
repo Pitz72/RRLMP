@@ -90,10 +90,23 @@ const getBusForType = (type: string) => {
  * Per tutte le altre clip già in play si usa duckingDuration (smooth).
  */
 // v1.4.5: esportato per i test unitari (Vitest). Nessun cambio di logica.
-export const evaluateMix = (activeClips: Record<string, ActiveClipState>, newClipId?: string, overrideDuration?: number) => {
+// v1.4.6 (revisione 2026-06-10, #1/#22): quarto parametro opzionale `mixState` —
+// le clip in fade-out di transizione NON vanno toccate (riapplicare il volume nominale
+// cancellerebbe la rampa verso 0 e le riporterebbe a volume pieno, distruggendo
+// crossfade/segue); le clip soppresse da uno stacco restano a 0 finché la soppressione
+// è attiva. Se non passati, i valori vengono letti dallo store (i chiamanti dentro
+// set() devono passarli esplicitamente quando li stanno modificando nello stesso set).
+export const evaluateMix = (
+    activeClips: Record<string, ActiveClipState>,
+    newClipId?: string,
+    overrideDuration?: number,
+    mixState?: { fadingClipIds?: string[]; suppressedClips?: Record<string, number> }
+) => {
     const activeValues = Object.values(activeClips);
     const duckingFactor = _duckingFactor;
     const duckingDuration = _duckingDuration;
+    const fadingIds = mixState?.fadingClipIds ?? useAudioStore.getState().fadingClipIds;
+    const suppressed = mixState?.suppressedClips ?? useAudioStore.getState().suppressedClips;
 
     // 1. ANALYSIS: Scan for high-priority types currently playing
     // v0.17.0: isMicActive (Smart Mic) ha la stessa priorità di una clip voice
@@ -108,6 +121,13 @@ export const evaluateMix = (activeClips: Record<string, ActiveClipState>, newCli
 
     activeValues.forEach(ac => {
         const { clip, player } = ac;
+
+        // v1.4.6 (#1): clip in transizione (crossfade/segue) — il suo fadeTo(0) e lo
+        // stopClip sono già schedulati dal transition handler. Qualunque riapplicazione
+        // di volume qui cancellerebbe la rampa (cancelScheduledValues) riportandola
+        // udibilmente a volume pieno prima del taglio. Non toccare.
+        if (fadingIds.includes(clip.id)) return;
+
         let targetVolume = clip.volume; // Start with nominal volume set by user
 
         if (clip.type === 'voice') {
@@ -149,6 +169,11 @@ export const evaluateMix = (activeClips: Record<string, ActiveClipState>, newCli
             // SFX / Others: Default behavior (duck half-way on voice)
             if (isVoiceActive) targetVolume = clip.volume * 0.5;
         }
+
+        // v1.4.6 (#22): una clip soppressa da uno stacco (anche fuori da col-assets)
+        // resta a 0 finché la soppressione è attiva — prima il primo evaluateMix
+        // successivo la riportava al volume nominale ("rimbalzo" udibile di ~500ms).
+        if (suppressed[clip.id] !== undefined) targetVolume = 0;
 
         // APPLY: istantaneo per la clip appena avviata (evita glitch ducking),
         // smooth per le clip già in play. overrideDuration usato per mic-ducking rapido.
@@ -428,6 +453,14 @@ export const useAudioStore = create<AudioStore>((set, get) => {
         playClip: async (clipArg: AudioClip, velocityGain?: number) => {
             const currentStore = get();
 
+            // v1.4.6 (#15): consumo one-shot dell'override fadeIn del crossfade QUI,
+            // prima di qualunque early-return (file mancante / toggle-stop). Se questo
+            // lancio abortisce, l'override NON deve restare armato: la prossima clip
+            // qualsiasi (anche di un'altra colonna) partirebbe quasi muta con un
+            // fade-in di crossfadeDuration mai richiesto.
+            const fadeInOverride = pendingCrossfadeFadeIn;
+            pendingCrossfadeFadeIn = null;
+
             // v1.3.21: una nuova riproduzione di questa clip invalida una eventuale
             // decisione di rotazione memoizzata su di essa (al replay i contatori vanno
             // rivalutati). Entro una singola transizione di fine brano la memo resta.
@@ -534,9 +567,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
                 // Apply Settings
                 // v0.13.2: se è stato richiesto un crossfade, sovrascriamo il fadeIn
-                // della clip entrante con la durata del crossfade (one-shot, poi reset).
-                const fadeInOverride = pendingCrossfadeFadeIn;
-                pendingCrossfadeFadeIn = null;
+                // della clip entrante con la durata del crossfade (one-shot, consumato
+                // in cima a playClip — v1.4.6 #15).
                 player.updateSettings(
                     fadeInOverride !== null
                         ? { ...effectiveClip, fadeIn: fadeInOverride }
@@ -724,6 +756,11 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 set((state) => {
                     // v0.14.5: avvia il timer On Air al primo play dopo idle
                     const wasIdle = Object.keys(state.activeClips).length === 0;
+                    // v1.4.6 (#22): l'avvio di una clip ne annulla una eventuale
+                    // soppressione da stacco precedente (non deve ripartire muta).
+                    const newSuppressed = state.suppressedClips[freshClip.id] !== undefined
+                        ? Object.fromEntries(Object.entries(state.suppressedClips).filter(([id]) => id !== freshClip.id))
+                        : state.suppressedClips;
                     const newState = {
                         activeClips: {
                             ...state.activeClips,
@@ -734,10 +771,16 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                                 clip: effectiveClip
                             }
                         },
+                        suppressedClips: newSuppressed,
                         onAirStartTime: wasIdle ? Date.now() : state.onAirStartTime,
                         playoutLog: capPlayoutLog([...state.playoutLog, logEntry]),
                     };
-                    evaluateMix(newState.activeClips, freshClip.id);
+                    // v1.4.6 (#1/#22): passa fading/suppressed correnti — dentro set()
+                    // getState() vedrebbe lo stato precedente a questo update.
+                    evaluateMix(newState.activeClips, freshClip.id, undefined, {
+                        fadingClipIds: state.fadingClipIds,
+                        suppressedClips: newSuppressed,
+                    });
                     return newState;
                 });
 
@@ -821,6 +864,15 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             // così un re-trigger non viene fermato dal vecchio crossfade/segue.
             clearTransitionTimeout(clipId);
             set((state) => {
+                // v1.4.6 (#2): rimuovi SEMPRE la clip da fadingClipIds. Prima l'unica
+                // pulizia era nel timeout di transizione, ma stopClip stesso lo cancella
+                // (riga sopra): a ogni crossfade/segue completato naturalmente (onEnded →
+                // stopClip arriva ~200ms PRIMA del timeout) l'id restava fantasma per
+                // sempre → badge FADING permanente + conflict resolution che saltava la
+                // clip al replay (doppio audio nella stessa colonna).
+                const newFadingClipIds = state.fadingClipIds.includes(clipId)
+                    ? state.fadingClipIds.filter(id => id !== clipId)
+                    : state.fadingClipIds;
                 const active = state.activeClips[clipId];
                 if (active) {
                     active.player.stop();
@@ -841,7 +893,12 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                             Object.entries(state.suppressedClips).filter(([id]) => id !== clipId)
                         );
 
-                    evaluateMix(newActiveClips);
+                    // v1.4.6 (#1/#22): passa lo stato POST-update — dentro set() getState()
+                    // vedrebbe ancora la vecchia mappa suppressed/fading.
+                    evaluateMix(newActiveClips, undefined, undefined, {
+                        fadingClipIds: newFadingClipIds,
+                        suppressedClips: newSuppressedClips,
+                    });
 
                     // v0.14.12: marca come suonata le clip PRE-SHOW a fine riproduzione
                     // v0.16.5: skip se la clip era in modalità preview (non deve diventare grigia)
@@ -863,7 +920,12 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                         ? state.playoutLog.map((e, i) => i === lastIdx ? { ...e, endTime: now } : e)
                         : state.playoutLog;
 
-                    return { activeClips: newActiveClips, suppressedClips: newSuppressedClips, previewingClipIds: newPreviewingClipIds, playoutLog: newPlayoutLog };
+                    return { activeClips: newActiveClips, suppressedClips: newSuppressedClips, previewingClipIds: newPreviewingClipIds, playoutLog: newPlayoutLog, fadingClipIds: newFadingClipIds };
+                }
+                // v1.4.6 (#2): anche se la clip non è (più) attiva, ripulisci un eventuale
+                // residuo in fadingClipIds (stop arrivato dopo la fine naturale).
+                if (newFadingClipIds !== state.fadingClipIds) {
+                    return { ...state, fadingClipIds: newFadingClipIds };
                 }
                 return state;
             });

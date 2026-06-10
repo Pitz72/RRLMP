@@ -28,6 +28,10 @@ export class StreamPlayer implements IAudioPlayer {
     private introMarker: number = 0;
     private outroMarker: number = 0;
     private isLooping: boolean = false;
+    // v1.4.6 (#1): istante (ctx.currentTime) in cui termina la rampa di fade-in
+    // schedulata da play(). Serve a fadeTo() per NON cancellare la salita quando
+    // riceve un'applicazione istantanea (evaluateMix sulla clip appena avviata).
+    private fadeInUntil: number = 0;
 
     private currentClipId: string = '';
     private volumeGainNode: GainNode;
@@ -139,6 +143,7 @@ export class StreamPlayer implements IAudioPlayer {
         const ctx = AudioContextManager.getInstance().getContext();
         this.volumeGainNode.gain.cancelScheduledValues(ctx.currentTime);
         this.volumeGainNode.gain.setValueAtTime(this.targetVolume, ctx.currentTime);
+        this.fadeInUntil = 0; // v1.4.6 (#1): nessun fade-in sul giro di loop
 
         // Restart from trim point
         this.audioElement.currentTime = this.trimStart;
@@ -191,8 +196,10 @@ export class StreamPlayer implements IAudioPlayer {
             this.volumeGainNode.gain.linearRampToValueAtTime(this.targetVolume, ctx.currentTime + (this.fadeInDuration / 1000));
             // Ensure volume stays set after ramp
             this.volumeGainNode.gain.setValueAtTime(this.targetVolume, ctx.currentTime + (this.fadeInDuration / 1000) + 0.1);
+            this.fadeInUntil = ctx.currentTime + (this.fadeInDuration / 1000);
         } else {
             this.volumeGainNode.gain.setValueAtTime(this.targetVolume, ctx.currentTime);
+            this.fadeInUntil = 0;
         }
 
         debugLog(`StreamPlayer: Play ${this.currentClipId} (FadeIn: ${this.fadeInDuration}ms, Trim: ${this.trimStart}s)`, 'info');
@@ -339,8 +346,19 @@ export class StreamPlayer implements IAudioPlayer {
 
         this.volumeGainNode.gain.cancelScheduledValues(now);
         if (duration <= 0) {
-            // Istantaneo — evita linearRamp con durata zero che può causare glitch
-            this.volumeGainNode.gain.setValueAtTime(volume, now);
+            if (now < this.fadeInUntil) {
+                // v1.4.6 (#1): fade-in ancora in corso (rampa schedulata da play()).
+                // Un set istantaneo qui (evaluateMix sulla clip appena avviata) la
+                // cancellerebbe → attacco secco a volume pieno, crossfade-in e fadeIn
+                // utente mai udibili. Si ri-traccia invece la salita dal valore corrente
+                // verso il NUOVO target (eventualmente già duckato), preservando la
+                // durata residua del fade-in.
+                this.volumeGainNode.gain.setValueAtTime(this.volumeGainNode.gain.value, now);
+                this.volumeGainNode.gain.linearRampToValueAtTime(volume, this.fadeInUntil);
+            } else {
+                // Istantaneo — evita linearRamp con durata zero che può causare glitch
+                this.volumeGainNode.gain.setValueAtTime(volume, now);
+            }
         } else {
             this.volumeGainNode.gain.setValueAtTime(this.volumeGainNode.gain.value, now);
             this.volumeGainNode.gain.linearRampToValueAtTime(volume, now + (duration / 1000));

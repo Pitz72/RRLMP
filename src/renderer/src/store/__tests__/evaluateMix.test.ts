@@ -147,6 +147,44 @@ describe('evaluateMix — guardia safeVolume', () => {
     });
 });
 
+// v1.4.6 (revisione 2026-06-10, reperti #1/#22)
+describe('evaluateMix — clip in transizione e clip soppresse', () => {
+    it('NON tocca le clip in fadingClipIds (il fade-out di transizione non va cancellato)', () => {
+        const fading = makeClip({ type: 'preshow', volume: 1.0 });
+        const entering = makeClip({ type: 'preshow', volume: 0.8 });
+        const { active, players } = buildActive([fading, entering]);
+        evaluateMix(active, entering.id, undefined, { fadingClipIds: [fading.id], suppressedClips: {} });
+        expect(players.get(fading.id)!.last()).toBeUndefined();              // mai chiamata fadeTo
+        expect(players.get(entering.id)!.last()!.volume).toBeCloseTo(0.8, 6); // l'entrante sì
+    });
+
+    it('legge fadingClipIds dallo store quando mixState non è passato', () => {
+        const fading = makeClip({ type: 'music', volume: 1.0 });
+        const { active, players } = buildActive([fading]);
+        useAudioStore.setState({ fadingClipIds: [fading.id] });
+        evaluateMix(active);
+        expect(players.get(fading.id)!.last()).toBeUndefined();
+        useAudioStore.setState({ fadingClipIds: [] });
+    });
+
+    it('tiene a 0 le clip soppresse da uno stacco anche fuori da col-assets', () => {
+        const suppressedClip = makeClip({ type: 'music', volume: 0.9 });
+        const { active, players } = buildActive([suppressedClip]);
+        evaluateMix(active, undefined, undefined, {
+            fadingClipIds: [],
+            suppressedClips: { [suppressedClip.id]: 0.9 },
+        });
+        expect(players.get(suppressedClip.id)!.last()!.volume).toBe(0);
+    });
+
+    it('ripristina il volume quando la soppressione viene rimossa', () => {
+        const clip = makeClip({ type: 'music', volume: 0.9 });
+        const { active, players } = buildActive([clip]);
+        evaluateMix(active, undefined, undefined, { fadingClipIds: [], suppressedClips: {} });
+        expect(players.get(clip.id)!.last()!.volume).toBeCloseTo(0.9, 6);
+    });
+});
+
 describe('evaluateMix — durata di applicazione', () => {
     it('applica duration 0 alla clip appena avviata (newClipId), duckingDuration alle altre', () => {
         const a = makeClip({ type: 'music', volume: 1.0 });
