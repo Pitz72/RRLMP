@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { IAudioPlayer } from '../engine/AudioPlayer.interface';
 import { StreamPlayer } from '../engine/StreamPlayer';
-import { AudioClip, PlayoutLogEntry } from '../types';
+import { AudioClip, PlayoutLogEntry, TransitionType } from '../types';
 import AudioContextManager from '../engine/AudioContextManager';
 import { debugLog } from './useDebugStore';
 import { useProjectStore } from './useProjectStore';
@@ -54,6 +54,10 @@ interface AudioStore {
     stopPreviewTransition: (clipId: string) => void;
     stopAll: () => void;
     setMicActive: (active: boolean) => void;
+    // v1.4.7 (#14): riallinea il player di una clip GIÀ in onda alle impostazioni
+    // appena salvate (fadeOut di transizione, trim/marker, volume) — prima il
+    // fadeOut dinamico veniva deciso solo al play e i cambi live non avevano effetto.
+    syncActiveClipSettings: (clipId: string) => void;
 
     // Internal loop
     _syncProgress: () => void;
@@ -205,8 +209,16 @@ const getNextClipInColumn = (currentClipId: string): AudioClip | null => {
         if (idx !== -1) {
             // Found column
             debugLog(`AudioStore: Found current clip in col ${col.id} index ${idx}`, 'info');
-            if (idx + 1 < col.clips.length) {
-                const nextClip = col.clips[idx + 1];
+            // v1.4.7 (#6): salta le clip con file mancante invece di restituirle —
+            // playClip le bloccherebbe con un return secco quando la clip corrente
+            // è GIÀ stata sfumata a zero dal transition handler → dead air.
+            // Avanza alla prima clip riproducibile della colonna.
+            for (let k = idx + 1; k < col.clips.length; k++) {
+                const nextClip = col.clips[k];
+                if (nextClip.isMissing) {
+                    debugLog(`AudioStore: Next clip ${nextClip.name} mancante — salto alla successiva`, 'error');
+                    continue;
+                }
                 debugLog(`AudioStore: Next clip identified: ${nextClip.name}`, 'event');
                 return nextClip;
             }
@@ -216,6 +228,20 @@ const getNextClipInColumn = (currentClipId: string): AudioClip | null => {
     }
     debugLog(`AudioStore: Current clip ${currentClipId} not found in any column`, 'error');
     return null;
+};
+
+// v1.4.7 (#7/#8): risolve il tipo di transizione EFFETTIVO di una clip, in un punto solo.
+// - Valori non validi (es. la stringa 'default' persistita dai .lmp fino a v1.4.6 per la
+//   voce UI "Default Globale") non superano il check → fallback, come l'utente si aspetta.
+// - Fuori dalla PRE-SHOW il default è 'gapless': prima playClip armava il fadeOut col
+//   default globale ma applyTransitionAndPlayNext risolveva 'gapless' → brano troncato
+//   di crossfadeDuration prima della fine (incoerenza tra i due lettori).
+export const resolveTransitionType = (clip: AudioClip, colId: string | null): TransitionType => {
+    const t = clip.transitionType as unknown;
+    if (t === 'crossfade' || t === 'segue' || t === 'gapless') return t;
+    return colId === 'col-preshow'
+        ? useSettingsStore.getState().defaultPreshowTransition
+        : 'gapless';
 };
 
 // Helper to find column ID for a clip
@@ -590,16 +616,25 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     const nextClip = resolvePreshowNext(currentClip, colId);
                     if (!nextClip) return;
 
+                    // v1.4.7 (#5): se la clip successiva è GIÀ in onda (lanciata a mano
+                    // dall'operatore, o in loop), NON chiamare playClip: il toggle-stop
+                    // la spegnerebbe → dead air totale. La clip corrente finisce con la
+                    // sua fine naturale (il suo fade interno è già armato dal player).
+                    if (get().activeClips[nextClip.id]) {
+                        debugLog(`AudioStore: Transizione saltata — ${nextClip.name} è già in onda`, 'info');
+                        return;
+                    }
+
                     // v0.16.5: se la clip corrente è in preview, anche la clip successiva
                     // viene tracciata come preview (hasPlayed non deve essere settato).
                     if (get().previewingClipIds.includes(clipId)) {
                         set(state => ({ previewingClipIds: [...state.previewingClipIds, nextClip.id] }));
                     }
 
-                    const { defaultPreshowTransition, crossfadeDuration, segueDuration } = useSettingsStore.getState();
-                    const isPreshow = colId === 'col-preshow';
-                    const effectiveType = currentClip.transitionType
-                        ?? (isPreshow ? defaultPreshowTransition : 'gapless');
+                    const { crossfadeDuration, segueDuration } = useSettingsStore.getState();
+                    // v1.4.7 (#7/#8): risoluzione centralizzata (gestisce anche la stringa
+                    // 'default' dei .lmp pre-1.4.7 e il fallback fuori PRE-SHOW).
+                    const effectiveType = resolveTransitionType(currentClip, colId);
 
                     debugLog(`AudioStore: Transition [${effectiveType}] ${currentClip.name} → ${nextClip.name}`, 'event');
 
@@ -700,8 +735,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     // cambiato la clip in corsa da 'stop' a 'play_next', la modifica vale comunque.
                     const live = getFreshClipById(freshClip.id) ?? freshClip;
                     if (live.nextAction === 'play_next') {
-                        const transition = live.transitionType
-                            ?? useSettingsStore.getState().defaultPreshowTransition;
+                        const transition = resolveTransitionType(live, getColumnForClip(freshClip.id));
 
                         // Gapless o Fallback: Se non è ancora partita la prossima clip, falla partire ora.
                         // v1.3.21: usa la stessa decisione di rotazione di onPreEnd (memoizzata) così,
@@ -731,13 +765,24 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 // v0.14.10: imposta fadeOut dinamico per clip con play_next così onPreEnd scatta
                 // al momento giusto per crossfade/segue (crossfadeDuration o segueDuration ms prima della fine).
                 // v0.16.4: esteso a Music e Assets (rimosso guard type === 'preshow')
-                if (freshClip.nextAction === 'play_next' && (freshClip.outroMarker || 0) <= 0) {
-                    const { defaultPreshowTransition, crossfadeDuration, segueDuration } = useSettingsStore.getState();
-                    const transType = freshClip.transitionType ?? defaultPreshowTransition;
+                // v1.4.7 (#8): il tipo di transizione è risolto con LO STESSO fallback di
+                // applyTransitionAndPlayNext (prima qui si usava il default globale anche fuori
+                // PRE-SHOW: fadeOut armato a crossfadeDuration ma transizione risolta gapless
+                // → brano troncato di netto 2s prima della fine).
+                // v1.4.7 (#26): senza una clip successiva il fadeOut di transizione non va
+                // armato — l'ultima clip della catena finisce col suo finale naturale.
+                if (freshClip.nextAction === 'play_next' && (freshClip.outroMarker || 0) <= 0
+                    && getNextClipInColumn(freshClip.id)) {
+                    const { crossfadeDuration, segueDuration } = useSettingsStore.getState();
+                    const transType = resolveTransitionType(freshClip, columnId);
+                    // v1.4.7: questo secondo updateSettings NON deve sovrascrivere il fadeIn
+                    // one-shot del crossfade entrante (la maggior parte delle clip ha
+                    // fadeIn: 0 esplicito che annullerebbe l'override).
+                    const fadeInKeep = fadeInOverride !== null ? { fadeIn: fadeInOverride } : {};
                     if (transType === 'crossfade') {
-                        player.updateSettings({ ...effectiveClip, fadeOut: crossfadeDuration });
+                        player.updateSettings({ ...effectiveClip, ...fadeInKeep, fadeOut: crossfadeDuration });
                     } else if (transType === 'segue') {
-                        player.updateSettings({ ...effectiveClip, fadeOut: segueDuration });
+                        player.updateSettings({ ...effectiveClip, ...fadeInKeep, fadeOut: segueDuration });
                     }
                 }
 
@@ -956,8 +1001,11 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             const nextClip = getNextClipInColumn(clip.id);
             if (!nextClip) return;
 
-            const { defaultPreshowTransition, crossfadeDuration, segueDuration } = useSettingsStore.getState();
-            const transType = clip.transitionType ?? defaultPreshowTransition;
+            const { crossfadeDuration, segueDuration } = useSettingsStore.getState();
+            // v1.4.7 (#7/#8): la preview usa la STESSA risoluzione dell'on-air (prima una
+            // clip con 'default' o fuori PRE-SHOW veniva previewata col default globale
+            // ma in onda andava gapless).
+            const transType = resolveTransitionType(clip, getColumnForClip(clip.id));
 
             // Quanti secondi prima della fine vogliamo far scattare la preview
             // (durata transizione + 3 secondi di ascolto pre-fade)
@@ -1004,6 +1052,53 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
             // Svuota completamente il set preview dopo lo stop
             set({ previewingClipIds: [] });
+        },
+
+        // v1.4.7 (#14): sync live delle impostazioni clip sul player in onda.
+        // Chiamata dal salvataggio di ClipSettingsModal. Ricalcola il fadeOut dinamico
+        // di transizione con la stessa logica del play (così un cambio gapless→crossfade
+        // a clip in corsa arma il fade al momento giusto, e viceversa), riapplica
+        // trim/marker e ricompone il volume effettivo (loudness inclusa).
+        // Nota: l'eventuale scaling MIDI velocity del lancio originale non è ricostruibile
+        // e viene perso — accettabile, il salvataggio esprime l'intenzione corrente.
+        syncActiveClipSettings: (clipId: string) => {
+            const active = get().activeClips[clipId];
+            if (!active) return;
+            // Le clip in fade-out di transizione non vanno riconfigurate (stop schedulato).
+            if (get().fadingClipIds.includes(clipId)) return;
+            const fresh = getFreshClipById(clipId);
+            if (!fresh) return;
+            const colId = getColumnForClip(clipId);
+
+            const loudnessGain = computeLoudnessGain(fresh);
+            const effectiveVolume = Math.max(0, Math.min(1.5, fresh.volume * loudnessGain));
+            const effectiveClip = effectiveVolume !== fresh.volume
+                ? { ...fresh, volume: effectiveVolume }
+                : fresh;
+
+            let dynFadeOut: number | undefined;
+            if (fresh.nextAction === 'play_next' && (fresh.outroMarker || 0) <= 0
+                && getNextClipInColumn(clipId)) {
+                const { crossfadeDuration, segueDuration } = useSettingsStore.getState();
+                const t = resolveTransitionType(fresh, colId);
+                if (t === 'crossfade') dynFadeOut = crossfadeDuration;
+                else if (t === 'segue') dynFadeOut = segueDuration;
+            }
+            active.player.updateSettings(
+                dynFadeOut !== undefined ? { ...effectiveClip, fadeOut: dynFadeOut } : effectiveClip
+            );
+            debugLog(`AudioStore: Sync live settings su ${fresh.name} (fadeOut transizione: ${dynFadeOut ?? effectiveClip.fadeOut ?? 0}ms)`, 'info');
+
+            set(state => {
+                const cur = state.activeClips[clipId];
+                if (!cur) return state;
+                const newActive = { ...state.activeClips, [clipId]: { ...cur, clip: effectiveClip } };
+                evaluateMix(newActive, undefined, undefined, {
+                    fadingClipIds: state.fadingClipIds,
+                    suppressedClips: state.suppressedClips,
+                });
+                return { activeClips: newActive };
+            });
         },
 
         // v0.17.0 — Smart Mic: aggiorna lo stato mic e re-valuta il mix

@@ -111,10 +111,12 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             trimEnd: Number(trimEnd),
             introMarker: Number(introMarker),
             outroMarker: Number(outroMarker),
-            // v1.3.16 — cast deliberato: preserva il comportamento runtime pre-v1.3.16 in cui
-            // 'default' viene persistito come stringa nel .lmp (la lettura in useAudioStore fa
-            // `clip.transitionType ?? fallback`, con stringa 'default' non-matchata dagli switch).
-            transitionType: transitionType as AudioClip['transitionType'],
+            // v1.4.7 (revisione 2026-06-10, #7): 'default' = "usa il default globale" →
+            // NON si persiste più la stringa. Fino a v1.4.6 la stringa 'default' finiva nel
+            // .lmp e i lettori (`clip.transitionType ?? fallback`) non facevano scattare il
+            // fallback: la voce "Default Globale" si comportava sempre come gapless.
+            // undefined rimuove l'override; i .lmp vecchi sono sanati in validateLmpProjectData.
+            transitionType: transitionType === 'default' ? undefined : transitionType,
             notes,
         };
         debugLog(`Saving Clip: ${clip.name} Intro=${updatedClip.introMarker} Outro=${updatedClip.outroMarker}`, 'info');

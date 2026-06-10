@@ -64,6 +64,18 @@ export function validateLmpProjectData(raw: unknown): { columns: Column[] } {
             cl.fadeIn      = finiteOrDefault(cl.fadeIn,      0,   0,   60_000);
             cl.fadeOut     = finiteOrDefault(cl.fadeOut,     0,   0,   60_000);
 
+            // v1.4.7 (revisione 2026-06-10, #7): transitionType valido o assente. I .lmp
+            // salvati fino a v1.4.6 persistevano la stringa 'default' (voce UI "Default
+            // Globale") che i lettori non riconoscevano → la clip andava sempre gapless
+            // ignorando il default globale. Normalizziamo: qualunque valore che non sia un
+            // TransitionType reale viene rimosso → la clip torna a usare il default globale.
+            if (cl.transitionType !== undefined
+                && cl.transitionType !== 'crossfade'
+                && cl.transitionType !== 'segue'
+                && cl.transitionType !== 'gapless') {
+                delete cl.transitionType;
+            }
+
             // ASSET-07 (v1.3.6): normalizza keybind a string vuota se undefined/null/non-string.
             // Senza, clip caricate da .lmp v1.2.x (prima dell'introduzione del campo keybind)
             // restano `keybind: undefined` e il check `c.keybind === e.code` in MainGrid

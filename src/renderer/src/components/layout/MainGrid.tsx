@@ -285,6 +285,9 @@ export const MainGrid: React.FC = () => {
         const colId = columns.find(c => c.clips.some(clip => clip.id === clipId))?.id;
         if (colId) {
             updateClip(colId, clipId, updates);
+            // v1.4.7 (#14): se la clip è in onda, riallinea subito il player
+            // (fadeOut di transizione, trim/marker, volume) alle nuove impostazioni.
+            useAudioStore.getState().syncActiveClipSettings(clipId);
         }
     };
 
