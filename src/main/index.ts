@@ -1,7 +1,6 @@
 import { app, shell, BrowserWindow, protocol, nativeImage, ipcMain, dialog, globalShortcut, session } from 'electron';
 import { join, normalize, isAbsolute, extname } from 'path';
 import * as fs from 'fs';
-import { Readable } from 'stream';
 import { AudioProcessor } from './AudioProcessor';
 import { logger } from './logger';
 
@@ -873,6 +872,54 @@ if (!gotSingleInstanceLock) {
 }
 
 app.whenReady().then(() => {
+    // v1.4.12 (MEDIA-05): adapter Node→Web stream SICURO per il protocollo media://.
+    // `Readable.toWeb()` ha una race nota: quando il client annulla la richiesta a
+    // stream in corso (audio element che cambia src, player.cleanup() durante
+    // caricamenti di massa, preload scartato) il controller web viene chiuso e
+    // l'evento 'close' del ReadStream prova a richiuderlo → TypeError
+    // [ERR_INVALID_STATE] "Controller is already closed" come UNCAUGHT EXCEPTION nel
+    // main (dialog d'errore in regia, visto in live il 2026-06-10). Questo adapter
+    // rende close/enqueue/error idempotenti e distrugge il ReadStream su cancel.
+    const toSafeWebStream = (nodeStream: fs.ReadStream): ReadableStream => {
+        let done = false;
+        return new ReadableStream({
+            start(controller) {
+                const safeClose = () => {
+                    if (done) return;
+                    done = true;
+                    try { controller.close(); } catch { /* già chiuso/cancellato */ }
+                };
+                nodeStream.on('data', (chunk) => {
+                    if (done) return;
+                    try {
+                        controller.enqueue(chunk as Buffer);
+                    } catch {
+                        // controller chiuso dal client: ferma la lettura
+                        done = true;
+                        nodeStream.destroy();
+                        return;
+                    }
+                    // Backpressure: sospendi finché il consumer non richiede altri dati
+                    if ((controller.desiredSize ?? 1) <= 0) nodeStream.pause();
+                });
+                nodeStream.on('end', safeClose);
+                nodeStream.on('close', safeClose);
+                nodeStream.on('error', (err) => {
+                    if (done) return;
+                    done = true;
+                    try { controller.error(err); } catch { /* già chiuso */ }
+                });
+            },
+            pull() {
+                nodeStream.resume();
+            },
+            cancel() {
+                done = true;
+                nodeStream.destroy();
+            }
+        });
+    };
+
     // Handle media:// protocol
     protocol.handle('media', (request) => {
         try {
@@ -966,7 +1013,8 @@ app.whenReady().then(() => {
                     try { nodeStream.destroy(err as Error); } catch { /* noop */ }
                 });
 
-                const webStream = Readable.toWeb(nodeStream) as unknown as ReadableStream;
+                // v1.4.12 (MEDIA-05): adapter sicuro al posto di Readable.toWeb (vedi sopra).
+                const webStream = toSafeWebStream(nodeStream);
 
                 return new Response(webStream, {
                     status: 206,
@@ -986,7 +1034,8 @@ app.whenReady().then(() => {
                     try { nodeStream.destroy(err as Error); } catch { /* noop */ }
                 });
 
-                const webStream = Readable.toWeb(nodeStream) as unknown as ReadableStream;
+                // v1.4.12 (MEDIA-05): adapter sicuro al posto di Readable.toWeb (vedi sopra).
+                const webStream = toSafeWebStream(nodeStream);
 
                 return new Response(webStream, {
                     status: 200,
