@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Send, Music } from 'lucide-react';
 import MidiManager from '../../engine/MidiManager';
+import { useEscapeToClose } from '../../hooks/useEscapeToClose';
 
 interface MidiSimulatorModalProps {
     isOpen: boolean;
@@ -29,6 +30,9 @@ export const MidiSimulatorModal = ({ isOpen, onClose }: MidiSimulatorModalProps)
     const [velocity, setVelocity] = useState(100); // 0-127 (velocity o CC value)
     const [type, setType] = useState<MsgType>('noteOn');
     const [lastSent, setLastSent] = useState<string | null>(null);
+
+    // v1.4.13 (ESC-01): ESC chiude la modale invece di innescare lo STOP ALL.
+    useEscapeToClose(isOpen, onClose);
 
     if (!isOpen) return null;
 

@@ -93,7 +93,8 @@ export const MainGrid: React.FC = () => {
             if (activeTag === 'input' || activeTag === 'textarea') return;
 
             // 3. Custom Keybinds (Priority)
-            // Nota: Escape è gestito dal globalShortcut Electron (main process) — non serve qui.
+            // Nota: Escape (Emergency Stop) è gestito dal keydown globale in App.tsx
+            // (v1.4.13 ESC-01: spostato dal globalShortcut del main) — non serve qui.
             // AUDIT-ME (2026-05-29): legge `columns` fresco via getState() invece dalla closure.
             // Prima `columns` era in deps → il listener veniva ri-registrato a ogni mutazione
             // (add/remove clip, ma anche ogni updateClip di analisi/trim). Ora si registra solo

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FileAudio, FileVideo, XCircle, Loader2 } from 'lucide-react';
 import { useRecordingStore } from '../../store/useRecordingStore';
 import { toast } from '../../store/useToastStore';
+import { useEscapeToClose } from '../../hooks/useEscapeToClose';
 
 interface Props {
     isOpen: boolean;
@@ -58,6 +59,11 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
             }
         };
     }, [isConverting]);
+
+    // v1.4.13 (ESC-01): ESC chiude la modale invece di innescare lo STOP ALL
+    // (equivale al bottone ×; con conversione in corso resta possibile annullare
+    // dalla UI dedicata).
+    useEscapeToClose(isOpen, onClose);
 
     const selectedFmt = FORMAT_OPTIONS.find(f => f.id === format)!;
 

@@ -1,9 +1,16 @@
 import React from 'react';
 import { useConfirmStore } from '../../store/useConfirmStore';
 import { AlertTriangle } from 'lucide-react';
+import { useEscapeToClose } from '../../hooks/useEscapeToClose';
 
 export const ConfirmDialog: React.FC = () => {
     const { request, respond, threeWayRequest, respondThree } = useConfirmStore();
+
+    // v1.4.13 (ESC-01): ESC = Annulla, invece di innescare lo STOP ALL globale.
+    useEscapeToClose(!!(request || threeWayRequest), () => {
+        if (threeWayRequest) respondThree('cancel');
+        else if (request) respond(false);
+    });
 
     if (!request && !threeWayRequest) return null;
 

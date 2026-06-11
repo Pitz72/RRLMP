@@ -13,6 +13,7 @@ import { confirm } from '../../store/useConfirmStore';
 import { WaveformEditor } from '../ui/WaveformEditor';
 import { useAudioStore } from '../../store/useAudioStore';
 import { useProjectStore } from '../../store/useProjectStore';
+import { useEscapeToClose } from '../../hooks/useEscapeToClose';
 
 
 interface ClipSettingsModalProps {
@@ -92,6 +93,11 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             setActiveTab('general'); // Reset tab
         }
     }, [clip, isOpen]);
+
+    // v1.4.13 (ESC-01): ESC chiude la modale (senza salvare) invece di innescare
+    // l'Emergency Stop globale. L'input keybind (data-keybind-input) è escluso:
+    // lì ESC azzera il bind.
+    useEscapeToClose(isOpen, onClose);
 
     if (!isOpen) return null;
 
@@ -282,6 +288,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                             type="text"
                                             value={keybind}
                                             readOnly
+                                            data-keybind-input
                                             placeholder="Click to Record..."
                                             className="flex-1 bg-zinc-950 border border-zinc-800 rounded p-2 text-sm text-yellow-400 font-mono text-center cursor-pointer hover:border-yellow-500/50 focus:border-yellow-500 outline-none"
                                             onKeyDown={(e) => {

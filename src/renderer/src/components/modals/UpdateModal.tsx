@@ -1,6 +1,7 @@
 import React from 'react';
 import { Download, X, AlertCircle } from 'lucide-react';
 import { UpdateInfo } from '../../utils/updateChecker';
+import { useEscapeToClose } from '../../hooks/useEscapeToClose';
 
 interface Props {
     isOpen: boolean;
@@ -10,6 +11,9 @@ interface Props {
 }
 
 export const UpdateModal: React.FC<Props> = ({ isOpen, info, currentVersion, onClose }) => {
+    // v1.4.13 (ESC-01): ESC chiude la modale invece di innescare lo STOP ALL.
+    useEscapeToClose(isOpen && info.hasUpdate, onClose);
+
     if (!isOpen || !info.hasUpdate) return null;
 
     const handleDownload = async () => {

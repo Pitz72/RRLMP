@@ -171,6 +171,20 @@ function App() {
         };
 
         const handleKeyDown = async (e: KeyboardEvent) => {
+            // v1.4.13 (ESC-01): Emergency Stop spostato QUI dal globalShortcut del main.
+            // Il globalShortcut intercettava ESC a livello OS prima del DOM: i modali
+            // non potevano consumarlo → STOP ALL anche con una modale aperta. Questo
+            // listener è in fase BUBBLE: i modali (hook useEscapeToClose / MODAL-02,
+            // capture + stopPropagation) lo neutralizzano e si chiudono. Scatta solo
+            // ad app in primo piano, come il guard isFocused del v1.2.12.
+            // PRIMA dell'Input Guard: l'Emergency Stop deve funzionare anche con il
+            // focus in un campo di testo (parità col comportamento precedente).
+            if (e.key === 'Escape') {
+                if (e.repeat || e.defaultPrevented) return;
+                useAudioStore.getState().stopAll();
+                return;
+            }
+
             // Complex Toggle: Ctrl + Shift + D
             if (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
                 useDebugStore.getState().toggle();
@@ -315,10 +329,9 @@ function App() {
 
         const unsubscribeClose = window.electron.onCheckCloseIntent(handleCloseIntent);
 
-        // v0.14.3 — Emergency Stop globale: Escape → stopAll
-        const unsubscribeEmergencyStop = window.electron.onEmergencyStop(() => {
-            useAudioStore.getState().stopAll();
-        });
+        // v1.4.13 (ESC-01): il canale IPC 'emergency-stop' non viene più emesso dal
+        // main (globalShortcut rimosso) — ESC è gestito in handleKeyDown qui sopra.
+        // L'API preload onEmergencyStop resta esposta ma inutilizzata.
 
         window.addEventListener('dragover', handleDrag);
         window.addEventListener('drop', handleDrag);
@@ -330,7 +343,6 @@ function App() {
             window.removeEventListener('keydown', handleKeyDown);
             if (unsubscribeClose) unsubscribeClose();
             if (unsubscribeMidi) unsubscribeMidi();
-            if (unsubscribeEmergencyStop) unsubscribeEmergencyStop();
         };
     }, []);
 

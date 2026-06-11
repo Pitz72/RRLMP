@@ -4,6 +4,7 @@ import { X, BookOpen, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { checkForUpdates, UpdateInfo } from '../../utils/updateChecker';
 import { UpdateModal } from './UpdateModal';
+import { useEscapeToClose } from '../../hooks/useEscapeToClose';
 
 // APP_VERSION injected by Vite
 
@@ -19,6 +20,9 @@ export const AboutModal = ({ isOpen, onClose }: AboutModalProps) => {
     const [updateStatus, setUpdateStatus] = useState<'checking' | 'available' | 'latest' | 'error'>('checking');
     const [updateInfo, setUpdateInfo] = useState<UpdateInfo>({ hasUpdate: false, remoteVersion: '' });
     const [showUpdateModal, setShowUpdateModal] = useState(false);
+
+    // v1.4.13 (ESC-01): ESC chiude la modale invece di innescare lo STOP ALL.
+    useEscapeToClose(isOpen, onClose);
 
     useEffect(() => {
         if (isOpen) {

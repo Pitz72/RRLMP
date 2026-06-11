@@ -1103,11 +1103,12 @@ app.whenReady().then(() => {
 
     // v0.14.3 — Emergency Stop globale: Escape → stopAll nel renderer
     // v1.2.12 — guard isFocused(): non sparare se la finestra non è in primo piano
-    globalShortcut.register('Escape', () => {
-        BrowserWindow.getAllWindows().forEach(w => {
-            if (!w.isDestroyed() && w.isFocused()) w.webContents.send('emergency-stop');
-        });
-    });
+    // v1.4.13 (ESC-01) — RIMOSSO il globalShortcut: intercettava ESC a livello OS
+    // PRIMA che il renderer vedesse il tasto, quindi i modali non potevano
+    // consumarlo → STOP ALL anche con una modale aperta. Dato che dal v1.2.12
+    // scattava comunque solo a finestra in primo piano, un listener keydown nel
+    // renderer (App.tsx) è equivalente E lascia ai modali la possibilità di
+    // intercettare ESC per chiudersi (hook useEscapeToClose).
 
     app.on('activate', function () {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();

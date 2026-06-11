@@ -4,6 +4,7 @@ import { useAudioStore } from '../../store/useAudioStore';
 import { PlayoutLogEntry } from '../../types';
 import { toast } from '../../store/useToastStore';
 import { confirm } from '../../store/useConfirmStore';
+import { useEscapeToClose } from '../../hooks/useEscapeToClose';
 
 interface PlayoutLogModalProps {
     onClose: () => void;
@@ -23,6 +24,10 @@ const clipTypeLabel: Record<string, string> = {
 
 export const PlayoutLogModal: React.FC<PlayoutLogModalProps> = ({ onClose }) => {
     const { playoutLog, clearPlayoutLog } = useAudioStore();
+
+    // v1.4.13 (ESC-01): ESC chiude la modale invece di innescare lo STOP ALL.
+    // (Il componente è montato solo quando la modale è visibile.)
+    useEscapeToClose(true, onClose);
 
     const handleExport = async () => {
         if (playoutLog.length === 0) return;

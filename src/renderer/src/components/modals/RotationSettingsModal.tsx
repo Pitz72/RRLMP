@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, RefreshCw } from 'lucide-react';
 import { useProjectStore } from '../../store/useProjectStore';
 import { RotationConfig } from '../../types';
+import { useEscapeToClose } from '../../hooks/useEscapeToClose';
 
 interface RotationSettingsModalProps {
     isOpen: boolean;
@@ -28,6 +29,9 @@ export const RotationSettingsModal = ({ isOpen, onClose }: RotationSettingsModal
     useEffect(() => {
         if (isOpen) setCfg(preshow?.rotation ?? DEFAULTS);
     }, [isOpen, preshow?.rotation]);
+
+    // v1.4.13 (ESC-01): ESC chiude la modale invece di innescare lo STOP ALL.
+    useEscapeToClose(isOpen, onClose);
 
     if (!isOpen) return null;
 

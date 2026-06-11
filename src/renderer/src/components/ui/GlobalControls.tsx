@@ -189,16 +189,21 @@ export const GlobalControls = () => {
     }, [isMidiLearnMode]);
 
     // M3 Fix: Escape per uscire da MIDI Learn
+    // v1.4.13 (ESC-01): capture + stopPropagation/preventDefault — uscire dal
+    // MIDI Learn con ESC non deve più innescare anche l'Emergency Stop globale
+    // (listener bubble in App.tsx).
     useEffect(() => {
         if (!isMidiLearnMode) return;
         const handleEsc = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
+                e.stopPropagation();
+                e.preventDefault();
                 setIsMidiLearnMode(false);
                 setPendingBind(null);
             }
         };
-        window.addEventListener('keydown', handleEsc);
-        return () => window.removeEventListener('keydown', handleEsc);
+        window.addEventListener('keydown', handleEsc, true);
+        return () => window.removeEventListener('keydown', handleEsc, true);
     }, [isMidiLearnMode]);
 
     // Initial sync: applica il volume persistito allo store → AudioContextManager all'avvio
