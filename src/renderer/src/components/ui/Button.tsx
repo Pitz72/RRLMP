@@ -1,4 +1,4 @@
-import { HTMLAttributes, forwardRef } from 'react';
+import { ButtonHTMLAttributes, forwardRef } from 'react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -6,7 +6,9 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
-interface ButtonProps extends HTMLAttributes<HTMLButtonElement> {
+// v1.5.0: estende ButtonHTMLAttributes (non solo HTMLAttributes) così props native
+// come `disabled`/`type` vengono inoltrate al <button> (usato da Undo/Redo).
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     size?: 'sm' | 'md' | 'lg';
 }
 

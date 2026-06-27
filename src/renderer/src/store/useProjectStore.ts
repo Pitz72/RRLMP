@@ -238,17 +238,37 @@ interface ProjectState {
      *  destinazione. overId = id della clip su cui è avvenuto il drop (inserimento
      *  prima di essa) oppure null per accodare in fondo. */
     moveSelectedClips: (destColId: string, overId: string | null) => void;
+
+    // === Undo/Redo cronologia playlist (v1.5.0) ===
+    // Stack di snapshot deep-clone delle colonne. Lo snapshot viene catturato PRIMA
+    // di ogni modifica INTENZIONALE dell'operatore (add/remove/move/colore/rotazione/
+    // MIDI/impostazioni clip). Le modifiche runtime (analisi silenzio, loudness,
+    // hasPlayed, isMissing) NON passano da _snapshot → non inquinano la cronologia.
+    undoStack: Column[][];
+    redoStack: Column[][];
+    /** Salva lo stato corrente delle colonne nello stack undo e svuota il redo.
+     *  Da chiamare PRIMA di applicare una modifica utente. */
+    _snapshot: () => void;
+    undo: () => void;
+    redo: () => void;
 }
 
-export const useProjectStore = create<ProjectState>((set) => ({
+// v1.5.0: profondità massima della cronologia undo/redo. 50 passi coprono ampiamente
+// una sessione di editing; oltre, gli snapshot più vecchi vengono droppati (FIFO).
+const HISTORY_LIMIT = 50;
+const cloneColumns = (cols: Column[]): Column[] => JSON.parse(JSON.stringify(cols));
+
+export const useProjectStore = create<ProjectState>((set, get) => ({
     isDirty: false,
     setDirty: (dirty) => set({ isDirty: dirty }),
 
     columns: JSON.parse(JSON.stringify(DEFAULT_COLUMNS)),
     currentFilePath: null,
+    undoStack: [],
+    redoStack: [],
     isMidiLearnMode: false,
     setIsMidiLearnMode: (active) => set({ isMidiLearnMode: active }),
-    assignMidiToClip: (clipId, note) => set((state) => ({
+    assignMidiToClip: (clipId, note) => { get()._snapshot(); set((state) => ({
         isDirty: true,
         isMidiLearnMode: false, // Exit learn mode after assignment? Prompt implied behavior "Click -> Assign". Maybe user stays in learn mode? User didn't specify. I'll stay, or toggle manually? Prompt: "Se l'utente ha selezionato... assegna". Usually learn mode stays on.
         // But prompt says "Mostra un feedback".
@@ -259,31 +279,31 @@ export const useProjectStore = create<ProjectState>((set) => ({
             ...col,
             clips: col.clips.map((c) => c.id === clipId ? { ...c, midiBind: `NOTE:${note}` } : c)
         }))
-    })),
+    })); },
 
     // PERSIST-09 (v1.3.3): resetProject ora azzera anche selectedClipIds (era l'unica
     // azione che cambia tutte le colonne senza ripulire la selezione).
-    resetProject: () => set({ columns: JSON.parse(JSON.stringify(DEFAULT_COLUMNS)), isDirty: false, currentFilePath: null, isMidiLearnMode: false, selectedClipIds: [] }),
+    resetProject: () => set({ columns: JSON.parse(JSON.stringify(DEFAULT_COLUMNS)), isDirty: false, currentFilePath: null, isMidiLearnMode: false, selectedClipIds: [], undoStack: [], redoStack: [] }),
 
-    setColumnColor: (columnId, color) => set((state) => ({
+    setColumnColor: (columnId, color) => { get()._snapshot(); set((state) => ({
         isDirty: true,
         columns: state.columns.map((col) =>
             col.id === columnId ? { ...col, customColor: color } : col
         )
-    })),
+    })); },
 
-    setColumnRotation: (columnId, rotation) => set((state) => ({
+    setColumnRotation: (columnId, rotation) => { get()._snapshot(); set((state) => ({
         isDirty: true,
         columns: state.columns.map((col) =>
             col.id === columnId ? { ...col, rotation } : col
         )
-    })),
+    })); },
 
 
 
     addClip: (columnId, file) => {
         let createdClip: AudioClip | undefined;
-
+        get()._snapshot();
         set((state) => ({
             isDirty: true,
             columns: state.columns.map((col) => {
@@ -325,7 +345,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
     addClipAtIndex: (columnId, file, insertIndex) => {
         let createdClip: AudioClip | undefined;
-
+        get()._snapshot();
         set((state) => ({
             isDirty: true,
             columns: state.columns.map((col) => {
@@ -368,6 +388,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
         let createdClip: AudioClip | undefined;
         const fileName = filePath.split(/[\\/]/).pop() || filePath;
         const name = fileName.replace(/\.[^/.]+$/, '');
+        get()._snapshot();
         set((state) => ({
             isDirty: true,
             columns: state.columns.map((col) => {
@@ -398,14 +419,14 @@ export const useProjectStore = create<ProjectState>((set) => ({
         return createdClip;
     },
 
-    removeClip: (columnId, clipId) => set((state) => ({
+    removeClip: (columnId, clipId) => { get()._snapshot(); set((state) => ({
         isDirty: true,
         columns: state.columns.map((col) =>
             col.id === columnId
                 ? { ...col, clips: col.clips.filter((c) => c.id !== clipId) }
                 : col
         )
-    })),
+    })); },
 
     updateClip: (columnId, clipId, updates) => set((state) => ({
         isDirty: true,
@@ -431,9 +452,13 @@ export const useProjectStore = create<ProjectState>((set) => ({
         // Il flag opts.preserveUiState=true è usato dai chiamanti Save/Save As che
         // riutilizzano questa azione solo per aggiornare currentFilePath senza
         // perturbare selezione corrente e modalità MIDI Learn dell'utente.
+        // v1.5.0: il caricamento di un progetto NUOVO azzera la cronologia undo/redo
+        // (gli snapshot del progetto precedente non sono più validi). I Save/Save As
+        // riusano loadProject con preserveUiState solo per aggiornare currentFilePath:
+        // in quel caso la cronologia (e la selezione) NON va toccata.
         const uiReset = opts?.preserveUiState
             ? {}
-            : { selectedClipIds: [], isMidiLearnMode: false };
+            : { selectedClipIds: [], isMidiLearnMode: false, undoStack: [], redoStack: [] };
         set({
             columns: cleanColumns,
             isDirty: false,
@@ -463,7 +488,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
     },
 
 
-    moveClip: (sourceColId: string, destColId: string, oldIndex: number, newIndex: number) => set((state) => {
+    moveClip: (sourceColId: string, destColId: string, oldIndex: number, newIndex: number) => { get()._snapshot(); set((state) => {
         const sourceCol = state.columns.find(c => c.id === sourceColId);
         const destCol = state.columns.find(c => c.id === destColId);
 
@@ -525,7 +550,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
         }
 
         return { columns: newColumns, isDirty: true };
-    }),
+    }); },
 
     // Selection Logic
     selectedClipIds: [],
@@ -548,7 +573,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
     clearSelection: () => set({ selectedClipIds: [] }),
 
-    removeSelectedClips: () => set((state) => {
+    removeSelectedClips: () => { if (get().selectedClipIds.length === 0) return; get()._snapshot(); set((state) => {
         if (state.selectedClipIds.length === 0) return state;
 
         const newColumns = state.columns.map(col => ({
@@ -561,10 +586,10 @@ export const useProjectStore = create<ProjectState>((set) => ({
             isDirty: true,
             selectedClipIds: []
         };
-    }),
+    }); },
 
     // v1.4.14 (#3): spostamento in blocco della multiselezione.
-    moveSelectedClips: (destColId, overId) => set((state) => {
+    moveSelectedClips: (destColId, overId) => { if (get().selectedClipIds.length === 0) return; get()._snapshot(); set((state) => {
         const ids = new Set(state.selectedClipIds);
         if (ids.size === 0) return state;
 
@@ -607,5 +632,37 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
         // Selezione mantenuta: le clip spostate restano evidenziate.
         return { columns: stripped, isDirty: true };
+    }); },
+
+    // === Undo/Redo (v1.5.0) ===
+    _snapshot: () => set((state) => ({
+        undoStack: [...state.undoStack, cloneColumns(state.columns)].slice(-HISTORY_LIMIT),
+        redoStack: [], // ogni nuova modifica utente invalida il ramo di redo
+    })),
+
+    undo: () => set((state) => {
+        if (state.undoStack.length === 0) return state;
+        const prev = state.undoStack[state.undoStack.length - 1];
+        const cur = cloneColumns(state.columns);
+        return {
+            columns: prev,
+            undoStack: state.undoStack.slice(0, -1),
+            redoStack: [...state.redoStack, cur].slice(-HISTORY_LIMIT),
+            isDirty: true,
+            selectedClipIds: [], // gli id selezionati potrebbero non esistere più nello stato ripristinato
+        };
+    }),
+
+    redo: () => set((state) => {
+        if (state.redoStack.length === 0) return state;
+        const next = state.redoStack[state.redoStack.length - 1];
+        const cur = cloneColumns(state.columns);
+        return {
+            columns: next,
+            redoStack: state.redoStack.slice(0, -1),
+            undoStack: [...state.undoStack, cur].slice(-HISTORY_LIMIT),
+            isDirty: true,
+            selectedClipIds: [],
+        };
     })
 }));

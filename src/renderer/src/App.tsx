@@ -200,6 +200,21 @@ function App() {
                 return;
             }
 
+            // v1.5.0: Undo / Redo playlist. Dopo l'Input Guard, così l'undo nativo
+            // dei campi di testo non viene intercettato. Ctrl/Cmd+Z = undo;
+            // Ctrl/Cmd+Y oppure Ctrl/Cmd+Shift+Z = redo.
+            if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === 'z' || e.key === 'Z')) {
+                e.preventDefault();
+                if (e.shiftKey) useProjectStore.getState().redo();
+                else useProjectStore.getState().undo();
+                return;
+            }
+            if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === 'y' || e.key === 'Y')) {
+                e.preventDefault();
+                useProjectStore.getState().redo();
+                return;
+            }
+
             // Global Delete (Multi-Select)
             if (e.key === 'Delete' || e.key === 'Backspace') {
                 const { selectedClipIds, removeSelectedClips } = useProjectStore.getState();

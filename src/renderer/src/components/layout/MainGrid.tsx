@@ -285,6 +285,11 @@ export const MainGrid: React.FC = () => {
         if (!editingClip) return;
         const colId = columns.find(c => c.clips.some(clip => clip.id === clipId))?.id;
         if (colId) {
+            // v1.5.0: snapshot per undo/redo prima della modifica impostazioni clip.
+            // Lo snapshot è qui (call site UI) e non in updateClip: quest'ultima è
+            // condivisa con le scritture runtime (analisi silenzio, loudness, hasPlayed)
+            // che NON devono entrare nella cronologia.
+            useProjectStore.getState()._snapshot();
             updateClip(colId, clipId, updates);
             // v1.4.7 (#14): se la clip è in onda, riallinea subito il player
             // (fadeOut di transizione, trim/marker, volume) alle nuove impostazioni.

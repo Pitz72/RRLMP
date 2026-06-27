@@ -3,7 +3,7 @@ import { useAudioStore } from '../../store/useAudioStore';
 import AudioContextManager from '../../engine/AudioContextManager';
 import MicManager from '../../engine/MicManager';
 import { Button } from './Button';
-import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic, Check, Mic, MicOff } from 'lucide-react';
+import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic, Check, Mic, MicOff, Undo2, Redo2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 
@@ -31,6 +31,11 @@ export const GlobalControls = () => {
         micInputDeviceId, micThresholdDb, micActivationHoldMs, micReleaseHoldMs, micEnabled, micMixEnabled, micVolume, micBypassProcessing, setMicSettings } = useSettingsStore();
     const setMicActive = useAudioStore(s => s.setMicActive);
     const isMicActive = useAudioStore(s => s.isMicActive);
+    // v1.5.0: Undo/Redo playlist (selettori reattivi per abilitare/disabilitare i pulsanti)
+    const canUndo = useProjectStore((s) => s.undoStack.length > 0);
+    const canRedo = useProjectStore((s) => s.redoStack.length > 0);
+    const undo = useProjectStore((s) => s.undo);
+    const redo = useProjectStore((s) => s.redo);
 
     const [pendingBind, setPendingBind] = useState<string | null>(null); // 'stopAll' | 'masterVolume'
     const [showAutoSaved, setShowAutoSaved] = useState(false);
@@ -427,6 +432,28 @@ export const GlobalControls = () => {
                 )}
             </Button>
 
+
+            {/* UNDO / REDO (v1.5.0) */}
+            <div className="flex items-center gap-1 border-l border-zinc-800 pl-4">
+                <Button
+                    size="sm"
+                    disabled={!canUndo}
+                    className={`${canUndo ? 'bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}
+                    title="Annulla (Ctrl+Z)"
+                    onClick={() => undo()}
+                >
+                    <Undo2 size={16} />
+                </Button>
+                <Button
+                    size="sm"
+                    disabled={!canRedo}
+                    className={`${canRedo ? 'bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}
+                    title="Ripeti (Ctrl+Y)"
+                    onClick={() => redo()}
+                >
+                    <Redo2 size={16} />
+                </Button>
+            </div>
 
             {/* PERSISTENCE */}
             <div className="flex items-center gap-2 border-l border-zinc-800 pl-4">
