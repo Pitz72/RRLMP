@@ -33,6 +33,12 @@ export class StreamPlayer implements IAudioPlayer {
     // schedulata da play(). Serve a fadeTo() per NON cancellare la salita quando
     // riceve un'applicazione istantanea (evaluateMix sulla clip appena avviata).
     private fadeInUntil: number = 0;
+    // v1.4.14 (#6): ultimo livello richiesto dal mixer via fadeTo() (ducking/mute
+    // di evaluateMix). restartLoop() lo riapplica al riavvio del giro invece di
+    // forzare targetVolume: un sottofondo in LOOP mutato sotto una canzone restava
+    // udibile perché ogni giro di loop azzerava il mute riportandolo a volume pieno
+    // (e nessun evaluateMix successivo lo ri-mutava finché non cambiava il mix).
+    private lastFadeTarget: number = 1.0;
 
     private currentClipId: string = '';
     private volumeGainNode: GainNode;
@@ -144,10 +150,13 @@ export class StreamPlayer implements IAudioPlayer {
         this.fadeOutTriggered = false;
         this.preEndTriggered = false;
 
-        // Reset volume to target (if it was fading out)
+        // v1.4.14 (#6): riapplica il livello richiesto dal mixer (lastFadeTarget),
+        // non targetVolume. Così un sottofondo in loop mutato sotto la musica resta
+        // muto anche dopo il riavvio del giro; un loop non mutato riparte a pieno
+        // volume come prima (lastFadeTarget == targetVolume quando il mix è neutro).
         const ctx = AudioContextManager.getInstance().getContext();
         this.volumeGainNode.gain.cancelScheduledValues(ctx.currentTime);
-        this.volumeGainNode.gain.setValueAtTime(this.targetVolume, ctx.currentTime);
+        this.volumeGainNode.gain.setValueAtTime(this.lastFadeTarget, ctx.currentTime);
         this.fadeInUntil = 0; // v1.4.6 (#1): nessun fade-in sul giro di loop
 
         // Restart from trim point
@@ -206,6 +215,10 @@ export class StreamPlayer implements IAudioPlayer {
             this.volumeGainNode.gain.setValueAtTime(this.targetVolume, ctx.currentTime);
             this.fadeInUntil = 0;
         }
+        // v1.4.14 (#6): all'avvio il livello-mix di riferimento è il volume nominale;
+        // l'evaluateMix immediato che segue il play lo aggiorna subito via fadeTo se
+        // serve ducking/mute (così il primo giro di loop usa già il valore corretto).
+        this.lastFadeTarget = this.targetVolume;
 
         debugLog(`StreamPlayer: Play ${this.currentClipId} (FadeIn: ${this.fadeInDuration}ms, Trim: ${this.trimStart}s)`, 'info');
         this.audioElement.play().catch(e => {
@@ -237,6 +250,7 @@ export class StreamPlayer implements IAudioPlayer {
 
     setVolume(value: number): void {
         this.targetVolume = Math.max(0, value);
+        this.lastFadeTarget = this.targetVolume; // v1.4.14 (#6)
         if (this.volumeGainNode && !this.fadeOutTriggered) {
             this.volumeGainNode.gain.cancelScheduledValues(AudioContextManager.getInstance().getContext().currentTime);
             this.volumeGainNode.gain.value = this.targetVolume;
@@ -353,6 +367,9 @@ export class StreamPlayer implements IAudioPlayer {
         debugLog(`StreamPlayer: FadeTo ${volume} in ${duration}ms`, 'event');
         const ctx = AudioContextManager.getInstance().getContext();
         const now = ctx.currentTime;
+
+        // v1.4.14 (#6): memorizza il livello richiesto dal mixer per il riavvio del loop.
+        this.lastFadeTarget = volume;
 
         this.volumeGainNode.gain.cancelScheduledValues(now);
         if (duration <= 0) {

@@ -62,7 +62,7 @@ const SortableColumn: React.FC<SortableColumnProps> = ({ column, children, onNat
 
 
 export const MainGrid: React.FC = () => {
-    const { columns, addClipAtIndex, updateClip, removeClip, moveClip, currentFilePath } = useProjectStore();
+    const { columns, addClipAtIndex, updateClip, removeClip, moveClip, moveSelectedClips, currentFilePath } = useProjectStore();
     const { loadClip, playColumn } = useAudioStore((state) => ({
         loadClip: state.loadClip,
         playColumn: state.playColumn
@@ -322,14 +322,22 @@ export const MainGrid: React.FC = () => {
         // Find dest column (could be a Column ID or a Clip ID)
         let destCol = columns.find(col => col.id === overId);
         let newIndex = 0;
+        // v1.4.14 (#3): se l'utente trascina una clip che fa parte di una
+        // multiselezione (>1), tutte le clip selezionate si spostano in blocco nella
+        // colonna destinazione. overId è l'id della clip-bersaglio (inserimento prima
+        // di essa) o null se si lascia cadere sul contenitore colonna (in fondo).
+        const selectedIds = useProjectStore.getState().selectedClipIds;
+        const isBlockMove = selectedIds.length > 1 && selectedIds.includes(activeId);
 
         if (destCol) {
             // Dropped on a column container (likely empty or at end)
             newIndex = destCol.clips.length;
+            if (isBlockMove) { moveSelectedClips(destCol.id, null); return; }
         } else {
             // Dropped on another clip
             destCol = columns.find(col => col.clips.some(c => c.id === overId));
             if (!destCol) return;
+            if (isBlockMove) { moveSelectedClips(destCol.id, overId); return; }
             const overIndex = destCol.clips.findIndex(c => c.id === overId);
             // If dropping below the halfway point of the target, insert after
             // But dnd-kit sortable usually handles index calculation via closestCenter/Corners

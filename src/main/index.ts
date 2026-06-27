@@ -413,17 +413,31 @@ ipcMain.handle('import-m3u', async (event) => {
     }
 });
 
-ipcMain.handle('export-project', async (event, projectJsonString: string) => {
+ipcMain.handle('export-project', async (event, projectJsonString: string, lmpPath?: string) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     if (!win) return { success: false };
-    const { canceled, filePaths } = await dialog.showOpenDialog(win, {
-        title: 'Select Export Directory',
-        properties: ['openDirectory', 'createDirectory']
-    });
 
-    if (canceled || filePaths.length === 0) return { success: false };
-
-    const exportDir = filePaths[0];
+    // v1.4.14 (#4a): l'export è LEGATO al file di salvataggio aperto. La cartella
+    // `audio/` vive accanto al .lmp; non si chiede una cartella né si scrive un
+    // project.lmp separato — si sincronizza soltanto (copia mancanti + prune orfani).
+    // Fallback storico (nessun lmpPath): selettore cartella + project.lmp, come prima.
+    let exportDir: string;
+    let writeLmpCopy: boolean;
+    if (typeof lmpPath === 'string' && lmpPath) {
+        if (!isAbsolute(lmpPath) || extname(lmpPath).toLowerCase() !== '.lmp') {
+            return { success: false, error: 'Percorso progetto non valido' };
+        }
+        exportDir = require('path').dirname(lmpPath);
+        writeLmpCopy = false;
+    } else {
+        const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+            title: 'Select Export Directory',
+            properties: ['openDirectory', 'createDirectory']
+        });
+        if (canceled || filePaths.length === 0) return { success: false };
+        exportDir = filePaths[0];
+        writeLmpCopy = true;
+    }
     const audioDir = join(exportDir, 'audio');
 
     try {
@@ -489,9 +503,21 @@ ipcMain.handle('export-project', async (event, projectJsonString: string) => {
                         }
                         usedDestNames.add(destFileName.toLowerCase());
                         const destPath = join(audioDir, destFileName);
-                        fs.copyFileSync(originalPath, destPath);
+                        // v1.4.14 (#4c): copia solo i file mancanti o cambiati (confronto
+                        // dimensione). I file già presenti e identici si saltano: su archivi
+                        // grandi evita di ricopiare l'intero banco regia a ogni export.
+                        let needsCopy = true;
+                        try {
+                            const dst = fs.statSync(destPath);
+                            if (dst.isFile() && dst.size === fs.statSync(originalPath).size) needsCopy = false;
+                        } catch { needsCopy = true; }
+                        if (needsCopy) {
+                            fs.copyFileSync(originalPath, destPath);
+                            successParams.copied++;
+                        } else {
+                            successParams.skipped++;
+                        }
                         clip.path = `audio/${destFileName}`;
-                        successParams.copied++;
                     }
                 } else {
                     successParams.skipped++;
@@ -520,8 +546,13 @@ ipcMain.handle('export-project', async (event, projectJsonString: string) => {
             logger.warn(`[Main] Export prune: lettura cartella audio fallita: ${e instanceof Error ? e.message : String(e)}`);
         }
 
-        const newLmpPath = join(exportDir, 'project.lmp');
-        fs.writeFileSync(newLmpPath, JSON.stringify(projectData, null, 2), 'utf-8');
+        // v1.4.14 (#4a): scrive il project.lmp SOLO nell'export "libero" (selettore
+        // cartella). Nell'export legato al salvataggio non si crea un file separato:
+        // l'archivio resta agganciato al .lmp originale dell'operatore.
+        if (writeLmpCopy) {
+            const newLmpPath = join(exportDir, 'project.lmp');
+            fs.writeFileSync(newLmpPath, JSON.stringify(projectData, null, 2), 'utf-8');
+        }
 
         return { success: true, path: exportDir, stats: successParams };
 

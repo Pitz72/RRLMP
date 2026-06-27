@@ -603,6 +603,13 @@ export const GlobalControls = () => {
                     className="bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 ml-1"
                     title={t('controls.export')}
                     onClick={async () => {
+                        // v1.4.14 (#4a): l'export è legato al file di salvataggio aperto.
+                        // Senza progetto salvato non c'è una cartella di riferimento → si
+                        // chiede prima di salvare (l'archivio audio/ vive accanto al .lmp).
+                        if (!currentFilePath) {
+                            toast('Salva prima il progetto: l’archivio audio viene creato accanto al file di salvataggio.', 'error', 6000);
+                            return;
+                        }
                         if (isDirty && !await confirm('Ci sono modifiche non salvate. Si consiglia di salvare prima di esportare. Continuare comunque?', 'Esporta comunque', 'Annulla')) return;
 
                         const projectData = {
@@ -612,19 +619,24 @@ export const GlobalControls = () => {
                         };
                         const json = JSON.stringify(projectData, null, 2);
 
-                        // User feedback: Loading state? 
+                        // User feedback: Loading state?
                         // For now detailed alerts.
                         try {
                             // Reset and Open Modal
                             setExportProgress({ isOpen: true, current: 0, total: 0, filename: 'Starting...' });
 
-                            const result = await window.electron.exportProject(json);
+                            const result = await window.electron.exportProject(json, currentFilePath);
 
                             // Close Modal
                             setExportProgress(prev => ({ ...prev, isOpen: false }));
 
                             if (result.success) {
-                                toast(`Esportazione completata — ${result.stats?.copied || 0} file copiati in:\n${result.path}`, 'success', 7000);
+                                // v1.4.14 (#4): archivio sincronizzato col banco regia
+                                // (copiati i nuovi/cambiati, rimossi gli orfani).
+                                const s = result.stats;
+                                const parts = [`${s?.copied || 0} copiati`];
+                                if (s?.pruned) parts.push(`${s.pruned} rimossi`);
+                                toast(`Archivio audio sincronizzato — ${parts.join(', ')} in:\n${result.path}\\audio`, 'success', 7000);
                             } else {
                                 if (result.error) toast(`Errore esportazione: ${result.error}`, 'error');
                             }

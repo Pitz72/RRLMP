@@ -656,8 +656,38 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
             debugLog(`AudioStore: PlayClip ${freshClip.name} (Next: ${freshClip.nextAction}, Behavior: ${freshClip.behavior})`, 'event');
 
+            // v1.4.14 (#1/#5): TAKE-OVER. Un asset/jingle/spot NON in loop, lanciato a
+            // mano dall'operatore, ha priorità su TUTTO: ferma di colpo (nessuna
+            // dissolvenza) ogni clip in onda, poi prende il posto a volume pieno.
+            // ECCEZIONI che SOPRAVVIVONO al take-over:
+            //  - la colonna FX (col-sfx);
+            //  - i SOTTOFONDI in LOOP (qualsiasi clip in loop): restano in onda e
+            //    proseguono sotto l'asset (scelta esplicita dell'operatore 2026-06-27);
+            //  - la clip stessa.
+            // Distinzioni volute:
+            //  - solo NON-loop scatena il take-over (i sottofondi non lo attivano);
+            //  - solo gesti OPERATORE (!machine): rotazione PRE-SHOW e transizioni
+            //    play_next continuano a usare le loro regole (in rotazione PRE-SHOW
+            //    tutto funziona normalmente: un inserto jingle rientra nella playlist);
+            //  - col-jingle e col-promo (= "SPOT") seguono la stessa regola dei jingle.
+            const isTakeover = !opts?.machine
+                && (columnId === 'col-assets' || columnId === 'col-jingle' || columnId === 'col-promo')
+                && !freshClip.isLooping;
+            if (isTakeover) {
+                Object.values(currentStore.activeClips).forEach(ac => {
+                    if (ac.clip.id === freshClip.id) return;
+                    if (getColumnForClip(ac.clip.id) === 'col-sfx') return; // FX = eccezione
+                    // sottofondi in loop esenti (valore live, l'operatore può averlo cambiato)
+                    const liveLoop = getFreshClipById(ac.clip.id)?.isLooping ?? ac.clip.isLooping;
+                    if (liveLoop) return;
+                    get().stopClip(ac.clip.id);
+                });
+                discardPreloadedNext();     // soundscape azzerato: il preload non serve più
+                resetPreshowRotation();     // l'operatore prende il comando
+            }
+
             // PRE-SHOW LOGIC: Stop Pre-Show if starting Show Assets
-            if (columnId === 'col-assets') {
+            if (!isTakeover && columnId === 'col-assets') {
                 const preShowClips = Object.values(currentStore.activeClips).filter(ac =>
                     getColumnForClip(ac.clip.id) === 'col-preshow'
                 );
@@ -695,7 +725,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             }
 
             // Handle Intra-Column Conflict
-            if (columnId) {
+            // v1.4.14 (#1/#5): saltato sotto take-over — ha già fermato tutto tranne FX.
+            if (!isTakeover && columnId) {
                 // Find active clips in same column
                 const sameColumnClips = Object.values(currentStore.activeClips).filter(ac => {
                     const acColId = getColumnForClip(ac.clip.id);

@@ -234,6 +234,10 @@ interface ProjectState {
     selectClip: (clipId: string, mode: 'single' | 'toggle' | 'add') => void;
     clearSelection: () => void;
     removeSelectedClips: () => void;
+    /** v1.4.14 (#3): sposta in blocco tutte le clip selezionate nella colonna
+     *  destinazione. overId = id della clip su cui è avvenuto il drop (inserimento
+     *  prima di essa) oppure null per accodare in fondo. */
+    moveSelectedClips: (destColId: string, overId: string | null) => void;
 }
 
 export const useProjectStore = create<ProjectState>((set) => ({
@@ -557,5 +561,51 @@ export const useProjectStore = create<ProjectState>((set) => ({
             isDirty: true,
             selectedClipIds: []
         };
+    }),
+
+    // v1.4.14 (#3): spostamento in blocco della multiselezione.
+    moveSelectedClips: (destColId, overId) => set((state) => {
+        const ids = new Set(state.selectedClipIds);
+        if (ids.size === 0) return state;
+
+        const destCol0 = state.columns.find(c => c.id === destColId);
+        if (!destCol0) return state;
+
+        // Clip selezionate in ordine stabile (per colonna, poi per indice): l'ordine
+        // visivo viene preservato nell'inserimento nella colonna destinazione.
+        const moving: AudioClip[] = [];
+        state.columns.forEach(col => col.clips.forEach(c => { if (ids.has(c.id)) moving.push(c); }));
+        if (moving.length === 0) return state;
+
+        const destColor = destCol0.customColor || destCol0.color;
+        const destType = destCol0.type;
+        // Set degli id già presenti nella destinazione (riordino interno → niente
+        // cambio di type/colore, come moveClip per lo spostamento intra-colonna).
+        const alreadyInDest = new Set(destCol0.clips.map(c => c.id));
+
+        // Rimuovi le selezionate da TUTTE le colonne (lo spostamento è multicolonna).
+        const stripped = state.columns.map(col => ({
+            ...col,
+            clips: col.clips.filter(c => !ids.has(c.id))
+        }));
+
+        // Punto di inserimento calcolato sull'array GIÀ ripulito (gli indici post-rimozione
+        // sono quelli reali) — evita splice fuori posto quando si riordina dentro la dest.
+        const destIdx = stripped.findIndex(c => c.id === destColId);
+        const destClips = [...stripped[destIdx].clips];
+        let insertAt = destClips.length;
+        if (overId && overId !== destColId) {
+            const k = destClips.findIndex(c => c.id === overId);
+            if (k !== -1) insertAt = k;
+        }
+
+        const prepared = moving.map(c =>
+            alreadyInDest.has(c.id) ? c : { ...c, type: destType, color: destColor }
+        );
+        destClips.splice(insertAt, 0, ...prepared);
+        stripped[destIdx] = { ...stripped[destIdx], clips: destClips };
+
+        // Selezione mantenuta: le clip spostate restano evidenziate.
+        return { columns: stripped, isDirty: true };
     })
 }));

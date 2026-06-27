@@ -30,7 +30,7 @@ if (process.contextIsolated) {
             saveProject: (content: string) => ipcRenderer.invoke('dialog:save-project', content),
             loadProject: () => ipcRenderer.invoke('dialog:load-project'),
             // Export API (v0.7.0)
-            exportProject: (projectJsonString: string) => ipcRenderer.invoke('export-project', projectJsonString),
+            exportProject: (projectJsonString: string, lmpPath?: string) => ipcRenderer.invoke('export-project', projectJsonString, lmpPath),
             onExportProgress: (callback: (event: IpcRendererEvent, data: { current: number; total: number; filename: string }) => void) => {
                 const subscription = (_event: IpcRendererEvent, data: { current: number; total: number; filename: string }) => callback(_event, data);
                 ipcRenderer.on('export-progress', subscription);
