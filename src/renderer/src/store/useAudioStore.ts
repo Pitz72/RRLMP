@@ -126,6 +126,11 @@ export const evaluateMix = (
     const activeStacco = activeValues.find(c =>
         getColumnForClip(c.clip.id) === 'col-assets' && c.clip.behavior === 'stacco'
     );
+    // 2026-06-30 (A3): è in onda un asset/jingle/promo NON in loop (= sigla, jingle, spot)?
+    // Un sottofondo in LOOP deve abbassarsi a zero sotto di esso e poi tornare (rialzo
+    // sfumato) quando finisce. Il rientro è automatico: a fine jingle stopClip richiama
+    // evaluateMix, qui questa flag torna false e il bed risale al suo volume.
+    const isNonLoopAssetActive = activeValues.some(c => c.clip.type === 'asset' && !c.clip.isLooping);
 
     debugLog(`MIX EVAL: MusicActive=${isMusicActive}, VoiceActive=${isVoiceActive}, Stacco=${activeStacco ? activeStacco.clip.name : 'None'}`, 'info');
 
@@ -164,6 +169,12 @@ export const evaluateMix = (
             }
             // Rule 3: Music Dominance (If Music active, assets/beds mute to avoid mud)
             else if (isMusicActive) {
+                targetVolume = 0;
+            }
+            // Rule 3b (A3, 2026-06-30): un SOTTOFONDO in LOOP si azzera quando è in onda
+            // un asset/jingle/promo NON in loop (sigla, jingle, spot). A fine di quello
+            // il bed torna al suo volume con rialzo sfumato (evaluateMix su stopClip).
+            else if (clip.isLooping && isNonLoopAssetActive) {
                 targetVolume = 0;
             }
             // Rule 4: Voice Ducking (If Voice active, I duck)
@@ -656,16 +667,21 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
             debugLog(`AudioStore: PlayClip ${freshClip.name} (Next: ${freshClip.nextAction}, Behavior: ${freshClip.behavior})`, 'event');
 
-            // v1.4.14 (#1/#5): TAKE-OVER. Un asset/jingle/spot NON in loop, lanciato a
-            // mano dall'operatore, ha priorità su TUTTO: ferma di colpo (nessuna
-            // dissolvenza) ogni clip in onda, poi prende il posto a volume pieno.
+            // v1.4.14 (#1/#5) — rivisto 2026-06-30: TAKE-OVER. Un asset/jingle/spot NON
+            // in loop, lanciato a mano dall'operatore, ha priorità su TUTTO: ferma di
+            // colpo (nessuna dissolvenza) ogni clip in onda, poi prende il posto a
+            // volume pieno.
             // ECCEZIONI che SOPRAVVIVONO al take-over:
-            //  - la colonna FX (col-sfx);
-            //  - i SOTTOFONDI in LOOP (qualsiasi clip in loop): restano in onda e
-            //    proseguono sotto l'asset (scelta esplicita dell'operatore 2026-06-27);
-            //  - la clip stessa.
+            //  - la colonna FX (col-sfx) — sempre;
+            //  - i SOTTOFONDI in LOOP, MA SOLO se il take-over arriva da JINGLE/PROMO:
+            //    un jingle/spot NON ferma il bed, lo ABBASSA a zero (regola di mix A3) e
+            //    il bed torna con rialzo sfumato a fine jingle. Invece lo SHOW ASSET
+            //    (col-assets = "sigla finale") FERMA il loop, perché è l'azione con cui
+            //    l'operatore chiude davvero il sottofondo (decisione 2026-06-30).
+            //  - (la clip stessa, ovviamente, non si ferma).
             // Distinzioni volute:
-            //  - solo NON-loop scatena il take-over (i sottofondi non lo attivano);
+            //  - solo NON-loop scatena il take-over (avviare un bed in loop non azzera
+            //    la regia: è un sottofondo che si appoggia a ciò che è già in onda);
             //  - solo gesti OPERATORE (!machine): rotazione PRE-SHOW e transizioni
             //    play_next continuano a usare le loro regole (in rotazione PRE-SHOW
             //    tutto funziona normalmente: un inserto jingle rientra nella playlist);
@@ -673,13 +689,17 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             const isTakeover = !opts?.machine
                 && (columnId === 'col-assets' || columnId === 'col-jingle' || columnId === 'col-promo')
                 && !freshClip.isLooping;
+            const isAssetSigla = columnId === 'col-assets'; // la sigla che chiude il loop
             if (isTakeover) {
                 Object.values(currentStore.activeClips).forEach(ac => {
                     if (ac.clip.id === freshClip.id) return;
-                    if (getColumnForClip(ac.clip.id) === 'col-sfx') return; // FX = eccezione
-                    // sottofondi in loop esenti (valore live, l'operatore può averlo cambiato)
-                    const liveLoop = getFreshClipById(ac.clip.id)?.isLooping ?? ac.clip.isLooping;
-                    if (liveLoop) return;
+                    if (getColumnForClip(ac.clip.id) === 'col-sfx') return; // FX = sempre esente
+                    // jingle/promo NON fermano i sottofondi in loop: li abbassa il mix (A3)
+                    // e tornano a fine jingle. Solo lo SHOW ASSET (sigla finale) li chiude.
+                    if (!isAssetSigla) {
+                        const liveLoop = getFreshClipById(ac.clip.id)?.isLooping ?? ac.clip.isLooping;
+                        if (liveLoop) return;
+                    }
                     get().stopClip(ac.clip.id);
                 });
                 discardPreloadedNext();     // soundscape azzerato: il preload non serve più
@@ -726,7 +746,10 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
             // Handle Intra-Column Conflict
             // v1.4.14 (#1/#5): saltato sotto take-over — ha già fermato tutto tranne FX.
-            if (!isTakeover && columnId) {
+            // 2026-06-30: la colonna SFX/CARTWALL è ESENTE dal conflitto intra-colonna →
+            // POLIFONIA. Più effetti possono suonare insieme (applauso + risata + stinger):
+            // lanciare un secondo SFX non ferma più il primo. Decisione operatore.
+            if (!isTakeover && columnId && columnId !== 'col-sfx') {
                 // Find active clips in same column
                 const sameColumnClips = Object.values(currentStore.activeClips).filter(ac => {
                     const acColId = getColumnForClip(ac.clip.id);

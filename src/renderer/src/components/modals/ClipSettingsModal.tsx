@@ -363,20 +363,11 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
 
                                     <div className="h-px bg-zinc-900 my-1" />
 
-                                    <label className="flex items-center justify-between cursor-pointer group">
-                                        <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">{t('modal.clip.duckingRole')}</span>
-                                        <select
-                                            value={duckingRole}
-                                            onChange={(e) => setDuckingRole(e.target.value as 'source' | 'target' | 'none')}
-                                            className="bg-zinc-900 border border-zinc-800 rounded text-xs p-1 text-white outline-none focus:border-emerald-500"
-                                        >
-                                            <option value="none">{t('modal.clip.duck.none')}</option>
-                                            <option value="source">{t('modal.clip.duck.source')}</option>
-                                            <option value="target">{t('modal.clip.duck.target')}</option>
-                                        </select>
-                                    </label>
-                                    <div className="h-px bg-zinc-900 my-1" />
-
+                                    {/* A1 (2026-06-30): controllo "duckingRole" rimosso dalla UI — non era
+                                        letto dal motore di mix (campo non funzionante). Il livello di
+                                        ducking si regola globalmente in Impostazioni → Riduzione ducking.
+                                        Il campo resta nel modello (inizializzato/salvato) per compatibilità
+                                        coi .lmp esistenti, ma non è più editabile. */}
                                     <label className="flex items-center justify-between cursor-pointer group">
                                         <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">{t('modal.clip.transitionType')}</span>
                                         <select

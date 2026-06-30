@@ -119,6 +119,23 @@ describe('evaluateMix — ASSET (beds/jingle/stacco)', () => {
         evaluateMix(active);
         expect(players.get(asset.id)!.last()!.volume).toBeCloseTo(0.85, 6);
     });
+
+    // A3 (2026-06-30): il sottofondo in loop si azzera sotto un jingle/sigla (asset non-loop)
+    it('un sottofondo in LOOP si azzera quando e\' attivo un asset/jingle NON in loop', () => {
+        const bed = makeClip({ type: 'asset', volume: 1.0, isLooping: true });
+        const jingle = makeClip({ type: 'asset', volume: 1.0, isLooping: false });
+        const { active, players } = buildActive([bed, jingle]);
+        evaluateMix(active);
+        expect(players.get(bed.id)!.last()!.volume).toBe(0);             // bed azzerato
+        expect(players.get(jingle.id)!.last()!.volume).toBeCloseTo(1.0, 6); // jingle pieno
+    });
+
+    it('il sottofondo in LOOP da solo resta pieno (nessun jingle in onda → rientro)', () => {
+        const bed = makeClip({ type: 'asset', volume: 0.7, isLooping: true });
+        const { active, players } = buildActive([bed]);
+        evaluateMix(active);
+        expect(players.get(bed.id)!.last()!.volume).toBeCloseTo(0.7, 6);
+    });
 });
 
 describe('evaluateMix — SFX', () => {
