@@ -6,8 +6,10 @@
 // Step 3: dopo la verifica PIN via HTTP (/api/verify-pin, solo per un feedback
 // immediato all'utente), la pagina apre una connessione WebSocket indipendente
 // e la autentica di nuovo con lo stesso PIN (il server non fida della sola
-// verifica HTTP per autorizzare comandi sul socket). Un solo comando abilitato
-// per ora: STOP ALL.
+// verifica HTTP per autorizzare comandi sul socket).
+// Step 4: la pagina mostra la lista della colonna Music (ricevuta via messaggi
+// 'state' sul WebSocket, aggiornata in tempo reale) con un bottone play/stop
+// per clip, oltre allo STOP ALL globale.
 //
 // Richiesta esplicita dell'utente (2026-07-01): la pagina deve proporre
 // l'installazione come PWA PRIMA ancora di chiedere il PIN — non un'opzione
@@ -42,7 +44,7 @@ export const INDEX_HTML = `<!DOCTYPE html>
   }
   .card {
     width: 100%;
-    max-width: 360px;
+    max-width: 420px;
     background: #1e293b;
     border: 1px solid #334155;
     border-radius: 16px;
@@ -99,6 +101,24 @@ export const INDEX_HTML = `<!DOCTYPE html>
     font-size: 13px;
   }
   #installInstructions { font-size: 11px; color: #64748b; margin-top: 14px; line-height: 1.5; display: none; }
+  #clipList { margin-top: 16px; text-align: left; max-height: 50vh; overflow-y: auto; }
+  .clip-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background: #0f172a;
+    border: 1px solid #334155;
+  }
+  .clip-row.playing { border-color: #4ade80; }
+  .clip-name { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  .clip-btn { flex-shrink: 0; width: auto; padding: 8px 14px; font-size: 12px; }
+  .clip-btn.play { background: #0ea5e9; }
+  .clip-btn.stop { background: #f59e0b; color: #0f172a; }
+  #emptyState { font-size: 12px; color: #64748b; text-align: center; margin-top: 16px; display: none; }
 </style>
 </head>
 <body>
@@ -119,6 +139,8 @@ export const INDEX_HTML = `<!DOCTYPE html>
     <div id="status"></div>
     <div id="controls">
       <button id="stopAll">■ STOP ALL</button>
+      <div id="clipList"></div>
+      <p id="emptyState">Nessun brano nella colonna Music.</p>
     </div>
   </div>
 <script>
@@ -181,11 +203,48 @@ export const INDEX_HTML = `<!DOCTYPE html>
   var status = document.getElementById('status');
   var controls = document.getElementById('controls');
   var stopAllBtn = document.getElementById('stopAll');
+  var clipList = document.getElementById('clipList');
+  var emptyState = document.getElementById('emptyState');
   var socket = null;
 
   function setStatus(text, cls) {
     status.textContent = text;
     status.className = cls || '';
+  }
+
+  function sendCommand(name, clipId) {
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    var msg = { type: 'command', name: name };
+    if (clipId) msg.clipId = clipId;
+    socket.send(JSON.stringify(msg));
+  }
+
+  function renderClipList(clips) {
+    clipList.innerHTML = '';
+    if (!clips || !clips.length) {
+      emptyState.style.display = 'block';
+      return;
+    }
+    emptyState.style.display = 'none';
+    clips.forEach(function (clip) {
+      var row = document.createElement('div');
+      row.className = 'clip-row' + (clip.isPlaying ? ' playing' : '');
+
+      var name = document.createElement('span');
+      name.className = 'clip-name';
+      name.textContent = clip.name; // textContent: mai innerHTML, il nome viene da un file audio non fidato
+
+      var actionBtn = document.createElement('button');
+      actionBtn.className = 'clip-btn ' + (clip.isPlaying ? 'stop' : 'play');
+      actionBtn.textContent = clip.isPlaying ? '■ Stop' : '▶ Play';
+      actionBtn.addEventListener('click', function () {
+        sendCommand(clip.isPlaying ? 'stopClip' : 'playClip', clip.id);
+      });
+
+      row.appendChild(name);
+      row.appendChild(actionBtn);
+      clipList.appendChild(row);
+    });
   }
 
   function openCommandChannel(pin) {
@@ -205,6 +264,8 @@ export const INDEX_HTML = `<!DOCTYPE html>
         } else {
           setStatus(msg.error === 'rate-limited' ? 'Troppi tentativi, riprova più tardi.' : 'PIN errato.', 'err');
         }
+      } else if (msg.type === 'state') {
+        renderClipList(msg.clips);
       }
     };
     ws.onclose = function () {
@@ -250,9 +311,8 @@ export const INDEX_HTML = `<!DOCTYPE html>
   pinInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') tryConnect(); });
 
   stopAllBtn.addEventListener('click', function () {
-    if (!socket || socket.readyState !== WebSocket.OPEN) return;
     stopAllBtn.disabled = true;
-    socket.send(JSON.stringify({ type: 'command', name: 'stopAll' }));
+    sendCommand('stopAll');
     setTimeout(function () { stopAllBtn.disabled = false; }, 500);
   });
 
