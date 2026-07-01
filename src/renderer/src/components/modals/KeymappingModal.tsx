@@ -227,8 +227,8 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div className="bg-zinc-900 rounded-lg border border-zinc-700 w-full max-w-5xl shadow-2xl flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
+        <div className="ov" style={{ zIndex: 50 }}>
+            <div className="ov-panel anim-in w-full max-w-5xl max-h-[90vh]">
 
                 {/* HEADER */}
                 <div className="p-4 flex justify-between items-center border-b border-zinc-800 bg-zinc-950/50 rounded-t-lg shrink-0">
@@ -341,11 +341,8 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
                 </div>
 
                 {/* FOOTER */}
-                <div className="bg-zinc-950 p-4 border-t border-zinc-800 flex justify-end shrink-0 rounded-b-lg">
-                    <button
-                        onClick={onClose}
-                        className="bg-zinc-800 hover:bg-zinc-700 text-white px-6 py-2 rounded text-sm font-bold transition-all border border-zinc-700 hover:border-zinc-600"
-                    >
+                <div className="ov-foot">
+                    <button onClick={onClose} className="btn btn-ghost">
                         Chiudi Pannello
                     </button>
                 </div>

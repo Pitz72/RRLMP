@@ -31,10 +31,10 @@ const LANGUAGES = [
 const Toggle: React.FC<{ enabled: boolean; onToggle: () => void; labelOn?: string; labelOff?: string }> = ({
     enabled, onToggle, labelOn = 'On', labelOff = 'Off'
 }) => (
-    <label className="flex items-center gap-1.5 cursor-pointer select-none">
-        <span className="text-[10px] text-zinc-500 w-6">{enabled ? labelOn : labelOff}</span>
-        <div onClick={onToggle} className={`w-8 h-4 rounded-full transition-colors cursor-pointer flex items-center ${enabled ? 'bg-sky-500' : 'bg-zinc-700'}`}>
-            <div className={`w-3 h-3 bg-white rounded-full mx-0.5 transition-transform ${enabled ? 'translate-x-4' : 'translate-x-0'}`} />
+    <label className="tgl">
+        <span className="tgl-lbl">{enabled ? labelOn : labelOff}</span>
+        <div onClick={onToggle} className={`tgl-track ${enabled ? 'on' : ''}`}>
+            <div className="tgl-knob" />
         </div>
     </label>
 );
@@ -43,25 +43,28 @@ const LabeledSlider: React.FC<{
     label: string; value: number; min: number; max: number; step: number;
     display: string; accent?: string; disabled?: boolean;
     onChange: (v: number) => void;
-}> = ({ label, value, min, max, step, display, accent = 'accent-emerald-500', disabled, onChange }) => (
-    <div className="space-y-1">
-        <div className="flex justify-between items-center">
-            <span className="text-xs text-zinc-400">{label}</span>
-            <span className={`text-xs font-mono ${disabled ? 'text-zinc-600' : accent.includes('sky') ? 'text-sky-400' : accent.includes('red') ? 'text-red-400' : accent.includes('orange') ? 'text-orange-400' : 'text-emerald-400'}`}>{display}</span>
+}> = ({ label, value, min, max, step, display, accent = 'accent-emerald-500', disabled, onChange }) => {
+    const rngAccent = accent.includes('sky') ? 'sky' : accent.includes('red') ? 'red' : accent.includes('orange') ? 'orange' : 'green';
+    return (
+        <div className="space-y-1">
+            <div className="flex justify-between items-center">
+                <span className="text-xs text-zinc-400">{label}</span>
+                <span className={`text-xs font-mono ${disabled ? 'text-zinc-600' : accent.includes('sky') ? 'text-sky-400' : accent.includes('red') ? 'text-red-400' : accent.includes('orange') ? 'text-orange-400' : 'text-emerald-400'}`}>{display}</span>
+            </div>
+            <input
+                type="range" min={min} max={max} step={step} value={value} disabled={disabled}
+                onChange={(e) => onChange(step % 1 !== 0 ? parseFloat(e.target.value) : parseInt(e.target.value))}
+                className={`rng ${rngAccent}`}
+            />
         </div>
-        <input
-            type="range" min={min} max={max} step={step} value={value} disabled={disabled}
-            onChange={(e) => onChange(step % 1 !== 0 ? parseFloat(e.target.value) : parseInt(e.target.value))}
-            className={`w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer ${accent} disabled:opacity-30 disabled:cursor-not-allowed`}
-        />
-    </div>
-);
+    );
+};
 
 const SectionTitle: React.FC<{ children: React.ReactNode; color?: string }> = ({ children, color = 'text-zinc-500' }) => (
-    <h3 className={`text-[10px] uppercase font-bold tracking-wider mb-3 ${color}`}>{children}</h3>
+    <h3 className={`sect-h mb-3 ${color}`}>{children}</h3>
 );
 
-const Divider: React.FC = () => <div className="h-px bg-zinc-800" />;
+const Divider: React.FC = () => <div className="divider" />;
 
 export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
     const { t, i18n } = useTranslation();
@@ -143,28 +146,21 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
     ];
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div
-                className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col"
-                style={{ width: '75vw', maxWidth: '960px', height: '80vh' }}
-            >
+        <div className="ov">
+            <div className="ov-panel anim-in settings">
                 {/* HEADER */}
-                <div className="bg-zinc-800 px-6 py-4 border-b border-zinc-700 flex justify-between items-center shrink-0">
-                    <h2 className="text-base font-bold text-white tracking-wide">{t('modal.settings.title')}</h2>
-                    <button onClick={onClose} className="text-zinc-400 hover:text-white text-xl leading-none w-8 h-8 flex items-center justify-center rounded hover:bg-zinc-700 transition-colors">&times;</button>
+                <div className="ov-head">
+                    <h2 className="ov-title">{t('modal.settings.title')}</h2>
+                    <button onClick={onClose} className="ov-x">&times;</button>
                 </div>
 
                 {/* TAB BAR */}
-                <div className="flex border-b border-zinc-800 bg-zinc-900 shrink-0 px-2 pt-2 gap-1">
+                <div className="tabbar">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors border-b-2 -mb-px ${
-                                activeTab === tab.id
-                                    ? 'border-emerald-500 text-white bg-zinc-800'
-                                    : 'border-transparent text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50'
-                            }`}
+                            className={`tab ${activeTab === tab.id ? 'on' : ''}`}
                         >
                             <span>{tab.icon}</span>
                             <span>{tab.label}</span>
@@ -173,7 +169,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* BODY */}
-                <div className="flex-1 overflow-y-auto min-h-0">
+                <div className="ov-body">
 
                     {/* ── TAB: GENERALI ── */}
                     {activeTab === 'general' && (
@@ -215,7 +211,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 <select
                                     value={outputDeviceId}
                                     onChange={handleChangeDevice}
-                                    className="w-full bg-zinc-950 border border-zinc-700 rounded p-2 text-sm text-white focus:border-blue-500 outline-none"
+                                    className="sel"
                                 >
                                     <option value="default">{t('modal.settings.systemDefault')}</option>
                                     {devices.map(d => (
@@ -256,7 +252,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 <select
                                     value={defaultPreshowTransition}
                                     onChange={(e) => setDefaultPreshowTransition(e.target.value as 'crossfade' | 'segue' | 'gapless')}
-                                    className="w-full bg-zinc-950 border border-zinc-800 rounded text-xs p-2 text-white outline-none focus:border-emerald-500"
+                                    className="sel"
                                 >
                                     <option value="crossfade">Crossfade (Sfumatura Incrociata)</option>
                                     <option value="segue">Segue / Cold Start (Subito Pieno, Prec. Sfuma)</option>
@@ -303,7 +299,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         <select
                                             value={micInputDeviceId}
                                             onChange={e => setMicSettings({ inputDeviceId: e.target.value })}
-                                            className="w-full bg-zinc-950 border border-zinc-700 rounded p-2 text-sm text-white focus:border-red-500 outline-none"
+                                            className="sel"
                                         >
                                             <option value="default">Microfono Predefinito</option>
                                             {inputDevices.map(d => (
@@ -430,7 +426,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     Il formato e la qualità si scelgono al momento dell'esportazione.
                                 </p>
 
-                                <div className="p-4 bg-zinc-950/60 border border-zinc-800 rounded-lg space-y-3">
+                                <div className="card space-y-3">
                                     <div className="flex items-center gap-3">
                                         <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                                         <span className="text-xs font-bold text-zinc-300">Tap point: dopo il Limiter</span>
@@ -453,7 +449,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     <select
                                         value={recordingFormat}
                                         onChange={e => setRecordingSettings({ format: e.target.value as 'webm' | 'wav' })}
-                                        className="w-full bg-zinc-950 border border-zinc-700 rounded p-2 text-xs text-white focus:border-emerald-500 outline-none"
+                                        className="sel"
                                     >
                                         <option value="wav">WAV (Lossless)</option>
                                         <option value="webm">WebM / Opus (Broadcast Quality)</option>
@@ -468,7 +464,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     {activeTab === 'chain' && (
                         <div className="p-6 space-y-5">
                             {/* OMOLOGAZIONE VOLUME CLIP */}
-                            <div className="space-y-3 p-3 bg-zinc-950/50 rounded-lg border border-zinc-800">
+                            <div className="space-y-3 card !p-3">
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <span className="text-xs font-medium text-zinc-300">Omologazione Volume Clip</span>
@@ -499,7 +495,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             </div>
 
                             {/* HPF */}
-                            <div className={`space-y-3 p-3 bg-zinc-950/50 rounded-lg border border-zinc-800 transition-opacity ${masterChain.enabled ? '' : 'opacity-40 pointer-events-none'}`}>
+                            <div className={`space-y-3 card !p-3 transition-opacity ${masterChain.enabled ? '' : 'opacity-40 pointer-events-none'}`}>
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-medium text-zinc-300">HPF — High-Pass Filter</span>
                                     <Toggle enabled={masterChain.hpfEnabled} onToggle={() => setMasterChain({ hpfEnabled: !masterChain.hpfEnabled })} />
@@ -516,7 +512,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             </div>
 
                             {/* GLUE MULTIBANDA */}
-                            <div className={`space-y-3 p-3 bg-zinc-950/50 rounded-lg border border-zinc-800 transition-opacity ${masterChain.enabled ? '' : 'opacity-40 pointer-events-none'}`}>
+                            <div className={`space-y-3 card !p-3 transition-opacity ${masterChain.enabled ? '' : 'opacity-40 pointer-events-none'}`}>
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-medium text-zinc-300">Glue Multibanda — Calore & Morbidezza</span>
                                     <Toggle enabled={masterChain.compressorEnabled} onToggle={() => setMasterChain({ compressorEnabled: !masterChain.compressorEnabled })} />
@@ -525,7 +521,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             </div>
 
                             {/* LIMITER */}
-                            <div className={`space-y-3 p-3 bg-zinc-950/50 rounded-lg border border-zinc-800 transition-opacity ${masterChain.enabled ? '' : 'opacity-40 pointer-events-none'}`}>
+                            <div className={`space-y-3 card !p-3 transition-opacity ${masterChain.enabled ? '' : 'opacity-40 pointer-events-none'}`}>
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-medium text-zinc-300">Limiter Brickwall</span>
                                     <span className="text-[10px] text-zinc-600 italic">Sempre attivo se chain abilitata</span>
@@ -552,11 +548,8 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* FOOTER */}
-                <div className="bg-zinc-800 px-6 py-3 border-t border-zinc-700 flex justify-end shrink-0">
-                    <button
-                        onClick={onClose}
-                        className="px-8 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-sm shadow-lg shadow-emerald-500/20 transition-colors"
-                    >
+                <div className="ov-foot">
+                    <button onClick={onClose} className="btn btn-green">
                         {t('modal.settings.done')}
                     </button>
                 </div>

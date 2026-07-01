@@ -1,0 +1,291 @@
+/* ============================================================
+   RUNTIME LIVE MACHINE PRO — Tema "SPECTRUM LIVE"
+   Porting FEDELE 1:1 dell'estetica dal prototipo di design
+   (DESIGN/Live Machine Pro.zip → boards.css, theme-spectrum).
+   ------------------------------------------------------------
+   REGOLE D'ORO DI QUESTA INTEGRAZIONE:
+   - SOLO presentazione: nessuna logica toccata.
+   - Tutto è scoped sotto `.theme-spectrum` → finché il wrapper
+     non viene applicato alla root, questo file è INERTE (zero
+     impatto visivo). Si attiva un componente alla volta.
+   - `.grid` del prototipo è rinominata `.sp-grid` per non
+     collidere con l'utility Tailwind `grid`.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  --green-400: #4ade80;
+  --green-500: #22c55e;
+  --green-600: #16a34a;
+  --sp-bg: #050505;
+  --sp-surface: #18181b;
+  --sp-elevated: #27272a;
+  --sp-fg1: #fff;
+  --sp-fg2: #a1a1aa;
+  --sp-fg3: #52525b;
+  --sp-border: #27272a;
+  --font-sans: 'Poppins', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ---------- root / shell ---------- */
+.theme-spectrum {
+  font-family: var(--font-sans);
+  color: var(--sp-fg1);
+  background: var(--sp-bg);
+  position: relative;
+  overflow: hidden;
+}
+.theme-spectrum * { box-sizing: border-box; }
+.theme-spectrum::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(ellipse 90% 40% at 50% -10%,
+    rgba(34, 211, 238, .10), rgba(34, 197, 94, .10) 30%,
+    rgba(245, 158, 11, .10) 55%, rgba(239, 68, 68, .10) 80%, transparent);
+}
+
+/* ---------- topbar ---------- */
+.theme-spectrum .tb {
+  display: flex; align-items: center; gap: 18px; padding: 14px 24px;
+  flex-shrink: 0; position: relative; z-index: 5;
+}
+.theme-spectrum .brand { display: flex; align-items: center; gap: 12px; }
+.theme-spectrum .brand-logo {
+  width: 38px; height: 38px; border-radius: 10px; object-fit: cover;
+  box-shadow: 0 0 22px rgba(34, 197, 94, .4);
+}
+.theme-spectrum .brand-txt { display: flex; flex-direction: column; line-height: 1.05; }
+.theme-spectrum .brand-name { font-weight: 900; font-size: 14px; letter-spacing: .1em; white-space: nowrap; }
+.theme-spectrum .brand-sub { font-size: 9px; letter-spacing: .34em; color: var(--sp-fg3); font-weight: 600; }
+.theme-spectrum .pro {
+  font-weight: 900;
+  background: linear-gradient(90deg, #22d3ee, #22c55e, #f59e0b, #ef4444);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.theme-spectrum .tb-spacer { flex: 1; }
+
+/* ---------- transport cluster ---------- */
+.theme-spectrum .tcluster { display: flex; align-items: center; gap: 16px; }
+.theme-spectrum .tgroup { display: flex; align-items: center; gap: 10px; }
+.theme-spectrum .mic-arm {
+  display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 7px;
+  font-size: 10px; font-weight: 800; letter-spacing: .08em;
+  background: rgba(239, 68, 68, .14); color: #fca5a5; border: 1px solid rgba(239, 68, 68, .45);
+}
+.theme-spectrum .mic-vu { display: flex; align-items: flex-end; gap: 2px; height: 24px; }
+.theme-spectrum .mic-vu i { width: 3px; border-radius: 1px; display: block; background: #27272a; }
+.theme-spectrum .vu { display: flex; flex-direction: column; gap: 3px; width: 96px; }
+.theme-spectrum .vu-row { display: flex; align-items: center; gap: 6px; }
+.theme-spectrum .vu-row span { font-size: 9px; color: var(--sp-fg3); font-family: var(--font-mono); width: 8px; }
+.theme-spectrum .vu-track { flex: 1; height: 6px; border-radius: 3px; overflow: hidden; position: relative; background: #1c1c20; }
+.theme-spectrum .vu-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: linear-gradient(90deg, #22c55e, #a3e635, #f59e0b); }
+.theme-spectrum .fader { display: flex; flex-direction: column; width: 130px; gap: 4px; }
+.theme-spectrum .fader-lbl { display: flex; justify-content: space-between; font-size: 9px; letter-spacing: .12em; font-weight: 700; color: var(--sp-fg3); text-transform: uppercase; }
+.theme-spectrum .fader-track { height: 5px; border-radius: 3px; position: relative; background: #1c1c20; }
+.theme-spectrum .fader-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: linear-gradient(90deg, #22d3ee, #22c55e); }
+.theme-spectrum .fader-knob { position: absolute; top: 50%; width: 11px; height: 11px; border-radius: 50%; transform: translate(-50%, -50%); background: #fff; box-shadow: 0 0 10px rgba(255, 255, 255, .5); }
+.theme-spectrum .stop {
+  display: flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 8px;
+  font-weight: 800; font-size: 12px; letter-spacing: .06em;
+  background: linear-gradient(180deg, #ef4444, #dc2626); color: #fff;
+  border: 1px solid rgba(239, 68, 68, .6); box-shadow: 0 0 20px -4px rgba(239, 68, 68, .6);
+}
+.theme-spectrum .stop svg { width: 13px; height: 13px; }
+
+/* ---------- toolbar ---------- */
+.theme-spectrum .tools { display: flex; align-items: center; gap: 6px; }
+.theme-spectrum .tool {
+  width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, .04); color: var(--sp-fg2); border: 1px solid rgba(255, 255, 255, .08); backdrop-filter: blur(8px);
+}
+.theme-spectrum .tool svg { width: 16px; height: 16px; }
+.theme-spectrum .tool.dirty { background: rgba(234, 179, 8, .16); color: #fde047; border-color: rgba(234, 179, 8, .45); }
+.theme-spectrum .saved { display: flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; color: var(--green-400); }
+.theme-spectrum .saved svg { width: 12px; height: 12px; }
+
+/* ---------- ON AIR hero banner ---------- */
+.theme-spectrum .hero {
+  margin: 4px 24px 14px; padding: 18px 22px; border-radius: 18px; display: flex; align-items: center; gap: 26px;
+  background: linear-gradient(120deg, rgba(34, 197, 94, .14), rgba(34, 197, 94, .03) 60%, transparent);
+  border: 1px solid rgba(34, 197, 94, .35);
+  box-shadow: 0 0 50px -12px rgba(34, 197, 94, .4), inset 0 1px 0 rgba(255, 255, 255, .05);
+  position: relative; overflow: hidden;
+}
+.theme-spectrum .hero-onair { display: flex; align-items: center; gap: 10px; padding: 7px 14px; border-radius: 9px; background: rgba(239, 68, 68, .16); border: 1px solid rgba(239, 68, 68, .5); flex-shrink: 0; }
+.theme-spectrum .hero-onair .dot { width: 11px; height: 11px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 14px #ef4444; }
+.theme-spectrum .hero-onair span { font-weight: 900; letter-spacing: .2em; font-size: 13px; color: #fca5a5; }
+.theme-spectrum .hero-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.theme-spectrum .hero-label { font-size: 10px; letter-spacing: .22em; font-weight: 700; color: #86efac; }
+.theme-spectrum .hero-title { font-size: 30px; font-weight: 900; letter-spacing: -.01em; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.theme-spectrum .hero-artist { font-size: 14px; color: var(--sp-fg2); font-weight: 500; }
+.theme-spectrum .hero-wave { position: relative; flex: 1; display: flex; align-items: center; gap: 2px; height: 46px; min-width: 90px; }
+/* marker intro/outro sulla barra dell'hero */
+.theme-spectrum .hero-mark { position: absolute; top: 0; bottom: 0; width: 2px; pointer-events: none; z-index: 2; }
+.theme-spectrum .hero-mark.intro { background: #22d3ee; box-shadow: 0 0 8px #22d3ee; }
+.theme-spectrum .hero-mark.outro { background: #fb923c; box-shadow: 0 0 8px #fb923c; }
+.theme-spectrum .hero-wave i { flex: 1; border-radius: 2px; background: #27272a; }
+.theme-spectrum .hero-wave i.on { background: linear-gradient(180deg, #4ade80, #16a34a); }
+.theme-spectrum .hero-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+.theme-spectrum .hero-count { font-family: var(--font-mono); font-size: 54px; font-weight: 700; line-height: .9; color: #fff; }
+.theme-spectrum .hero-cue { font-size: 11px; font-weight: 700; letter-spacing: .06em; color: #fb923c; padding: 3px 9px; border-radius: 6px; background: rgba(249, 115, 22, .14); border: 1px solid rgba(249, 115, 22, .4); }
+.theme-spectrum .hero-next { display: flex; align-items: center; gap: 8px; padding: 7px 13px; border-radius: 9px; background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .1); flex-shrink: 0; }
+.theme-spectrum .hero-next .nlbl { font-size: 9px; letter-spacing: .18em; font-weight: 800; color: #a78bfa; }
+.theme-spectrum .hero-next .ntitle { font-size: 13px; font-weight: 700; }
+
+/* ---------- grid + columns ---------- */
+.theme-spectrum .sp-grid { flex: 1; display: grid; gap: 14px; padding: 0 24px 20px; min-height: 0; }
+.theme-spectrum .col { display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+  border-radius: 16px; border: 1px solid var(--col-color, #333); backdrop-filter: blur(6px);
+  /* sfumatura dall'alto nel colore della colonna (--col-tint) su base neutra */
+  background: linear-gradient(180deg, var(--col-tint, transparent) 0%, transparent 45%), rgba(255, 255, 255, .018);
+  box-shadow: 0 0 30px -14px var(--col-glow, transparent); }
+.theme-spectrum .col-head {
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  padding: 13px 15px; border-radius: 16px 16px 0 0;
+  background: linear-gradient(180deg, var(--col-tint, transparent), transparent); border-bottom: 1px solid var(--col-border, #27272a);
+}
+.theme-spectrum .col-title { display: flex; align-items: center; gap: 9px; font-weight: 800; letter-spacing: .14em; font-size: 12px; color: var(--col-color, #fff); text-shadow: 0 0 14px var(--col-glow, transparent); }
+.theme-spectrum .col-dot { width: 9px; height: 9px; border-radius: 50%; }
+.theme-spectrum .col-type { font-size: 9px; font-weight: 700; letter-spacing: .12em; opacity: .55; }
+.theme-spectrum .col-meta { display: flex; align-items: center; gap: 8px; }
+.theme-spectrum .col-count { font-size: 9px; font-family: var(--font-mono); opacity: .5; }
+/* nota: il prototipo aveva overflow:hidden (5 clip fisse); l'app reale ha N clip → scroll verticale.
+   scrollbar-gutter:stable riserva sempre lo spazio della scrollbar → niente "salto" del layout
+   quando compare/scompare (es. una clip che si allarga col badge UP NEXT mentre suona). */
+.theme-spectrum .col-body { flex: 1; display: flex; flex-direction: column; gap: 9px; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-gutter: stable; padding: 11px; }
+
+/* ---------- clip card ---------- */
+.theme-spectrum .clip {
+  position: relative; overflow: hidden; flex-shrink: 0;
+  background: rgba(255, 255, 255, .025); border: 1px solid rgba(255, 255, 255, .07); border-radius: 11px;
+  padding: 11px 12px; border-left: 3px solid var(--col-color, #444);
+}
+.theme-spectrum .clip-prog { position: absolute; left: 0; top: 0; bottom: 0; pointer-events: none; background: var(--col-color, #fff); opacity: .16; }
+.theme-spectrum .clip-row { position: relative; z-index: 2; }
+.theme-spectrum .clip-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 6px; }
+.theme-spectrum .badge { font-size: 9px; font-weight: 800; letter-spacing: .08em; padding: 2px 6px; border-radius: 4px; line-height: 1.3; white-space: nowrap; }
+.theme-spectrum .clip-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.theme-spectrum .clip-id { display: flex; align-items: center; gap: 8px; overflow: hidden; }
+.theme-spectrum .clip-live-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+/* testo clip: molto chiaro ma con una gradazione nel colore della clip/colonna (--col-color).
+   ~15% colore + 85% bianco → resta leggibile. La clip in onda (.live) e "file mancante"
+   sovrascrivono questo colore. */
+.theme-spectrum .clip-title { font-weight: 700; font-size: 14px; color: color-mix(in srgb, var(--col-color, #f4f4f5) 15%, #f4f4f5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.theme-spectrum .clip-artist { font-size: 11px; color: #a1a1aa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.theme-spectrum .clip-binds { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.theme-spectrum .kbd { font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); background: var(--col-color, #fbbf24); color: #000; }
+.theme-spectrum .midi { font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 4px; font-family: var(--font-mono); background: rgba(34, 211, 238, .14); color: #67e8f9; border: 1px solid rgba(34, 211, 238, .4); }
+.theme-spectrum .clip-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; font-family: var(--font-mono); font-size: 10px; }
+.theme-spectrum .clip-type { display: flex; align-items: center; gap: 8px; letter-spacing: .08em; color: #52525b; }
+.theme-spectrum .cue { font-family: var(--font-sans); font-weight: 700; font-size: 9px; padding: 2px 6px; border-radius: 4px; letter-spacing: .04em; }
+.theme-spectrum .clip-time { font-weight: 700; font-size: 12px; color: #71717a; }
+.theme-spectrum .note-ico { width: 13px; height: 13px; opacity: .6; }
+.theme-spectrum .pri { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; background: rgba(239, 68, 68, .18); color: #f87171; }
+.theme-spectrum .played { opacity: .4; }
+
+/* ON AIR clip */
+.theme-spectrum .clip.live {
+  background: linear-gradient(180deg, rgba(34, 197, 94, .18), rgba(34, 197, 94, .04));
+  border-color: rgba(34, 197, 94, .5); border-left-color: var(--green-400);
+  box-shadow: 0 0 28px -6px rgba(34, 197, 94, .5);
+}
+.theme-spectrum .clip.live .clip-title { color: var(--green-400); }
+.theme-spectrum .clip.live .clip-time { color: #fff; }
+.theme-spectrum .clip.live .clip-live-dot { background: var(--green-400); box-shadow: 0 0 10px var(--green-400); }
+
+/* ---------- badge palette (shared) ---------- */
+.theme-spectrum .badge.b-loop { background: rgba(37, 99, 235, .85); color: #fff; }
+.theme-spectrum .badge.b-next { background: rgba(5, 150, 105, .85); color: #fff; }
+.theme-spectrum .badge.b-upnext { background: #8b5cf6; color: #fff; box-shadow: 0 0 8px rgba(139, 92, 246, .6); }
+.theme-spectrum .badge.b-stacco { background: rgba(147, 51, 234, .85); color: #fff; }
+.theme-spectrum .cue.c-intro { color: #22d3ee; background: rgba(8, 145, 178, .18); border: 1px solid rgba(34, 211, 238, .3); }
+.theme-spectrum .cue.c-outro { color: #fb923c; background: rgba(234, 88, 12, .18); border: 1px solid rgba(249, 115, 22, .3); }
+
+/* ---------- pulse ---------- */
+@keyframes rlmp-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+.theme-spectrum .pulse { animation: rlmp-pulse 1.4s ease-in-out infinite; }
+
+/* ============================================================
+   MODALI — guscio Spectrum (overlay / pannello / header / tab / footer / bottoni)
+   Porting 1:1 da modals.css del prototipo. Riutilizzabile da tutte le modali.
+   ============================================================ */
+.theme-spectrum .ov { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, .72); backdrop-filter: blur(10px); font-family: var(--font-sans); color: #fff; padding: 16px; }
+.theme-spectrum .ov-panel { background: linear-gradient(180deg, #141416, #0d0d0f); border: 1px solid #26262b; border-radius: 18px;
+  box-shadow: 0 40px 120px -20px rgba(0, 0, 0, .8), 0 0 60px -20px rgba(34, 197, 94, .25), inset 0 1px 0 rgba(255, 255, 255, .04);
+  display: flex; flex-direction: column; overflow: hidden; }
+.theme-spectrum .ov-panel.anim-in { animation: ovIn .28s cubic-bezier(.2, .9, .3, 1) both; }
+@keyframes ovIn { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+.theme-spectrum .ov-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid #1d1d21; flex-shrink: 0; }
+.theme-spectrum .ov-title { font-weight: 800; font-size: 16px; letter-spacing: .02em; display: flex; align-items: center; gap: 10px; }
+.theme-spectrum .ov-title .ico { width: 20px; height: 20px; color: #4ade80; display: inline-flex; }
+.theme-spectrum .ov-x { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center;
+  background: #1a1a1e; border: 1px solid #29292e; color: #a1a1aa; cursor: pointer; transition: all .15s; flex-shrink: 0; }
+.theme-spectrum .ov-x:hover { color: #fff; border-color: #3f3f46; background: #222228; }
+.theme-spectrum .ov-body { flex: 1; overflow-y: auto; min-height: 0; }
+.theme-spectrum .ov-foot { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 16px 22px; border-top: 1px solid #1d1d21; flex-shrink: 0; background: rgba(0, 0, 0, .25); }
+
+.theme-spectrum .btn { font-family: var(--font-sans); font-weight: 700; font-size: 13px; padding: 10px 18px; border-radius: 10px; cursor: pointer; border: 1px solid transparent; transition: all .15s; }
+.theme-spectrum .btn-green { background: linear-gradient(180deg, #22c55e, #16a34a); color: #04210f; box-shadow: 0 0 22px -6px rgba(34, 197, 94, .7); }
+.theme-spectrum .btn-green:hover { filter: brightness(1.08); }
+.theme-spectrum .btn-ghost { background: #19191d; color: #d4d4d8; border-color: #2a2a30; }
+.theme-spectrum .btn-ghost:hover { border-color: #3f3f46; background: #212126; }
+.theme-spectrum .btn-danger { background: transparent; color: #f87171; border-color: transparent; }
+.theme-spectrum .btn-danger:hover { background: rgba(239, 68, 68, .1); border-color: rgba(239, 68, 68, .5); }
+
+/* tab bar */
+.theme-spectrum .tabbar { display: flex; gap: 4px; padding: 8px 12px 0; border-bottom: 1px solid #1d1d21; flex-shrink: 0; }
+.theme-spectrum .tab { display: flex; align-items: center; gap: 8px; padding: 11px 16px; font-size: 13px; font-weight: 600; color: #71717a; cursor: pointer;
+  border: none; background: transparent; border-bottom: 2px solid transparent; margin-bottom: -1px; font-family: var(--font-sans); transition: all .15s; }
+.theme-spectrum .tab:hover { color: #d4d4d8; }
+.theme-spectrum .tab.on { color: #fff; border-bottom-color: #22c55e; }
+.theme-spectrum .tab .ti { width: 15px; height: 15px; display: inline-flex; }
+.theme-spectrum .tab.on .ti { color: #4ade80; }
+
+/* clip settings — swatch header */
+.theme-spectrum .clipset { width: min(720px, 92vw); max-height: 92vh; }
+.theme-spectrum .cs-swatch { width: 28px; height: 28px; border-radius: 9px; flex-shrink: 0; }
+
+/* ---------- form controls (Spectrum) ---------- */
+/* .sect-h: solo tipografia — il colore lo porta la classe Tailwind passata dal componente */
+.theme-spectrum .sect-h { font-size: 10px; text-transform: uppercase; letter-spacing: .16em; font-weight: 800; }
+/* modale impostazioni a tab */
+.theme-spectrum .settings { width: min(960px, 90vw); height: 80vh; }
+/* toggle pill */
+.theme-spectrum .tgl { display: inline-flex; align-items: center; gap: 9px; cursor: pointer; user-select: none; }
+.theme-spectrum .tgl-track { width: 38px; height: 21px; border-radius: 11px; background: #2a2a30; position: relative; transition: background .18s; flex-shrink: 0; }
+.theme-spectrum .tgl-track.on { background: #22c55e; box-shadow: 0 0 12px rgba(34, 197, 94, .5); }
+.theme-spectrum .tgl-knob { position: absolute; top: 3px; left: 3px; width: 15px; height: 15px; border-radius: 50%; background: #fff; transition: transform .18s; }
+.theme-spectrum .tgl-track.on .tgl-knob { transform: translateX(17px); }
+.theme-spectrum .tgl-lbl { font-size: 10px; color: #71717a; min-width: 24px; }
+.theme-spectrum .fld-lbl { font-size: 12px; color: #a1a1aa; }
+.theme-spectrum .hint { font-size: 11px; color: #5b5b63; font-style: italic; line-height: 1.5; }
+.theme-spectrum .divider { height: 1px; background: #1d1d21; }
+.theme-spectrum .card { background: rgba(0, 0, 0, .35); border: 1px solid #1f1f24; border-radius: 12px; padding: 16px; }
+/* select / input testuali e numerici */
+.theme-spectrum .sel { width: 100%; background: #0c0c0e; border: 1px solid #2a2a30; border-radius: 9px; padding: 10px 12px; color: #e4e4e7; font-size: 13px; font-family: var(--font-sans); outline: none; }
+.theme-spectrum select.sel { cursor: pointer; }
+.theme-spectrum .sel:focus { border-color: #22c55e; }
+.theme-spectrum .sel.mono { font-family: var(--font-mono); }
+/* range slider */
+.theme-spectrum input[type=range].rng { -webkit-appearance: none; appearance: none; width: 100%; height: 5px; border-radius: 3px; background: #26262b; outline: none; cursor: pointer; accent-color: #a1a1aa; }
+.theme-spectrum input[type=range].rng.green { accent-color: #22c55e; }
+.theme-spectrum input[type=range].rng.red { accent-color: #ef4444; }
+.theme-spectrum input[type=range].rng.sky { accent-color: #38bdf8; }
+.theme-spectrum input[type=range].rng.orange { accent-color: #f59e0b; }
+.theme-spectrum input[type=range].rng::-webkit-slider-runnable-track { height: 5px; border-radius: 3px; }
+.theme-spectrum input[type=range].rng::-webkit-slider-thumb { -webkit-appearance: none; width: 15px; height: 15px; margin-top: -5px; border-radius: 50%; background: #e4e4e7; box-shadow: 0 0 8px rgba(255, 255, 255, .3); cursor: pointer; }
+.theme-spectrum input[type=range].rng.green::-webkit-slider-thumb { background: #4ade80; box-shadow: 0 0 10px rgba(34, 197, 94, .7); }
+.theme-spectrum input[type=range].rng.red::-webkit-slider-thumb { background: #f87171; box-shadow: 0 0 10px rgba(239, 68, 68, .7); }
+.theme-spectrum input[type=range].rng.sky::-webkit-slider-thumb { background: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, .7); }
+.theme-spectrum input[type=range].rng.orange::-webkit-slider-thumb { background: #fb923c; box-shadow: 0 0 10px rgba(245, 158, 11, .7); }
+.theme-spectrum input[type=range].rng:disabled { opacity: .3; cursor: not-allowed; }
+/* swatches colore */
+.theme-spectrum .swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+.theme-spectrum .sw { width: 28px; height: 28px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: transform .12s; }
+.theme-spectrum .sw:hover { transform: scale(1.12); }
+.theme-spectrum .sw.on { border-color: #fff; }
+/* pill segmentata (es. Normal / Stacco) */
+.theme-spectrum .seg { padding: 10px; border-radius: 10px; border: 1px solid #2a2a30; background: #0c0c0e; color: #71717a; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
+.theme-spectrum .seg.on { border-color: #22c55e; background: rgba(34, 197, 94, .1); color: #fff; }
+.theme-spectrum .seg.on-violet { border-color: #a855f7; background: rgba(168, 85, 247, .12); color: #e9d5ff; }

@@ -3,19 +3,6 @@ import { useAudioStore } from '../../store/useAudioStore';
 import { AudioClip } from '../../types';
 import { useProjectStore } from '../../store/useProjectStore';
 
-// Schiarisce un colore hex miscelando verso il bianco (amount 0..1, 1 = bianco puro)
-const lightenHex = (hex: string, amount = 0.65): string => {
-    if (!hex || hex.length < 4) return hex;
-    const h = hex.startsWith('#') ? hex : `#${hex}`;
-    const r = parseInt(h.slice(1, 3), 16);
-    const g = parseInt(h.slice(3, 5), 16);
-    const b = parseInt(h.slice(5, 7), 16);
-    const nr = Math.round(r + (255 - r) * amount);
-    const ng = Math.round(g + (255 - g) * amount);
-    const nb = Math.round(b + (255 - b) * amount);
-    return `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
-};
-
 interface ClipCardProps {
     clip: AudioClip;
     onEdit: (clip: AudioClip) => void;
@@ -127,30 +114,24 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
         <div
             onClick={handleClick}
             onContextMenu={handleContextMenu}
-            className={`p-2 rounded border transition-all group relative overflow-hidden select-none
-                ${clip.isMissing
-                    ? 'bg-red-950/60 border-red-800 cursor-not-allowed opacity-80'
-                    : isPlaying
-                        ? 'bg-zinc-800 shadow-[0_0_15px_rgba(0,0,0,0.5)] cursor-pointer'
-                        : clip.hasPlayed && clip.type === 'preshow'
-                            ? 'bg-zinc-950 border-zinc-800/50 hover:border-zinc-600 cursor-pointer opacity-50'
-                            : 'bg-zinc-900 border-zinc-800 hover:border-zinc-600 cursor-pointer'
-                }
+            className={`clip group transition-all
+                ${isPlaying ? 'live' : ''}
+                ${(clip.hasPlayed && clip.type === 'preshow' && !isPlaying) ? 'played' : ''}
+                ${clip.isMissing ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}
                 ${isSelected ? 'ring-2 ring-blue-500 z-10' : ''}
                 ${isMidiLearnMode && isSelected ? 'ring-2 ring-cyan-400 ring-dashed' : ''}
                 ${isMidiLearnMode && !isSelected ? 'border-dashed border-cyan-800 opacity-80' : ''}
             `}
             style={{
-                borderColor: clip.isMissing ? undefined : (isPlaying ? effectiveColor : undefined)
-            }}
+                // override per-clip del colore colonna (preserva il colore custom della clip)
+                '--col-color': effectiveColor,
+                ...(clip.isMissing ? { borderColor: '#991b1b', background: 'rgba(69,10,10,0.6)' } : {}),
+            } as React.CSSProperties}
         >
             {/* Progress Bar Background */}
             <div
-                className="absolute left-0 top-0 bottom-0 transition-all duration-100 ease-linear pointer-events-none opacity-20"
-                style={{
-                    width: `${progress * 100}%`,
-                    backgroundColor: effectiveColor
-                }}
+                className="clip-prog transition-all duration-100 ease-linear"
+                style={{ width: `${progress * 100}%` }}
             />
 
             {/* Missing File Banner (v0.14.2) */}
@@ -162,92 +143,85 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
             )}
 
             {/* Visual Tags Overlay (Top Left) */}
-            <div className="relative z-10 flex gap-1 mb-1 flex-wrap">
-                {clip.behavior === 'stacco' && <span className="text-[9px] bg-purple-600/90 text-white px-1 rounded font-bold tracking-wider">STACCO</span>}
-                {clip.isLooping && <span className="text-[9px] bg-blue-600/90 text-white px-1 rounded font-bold tracking-wider">LOOP</span>}
-                {clip.nextAction === 'play_next' && !isNextUp && <span className="text-[9px] bg-emerald-600/90 text-white px-1 rounded font-bold tracking-wider">NEXT</span>}
-                {isNextUp && <span className="text-[9px] bg-violet-500 text-white px-1.5 rounded font-bold tracking-wider animate-pulse shadow-[0_0_6px_rgba(139,92,246,0.7)]">▶ UP NEXT</span>}
-                {clip.notes && <span className="text-[9px] bg-zinc-700 text-zinc-300 px-1 rounded" title={clip.notes}>📋</span>}
+            <div className="clip-row clip-badges">
+                {clip.behavior === 'stacco' && <span className="badge b-stacco">STACCO</span>}
+                {clip.isLooping && <span className="badge b-loop">LOOP</span>}
+                {clip.nextAction === 'play_next' && !isNextUp && <span className="badge b-next">NEXT</span>}
+                {isNextUp && <span className="badge b-upnext animate-pulse">▶ UP NEXT</span>}
+                {clip.notes && <span className="badge bg-zinc-700 text-zinc-300" title={clip.notes}>📋</span>}
                 {clip.isAnalyzing && (
-                    <span className="text-[9px] bg-amber-500/20 text-amber-400 border border-amber-500/40 px-1.5 rounded font-bold tracking-wider flex items-center gap-1">
+                    <span className="badge bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center gap-1">
                         <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-ping opacity-75" />
                         TRIM…
                     </span>
                 )}
                 {isFading && (
-                    <span className="text-[9px] bg-violet-500/20 text-violet-300 border border-violet-500/40 px-1.5 rounded font-bold tracking-wider flex items-center gap-1 animate-pulse">
+                    <span className="badge bg-violet-500/20 text-violet-300 border border-violet-500/40 flex items-center gap-1 animate-pulse">
                         <span className="inline-block w-2 h-2 rounded-full bg-violet-400" />
                         FADE OUT
                     </span>
                 )}
             </div>
 
-            <div className="relative z-10 flex justify-between items-center mb-1">
-                <div className="flex items-center gap-2 overflow-hidden">
-                    {isPlaying && (
-                        <div
-                            className="w-2 h-2 rounded-full animate-pulse"
-                            style={{ backgroundColor: effectiveColor }}
-                        />
-                    )}
+            <div className="clip-row clip-head">
+                <div className="clip-id">
+                    {isPlaying && <span className="clip-live-dot animate-pulse" />}
                     <span
-                        className={`font-medium truncate text-sm`}
-                        style={{ color: clip.isMissing ? '#ef4444' : (isPlaying ? effectiveColor : lightenHex(effectiveColor)) }}
+                        className="clip-title"
+                        style={clip.isMissing ? { color: '#ef4444' } : undefined}
                     >
                         {clip.isMissing ? `⚠️ ${clip.name} (File Non Trovato)` : (clip.title || clip.name)}
                     </span>
                     {/* v0.16.4: artista (solo clip music con tag ID3) */}
                     {clip.type === 'music' && clip.artist && (
-                        <span
-                            className="text-[10px] truncate leading-tight"
-                            style={{ color: lightenHex(effectiveColor, 0.6) + 'bb' }}
-                        >
-                            {clip.artist}
-                        </span>
+                        <span className="clip-artist">{clip.artist}</span>
                     )}
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="clip-binds">
                     {clip.midiBind && (
-                        <span className="text-[9px] bg-cyan-950 text-cyan-400 px-1.5 py-0.5 rounded font-bold shadow-sm border border-cyan-900/50">
+                        <span className="midi">
                             {clip.midiBind.replace('NOTE:', 'M')}
                         </span>
                     )}
                     {clip.keybind && (
-                        <span className="text-[9px] bg-amber-400 text-black px-1.5 py-0.5 rounded font-bold shadow-sm" title={`Keybind: ${clip.keybind}`}>
+                        <span className="kbd" title={`Keybind: ${clip.keybind}`}>
                             {clip.keybind.replace('Key', '').replace('Digit', '')}
                         </span>
                     )}
                     {clip.duckingRole === 'source' && (
-                        <span className="text-[10px] bg-red-500/20 text-red-400 px-1 rounded">PRIORITY</span>
+                        <span className="pri">PRIORITY</span>
                     )}
                 </div>
             </div>
 
 
             {/* TIMER ROW */}
-            <div className="relative z-10 flex justify-between items-baseline text-[10px] font-mono mt-1">
-                <span className="text-zinc-500 flex items-center gap-2">
+            <div className="clip-row clip-meta">
+                <span className="clip-type">
                     {clip.type.toUpperCase()}
-                    
+
                     {/* Visual Cues Real-Time: Sponsorizzato tramite Implementation Plan v0.12.0 */}
                     {inIntro && (
-                        <span className="text-cyan-400 font-bold animate-pulse font-sans bg-cyan-950/80 px-1.5 py-0.5 rounded shadow-sm border border-cyan-500/30">
+                        <span className="cue c-intro font-bold animate-pulse">
                             INTRO: -{formatTime(introRemaining)}
                         </span>
                     )}
                     {inOutroPre && (
-                        <span className="text-orange-400 font-bold animate-pulse font-sans bg-orange-950/80 px-1.5 py-0.5 rounded shadow-sm border border-orange-500/30">
+                        <span className="cue c-outro font-bold animate-pulse">
                             OUTRO IN: -{formatTime(outroRemainingPre)}
                         </span>
                     )}
                     {inOutroActive && (
-                        <span className="text-orange-400 font-bold font-sans bg-orange-950/80 px-1.5 py-0.5 rounded shadow-sm border border-orange-500/30">
+                        <span className="cue c-outro font-bold">
                             🚨 OUTRO
                         </span>
                     )}
                 </span>
-                
-                <span className={`font-bold transition-colors ${isNearEnd ? 'text-red-500 animate-pulse' : (isPlaying ? 'text-white' : 'text-zinc-500')}`}>
+
+                <span
+                    className={`clip-time ${isNearEnd ? 'animate-pulse' : ''}`}
+                    style={isNearEnd ? { color: '#ef4444' } : undefined}
+                >
                     {isPlaying ? `-${formatTime(remaining)}` : formatTime(duration)}
                 </span>
             </div>

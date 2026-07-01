@@ -14,6 +14,7 @@ import { useSettingsStore } from './store/useSettingsStore';
 import AudioContextManager from './engine/AudioContextManager';
 import { WelcomeScreen } from './components/modals/WelcomeScreen';
 import { OnAirTimer } from './components/ui/OnAirTimer';
+import { NowPlayingHero } from './components/ui/NowPlayingHero';
 import { RecordingButton } from './components/ui/RecordingButton';
 import { PlayoutLogModal } from './components/modals/PlayoutLogModal';
 import { MidiSimulatorModal } from './components/modals/MidiSimulatorModal';
@@ -364,7 +365,7 @@ function App() {
 
 
     return (
-        <div className="h-screen w-screen flex flex-col bg-black text-white select-none">
+        <div className="h-screen w-screen flex flex-col select-none theme-spectrum">
             {/* DEBUG OVERLAY */}
             <DebugOverlay />
             <ToastContainer />
@@ -399,17 +400,23 @@ function App() {
             )}
 
             {/* GLOBAL HEADER (Top Bar) */}
-            <header className="h-12 bg-zinc-900 border-b border-zinc-800 flex items-center px-4 justify-between shrink-0">
-                <div className="flex items-center gap-2">
-                    <img src={appLogo} alt="Logo" className="h-8 w-auto mr-2" />
-                    <h1 className="font-bold text-lg tracking-tight">Runtime <span className="text-zinc-500 font-normal">Live Machine</span> <span className="text-cyan-500 font-bold text-sm">PRO</span></h1>
+            <header className="tb flex items-center justify-between shrink-0 relative z-10">
+                <div className="flex items-center gap-2 min-w-0">
+                    {/* BRAND (Spectrum) */}
+                    <div className="brand mr-2">
+                        <img src={appLogo} alt="Logo" className="brand-logo" />
+                        <div className="brand-txt">
+                            <span className="brand-name">RUNTIME LIVE MACHINE <span className="pro">PRO</span></span>
+                            <span className="brand-sub">BROADCAST PLAYOUT · v{__APP_VERSION__}</span>
+                        </div>
+                    </div>
 
                     {/* GLOBAL CONTROLS */}
 
                     <GlobalControls />
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 shrink-0">
                     <button
                         onClick={() => setShowPlayoutLog(true)}
                         className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 hover:text-cyan-300 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 hover:border-cyan-600/50 rounded transition-all"
@@ -423,6 +430,11 @@ function App() {
                     <DigitalClock />
                 </div>
             </header>
+
+            {/* NOW PLAYING HERO (Spectrum) */}
+            <ErrorBoundary zone="NowPlayingHero">
+                <NowPlayingHero />
+            </ErrorBoundary>
 
             {/* MAIN CONTENT */}
             <div className="flex-1 overflow-hidden flex flex-col">

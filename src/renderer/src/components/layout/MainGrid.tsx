@@ -44,16 +44,28 @@ const SortableColumn: React.FC<SortableColumnProps> = ({ column, children, onNat
         id: column.id,
     });
 
+    // Spectrum: variabili colore per-colonna (derivazione 1:1 dal prototipo —
+    // tint=+22, border=+55, glow=+88). Solo presentazione: il colore è quello
+    // già scelto per la colonna nello store.
+    const c = column.customColor || column.color;
+    const colVars = {
+        '--col-color': c,
+        '--col-tint': `${c}22`,
+        '--col-border': `${c}55`,
+        '--col-glow': `${c}88`,
+    } as React.CSSProperties;
+
     return (
         <div
             ref={setNodeRef}
-            className="flex-1 flex flex-col border-r border-zinc-800 min-w-[200px]"
+            className="col flex-1 min-w-0"
+            style={colVars}
             onDrop={(e) => onNativeDrop(e, column.id)}
             onDragOver={(e) => onNativeDragOver(e, column.id)}
             onDragLeave={onNativeDragLeave}
         >
             <ColumnHeader column={column} />
-            <div className="flex-1 overflow-y-auto p-2 space-y-2 scrollbar-thin scrollbar-thumb-zinc-700">
+            <div className="col-body scrollbar-thin scrollbar-thumb-zinc-700">
                 {children}
             </div>
         </div>
@@ -165,6 +177,51 @@ export const MainGrid: React.FC = () => {
                 updateClip('col-music', clip.id, { isAnalyzing: false, silenceChecked: true });
                 processed++;
                 setMusicAnalyzingCount(n => Math.max(0, n - 1));
+            });
+        });
+    }, [currentFilePath]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // AUTO-SILENCE DETECTION BATCH — colonna PRE-SHOW al caricamento progetto (2026-07-01)
+    // Analogo al batch MUSIC qui sopra: rende AUTOMATICO il rilevamento silenzio anche
+    // sulle clip PRE-SHOW già caricate (prima avveniva solo al drop di un file o dietro
+    // un prompt nel pulsante "Carica Progetto") → transizioni PRE-SHOW ottimizzate senza
+    // intervento manuale. Parte a ogni cambio di currentFilePath (qualunque via di load).
+    useEffect(() => {
+        if (!currentFilePath) return;
+        const freshColumns = useProjectStore.getState().columns;
+        const preshowCol = freshColumns.find(c => c.type === 'preshow');
+        if (!preshowCol) return;
+
+        const unanalyzed = preshowCol.clips.filter(c => !c.silenceChecked && !c.isMissing);
+        if (unanalyzed.length === 0 || !window.electron?.detectSilence) return;
+
+        setPreshowAnalyzingCount(unanalyzed.length);
+        let processed = 0;
+        let optimized = 0;
+
+        unanalyzed.forEach(clip => {
+            updateClip('col-preshow', clip.id, { isAnalyzing: true });
+            window.electron.detectSilence(clip.path).then(result => {
+                if (result.success && result.data && !result.data.noSilence) {
+                    updateClip('col-preshow', clip.id, {
+                        trimStart: result.data.trimStart,
+                        trimEnd: result.data.trimEnd,
+                        isAnalyzing: false,
+                        silenceChecked: true
+                    });
+                    optimized++;
+                } else {
+                    updateClip('col-preshow', clip.id, { isAnalyzing: false, silenceChecked: true });
+                }
+                processed++;
+                setPreshowAnalyzingCount(n => Math.max(0, n - 1));
+                if (processed === unanalyzed.length && optimized > 0) {
+                    toast(`Silenzio rimosso automaticamente da ${optimized} clip PRE-SHOW.`, 'success');
+                }
+            }).catch(() => {
+                updateClip('col-preshow', clip.id, { isAnalyzing: false, silenceChecked: true });
+                processed++;
+                setPreshowAnalyzingCount(n => Math.max(0, n - 1));
             });
         });
     }, [currentFilePath]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -380,7 +437,7 @@ export const MainGrid: React.FC = () => {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
-            <div className="flex h-full w-full bg-zinc-950 text-white overflow-hidden relative">
+            <div className="flex h-full w-full text-white overflow-hidden relative gap-2.5 px-4 pb-4 pt-1">
                 {columns.map((col) => (
                     <SortableColumn
                         key={col.id}

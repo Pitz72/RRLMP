@@ -49,8 +49,8 @@ export const AboutModal = ({ isOpen, onClose }: AboutModalProps) => {
             currentVersion={__APP_VERSION__}
             onClose={() => setShowUpdateModal(false)}
         />
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
-            <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-[400px] shadow-2xl relative" onClick={e => e.stopPropagation()}>
+        <div className="ov" style={{ zIndex: 100 }} onClick={onClose}>
+            <div className="ov-panel anim-in p-6 w-[400px] relative" onClick={e => e.stopPropagation()}>
 
                 {/* CLOSE BUTTON */}
                 <button
@@ -82,7 +82,7 @@ export const AboutModal = ({ isOpen, onClose }: AboutModalProps) => {
                         {updateStatus === 'error' && <span className="text-[10px] text-red-900">OFFLINE</span>}
                     </div>
 
-                    <div className="bg-zinc-950/50 rounded-lg p-4 w-full text-sm text-zinc-400 space-y-2 mb-4 border border-zinc-800">
+                    <div className="card w-full text-sm text-zinc-400 space-y-2 mb-4">
                         <p>{t('modal.about.description')}</p>
                         <hr className="border-zinc-800 my-2" />
                         <p className="text-xs">{t('welcome.developedBy')}</p>

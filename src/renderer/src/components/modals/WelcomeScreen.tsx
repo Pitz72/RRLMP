@@ -53,8 +53,8 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject }: WelcomeScreenProp
             currentVersion={__APP_VERSION__}
             onClose={() => setShowUpdateModal(false)}
         />
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md">
-            <div className="bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl flex overflow-hidden" style={{ width: 720, maxHeight: '90vh' }}>
+        <div className="ov" style={{ zIndex: 100 }}>
+            <div className="ov-panel anim-in !flex-row" style={{ width: 720, maxHeight: '90vh' }}>
 
                 {/* ── LEFT PANEL: Branding + Actions ── */}
                 <div className="flex flex-col items-center text-center p-10 flex-1">
@@ -98,13 +98,13 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject }: WelcomeScreenProp
                     <div className="flex flex-col gap-3 w-full mb-auto">
                         <button
                             onClick={onNewProject}
-                            className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-lg transition-all transform hover:scale-[1.02] shadow-lg shadow-cyan-900/20"
+                            className="btn btn-green py-3"
                         >
                             {t('welcome.newProject')}
                         </button>
                         <button
                             onClick={onLoadProject}
-                            className="bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-3 rounded-lg border border-zinc-700 transition-colors"
+                            className="btn btn-ghost py-3"
                         >
                             {t('welcome.loadProject')}
                         </button>

@@ -52,7 +52,7 @@ export const RotationSettingsModal = ({ isOpen, onClose }: RotationSettingsModal
         onToggle: (v: boolean) => void,
         onEvery: (v: number) => void
     ) => (
-        <div className="bg-zinc-950/60 border border-zinc-800 rounded-lg p-3">
+        <div className="card !p-3">
             <label className="flex items-center gap-2 cursor-pointer select-none">
                 <input
                     type="checkbox"
@@ -81,11 +81,12 @@ export const RotationSettingsModal = ({ isOpen, onClose }: RotationSettingsModal
 
     return (
         <div
-            className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            className="ov"
+            style={{ zIndex: 110 }}
             onClick={onClose}
         >
             <div
-                className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-[440px] shadow-2xl relative"
+                className="ov-panel anim-in p-6 w-[440px] relative"
                 onClick={(e) => e.stopPropagation()}
             >
                 <button

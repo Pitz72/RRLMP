@@ -24,8 +24,8 @@ export const UpdateModal: React.FC<Props> = ({ isOpen, info, currentVersion, onC
     };
 
     return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
-            <div className="bg-zinc-900 border border-emerald-500/40 rounded-xl shadow-2xl shadow-emerald-500/10 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="ov" style={{ zIndex: 200 }}>
+            <div className="ov-panel anim-in w-full max-w-md">
 
                 {/* HEADER */}
                 <div className="bg-gradient-to-r from-emerald-900/60 to-zinc-800 px-5 py-4 border-b border-emerald-500/20 flex items-center justify-between">
@@ -59,7 +59,7 @@ export const UpdateModal: React.FC<Props> = ({ isOpen, info, currentVersion, onC
 
                     {/* NOTE DI RILASCIO */}
                     {info.releaseNotes && (
-                        <div className="bg-zinc-950/60 border border-zinc-800 rounded-lg p-3 max-h-32 overflow-y-auto">
+                        <div className="card !p-3 max-h-32 overflow-y-auto">
                             <p className="text-[11px] text-zinc-400 leading-relaxed whitespace-pre-line">{info.releaseNotes}</p>
                         </div>
                     )}
@@ -79,17 +79,14 @@ export const UpdateModal: React.FC<Props> = ({ isOpen, info, currentVersion, onC
                 </div>
 
                 {/* FOOTER */}
-                <div className="bg-zinc-800/50 px-5 py-3 border-t border-zinc-700 flex gap-2 justify-end">
-                    <button
-                        onClick={onClose}
-                        className="px-4 py-2 rounded border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 text-xs font-medium transition-colors"
-                    >
+                <div className="ov-foot">
+                    <button onClick={onClose} className="btn btn-ghost">
                         Più tardi
                     </button>
                     <button
                         onClick={handleDownload}
                         disabled={!info.downloadUrl}
-                        className="flex items-center gap-2 px-5 py-2 rounded bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold shadow-lg shadow-emerald-500/20 transition-colors"
+                        className="btn btn-green flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         <Download size={13} />
                         Scarica v{info.remoteVersion}

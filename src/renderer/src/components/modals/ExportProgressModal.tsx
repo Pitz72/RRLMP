@@ -14,8 +14,8 @@ export const ExportProgressModal: React.FC<ExportProgressModalProps> = ({ isOpen
     const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
-            <div className="bg-zinc-900 border border-zinc-700 p-6 rounded-lg shadow-xl w-96 flex flex-col items-center gap-4">
+        <div className="ov" style={{ zIndex: 100 }}>
+            <div className="ov-panel anim-in p-6 w-96 flex flex-col items-center gap-4">
                 <Loader2 className="animate-spin text-emerald-500" size={48} />
                 <h3 className="text-xl font-bold text-white">Esportazione in corso...</h3>
 

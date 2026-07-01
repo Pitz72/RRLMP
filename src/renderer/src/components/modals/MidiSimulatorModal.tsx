@@ -64,18 +64,19 @@ export const MidiSimulatorModal = ({ isOpen, onClose }: MidiSimulatorModalProps)
                 max={max}
                 value={value}
                 onChange={(e) => setter(Number(e.target.value))}
-                className="bg-zinc-950 border border-zinc-700 rounded px-2 py-1.5 text-white font-mono text-sm focus:outline-none focus:border-emerald-500"
+                className="sel mono"
             />
         </label>
     );
 
     return (
         <div
-            className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            className="ov"
+            style={{ zIndex: 110 }}
             onClick={onClose}
         >
             <div
-                className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-[420px] shadow-2xl relative"
+                className="ov-panel anim-in p-6 w-[420px] relative"
                 onClick={(e) => e.stopPropagation()}
             >
                 <button
@@ -103,11 +104,7 @@ export const MidiSimulatorModal = ({ isOpen, onClose }: MidiSimulatorModalProps)
                         <button
                             key={val}
                             onClick={() => setType(val)}
-                            className={`flex-1 py-1.5 rounded text-xs font-medium transition-colors border ${
-                                type === val
-                                    ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-300'
-                                    : 'bg-zinc-800/50 border-zinc-700/50 text-zinc-400 hover:text-white'
-                            }`}
+                            className={`flex-1 seg !py-1.5 text-xs ${type === val ? 'on' : ''}`}
                         >
                             {lab}
                         </button>
@@ -123,14 +120,14 @@ export const MidiSimulatorModal = ({ isOpen, onClose }: MidiSimulatorModalProps)
 
                 <button
                     onClick={send}
-                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded flex items-center justify-center gap-2 text-sm font-semibold transition-colors"
+                    className="btn btn-green w-full flex items-center justify-center gap-2"
                 >
                     <Send size={15} />
                     Invia messaggio
                 </button>
 
                 {lastSent && (
-                    <div className="mt-4 bg-zinc-950/70 border border-zinc-800 rounded p-2.5 text-[11px] font-mono text-zinc-400">
+                    <div className="mt-4 card !p-3 text-[11px] font-mono text-zinc-400">
                         <span className="text-zinc-600">Ultimo inviato:</span><br />
                         <span className="text-emerald-400">{lastSent}</span>
                     </div>

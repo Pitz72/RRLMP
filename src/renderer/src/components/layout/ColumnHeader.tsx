@@ -76,25 +76,23 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
 
     return (
         <div
-            className={`p-3 font-bold text-sm tracking-widest border-b border-zinc-800 flex justify-between items-center transition-all duration-500
-                ${isDeadAirWarning ? 'bg-amber-900/50 animate-pulse border-amber-500' : ''}
-            `}
-            style={{
-                backgroundColor: isDeadAirWarning ? undefined : `${effectiveColor}20`,
-                color: isDeadAirWarning ? '#f59e0b' : effectiveColor,
-                borderColor: isDeadAirWarning ? '#f59e0b' : undefined
-            }}
+            className={`col-head transition-all duration-500 ${isDeadAirWarning ? 'animate-pulse' : ''}`}
+            style={isDeadAirWarning ? {
+                background: 'rgba(120,53,15,0.5)',
+                color: '#f59e0b',
+                borderColor: '#f59e0b'
+            } : undefined}
         >
-            <div className="flex items-center gap-2">
+            <div className="col-title" style={isDeadAirWarning ? { color: '#f59e0b', textShadow: 'none' } : undefined}>
                 {isDeadAirWarning && <AlertTriangle size={16} className="animate-bounce" />}
                 <span>{t(`columns.${column.id}`, column.title)}</span>
             </div>
 
-            <div className="flex items-center gap-2 relative" ref={pickerRef}>
+            <div className="col-meta relative" ref={pickerRef}>
                 {isDeadAirWarning && (
                     <span className="text-[10px] bg-amber-500 text-black px-1 rounded font-bold">END</span>
                 )}
-                <div className={`text-xs opacity-50 ${isDeadAirWarning ? 'text-amber-200 opacity-100' : ''}`}>
+                <div className={`col-type ${isDeadAirWarning ? 'text-amber-200 opacity-100' : ''}`}>
                     {column.type.toUpperCase()}
                 </div>
 

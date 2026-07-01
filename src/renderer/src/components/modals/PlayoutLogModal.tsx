@@ -70,8 +70,8 @@ export const PlayoutLogModal: React.FC<PlayoutLogModalProps> = ({ onClose }) => 
     };
 
     return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}>
-            <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col">
+        <div className="ov" style={{ zIndex: 200 }}>
+            <div className="ov-panel anim-in w-full max-w-3xl max-h-[80vh]">
 
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-800">

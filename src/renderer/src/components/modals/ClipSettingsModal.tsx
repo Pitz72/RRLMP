@@ -181,43 +181,43 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
 
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div className="bg-zinc-900 rounded-lg border border-zinc-700 w-full max-w-4xl shadow-2xl flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
+        <div className="ov">
+            <div className="ov-panel anim-in clipset w-full">
 
                 {/* HEADER & TABS */}
-                <div className="border-b border-zinc-800 bg-zinc-950/50 rounded-t-lg">
-                    <div className="p-4 flex justify-between items-center border-b border-zinc-800">
-                        <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: effectiveDisplayColor }}></span>
+                <div>
+                    <div className="ov-head">
+                        <h2 className="ov-title">
+                            <span className="cs-swatch" style={{ backgroundColor: effectiveDisplayColor }}></span>
                             {clip.name}
                         </h2>
-                        <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">✕</button>
+                        <button onClick={onClose} className="ov-x">✕</button>
                     </div>
-                    <div className="flex px-4 gap-4">
-                        <button 
+                    <div className="tabbar">
+                        <button
                             onClick={() => setActiveTab('general')}
-                            className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'general' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
+                            className={`tab ${activeTab === 'general' ? 'on' : ''}`}
                         >
-                            <Settings2 size={16} /> {t('modal.clip.tab.general')}
+                            <Settings2 size={15} className="ti" /> {t('modal.clip.tab.general')}
                         </button>
                         <button
                             onClick={() => setActiveTab('markers')}
-                            className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'markers' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
+                            className={`tab ${activeTab === 'markers' ? 'on' : ''}`}
                         >
-                            <Scissors size={16} /> {t('modal.clip.tab.markers')}
+                            <Scissors size={15} className="ti" /> {t('modal.clip.tab.markers')}
                         </button>
                         <button
                             onClick={() => setActiveTab('notes')}
-                            className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'notes' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
+                            className={`tab ${activeTab === 'notes' ? 'on' : ''}`}
                         >
-                            <FileText size={16} /> {t('modal.clip.tab.notes')}
+                            <FileText size={15} className="ti" /> {t('modal.clip.tab.notes')}
                             {notes && <span className="text-[9px] bg-violet-600/80 text-white px-1.5 py-0.5 rounded font-bold">●</span>}
                         </button>
                     </div>
                 </div>
 
                 {/* SCROLLABLE CONTENT */}
-                <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+                <div className="ov-body p-6 custom-scrollbar">
 
                     {activeTab === 'general' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -230,24 +230,21 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                         type="text"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        className="w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-white focus:border-emerald-500 outline-none transition-colors"
+                                        className="sel"
                                     />
                                 </div>
 
                                 {/* COLORS */}
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Color Label</label>
-                                    <div className="space-y-2 bg-zinc-950 p-2 rounded border border-zinc-800">
+                                    <div className="card !p-3 space-y-2">
                                         <div className="grid grid-cols-6 gap-1.5">
                                             {COLUMN_COLORS.map((c) => (
                                                 <button
                                                     key={c}
                                                     onClick={() => setCustomColor(c)}
-                                                    className="w-7 h-7 rounded-full transition-all hover:scale-125 hover:shadow-lg focus:outline-none"
-                                                    style={{
-                                                        backgroundColor: c,
-                                                        boxShadow: customColor === c ? `0 0 0 2px white, 0 0 0 4px ${c}` : undefined
-                                                    }}
+                                                    className={`sw ${customColor === c ? 'on' : ''}`}
+                                                    style={{ backgroundColor: c }}
                                                     title={c}
                                                 />
                                             ))}
@@ -276,7 +273,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                         step="0.05"
                                         value={volume}
                                         onChange={(e) => setVolume(parseFloat(e.target.value))}
-                                        className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                                        className="rng green"
                                     />
                                 </div>
 
@@ -290,7 +287,8 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                             readOnly
                                             data-keybind-input
                                             placeholder="Click to Record..."
-                                            className="flex-1 bg-zinc-950 border border-zinc-800 rounded p-2 text-sm text-yellow-400 font-mono text-center cursor-pointer hover:border-yellow-500/50 focus:border-yellow-500 outline-none"
+                                            className="flex-1 sel mono text-center cursor-pointer"
+                                            style={{ color: '#facc15' }}
                                             onKeyDown={(e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
@@ -322,13 +320,13 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                     <div className="grid grid-cols-2 gap-2">
                                         <button
                                             onClick={() => setBehavior('normal')}
-                                            className={`p-2 rounded border text-sm transition-all ${behavior === 'normal' ? 'bg-zinc-800 border-emerald-500 text-white' : 'bg-zinc-950 border-zinc-800 text-zinc-500 hover:border-zinc-700'}`}
+                                            className={`seg ${behavior === 'normal' ? 'on' : ''}`}
                                         >
                                             Normal
                                         </button>
                                         <button
                                             onClick={() => setBehavior('stacco')}
-                                            className={`p-2 rounded border text-sm transition-all ${behavior === 'stacco' ? 'bg-purple-900/20 border-purple-500 text-purple-200' : 'bg-zinc-950 border-zinc-800 text-zinc-500 hover:border-zinc-700'}`}
+                                            className={`seg ${behavior === 'stacco' ? 'on-violet' : ''}`}
                                         >
                                             Stacco (Jingle)
                                         </button>
@@ -336,7 +334,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                 </div>
 
                                 {/* TOGGLES */}
-                                <div className="space-y-3 bg-zinc-950 p-3 rounded border border-zinc-800">
+                                <div className="card space-y-3">
                                     <label className="flex items-center justify-between cursor-pointer group">
                                         <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">Loop Playback</span>
                                         <input
@@ -432,7 +430,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {/* FADES */}
-                                <div className="space-y-4 bg-zinc-950 p-4 rounded border border-zinc-800">
+                                <div className="card space-y-4">
                                     <h3 className="text-xs uppercase text-zinc-500 font-bold border-b border-zinc-800 pb-2">Smooth Fades</h3>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-1">
@@ -441,7 +439,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                                 type="number"
                                                 value={fadeIn}
                                                 onChange={(e) => setFadeIn(parseInt(e.target.value) || 0)}
-                                                className="w-full bg-zinc-900 border border-zinc-700 rounded p-1.5 text-sm text-center focus:border-emerald-500 outline-none"
+                                                className="sel text-center"
                                             />
                                         </div>
                                         <div className="space-y-1">
@@ -450,14 +448,14 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                                 type="number"
                                                 value={fadeOut}
                                                 onChange={(e) => setFadeOut(parseInt(e.target.value) || 0)}
-                                                className="w-full bg-zinc-900 border border-zinc-700 rounded p-1.5 text-sm text-center focus:border-emerald-500 outline-none"
+                                                className="sel text-center"
                                             />
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* MANUAL MARKERS INPUTS */}
-                                <div className="space-y-4 bg-zinc-950 p-4 rounded border border-zinc-800">
+                                <div className="card space-y-4">
                                     <div className="flex justify-between items-center border-b border-zinc-800 pb-2">
                                         <h3 className="text-xs uppercase text-zinc-500 font-bold">Manual Inputs</h3>
                                         <button
@@ -470,19 +468,19 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-1">
                                             <label className="text-[10px] font-bold text-zinc-500 uppercase">Trim Start (s)</label>
-                                            <input type="number" step="0.1" value={trimStart} onChange={(e) => setTrimStart(parseFloat(e.target.value) || 0)} className="w-full bg-zinc-900 border border-zinc-700 rounded p-1.5 text-sm text-center text-blue-400" />
+                                            <input type="number" step="0.1" value={trimStart} onChange={(e) => setTrimStart(parseFloat(e.target.value) || 0)} className="sel text-center !text-blue-400" />
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-[10px] font-bold text-zinc-500 uppercase">Trim End (s)</label>
-                                            <input type="number" step="0.1" value={trimEnd} onChange={(e) => setTrimEnd(parseFloat(e.target.value) || 0)} className="w-full bg-zinc-900 border border-zinc-700 rounded p-1.5 text-sm text-center text-blue-400" />
+                                            <input type="number" step="0.1" value={trimEnd} onChange={(e) => setTrimEnd(parseFloat(e.target.value) || 0)} className="sel text-center !text-blue-400" />
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-[10px] font-bold text-zinc-500 uppercase">Intro End (s)</label>
-                                            <input type="number" step="0.1" value={introMarker} onChange={(e) => setIntroMarker(parseFloat(e.target.value) || 0)} className="w-full bg-zinc-900 border border-zinc-700 rounded p-1.5 text-sm text-center text-emerald-400" />
+                                            <input type="number" step="0.1" value={introMarker} onChange={(e) => setIntroMarker(parseFloat(e.target.value) || 0)} className="sel text-center !text-emerald-400" />
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-[10px] font-bold text-zinc-500 uppercase">Outro Start (s)</label>
-                                            <input type="number" step="0.1" value={outroMarker} onChange={(e) => setOutroMarker(parseFloat(e.target.value) || 0)} className="w-full bg-zinc-900 border border-zinc-700 rounded p-1.5 text-sm text-center text-orange-400" />
+                                            <input type="number" step="0.1" value={outroMarker} onChange={(e) => setOutroMarker(parseFloat(e.target.value) || 0)} className="sel text-center !text-orange-400" />
                                         </div>
                                     </div>
                                 </div>
@@ -510,7 +508,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                 onChange={(e) => setNotes(e.target.value)}
                                 placeholder="Inserisci qui lo script, le note di produzione, i cue..."
                                 rows={16}
-                                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-4 text-sm text-zinc-200 font-mono leading-relaxed resize-none focus:border-emerald-500 focus:outline-none transition-colors placeholder:text-zinc-700 custom-scrollbar"
+                                className="sel mono resize-none leading-relaxed custom-scrollbar placeholder:text-zinc-700"
                                 spellCheck={false}
                             />
                             <div className="flex justify-between text-[10px] text-zinc-600">
@@ -522,24 +520,15 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                 </div>
 
                 {/* FOOTER */}
-                <div className="bg-zinc-800 p-4 border-t border-zinc-700 flex justify-between shrink-0 rounded-b-lg">
-                    <button
-                        onClick={handleDelete}
-                        className="text-red-500 hover:text-red-400 hover:bg-red-500/10 px-4 py-2 rounded text-sm font-bold transition-all border border-transparent hover:border-red-500/50"
-                    >
+                <div className="ov-foot" style={{ justifyContent: 'space-between' }}>
+                    <button onClick={handleDelete} className="btn btn-danger">
                         DELETE CLIP
                     </button>
                     <div className="flex gap-2">
-                        <button
-                            onClick={onClose}
-                            className="text-zinc-400 hover:text-white px-4 py-2 rounded text-sm transition-colors"
-                        >
+                        <button onClick={onClose} className="btn btn-ghost">
                             Cancel
                         </button>
-                        <button
-                            onClick={handleSave}
-                            className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded text-sm font-bold shadow-lg shadow-emerald-500/20 transition-all hover:scale-105"
-                        >
+                        <button onClick={handleSave} className="btn btn-green">
                             SAVE CHANGES
                         </button>
                     </div>

@@ -418,7 +418,7 @@ export const GlobalControls = () => {
                 }}
                 className={`${isMidiLearnMode
                     ? (pendingBind === 'stopAll' ? 'bg-cyan-600 text-white animate-pulse' : 'bg-zinc-800 text-cyan-500 border-cyan-500/50 hover:bg-zinc-700')
-                    : 'bg-red-500/10 hover:bg-red-500 hover:text-white border-red-500/50 text-red-500'} mr-4 relative`}
+                    : 'stop'} mr-4 relative`}
                 size="sm"
             >
                 <div className="flex items-center gap-2">
@@ -438,7 +438,7 @@ export const GlobalControls = () => {
                 <Button
                     size="sm"
                     disabled={!canUndo}
-                    className={`${canUndo ? 'bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}
+                    className={`${canUndo ? 'tool' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}
                     title="Annulla (Ctrl+Z)"
                     onClick={() => undo()}
                 >
@@ -447,7 +447,7 @@ export const GlobalControls = () => {
                 <Button
                     size="sm"
                     disabled={!canRedo}
-                    className={`${canRedo ? 'bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}
+                    className={`${canRedo ? 'tool' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}
                     title="Ripeti (Ctrl+Y)"
                     onClick={() => redo()}
                 >
@@ -459,7 +459,7 @@ export const GlobalControls = () => {
             <div className="flex items-center gap-2 border-l border-zinc-800 pl-4">
                 <Button
                     size="sm"
-                    className="bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700"
+                    className="tool"
                     title={t('welcome.newProject')}
                     onClick={async () => {
                         if (isDirty && !await confirm('Nuovo Progetto: le modifiche non salvate andranno perse. Continuare?', 'Nuovo Progetto', 'Annulla')) return;
@@ -471,7 +471,7 @@ export const GlobalControls = () => {
                 </Button>
                 <Button
                     size="sm"
-                    className={`${isDirty ? 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/50 hover:bg-yellow-500 hover:text-white' : 'bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700'} transition-all`}
+                    className={`${isDirty ? 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/50 hover:bg-yellow-500 hover:text-white' : 'tool'} transition-all`}
                     title={t('controls.save')}
                     onClick={async () => {
                         const projectData = {
@@ -507,7 +507,7 @@ export const GlobalControls = () => {
 
                 <Button
                     size="sm"
-                    className="bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 ml-1"
+                    className="tool ml-1"
                     title={t('controls.saveAs')}
                     onClick={async () => {
                         const projectData = {
@@ -530,7 +530,7 @@ export const GlobalControls = () => {
 
                 <Button
                     size="sm"
-                    className="bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700"
+                    className="tool"
                     title={t('welcome.loadProject')}
                     onClick={async () => {
                         if (isDirty && !await confirm('Hai modifiche non salvate. Caricare un nuovo progetto le sovrascriverà. Continuare?', 'Carica comunque', 'Annulla')) return;
@@ -554,31 +554,9 @@ export const GlobalControls = () => {
                                     runIntegrityCheck().then(missing => {
                                         if (missing > 0) console.warn(`[Integrity] ${missing} file mancante/i nel progetto caricato.`);
                                     });
-                                    // Silence check (v0.14.10): chiede se analizzare le clip PRE-SHOW mai analizzate
-                                    const preshowCol = parsed.project.columns?.find((c: { type: string }) => c.type === 'preshow');
-                                    const unanalyzed = (preshowCol?.clips ?? []).filter((c: { silenceChecked?: boolean; isMissing?: boolean }) => !c.silenceChecked && !c.isMissing);
-                                    if (unanalyzed.length > 0 && window.electron?.detectSilence) {
-                                        confirm(
-                                            `${unanalyzed.length} clip PRE-SHOW non sono mai state analizzate per il silenzio automatico. Eseguire l'analisi ora?`,
-                                            'Analizza',
-                                            'Salta'
-                                        ).then(yes => {
-                                            if (!yes) return;
-                                            toast(`Analisi silenzio: ${unanalyzed.length} clip in coda…`, 'info');
-                                            unanalyzed.forEach((clip: { id: string; path: string; name: string }) => {
-                                                updateClip('col-preshow', clip.id, { isAnalyzing: true });
-                                                window.electron.detectSilence(clip.path).then(result => {
-                                                    if (result.success && result.data && !result.data.noSilence) {
-                                                        updateClip('col-preshow', clip.id, { trimStart: result.data.trimStart, trimEnd: result.data.trimEnd, isAnalyzing: false, silenceChecked: true });
-                                                    } else {
-                                                        updateClip('col-preshow', clip.id, { isAnalyzing: false, silenceChecked: true });
-                                                    }
-                                                }).catch(() => {
-                                                    updateClip('col-preshow', clip.id, { isAnalyzing: false, silenceChecked: true });
-                                                });
-                                            });
-                                        });
-                                    }
+                                    // v2026-07-01: il rilevamento silenzio PRE-SHOW è ora AUTOMATICO
+                                    // (batch in MainGrid, parte al cambio di currentFilePath) → niente più
+                                    // prompt qui. Vale per ogni via di caricamento, incluse le clip già caricate.
                                 }
 
                             } catch (e) {
@@ -591,7 +569,7 @@ export const GlobalControls = () => {
                 </Button>
                 <Button
                     size="sm"
-                    className="bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700"
+                    className="tool"
                     title={t('controls.importM3u')}
                     onClick={async () => {
                         if (!window.electron?.importM3u) return;
@@ -627,7 +605,7 @@ export const GlobalControls = () => {
                 </Button>
                 <Button
                     size="sm"
-                    className="bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 ml-1"
+                    className="tool ml-1"
                     title={t('controls.export')}
                     onClick={async () => {
                         // v1.4.14 (#4a): l'export è legato al file di salvataggio aperto.
@@ -684,7 +662,7 @@ export const GlobalControls = () => {
                             ? 'bg-red-900/40 text-red-500 border border-red-500/40'
                             : isMidiLearnMode
                                 ? 'bg-cyan-500 text-white animate-pulse'
-                                : 'bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700'
+                                : 'tool'
                     } ml-2 relative`}
                     title={!midiSupported ? 'MIDI non disponibile' : t('controls.midiLearn')}
                     onClick={() => setIsMidiLearnMode(!isMidiLearnMode)}
@@ -709,7 +687,7 @@ export const GlobalControls = () => {
 
                 <Button
                     size="sm"
-                    className="bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 ml-1"
+                    className="tool ml-1"
                     title={t('controls.keybinds')}
                     onClick={() => setShowKeymapping(true)}
                 >
@@ -718,7 +696,7 @@ export const GlobalControls = () => {
 
                 <Button
                     size="sm"
-                    className="bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 ml-2"
+                    className="tool ml-2"
                     title={t('controls.settings')}
 
                     onClick={() => setShowSettings(true)}
@@ -728,7 +706,7 @@ export const GlobalControls = () => {
 
                 <Button
                     size="sm"
-                    className="bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 ml-1"
+                    className="tool ml-1"
                     title={t('controls.info')}
                     onClick={() => setShowAbout(true)}
                 >

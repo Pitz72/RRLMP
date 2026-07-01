@@ -91,8 +91,8 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
     if (isConverting) {
         return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="ov" style={{ zIndex: 50 }}>
+                <div className="ov-panel anim-in w-full max-w-md">
                     <div className="bg-zinc-800 px-5 py-4 border-b border-zinc-700">
                         <h2 className="text-sm font-bold text-white">Esporta Registrazione</h2>
                         <p className="text-[10px] text-zinc-500 mt-0.5">Conversione audio in corso…</p>
@@ -118,8 +118,8 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="ov" style={{ zIndex: 50 }}>
+            <div className="ov-panel anim-in w-full max-w-md">
 
                 {/* HEADER */}
                 <div className="bg-zinc-800 px-5 py-4 border-b border-zinc-700 flex items-center justify-between">
@@ -140,11 +140,7 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 <button
                                     key={opt.id}
                                     onClick={() => setFormat(opt.id)}
-                                    className={`flex flex-col items-center gap-1 py-2.5 px-1 rounded-lg border text-center transition-all ${
-                                        format === opt.id
-                                            ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400'
-                                            : 'border-zinc-700 bg-zinc-800/50 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
-                                    }`}
+                                    className={`flex flex-col items-center gap-1 seg !py-2.5 !px-1 ${format === opt.id ? 'on' : ''}`}
                                 >
                                     {opt.icon}
                                     <span className="text-[10px] font-bold">{opt.label}</span>
@@ -163,11 +159,7 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     <button
                                         key={d}
                                         onClick={() => setSampleDepth(d)}
-                                        className={`flex-1 py-1.5 rounded border text-xs font-mono font-bold transition-all ${
-                                            sampleDepth === d
-                                                ? 'border-sky-500 bg-sky-500/10 text-sky-400'
-                                                : 'border-zinc-700 bg-zinc-800/50 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
-                                        }`}
+                                        className={`flex-1 seg !py-1.5 font-mono ${sampleDepth === d ? 'on' : ''}`}
                                     >
                                         {d}-bit
                                     </button>
@@ -190,11 +182,7 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     <button
                                         key={b}
                                         onClick={() => setBitrate(b)}
-                                        className={`flex-1 py-1.5 rounded border text-xs font-mono font-bold transition-all ${
-                                            bitrate === b
-                                                ? 'border-orange-500 bg-orange-500/10 text-orange-400'
-                                                : 'border-zinc-700 bg-zinc-800/50 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
-                                        }`}
+                                        className={`flex-1 seg !py-1.5 font-mono ${bitrate === b ? 'on' : ''}`}
                                     >
                                         {b / 1000}k
                                     </button>
@@ -205,17 +193,17 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* FOOTER */}
-                <div className="bg-zinc-800 px-5 py-3 border-t border-zinc-700 flex gap-2 justify-end">
+                <div className="ov-foot">
                     <button
                         onClick={handleCancel}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 text-xs font-medium transition-colors"
+                        className="btn btn-danger flex items-center gap-1.5"
                     >
                         <XCircle size={12} />
                         Elimina Registrazione
                     </button>
                     <button
                         onClick={handleExport}
-                        className="flex items-center gap-1.5 px-5 py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 transition-colors"
+                        className="btn btn-green flex items-center gap-1.5"
                     >
                         <FileAudio size={12} />
                         Scegli Destinazione…
