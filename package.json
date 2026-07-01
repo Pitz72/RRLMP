@@ -84,6 +84,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-i18next": "^16.5.4",
+    "selfsigned": "^2.4.1",
     "tailwind-merge": "^2.2.0",
     "uuid": "^9.0.1",
     "ws": "^8.21.0",

@@ -1,24 +1,41 @@
-// Controllo Remoto da tablet/PC secondario (2026-07-01) — Step 1-4/N.
-// Server HTTP locale in LAN, avviabile/disattivabile a mano dalle Impostazioni
+// Controllo Remoto da tablet/PC secondario (2026-07-01) — Step 1-4/N + HTTPS.
+// Server locale in LAN, avviabile/disattivabile a mano dalle Impostazioni
 // (default OFF: nessuna superficie di rete attiva senza un'azione esplicita
 // dell'utente). Step 1: /health + PIN. Step 2: pagina web installabile come
 // PWA (manifest.json + sw.js) con verifica PIN (/api/verify-pin, con
 // rate-limit — vedi pinRateLimiter.ts). Step 3: canale comandi reale via
 // WebSocket, whitelist esplicita in ALLOWED_COMMANDS (non un canale IPC
-// generico apribile a qualunque azione futura senza revisione). Step 4 (qui):
+// generico apribile a qualunque azione futura senza revisione). Step 4:
 // verso opposto — il renderer pubblica lo stato della colonna Music
 // (updateRemoteMusicState, validato da remoteClipState.ts) e il server lo
-// trasmette in broadcast ai client WS autenticati; nuovi comandi playClip/
-// stopClip con clipId.
-import * as http from 'http';
+// trasmette in broadcast ai client WS autenticati; comandi playClip/stopClip
+// con clipId.
+//
+// HTTPS (2026-07-01, richiesta esplicita dopo primo test utente): Chrome/
+// Android propone l'installazione PWA con un tap SOLO su contesto sicuro
+// (HTTPS o localhost) — su HTTP semplice su IP LAN l'evento
+// 'beforeinstallprompt' non scatta mai, quindi l'utente vedeva solo le
+// istruzioni manuali. Certificato auto-firmato generato una sola volta e
+// cachato in userData (mai rigenerato tra un avvio e l'altro, altrimenti il
+// browser richiederebbe di accettare l'avviso di sicurezza ad ogni sessione
+// invece che una volta sola). Nessuna CA reale: il browser mostrerà comunque
+// un avviso "connessione non sicura" al PRIMO collegamento da un dispositivo,
+// da accettare manualmente una volta (component di navigazione avanzata).
+import * as https from 'https';
+import type * as http from 'http'; // solo per i tipi condivisi (IncomingMessage) — il server è https
 import * as os from 'os';
 import * as fs from 'fs';
 import { join } from 'path';
+import { app } from 'electron';
 import { WebSocketServer, WebSocket } from 'ws';
 import { logger } from './logger';
 import { createPinRateLimiter } from './pinRateLimiter';
 import { INDEX_HTML, MANIFEST_JSON, SERVICE_WORKER_JS } from './remoteControlAssets';
 import { RemoteClipState, sanitizeRemoteClipState } from './remoteClipState';
+// Fix ESM/CJS interop (stesso pattern di ffmpeg-static/ffprobe-static in AudioProcessor.ts):
+// il .d.ts di questo pacchetto non esporta correttamente la funzione per import nominale.
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const selfsigned = require('selfsigned');
 
 const PORT = 8787;
 const MAX_BODY_BYTES = 1024; // il body più grande atteso è {"pin":"123456"} — margine ampio
@@ -29,12 +46,38 @@ const AUTH_TIMEOUT_MS = 10_000; // una connessione WS deve autenticarsi entro 10
 // esplicitamente in package.json build.files, leggibile anche dentro app.asar).
 const ICON_PATH = join(__dirname, '../../build/icon.png');
 
+/**
+ * Certificato auto-firmato per il server HTTPS locale — generato una sola
+ * volta e riusato tra i riavvii (cachato in userData) così l'eccezione di
+ * sicurezza accettata dal browser sul tablet resta valida nel tempo.
+ */
+function ensureCertificate(): { key: string; cert: string } {
+    const certDir = join(app.getPath('userData'), 'remote-control-cert');
+    const keyPath = join(certDir, 'key.pem');
+    const certPath = join(certDir, 'cert.pem');
+
+    if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
+        return { key: fs.readFileSync(keyPath, 'utf8'), cert: fs.readFileSync(certPath, 'utf8') };
+    }
+
+    const pems = selfsigned.generate([{ name: 'commonName', value: 'rrlmp.local' }], {
+        days: 3650,
+        keySize: 2048,
+        algorithm: 'sha256'
+    });
+
+    fs.mkdirSync(certDir, { recursive: true });
+    fs.writeFileSync(keyPath, pems.private, { mode: 0o600 });
+    fs.writeFileSync(certPath, pems.cert, { mode: 0o600 });
+    return { key: pems.private, cert: pems.cert };
+}
+
 /** Comandi remoti abilitati in questo step. Whitelist esplicita — un comando
  *  non presente qui viene ignorato anche se il client lo invia autenticato. */
 export type RemoteCommandName = 'stopAll' | 'playClip' | 'stopClip';
 const ALLOWED_COMMANDS: ReadonlySet<string> = new Set<RemoteCommandName>(['stopAll', 'playClip', 'stopClip']);
 
-let server: http.Server | null = null;
+let server: https.Server | null = null;
 let wss: WebSocketServer | null = null;
 let currentPin: string | null = null;
 let pinLimiter = createPinRateLimiter();
@@ -122,7 +165,7 @@ export function startRemoteControlServer(handleCommand: (name: RemoteCommandName
     pinLimiter = createPinRateLimiter(); // stato pulito ad ogni avvio, nessun residuo dalla sessione precedente
     onRemoteCommand = handleCommand;
 
-    const srv = http.createServer((req, res) => {
+    const srv = https.createServer(ensureCertificate(), (req, res) => {
         if (req.method === 'GET' && req.url === '/health') {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ ok: true }));
