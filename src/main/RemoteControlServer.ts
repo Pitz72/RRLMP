@@ -11,32 +11,22 @@
 // trasmette in broadcast ai client WS autenticati; comandi playClip/stopClip
 // con clipId.
 //
-// HTTPS (2026-07-01, richiesta esplicita dopo primo test utente): Chrome/
-// Android propone l'installazione PWA con un tap SOLO su contesto sicuro
-// (HTTPS o localhost) — su HTTP semplice su IP LAN l'evento
-// 'beforeinstallprompt' non scatta mai, quindi l'utente vedeva solo le
-// istruzioni manuali. Certificato auto-firmato generato una sola volta e
-// cachato in userData (mai rigenerato tra un avvio e l'altro, altrimenti il
-// browser richiederebbe di accettare l'avviso di sicurezza ad ogni sessione
-// invece che una volta sola). Nessuna CA reale: il browser mostrerà comunque
-// un avviso "connessione non sicura" al PRIMO collegamento da un dispositivo,
-// da accettare manualmente una volta (component di navigazione avanzata).
-import * as https from 'https';
-import type * as http from 'http'; // solo per i tipi condivisi (IncomingMessage) — il server è https
+// HTTP semplice (2026-07-01): il controllo remoto è pensato per essere usato
+// tramite l'app Android nativa (guscio WebView, cartella android/), non dal
+// browser. Un'app nativa non è soggetta ai vincoli di "secure context" del
+// browser: può parlare in ws:// cleartext sulla LAN senza avvisi né prompt di
+// installazione PWA. Questo ci permette di eliminare del tutto la macchina dei
+// certificati auto-firmati (il "buco nero" del primo prototipo) — la sicurezza
+// resta affidata al PIN + autenticazione sul WebSocket, adeguata per una LAN.
+import * as http from 'http';
 import * as os from 'os';
 import * as fs from 'fs';
 import { join } from 'path';
-import { app } from 'electron';
 import { WebSocketServer, WebSocket } from 'ws';
 import { logger } from './logger';
 import { createPinRateLimiter } from './pinRateLimiter';
 import { INDEX_HTML, MANIFEST_JSON, SERVICE_WORKER_JS } from './remoteControlAssets';
 import { RemoteClipState, sanitizeRemoteClipState } from './remoteClipState';
-import { certCoversAddresses } from './certUtils';
-// Fix ESM/CJS interop (stesso pattern di ffmpeg-static/ffprobe-static in AudioProcessor.ts):
-// il .d.ts di questo pacchetto non esporta correttamente la funzione per import nominale.
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const selfsigned = require('selfsigned');
 
 const PORT = 8787;
 const MAX_BODY_BYTES = 1024; // il body più grande atteso è {"pin":"123456"} — margine ampio
@@ -47,63 +37,14 @@ const AUTH_TIMEOUT_MS = 10_000; // una connessione WS deve autenticarsi entro 10
 // esplicitamente in package.json build.files, leggibile anche dentro app.asar).
 const ICON_PATH = join(__dirname, '../../build/icon.png');
 
-/**
- * Certificato auto-firmato per il server HTTPS locale — generato una sola
- * volta e riusato tra i riavvii (cachato in userData) così l'eccezione di
- * sicurezza accettata/il certificato installato sul tablet restano validi nel
- * tempo. CA:true + Subject Alternative Name con gli IP LAN correnti (2026-07-01):
- * senza SAN corrispondente all'IP usato per connettersi, i browser moderni
- * rifiutano il certificato anche se lo si installa come attendibile — non
- * basta più la sola commonName. Se l'IP della macchina cambia (es. DHCP) e il
- * certificato cachato non lo copre più, viene rigenerato automaticamente.
- */
-function ensureCertificate(): { key: string; cert: string } {
-    const certDir = join(app.getPath('userData'), 'remote-control-cert');
-    const keyPath = join(certDir, 'key.pem');
-    const certPath = join(certDir, 'cert.pem');
-    const addresses = getLocalLanAddresses();
-
-    if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
-        const cachedCert = fs.readFileSync(certPath, 'utf8');
-        if (certCoversAddresses(cachedCert, addresses)) {
-            return { key: fs.readFileSync(keyPath, 'utf8'), cert: cachedCert };
-        }
-        logger.info('[RemoteControlServer] Indirizzo LAN non coperto dal certificato cachato, rigenero');
-    }
-
-    const pems = selfsigned.generate([{ name: 'commonName', value: 'rrlmp.local' }], {
-        days: 3650,
-        keySize: 2048,
-        algorithm: 'sha256',
-        extensions: [
-            { name: 'basicConstraints', cA: true },
-            { name: 'keyUsage', keyCertSign: true, digitalSignature: true, keyEncipherment: true, nonRepudiation: true },
-            {
-                name: 'subjectAltName',
-                altNames: [
-                    { type: 2, value: 'localhost' }, // dNSName
-                    { type: 7, ip: '127.0.0.1' },
-                    ...addresses.map((ip) => ({ type: 7, ip })) // 7 = iPAddress
-                ]
-            }
-        ]
-    });
-
-    fs.mkdirSync(certDir, { recursive: true });
-    fs.writeFileSync(keyPath, pems.private, { mode: 0o600 });
-    fs.writeFileSync(certPath, pems.cert, { mode: 0o600 });
-    return { key: pems.private, cert: pems.cert };
-}
-
 /** Comandi remoti abilitati in questo step. Whitelist esplicita — un comando
  *  non presente qui viene ignorato anche se il client lo invia autenticato. */
 export type RemoteCommandName = 'stopAll' | 'playClip' | 'stopClip';
 const ALLOWED_COMMANDS: ReadonlySet<string> = new Set<RemoteCommandName>(['stopAll', 'playClip', 'stopClip']);
 
-let server: https.Server | null = null;
+let server: http.Server | null = null;
 let wss: WebSocketServer | null = null;
 let currentPin: string | null = null;
-let currentCertPem: string | null = null;
 let pinLimiter = createPinRateLimiter();
 let onRemoteCommand: ((name: RemoteCommandName, clipId?: string) => void) | null = null;
 let musicState: RemoteClipState[] = [];
@@ -189,10 +130,7 @@ export function startRemoteControlServer(handleCommand: (name: RemoteCommandName
     pinLimiter = createPinRateLimiter(); // stato pulito ad ogni avvio, nessun residuo dalla sessione precedente
     onRemoteCommand = handleCommand;
 
-    const certPair = ensureCertificate();
-    currentCertPem = certPair.cert;
-
-    const srv = https.createServer(certPair, (req, res) => {
+    const srv = http.createServer((req, res) => {
         if (req.method === 'GET' && req.url === '/health') {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ ok: true }));
@@ -223,20 +161,6 @@ export function startRemoteControlServer(handleCommand: (name: RemoteCommandName
                 res.writeHead(200, { 'Content-Type': 'image/png' });
                 res.end(data);
             });
-            return;
-        }
-
-        // Download del certificato per installarlo come attendibile sul dispositivo
-        // (opzionale: abilita il vero prompt di installazione automatico invece
-        // delle sole istruzioni manuali — vedi remoteControlAssets.ts). Content-Type
-        // e nome file riconosciuti da Android come certificato installabile.
-        if (req.method === 'GET' && req.url === '/rrlmp-cert.crt') {
-            if (!currentCertPem) { res.writeHead(404); res.end(); return; }
-            res.writeHead(200, {
-                'Content-Type': 'application/x-x509-ca-cert',
-                'Content-Disposition': 'attachment; filename="rrlmp-remote-control.crt"'
-            });
-            res.end(currentCertPem);
             return;
         }
 
@@ -335,6 +259,5 @@ export function stopRemoteControlServer(): void {
     server.close();
     server = null;
     currentPin = null;
-    currentCertPem = null;
     logger.info('[RemoteControlServer] Fermato');
 }
