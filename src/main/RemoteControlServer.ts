@@ -23,6 +23,7 @@ import * as os from 'os';
 import * as fs from 'fs';
 import { join } from 'path';
 import { WebSocketServer, WebSocket } from 'ws';
+import { Bonjour } from 'bonjour-service';
 import { logger } from './logger';
 import { createPinRateLimiter } from './pinRateLimiter';
 import { INDEX_HTML, MANIFEST_JSON, SERVICE_WORKER_JS } from './remoteControlAssets';
@@ -46,6 +47,7 @@ let server: http.Server | null = null;
 let wss: WebSocketServer | null = null;
 let currentPin: string | null = null;
 let pinLimiter = createPinRateLimiter();
+let bonjour: Bonjour | null = null;
 let onRemoteCommand: ((name: RemoteCommandName, clipId?: string) => void) | null = null;
 let musicState: RemoteClipState[] = [];
 const authenticatedClients = new Set<WebSocket>();
@@ -115,6 +117,33 @@ export interface RemoteControlStatus {
 export function getRemoteControlStatus(): RemoteControlStatus {
     if (!server) return { running: false };
     return { running: true, port: PORT, pin: currentPin ?? undefined, addresses: getLocalLanAddresses() };
+}
+
+/**
+ * Pubblica il servizio via mDNS/DNS-SD (`_rrlmp._tcp`) così l'app Android può
+ * trovare il PC in regia automaticamente, senza digitare l'IP. Best-effort: se
+ * mDNS non è disponibile (es. porta 5353 occupata su Windows da un altro
+ * servizio Bonjour) l'errore viene solo loggato — il server resta pienamente
+ * funzionante e l'inserimento manuale dell'IP continua a funzionare.
+ */
+function startMdnsAdvertisement(): void {
+    try {
+        bonjour = new Bonjour();
+        bonjour.publish({ name: 'RRLMP Regia Remota', type: 'rrlmp', port: PORT });
+        logger.info('[RemoteControlServer] mDNS: servizio _rrlmp._tcp pubblicato');
+    } catch (err) {
+        logger.error(`[RemoteControlServer] mDNS non disponibile: ${(err as Error).message}`);
+        bonjour = null;
+    }
+}
+
+function stopMdnsAdvertisement(): void {
+    const b = bonjour;
+    bonjour = null;
+    if (!b) return;
+    try {
+        b.unpublishAll(() => { try { b.destroy(); } catch { /* best-effort */ } });
+    } catch { /* best-effort */ }
 }
 
 /**
@@ -244,12 +273,14 @@ export function startRemoteControlServer(handleCommand: (name: RemoteCommandName
     srv.listen(PORT, '0.0.0.0');
     server = srv;
     wss = socketServer;
+    startMdnsAdvertisement();
     logger.info(`[RemoteControlServer] Avviato su porta ${PORT}`);
     return getRemoteControlStatus();
 }
 
 export function stopRemoteControlServer(): void {
     if (!server) return;
+    stopMdnsAdvertisement();
     wss?.clients.forEach((c) => c.terminate());
     wss?.close();
     wss = null;

@@ -2,6 +2,8 @@ package it.runtimeradio.rrlmpremote
 
 import android.app.Activity
 import android.content.Context
+import android.net.nsd.NsdManager
+import android.net.nsd.NsdServiceInfo
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
@@ -27,6 +29,11 @@ class MainActivity : Activity() {
     private lateinit var prefs: android.content.SharedPreferences
     private var webView: WebView? = null
 
+    // mDNS auto-discovery (step 4)
+    private var nsdManager: NsdManager? = null
+    private var discoveryListener: NsdManager.DiscoveryListener? = null
+    private var discovering = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         prefs = getSharedPreferences("rrlmp", Context.MODE_PRIVATE)
@@ -40,9 +47,12 @@ class MainActivity : Activity() {
         val host = findViewById<EditText>(R.id.host)
         val port = findViewById<EditText>(R.id.port)
         val connect = findViewById<Button>(R.id.connect)
+        val discover = findViewById<Button>(R.id.discover)
 
         host.setText(prefs.getString("last_host", ""))
         port.setText(prefs.getString("last_port", "8787"))
+
+        discover.setOnClickListener { discoverServer(host, port) }
 
         connect.setOnClickListener {
             val h = host.text.toString().trim()
@@ -78,6 +88,80 @@ class MainActivity : Activity() {
         wv.loadUrl(url)
         webView = wv
         setContentView(wv)
+    }
+
+    /**
+     * Cerca il PC in regia via mDNS/DNS-SD (`_rrlmp._tcp`, pubblicato dal server
+     * RRLMP). Risolve il primo servizio trovato e precompila IP+porta. Best-effort
+     * con timeout di 6s: se non trova nulla, l'inserimento manuale resta la via.
+     */
+    private fun discoverServer(host: EditText, port: EditText) {
+        if (discovering) return
+        val nsd = getSystemService(Context.NSD_SERVICE) as? NsdManager ?: run {
+            Toast.makeText(this, "mDNS non disponibile su questo dispositivo", Toast.LENGTH_SHORT).show()
+            return
+        }
+        nsdManager = nsd
+        discovering = true
+        Toast.makeText(this, "Ricerca del PC in regia…", Toast.LENGTH_SHORT).show()
+
+        val listener = object : NsdManager.DiscoveryListener {
+            override fun onDiscoveryStarted(serviceType: String) {}
+            override fun onDiscoveryStopped(serviceType: String) { discovering = false }
+            override fun onStartDiscoveryFailed(serviceType: String, errorCode: Int) { discovering = false }
+            override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) { discovering = false }
+            override fun onServiceLost(serviceInfo: NsdServiceInfo) {}
+            override fun onServiceFound(serviceInfo: NsdServiceInfo) {
+                // Risolvi il primo servizio trovato e ferma la ricerca.
+                try { nsd.stopServiceDiscovery(this) } catch (_: Exception) {}
+                nsd.resolveService(serviceInfo, object : NsdManager.ResolveListener {
+                    override fun onResolveFailed(si: NsdServiceInfo, errorCode: Int) {
+                        runOnUiThread {
+                            discovering = false
+                            Toast.makeText(this@MainActivity, "PC trovato ma non risolvibile", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    override fun onServiceResolved(si: NsdServiceInfo) {
+                        val addr = si.host?.hostAddress
+                        runOnUiThread {
+                            discovering = false
+                            if (addr != null) {
+                                host.setText(addr)
+                                port.setText(si.port.toString())
+                                Toast.makeText(this@MainActivity, "PC trovato: $addr:${si.port}", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                })
+            }
+        }
+        discoveryListener = listener
+        try {
+            nsd.discoverServices("_rrlmp._tcp.", NsdManager.PROTOCOL_DNS_SD, listener)
+        } catch (e: Exception) {
+            discovering = false
+            Toast.makeText(this, "Ricerca non avviabile: ${e.message}", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Timeout di sicurezza: se entro 6s non ha trovato nulla, ferma la ricerca.
+        host.postDelayed({
+            if (discovering) {
+                stopDiscovery()
+                Toast.makeText(this, "Nessun PC trovato. Inserisci l'IP a mano.", Toast.LENGTH_LONG).show()
+            }
+        }, 6000)
+    }
+
+    private fun stopDiscovery() {
+        if (!discovering) return
+        try { discoveryListener?.let { nsdManager?.stopServiceDiscovery(it) } } catch (_: Exception) {}
+        discovering = false
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopDiscovery()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -54,4 +54,14 @@
         android:textColor="#0F172A"
         android:backgroundTint="#0EA5E9" />
 
+    <Button
+        android:id="@+id/discover"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Cerca automaticamente il PC"
+        android:textColor="#94A3B8"
+        android:textSize="13sp"
+        android:backgroundTint="#1E293B" />
+
 </LinearLayout>
