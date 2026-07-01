@@ -67,7 +67,7 @@ const SortableColumn: React.FC<SortableColumnProps> = ({ column, children, onNat
             onDragLeave={onNativeDragLeave}
         >
             <ColumnHeader column={column} />
-            <div className="col-body scrollbar-thin scrollbar-thumb-zinc-700">
+            <div className="col-body">
                 {children}
             </div>
         </div>

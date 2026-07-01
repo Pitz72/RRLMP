@@ -154,6 +154,25 @@
    quando compare/scompare (es. una clip che si allarga col badge UP NEXT mentre suona). */
 .theme-spectrum .col-body { flex: 1; display: flex; flex-direction: column; gap: 9px; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-gutter: stable; padding: 11px; }
 
+/* Step 2 (scrollbar colonne): scrollbar custom scura e integrata col colore
+   della colonna. Sul fondo nero della board risulta più discreta della vecchia
+   scrollbar Tailwind (zinc-700): thumb scuro tinto ~col-color, track invisibile,
+   thumb "sottile" grazie al bordo trasparente con background-clip. */
+.theme-spectrum .col-body::-webkit-scrollbar { width: 10px; }
+.theme-spectrum .col-body::-webkit-scrollbar-track { background: transparent; }
+.theme-spectrum .col-body::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--col-color, #52525b) 20%, #000);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.theme-spectrum .col-body::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--col-color, #71717a) 42%, #000);
+  background-clip: padding-box;
+}
+/* Firefox */
+.theme-spectrum .col-body { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--col-color, #52525b) 24%, #000) transparent; }
+
 /* ---------- clip card ---------- */
 .theme-spectrum .clip {
   position: relative; overflow: hidden; flex-shrink: 0;
