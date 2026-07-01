@@ -24,6 +24,7 @@ if (process.contextIsolated) {
             getWaveformData: (filePath: string) => ipcRenderer.invoke('get-waveform-data', filePath),
             detectSilence: (filePath: string, thresholdDb?: number) => ipcRenderer.invoke('detect-silence', filePath, thresholdDb),
             detectSmartCues: (filePath: string) => ipcRenderer.invoke('detect-smart-cues', filePath),
+            detectBpm: (filePath: string) => ipcRenderer.invoke('detect-bpm', filePath),
             checkFilesExist: (paths: string[]) => ipcRenderer.invoke('check-files-exist', paths),
 
             // Persistence APIs

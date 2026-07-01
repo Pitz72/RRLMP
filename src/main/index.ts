@@ -256,6 +256,14 @@ ipcMain.handle('detect-silence', async (_event, filePath: string, thresholdDb?: 
     ).catch((err: Error) => ({ success: false, error: err.message }));
 });
 
+// 2026-07-01 — Stima BPM (rilevamento + persistenza, nessun uso ancora nel motore
+// audio). Timeout 25s: copre i 20s interni di AudioProcessor.detectBpm + grace.
+ipcMain.handle('detect-bpm', async (_event, filePath: string) => {
+    return withConcurrencyLimit('detect-bpm', 2, () =>
+        withIpcTimeout(AudioProcessor.detectBpm(filePath), 25_000, 'detect-bpm')
+    ).catch((err: Error) => ({ success: false, error: err.message }));
+});
+
 ipcMain.handle('detect-smart-cues', async (_event, filePath: string) => {
     // v1.2.18 (NEW-GR-03): timeout IPC = 50s.
     // Coperti i sub-timeout interni FFmpeg: _estimateMeanLevel (10s) + silencedetect (30s) = 40s,

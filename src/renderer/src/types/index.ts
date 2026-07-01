@@ -30,6 +30,8 @@ declare global {
             getWaveformData: (filePath: string) => Promise<{success: boolean, data?: number[], error?: string}>;
             detectSilence: (filePath: string, thresholdDb?: number) => Promise<{success: boolean, data?: {trimStart: number, trimEnd: number, noSilence?: boolean, thresholdUsed?: number}, error?: string}>;
             detectSmartCues: (filePath: string) => Promise<{success: boolean, data?: {introCue: number, outroCue: number}, error?: string}>;
+            // 2026-07-01 — BPM Detection automatica (rilevamento + persistenza)
+            detectBpm: (filePath: string) => Promise<{success: boolean, data?: {bpm: number, confidence: number}, error?: string}>;
             checkFilesExist: (paths: string[]) => Promise<{ missing: string[] }>;
             saveProject: (content: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
             loadProject: () => Promise<{ success: boolean; data?: string; filePath?: string; error?: string }>;
@@ -192,6 +194,15 @@ export interface AudioClip {
     /** Loudness integrata misurata (EBU R128, LUFS). Usata per omologare il volume tra clip
      *  applicando un guadagno statico a runtime verso il target. Misurata una volta e cachata. */
     loudnessLufs?: number;
+
+    // BPM Detection (2026-07-01) — persistito nel .lmp
+    /** BPM stimato tramite analisi FFmpeg (onset detection + autocorrelazione). Solo
+     *  rilevamento + visualizzazione in questo step: non ancora usato dal motore mix. */
+    bpm?: number;
+    /** True solo se il rilevamento BPM è realmente avvenuto con esito valido (successo
+     *  o "non rilevabile" esplicito). Un fallimento (rate-limit/timeout) NON lo imposta,
+     *  per essere ritentato al prossimo caricamento — stesso pattern di silenceCheckedV2. */
+    bpmChecked?: boolean;
 }
 
 
