@@ -27,6 +27,7 @@ import { Upload } from 'lucide-react';
 import { ClipSettingsModal } from '../modals/ClipSettingsModal';
 import { AudioClip, Column } from '../../types';
 import { classifySilenceResult } from '../../utils/silenceDetection';
+import { classifyBpmResult } from '../../utils/bpmDetection';
 
 // Helper component for Drop Area (Column)
 interface SortableColumnProps {
@@ -240,6 +241,38 @@ export const MainGrid: React.FC = () => {
         });
     }, [currentFilePath]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    // AUTO-BPM DETECTION BATCH — colonna Music al caricamento progetto (2026-07-01)
+    // Solo rilevamento + persistenza (nessun uso ancora nel motore audio, vedi roadmap
+    // BPM Detection). Stesso schema del batch auto-silenzio qui sopra, gate su
+    // bpmChecked invece di silenceCheckedV2: nessuna UI di progresso (a differenza del
+    // trim silenzio non altera l'ascolto, quindi gira silenziosamente in background).
+    useEffect(() => {
+        if (!currentFilePath) return;
+        const freshColumns = useProjectStore.getState().columns;
+        const musicCol = freshColumns.find(c => c.type === 'music');
+        if (!musicCol) return;
+
+        const unanalyzed = musicCol.clips.filter(c => !c.bpmChecked && !c.isMissing);
+        if (unanalyzed.length === 0 || !window.electron?.detectBpm) return;
+        debugLog(`AutoBpm[music] load: ${musicCol.clips.length} clip totali, ${unanalyzed.length} da analizzare (bpmChecked assente/false)`, 'info');
+
+        unanalyzed.forEach(clip => {
+            window.electron.detectBpm(clip.path).then(result => {
+                const r = classifyBpmResult(result);
+                if (r.checked) {
+                    updateClip('col-music', clip.id, {
+                        ...(r.bpm !== undefined ? { bpm: r.bpm } : {}),
+                        bpmChecked: true
+                    });
+                } else {
+                    debugLog(`AutoBpm[music]: analisi fallita per "${clip.name}" (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');
+                }
+            }).catch((err) => {
+                debugLog(`AutoBpm[music]: eccezione per "${clip.name}": ${err}`, 'error');
+            });
+        });
+    }, [currentFilePath]); // eslint-disable-line react-hooks/exhaustive-deps
+
     // Sensors
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -325,6 +358,24 @@ export const MainGrid: React.FC = () => {
                     }).finally(() => {
                         if (isPreshow) setPreshowAnalyzingCount(n => Math.max(0, n - 1));
                         else setMusicAnalyzingCount(n => Math.max(0, n - 1));
+                    });
+                }
+
+                // Auto-BPM Detection per colonna Music (2026-07-01) — solo rilevamento +
+                // persistenza, nessuna UI di progresso (vedi batch al caricamento sopra).
+                if (col?.type === 'music' && window.electron?.detectBpm) {
+                    window.electron.detectBpm(newClip.path).then(result => {
+                        const r = classifyBpmResult(result);
+                        if (r.checked) {
+                            updateClip(colId, newClip.id, {
+                                ...(r.bpm !== undefined ? { bpm: r.bpm } : {}),
+                                bpmChecked: true
+                            });
+                        } else {
+                            debugLog(`AutoBpm [${newClip.name}]: analisi fallita (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');
+                        }
+                    }).catch((err) => {
+                        debugLog(`AutoBpm [${newClip.name}]: eccezione: ${err}`, 'error');
                     });
                 }
             }
