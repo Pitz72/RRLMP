@@ -523,7 +523,10 @@ export const MainGrid: React.FC = () => {
             onDragEnd={handleDragEnd}
         >
             <div className="flex h-full w-full text-white overflow-hidden relative gap-2.5 px-4 pb-4 pt-1">
-                {columns.map((col) => (
+                {/* Step 3 (UI regia): la colonna FX (type 'sfx') non è più nella griglia —
+                    i suoi effetti vivono nel minipad FX 5×5 (FxPadOverlay). La colonna
+                    resta nel modello dati (bus/polifonia/esenzioni del motore invariate). */}
+                {columns.filter((col) => col.type !== 'sfx').map((col) => (
                     <SortableColumn
                         key={col.id}
                         column={col}

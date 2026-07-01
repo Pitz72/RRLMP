@@ -24,6 +24,7 @@ import { ConfirmDialog } from './components/ui/ConfirmDialog';
 import { toast } from './store/useToastStore';
 import { confirm, confirmThree } from './store/useConfirmStore';
 import { ListChecks } from 'lucide-react';
+import { FxPadOverlay } from './components/ui/FxPadOverlay';
 
 
 import appLogo from './assets/logo.png';
@@ -32,6 +33,7 @@ function App() {
     const [showWelcome, setShowWelcome] = useState(true);
     const [showPlayoutLog, setShowPlayoutLog] = useState(false);
     const [showMidiSim, setShowMidiSim] = useState(false);
+    const [showFxPad, setShowFxPad] = useState(false);
     const masterChain = useSettingsStore((s) => s.masterChain);
 
     // LI-04: cleanup singleton audio/MIDI all'unmount (hot-reload dev + ricarica pagina)
@@ -389,6 +391,7 @@ function App() {
             <ConfirmDialog />
             {showPlayoutLog && <PlayoutLogModal onClose={() => setShowPlayoutLog(false)} />}
             <MidiSimulatorModal isOpen={showMidiSim} onClose={() => setShowMidiSim(false)} />
+            <FxPadOverlay isOpen={showFxPad} onClose={() => setShowFxPad(false)} />
 
             {showWelcome && (
                 <WelcomeScreen
@@ -421,16 +424,13 @@ function App() {
                 <div className="flex items-center gap-2 min-w-0">
                     {/* BRAND (Spectrum) */}
                     <div className="brand mr-2">
-                        <img src={appLogo} alt="Logo" className="brand-logo" />
-                        <div className="brand-txt">
-                            <span className="brand-name">RUNTIME LIVE MACHINE <span className="pro">PRO</span></span>
-                            <span className="brand-sub">BROADCAST PLAYOUT · v{__APP_VERSION__}</span>
-                        </div>
+                        <img src={appLogo} alt="Logo" className="brand-logo" title={`Runtime Live Machine PRO · v${__APP_VERSION__}`} />
+                        <span className="brand-name">RLM <span style={{ color: '#4ade80' }}>PRO</span></span>
                     </div>
 
                     {/* GLOBAL CONTROLS */}
 
-                    <GlobalControls />
+                    <GlobalControls fxPadOpen={showFxPad} onToggleFxPad={() => setShowFxPad((v) => !v)} />
                 </div>
 
                 <div className="flex items-center gap-4 shrink-0">

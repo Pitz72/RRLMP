@@ -3,7 +3,7 @@ import { useAudioStore } from '../../store/useAudioStore';
 import AudioContextManager from '../../engine/AudioContextManager';
 import MicManager from '../../engine/MicManager';
 import { Button } from './Button';
-import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic, Check, Mic, MicOff, Undo2, Redo2 } from 'lucide-react';
+import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic, Check, Mic, MicOff, Undo2, Redo2, Grid3x3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 
@@ -23,7 +23,13 @@ import { classifySilenceResult } from '../../utils/silenceDetection';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import MidiManager from '../../engine/MidiManager';
 
-export const GlobalControls = () => {
+interface GlobalControlsProps {
+    /** Step 3 (UI regia): stato/azione del minipad FX, gestiti in App.tsx. */
+    fxPadOpen?: boolean;
+    onToggleFxPad?: () => void;
+}
+
+export const GlobalControls = ({ fxPadOpen, onToggleFxPad }: GlobalControlsProps) => {
     const { t } = useTranslation();
     const { stopAll } = useAudioStore();
     const loadClip = useAudioStore((s) => s.loadClip);
@@ -433,6 +439,23 @@ export const GlobalControls = () => {
                 )}
             </Button>
 
+            {/* FX PAD (Step 3 UI regia) — toggle del minipad FX 5×5, accanto a STOP ALL
+                per essere sempre ben visibile e a portata durante la diretta. */}
+            {onToggleFxPad && (
+                <Button
+                    size="sm"
+                    onClick={onToggleFxPad}
+                    className={`${fxPadOpen
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50'
+                        : 'tool'} mr-4 relative`}
+                    title="Pad FX (5×5) — mostra/nascondi"
+                >
+                    <div className="flex items-center gap-1.5 font-bold text-[11px]">
+                        <Grid3x3 size={14} />
+                        <span>FX</span>
+                    </div>
+                </Button>
+            )}
 
             {/* UNDO / REDO (v1.5.0) */}
             <div className="flex items-center gap-1 border-l border-zinc-800 pl-4">
