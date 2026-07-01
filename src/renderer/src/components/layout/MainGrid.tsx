@@ -148,6 +148,7 @@ export const MainGrid: React.FC = () => {
         if (!musicCol) return;
 
         const unanalyzed = musicCol.clips.filter(c => !c.silenceChecked && !c.isMissing);
+        debugLog(`AutoSilence[music] load: ${musicCol.clips.length} clip totali, ${unanalyzed.length} da analizzare (silenceChecked assente/false)`, 'info');
         if (unanalyzed.length === 0 || !window.electron?.detectSilence) return;
 
         setMusicAnalyzingCount(unanalyzed.length);
@@ -190,9 +191,13 @@ export const MainGrid: React.FC = () => {
         if (!currentFilePath) return;
         const freshColumns = useProjectStore.getState().columns;
         const preshowCol = freshColumns.find(c => c.type === 'preshow');
-        if (!preshowCol) return;
+        if (!preshowCol) {
+            debugLog('AutoSilence[preshow] load: nessuna colonna con type="preshow" trovata nel progetto', 'error');
+            return;
+        }
 
         const unanalyzed = preshowCol.clips.filter(c => !c.silenceChecked && !c.isMissing);
+        debugLog(`AutoSilence[preshow] load: colonna id="${preshowCol.id}", ${preshowCol.clips.length} clip totali, ${unanalyzed.length} da analizzare (silenceChecked assente/false)`, 'info');
         if (unanalyzed.length === 0 || !window.electron?.detectSilence) return;
 
         setPreshowAnalyzingCount(unanalyzed.length);
