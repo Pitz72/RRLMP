@@ -3,6 +3,7 @@ import { join, normalize, isAbsolute, extname } from 'path';
 import * as fs from 'fs';
 import { AudioProcessor } from './AudioProcessor';
 import { logger } from './logger';
+import { startRemoteControlServer, stopRemoteControlServer, getRemoteControlStatus } from './RemoteControlServer';
 
 // GR-03 Fix: timeout wrapper per IPC handler asincroni che invocano FFmpeg.
 // Evita hang permanenti dell'app se FFmpeg si blocca o il file è illeggibile.
@@ -255,6 +256,12 @@ ipcMain.handle('detect-silence', async (_event, filePath: string, thresholdDb?: 
         withIpcTimeout(AudioProcessor.detectSilence(filePath, thresholdDb), 45_000, 'detect-silence')
     ).catch((err: Error) => ({ success: false, error: err.message }));
 });
+
+// Controllo Remoto (2026-07-01, Step 1/N) — avvio/stop server LAN a mano dalle
+// Impostazioni. Nessun timeout/rate-limit: sono azioni istantanee locali, non FFmpeg.
+ipcMain.handle('remote-control:start', () => startRemoteControlServer());
+ipcMain.handle('remote-control:stop', () => { stopRemoteControlServer(); return getRemoteControlStatus(); });
+ipcMain.handle('remote-control:status', () => getRemoteControlStatus());
 
 // 2026-07-01 — Stima BPM (rilevamento + persistenza, nessun uso ancora nel motore
 // audio). Timeout 25s: copre i 20s interni di AudioProcessor.detectBpm + grace.
@@ -1188,6 +1195,7 @@ app.on('will-quit', () => {
 app.on('before-quit', () => {
     const killed = AudioProcessor.cancelAllConversions();
     if (killed > 0) logger.warn(`[Main] Terminate ${killed} conversioni FFmpeg attive su before-quit`);
+    stopRemoteControlServer(); // Controllo Remoto: mai lasciare il server LAN attivo dopo la chiusura dell'app
 });
 
 app.on('window-all-closed', () => {

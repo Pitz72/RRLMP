@@ -4,6 +4,7 @@ import { useAudioStore } from '../../store/useAudioStore';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_MASTER_CHAIN } from '../../engine/AudioContextManager';
 import { FlagIcon } from '../ui/FlagIcon';
+import { RemoteControlStatus } from '../../types';
 
 interface Props {
     isOpen: boolean;
@@ -82,6 +83,30 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
     const [devices, setDevices] = useState<AudioDevice[]>([]);
     const [inputDevices, setInputDevices] = useState<AudioDevice[]>([]);
     const [activeTab, setActiveTab] = useState<SettingsTab>('general');
+
+    // Controllo Remoto (2026-07-01, Step 1/N) — stato letto dal main a ogni apertura
+    // della modale; niente persistenza in useSettingsStore, il server riparte SEMPRE
+    // spento a ogni avvio dell'app (nessun opt-in di rete automatico e silenzioso).
+    const [remoteStatus, setRemoteStatus] = useState<RemoteControlStatus>({ running: false });
+    const [remoteToggleBusy, setRemoteToggleBusy] = useState(false);
+
+    useEffect(() => {
+        if (!isOpen || !window.electron?.remoteControlStatus) return;
+        window.electron.remoteControlStatus().then(setRemoteStatus).catch(() => {});
+    }, [isOpen]);
+
+    const handleToggleRemoteControl = async () => {
+        if (!window.electron?.remoteControlStart || !window.electron?.remoteControlStop) return;
+        setRemoteToggleBusy(true);
+        try {
+            const next = remoteStatus.running
+                ? await window.electron.remoteControlStop()
+                : await window.electron.remoteControlStart();
+            setRemoteStatus(next);
+        } finally {
+            setRemoteToggleBusy(false);
+        }
+    };
 
     useEffect(() => {
         if (!isOpen) return;
@@ -197,6 +222,34 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         );
                                     })}
                                 </div>
+                            </section>
+
+                            <Divider />
+
+                            {/* CONTROLLO REMOTO (2026-07-01, Step 1/N) — prototipo: server LAN opt-in */}
+                            <section className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <SectionTitle color="text-sky-400">Controllo Remoto (Beta)</SectionTitle>
+                                        <p className="text-[10px] text-zinc-600 mt-0.5 italic">Server locale in rete (LAN) per comandare l'app da un tablet/PC secondario. Nessun comando reale ancora attivo: solo avvio/verifica del server.</p>
+                                    </div>
+                                    <Toggle
+                                        enabled={remoteStatus.running}
+                                        onToggle={remoteToggleBusy ? () => {} : handleToggleRemoteControl}
+                                        labelOn="Attivo"
+                                        labelOff="Spento"
+                                    />
+                                </div>
+                                {remoteStatus.running && (
+                                    <div className="card !p-3 space-y-1">
+                                        <p className="text-xs text-zinc-300">PIN: <span className="font-mono text-sky-400 text-sm tracking-widest">{remoteStatus.pin}</span></p>
+                                        <p className="text-xs text-zinc-400">Porta: <span className="font-mono">{remoteStatus.port}</span></p>
+                                        {remoteStatus.addresses && remoteStatus.addresses.length > 0 && (
+                                            <p className="text-xs text-zinc-400">Indirizzi LAN: <span className="font-mono">{remoteStatus.addresses.join(', ')}</span></p>
+                                        )}
+                                        <p className="text-[10px] text-zinc-600 italic">Il server si ferma automaticamente alla chiusura dell'app. Non viene mai riavviato in automatico al prossimo avvio.</p>
+                                    </div>
+                                )}
                             </section>
                         </div>
                     )}

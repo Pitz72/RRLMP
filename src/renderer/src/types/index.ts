@@ -21,6 +21,14 @@ export type TransitionType = 'gapless' | 'segue' | 'crossfade';
 
 export type PlaybackMode = 'oneshot' | 'sequence';
 
+/** Controllo Remoto (2026-07-01, Step 1/N) — stato del server LAN locale opt-in. */
+export interface RemoteControlStatus {
+    running: boolean;
+    port?: number;
+    pin?: string;
+    addresses?: string[];
+}
+
 declare global {
     interface Window {
         electron: {
@@ -32,6 +40,10 @@ declare global {
             detectSmartCues: (filePath: string) => Promise<{success: boolean, data?: {introCue: number, outroCue: number}, error?: string}>;
             // 2026-07-01 — BPM Detection automatica (rilevamento + persistenza)
             detectBpm: (filePath: string) => Promise<{success: boolean, data?: {bpm: number, confidence: number, detected: boolean}, error?: string}>;
+            // Controllo Remoto (2026-07-01, Step 1/N) — server LAN locale opt-in
+            remoteControlStart: () => Promise<RemoteControlStatus>;
+            remoteControlStop: () => Promise<RemoteControlStatus>;
+            remoteControlStatus: () => Promise<RemoteControlStatus>;
             checkFilesExist: (paths: string[]) => Promise<{ missing: string[] }>;
             saveProject: (content: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
             loadProject: () => Promise<{ success: boolean; data?: string; filePath?: string; error?: string }>;

@@ -25,6 +25,11 @@ if (process.contextIsolated) {
             detectSilence: (filePath: string, thresholdDb?: number) => ipcRenderer.invoke('detect-silence', filePath, thresholdDb),
             detectSmartCues: (filePath: string) => ipcRenderer.invoke('detect-smart-cues', filePath),
             detectBpm: (filePath: string) => ipcRenderer.invoke('detect-bpm', filePath),
+
+            // Controllo Remoto (2026-07-01, Step 1/N) — server LAN locale opt-in
+            remoteControlStart: () => ipcRenderer.invoke('remote-control:start'),
+            remoteControlStop: () => ipcRenderer.invoke('remote-control:stop'),
+            remoteControlStatus: () => ipcRenderer.invoke('remote-control:status'),
             checkFilesExist: (paths: string[]) => ipcRenderer.invoke('check-files-exist', paths),
 
             // Persistence APIs
