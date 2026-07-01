@@ -22,12 +22,17 @@
  * NON è neutro (verificato: +4 LU e clipping). Per questo i 3 compressori di banda
  * sono SEMPRE configurati con i parametri glue e SEMPRE nel grafo; quando il glue è
  * disattivo si AGGIRANO azzerando `wetGain` e aprendo `dryGain` (passthrough reale),
- * non toccando mai i loro parametri. Il preset multibanda è fisso e tarato offline
- * (livello neutro ±0.5 LU, riduzione LRA gentile ~0.6 LU, true peak sicuro).
+ * non toccando mai i loro parametri quando il glue è spento. Il preset multibanda
+ * di default ('neutro') è tarato offline (livello neutro ±0.5 LU, riduzione LRA
+ * gentile ~0.6 LU, true peak sicuro). Da v1.7.0 è selezionabile uno stile diverso
+ * (rock/jazz/elettronico, vedi MB_STYLE_PRESETS) che applica live altri parametri
+ * ai 3 compressori — 'neutro' resta il default, zero regressione per chi non lo cambia.
  *
  * Quando masterChainEnabled = false: HPF→allpass, dry path attivo, limiter→passthrough
  * (ratio 1 / threshold 0, knee 0) → catena trasparente, identica al segnale d'ingresso.
  */
+
+export type CompressorStyle = 'neutro' | 'rock' | 'jazz' | 'elettronico';
 
 export interface MasterChainSettings {
     enabled: boolean;
@@ -36,6 +41,7 @@ export interface MasterChainSettings {
     compressorEnabled: boolean;  // abilita il Glue Multibanda (wet path)
     compressorThreshold: number; // dBFS — vestigiale (preset multibanda fisso), mantenuto per compat persistenza
     compressorRatio: number;     // vestigiale (preset multibanda fisso)
+    compressorStyle: CompressorStyle; // colore del Glue Multibanda (v1.7.0), default 'neutro'
     limiterThreshold: number;    // dBFS — default -1
 }
 
@@ -46,18 +52,52 @@ export const DEFAULT_MASTER_CHAIN: MasterChainSettings = {
     compressorEnabled: true,
     compressorThreshold: -24,
     compressorRatio: 2,
+    compressorStyle: 'neutro',
     limiterThreshold: -1,
 };
 
-// --- Preset Glue Multibanda (FISSO, tarato offline) ---
+type MbBand = { threshold: number; ratio: number; knee: number; attack: number; release: number };
+
+// --- Preset Glue Multibanda ---
+// 'neutro' è il preset ORIGINALE (v1.4.2/v1.4.3), tarato offline con misura oggettiva
+// (test A/B loudness/LUFS, vedi audit qualità audio 2026-06-05/06): è il default e resta
+// invariato, zero rischio di regressione per chi non tocca la nuova selezione stile.
+// rock/jazz/elettronico (v1.7.0) sono varianti additive DA VERIFICARE IN REGIA con
+// ascolto reale prima di considerarle definitive — valori di partenza plausibili
+// (più densità/attack per rock ed elettronico, più trasparenza/release lento per jazz),
+// NON ancora misurati con lo stesso rigore oggettivo del preset neutro.
+const MB_STYLE_PRESETS: Record<CompressorStyle, { outGain: number; low: MbBand; mid: MbBand; high: MbBand }> = {
+    neutro: {
+        outGain: 0.47,
+        low:  { threshold: -30, ratio: 2.0, knee: 12, attack: 0.012, release: 0.25 },
+        mid:  { threshold: -26, ratio: 2.0, knee: 14, attack: 0.015, release: 0.20 },
+        high: { threshold: -30, ratio: 1.6, knee: 14, attack: 0.006, release: 0.15 },
+    },
+    rock: {
+        outGain: 0.42,
+        low:  { threshold: -26, ratio: 2.8, knee: 8,  attack: 0.008, release: 0.18 },
+        mid:  { threshold: -22, ratio: 2.6, knee: 10, attack: 0.010, release: 0.14 },
+        high: { threshold: -26, ratio: 2.0, knee: 10, attack: 0.004, release: 0.10 },
+    },
+    jazz: {
+        outGain: 0.50,
+        low:  { threshold: -32, ratio: 1.6, knee: 16, attack: 0.020, release: 0.35 },
+        mid:  { threshold: -28, ratio: 1.5, knee: 16, attack: 0.020, release: 0.30 },
+        high: { threshold: -32, ratio: 1.3, knee: 16, attack: 0.010, release: 0.25 },
+    },
+    elettronico: {
+        outGain: 0.40,
+        low:  { threshold: -24, ratio: 3.0, knee: 6, attack: 0.006, release: 0.12 },
+        mid:  { threshold: -20, ratio: 2.8, knee: 8, attack: 0.008, release: 0.10 },
+        high: { threshold: -24, ratio: 2.2, knee: 8, attack: 0.003, release: 0.08 },
+    },
+};
+
 const MB_PRESET = {
-    xLow: 200,        // Hz — crossover basse/medie
-    xHigh: 2500,      // Hz — crossover medie/alte
-    outGain: 0.47,    // calibrazione che neutralizza il makeup implicito dei 3 compressori
-    smooth: 0.02,     // costante di tempo per switch wet/dry click-free
-    low:  { threshold: -30, ratio: 2.0, knee: 12, attack: 0.012, release: 0.25 },
-    mid:  { threshold: -26, ratio: 2.0, knee: 14, attack: 0.015, release: 0.20 },
-    high: { threshold: -30, ratio: 1.6, knee: 14, attack: 0.006, release: 0.15 },
+    xLow: 200,        // Hz — crossover basse/medie (condiviso da tutti gli stili)
+    xHigh: 2500,       // Hz — crossover medie/alte (condiviso da tutti gli stili)
+    smooth: 0.02,     // costante di tempo per switch wet/dry e cambio stile, click-free
+    ...MB_STYLE_PRESETS.neutro,
 };
 
 class AudioContextManager {
@@ -262,9 +302,10 @@ class AudioContextManager {
     // Master Chain Controls
     // -------------------------------------------------------------------------
 
-    /** Applica in blocco tutte le impostazioni della chain.
-     * I parametri dei compressori di banda NON vengono toccati (preset fisso): si
-     * commuta solo il routing wet/dry e lo stato di HPF e Limiter. */
+    /** Applica in blocco tutte le impostazioni della chain, incluso lo stile del
+     * Glue Multibanda (v1.7.0): i parametri dei 3 compressori di banda vengono
+     * aggiornati live via setTargetAtTime (stesso smoothing del wet/dry switch,
+     * transizione click-free) in base a `s.compressorStyle`. */
     public applyMasterChainSettings(s: MasterChainSettings): void {
         const now = this.context.currentTime;
         const t = MB_PRESET.smooth;
@@ -278,6 +319,20 @@ class AudioContextManager {
             this.hpf.type = 'highpass';
             this.hpf.frequency.setTargetAtTime(s.hpfFrequency, now, 0.05);
         }
+
+        // Glue Multibanda — stile (v1.7.0)
+        const style = MB_STYLE_PRESETS[s.compressorStyle] ?? MB_STYLE_PRESETS.neutro;
+        const applyBand = (comp: DynamicsCompressorNode, p: MbBand) => {
+            comp.threshold.setTargetAtTime(p.threshold, now, t);
+            comp.ratio.setTargetAtTime(p.ratio, now, t);
+            comp.knee.setTargetAtTime(p.knee, now, t);
+            comp.attack.setTargetAtTime(p.attack, now, t);
+            comp.release.setTargetAtTime(p.release, now, t);
+        };
+        applyBand(this.compLow, style.low);
+        applyBand(this.compMid, style.mid);
+        applyBand(this.compHigh, style.high);
+        this.mbSum.gain.setTargetAtTime(style.outGain, now, t);
 
         // Glue Multibanda — wet/dry in mutua esclusione (click-free)
         this.wetGain.gain.setTargetAtTime(glueOn ? 1 : 0, now, t);

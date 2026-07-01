@@ -518,6 +518,21 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     <Toggle enabled={masterChain.compressorEnabled} onToggle={() => setMasterChain({ compressorEnabled: !masterChain.compressorEnabled })} />
                                 </div>
                                 <p className="text-[10px] text-zinc-600 italic">Compressore a 3 bande (basse/medie/alte) con preset gentile tarato: allinea le dinamiche e dà calore senza alzare il volume né indurire il suono. Quando disattivo, il segnale passa pulito (solo HPF + Limiter di sicurezza).</p>
+
+                                <div className={`transition-opacity ${masterChain.compressorEnabled ? '' : 'opacity-40 pointer-events-none'}`}>
+                                    <span className="text-[10px] uppercase text-zinc-500 tracking-wider">Stile</span>
+                                    <select
+                                        value={masterChain.compressorStyle}
+                                        onChange={(e) => setMasterChain({ compressorStyle: e.target.value as typeof masterChain.compressorStyle })}
+                                        className="sel"
+                                    >
+                                        <option value="neutro">Neutro (default, tarato)</option>
+                                        <option value="rock">Rock — denso, punchy</option>
+                                        <option value="jazz">Jazz — trasparente, dinamico</option>
+                                        <option value="elettronico">Elettronico — compatto, tirato</option>
+                                    </select>
+                                    <p className="text-[10px] text-zinc-600 mt-1 italic">Solo 'Neutro' è tarato con misura oggettiva (LUFS/LRA). Gli altri stili sono valori di partenza: verificare in regia con ascolto reale.</p>
+                                </div>
                             </div>
 
                             {/* LIMITER */}
