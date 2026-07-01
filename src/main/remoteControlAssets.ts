@@ -161,7 +161,11 @@ export const INDEX_HTML = `<!DOCTYPE html>
     return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
   }
 
-  if (isRunningStandalone()) {
+  // L'app Android nativa (guscio WebView) carica la pagina con ?app=1: qui siamo
+  // già dentro un'app installata, quindi lo schermo "installa" non ha senso.
+  var isNativeApp = /[?&]app=1(&|$)/.test(window.location.search);
+
+  if (isRunningStandalone() || isNativeApp) {
     // Già installata e aperta come app: nessun senso proporre di nuovo l'installazione.
     showPinScreen();
   } else {
