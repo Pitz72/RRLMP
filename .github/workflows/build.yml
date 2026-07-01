@@ -36,4 +36,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: RRLMP-${{ matrix.os }}
-          path: builds/v*/**/*
+          path: |
+            builds/v*/*.AppImage
+            builds/v*/*.deb
+            builds/v*/*.dmg
+            builds/v*/*.exe
+            builds/v*/*.zip
+            builds/v*/*.blockmap
+            builds/v*/latest*.yml
+          retention-days: 7

@@ -5,6 +5,7 @@
   "homepage": "https://gitlab.com/pizzisimone1972/RRLMP",
   "main": "out/main/index.js",
   "scripts": {
+    "postinstall": "node scripts/prune-native-binaries.js",
     "dev:renderer": "vite",
     "dev": "npm run build:main && npm run build:preload && start /b npm run dev:renderer && set \"NODE_ENV=development\" && electron .",
     "build:main": "tsc -p tsconfig.main.json",
