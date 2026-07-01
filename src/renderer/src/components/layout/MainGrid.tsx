@@ -20,6 +20,7 @@ import {
 } from '@dnd-kit/sortable';
 import { useProjectStore } from '../../store/useProjectStore';
 import { useAudioStore } from '../../store/useAudioStore';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import { debugLog } from '../../store/useDebugStore';
 import { ClipCard } from './ClipCard';
 import { SortableClip } from './SortableClip'; // New component
@@ -84,6 +85,8 @@ export const MainGrid: React.FC = () => {
     // Controllo Remoto (2026-07-01, Step 4/N) — sottoscrizione reattiva separata:
     // serve solo per sapere QUALI clip sono in play, non richiede altro dallo store.
     const activeClips = useAudioStore((state) => state.activeClips);
+    // Layout regia configurabile (v1.9.8) — colonne nascoste dalla board (globale).
+    const hiddenColumnIds = useSettingsStore((state) => state.hiddenColumnIds);
 
     const [editingClip, setEditingClip] = useState<AudioClip | null>(null);
     const [activeId, setActiveId] = useState<string | null>(null);
@@ -525,8 +528,11 @@ export const MainGrid: React.FC = () => {
             <div className="flex h-full w-full text-white overflow-hidden relative gap-2.5 px-4 pb-4 pt-1">
                 {/* Step 3 (UI regia): la colonna FX (type 'sfx') non è più nella griglia —
                     i suoi effetti vivono nel minipad FX 5×5 (FxPadOverlay). La colonna
-                    resta nel modello dati (bus/polifonia/esenzioni del motore invariate). */}
-                {columns.filter((col) => col.type !== 'sfx').map((col) => (
+                    resta nel modello dati (bus/polifonia/esenzioni del motore invariate).
+                    Step 4 (UI regia): filtra anche le colonne disattivate dal layout
+                    configurabile (preferenza globale hiddenColumnIds). Nascondere una
+                    colonna non elimina le sue clip. */}
+                {columns.filter((col) => col.type !== 'sfx' && !hiddenColumnIds.includes(col.id)).map((col) => (
                     <SortableColumn
                         key={col.id}
                         column={col}

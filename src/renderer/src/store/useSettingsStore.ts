@@ -42,6 +42,12 @@ interface SettingsState {
     recordingFormat: 'webm' | 'wav';
     recordingBitrate: number;        // bps, default 320000
 
+    // Layout regia configurabile (v1.9.8) — colonne nascoste dalla board.
+    // Preferenza GLOBALE (vale per tutti i progetti, non salvata nel .lmp):
+    // nascondere una colonna non elimina le sue clip, che restano nello store/.lmp.
+    // La colonna FX (type 'sfx') non compare qui: vive già nel pad dedicato.
+    hiddenColumnIds: string[];
+
     setOutputDeviceId: (id: string) => void;
     setGlobalMidiBind: (actionKey: string, midiMessage: string) => void;
     setMasterVolume: (v: number) => void;
@@ -63,6 +69,8 @@ interface SettingsState {
         feedbackAcknowledged?: boolean;
     }) => void;
     setRecordingSettings: (updates: { format?: 'webm' | 'wav'; bitrate?: number }) => void;
+    /** v1.9.8: mostra/nascondi una colonna nella board (preferenza globale). */
+    toggleColumnVisibility: (columnId: string) => void;
 }
 
 
@@ -103,6 +111,9 @@ export const useSettingsStore = create<SettingsState>()(
             recordingFormat: 'webm',
             recordingBitrate: 320000,
 
+            // Layout regia (v1.9.8) — nessuna colonna nascosta di default
+            hiddenColumnIds: [],
+
             setOutputDeviceId: (id) => set({ outputDeviceId: id }),
             setGlobalMidiBind: (actionKey, midiMessage) => set((state) => ({
                 globalMidiBinds: { ...state.globalMidiBinds, [actionKey]: midiMessage }
@@ -139,6 +150,11 @@ export const useSettingsStore = create<SettingsState>()(
             setRecordingSettings: (updates) => set((state) => ({
                 recordingFormat: updates.format ?? state.recordingFormat,
                 recordingBitrate: updates.bitrate ?? state.recordingBitrate,
+            })),
+            toggleColumnVisibility: (columnId) => set((state) => ({
+                hiddenColumnIds: state.hiddenColumnIds.includes(columnId)
+                    ? state.hiddenColumnIds.filter((id) => id !== columnId)
+                    : [...state.hiddenColumnIds, columnId],
             })),
         }),
 

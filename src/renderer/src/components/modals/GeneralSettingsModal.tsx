@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useAudioStore } from '../../store/useAudioStore';
+import { useProjectStore } from '../../store/useProjectStore';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_MASTER_CHAIN } from '../../engine/AudioContextManager';
 import { FlagIcon } from '../ui/FlagIcon';
@@ -77,9 +78,12 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
         masterChain, setMasterChain,
         loudnessNormEnabled, loudnessTargetLufs, setLoudnessNorm,
         micInputDeviceId, micThresholdDb, micActivationHoldMs, micReleaseHoldMs, micEnabled, micMixEnabled, micVolume, micBypassProcessing, micFeedbackAcknowledged, setMicSettings,
-        recordingFormat, setRecordingSettings
+        recordingFormat, setRecordingSettings,
+        hiddenColumnIds, toggleColumnVisibility
     } = useSettingsStore();
     const updateOutputDevice = useAudioStore(s => s.updateOutputDevice);
+    // Layout regia configurabile (v1.9.8) — elenco colonne (escluso FX = pad dedicato)
+    const columns = useProjectStore(s => s.columns);
     const [devices, setDevices] = useState<AudioDevice[]>([]);
     const [inputDevices, setInputDevices] = useState<AudioDevice[]>([]);
     const [activeTab, setActiveTab] = useState<SettingsTab>('general');
@@ -250,6 +254,33 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                                 <span className="text-sm font-medium">{lng.label}</span>
                                                 {isActive && <span className="ml-auto text-violet-400 text-xs">✓</span>}
                                             </button>
+                                        );
+                                    })}
+                                </div>
+                            </section>
+
+                            <Divider />
+
+                            {/* LAYOUT REGIA — colonne visibili (Step 4 UI regia, v1.9.8) */}
+                            <section className="space-y-3">
+                                <SectionTitle color="text-amber-400">Layout regia — colonne</SectionTitle>
+                                <p className="text-[10px] text-zinc-600 -mt-2 italic">Attiva o disattiva le colonne mostrate nella board, secondo le necessità della trasmissione. Preferenza globale (vale per tutti i progetti). Nascondere una colonna NON elimina le sue clip: restano nel progetto e ricompaiono riattivandola. Gli FX hanno il loro pad dedicato.</p>
+                                <div className="space-y-2">
+                                    {columns.filter(c => c.type !== 'sfx').map(col => {
+                                        const visible = !hiddenColumnIds.includes(col.id);
+                                        return (
+                                            <div key={col.id} className="card !p-3 flex items-center justify-between gap-3">
+                                                <div className="flex items-center gap-2 min-w-0">
+                                                    <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: col.customColor || col.color }} />
+                                                    <span className="text-sm text-zinc-200 truncate">{col.title}</span>
+                                                </div>
+                                                <Toggle
+                                                    enabled={visible}
+                                                    onToggle={() => toggleColumnVisibility(col.id)}
+                                                    labelOn="Visibile"
+                                                    labelOff="Nascosta"
+                                                />
+                                            </div>
                                         );
                                     })}
                                 </div>
