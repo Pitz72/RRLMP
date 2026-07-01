@@ -490,7 +490,7 @@ export class AudioProcessor {
    * su stdout, nessun file temporaneo), poi passa i campioni all'algoritmo
    * puro (onset detection + autocorrelazione) in bpmDetection.ts.
    */
-  static async detectBpm(filePath: string): Promise<{ success: boolean; data?: { bpm: number; confidence: number }; error?: string }> {
+  static async detectBpm(filePath: string): Promise<{ success: boolean; data?: { bpm: number; confidence: number; detected: boolean }; error?: string }> {
     if (!fs.existsSync(filePath)) return { success: false, error: 'File non trovato' };
 
     const SAMPLE_RATE = 11025;
@@ -534,8 +534,12 @@ export class AudioProcessor {
                     const envelopeRateHz = 1000 / WINDOW_MS;
                     const estimate = estimateBpmFromEnvelope(envelope, envelopeRateHz);
 
-                    if (!estimate) return resolve({ success: false, error: 'BPM non rilevabile (nessuna periodicità marcata)' });
-                    resolve({ success: true, data: estimate });
+                    // "Non rilevabile" (nessuna periodicità marcata, es. voce/ambient) è
+                    // un esito valido dell'analisi, non un fallimento: va comunque marcato
+                    // come "controllato" per non ritentare a ogni caricamento (vedi
+                    // detected:false, letto da classifyBpmResult nel renderer).
+                    if (!estimate) return resolve({ success: true, data: { bpm: 0, confidence: 0, detected: false } });
+                    resolve({ success: true, data: { ...estimate, detected: true } });
                 } catch (parseErr) {
                     resolve({ success: false, error: String(parseErr) });
                 }

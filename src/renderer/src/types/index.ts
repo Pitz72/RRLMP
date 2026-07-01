@@ -31,7 +31,7 @@ declare global {
             detectSilence: (filePath: string, thresholdDb?: number) => Promise<{success: boolean, data?: {trimStart: number, trimEnd: number, noSilence?: boolean, thresholdUsed?: number}, error?: string}>;
             detectSmartCues: (filePath: string) => Promise<{success: boolean, data?: {introCue: number, outroCue: number}, error?: string}>;
             // 2026-07-01 — BPM Detection automatica (rilevamento + persistenza)
-            detectBpm: (filePath: string) => Promise<{success: boolean, data?: {bpm: number, confidence: number}, error?: string}>;
+            detectBpm: (filePath: string) => Promise<{success: boolean, data?: {bpm: number, confidence: number, detected: boolean}, error?: string}>;
             checkFilesExist: (paths: string[]) => Promise<{ missing: string[] }>;
             saveProject: (content: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
             loadProject: () => Promise<{ success: boolean; data?: string; filePath?: string; error?: string }>;
