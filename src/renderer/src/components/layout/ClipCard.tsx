@@ -155,6 +155,12 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                         TRIM…
                     </span>
                 )}
+                {/* 2026-07-01 — BPM stimato (solo colonna Music, solo visualizzazione: non ancora usato dal mix) */}
+                {clip.type === 'music' && clip.bpm !== undefined && (
+                    <span className="badge bg-sky-500/20 text-sky-300 border border-sky-500/40" title="BPM stimato (analisi automatica)">
+                        {clip.bpm} BPM
+                    </span>
+                )}
                 {isFading && (
                     <span className="badge bg-violet-500/20 text-violet-300 border border-violet-500/40 flex items-center gap-1 animate-pulse">
                         <span className="inline-block w-2 h-2 rounded-full bg-violet-400" />
