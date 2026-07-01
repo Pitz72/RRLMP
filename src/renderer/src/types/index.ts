@@ -44,7 +44,8 @@ declare global {
             remoteControlStart: () => Promise<RemoteControlStatus>;
             remoteControlStop: () => Promise<RemoteControlStatus>;
             remoteControlStatus: () => Promise<RemoteControlStatus>;
-            onRemoteCommand: (callback: (data: { name: string }) => void) => () => void;
+            onRemoteCommand: (callback: (data: { name: string; clipId?: string }) => void) => () => void;
+            publishRemoteState: (clips: Array<{ id: string; name: string; isPlaying: boolean }>) => void;
             checkFilesExist: (paths: string[]) => Promise<{ missing: string[] }>;
             saveProject: (content: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
             loadProject: () => Promise<{ success: boolean; data?: string; filePath?: string; error?: string }>;

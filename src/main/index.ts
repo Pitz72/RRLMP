@@ -3,7 +3,7 @@ import { join, normalize, isAbsolute, extname } from 'path';
 import * as fs from 'fs';
 import { AudioProcessor } from './AudioProcessor';
 import { logger } from './logger';
-import { startRemoteControlServer, stopRemoteControlServer, getRemoteControlStatus, RemoteCommandName } from './RemoteControlServer';
+import { startRemoteControlServer, stopRemoteControlServer, getRemoteControlStatus, updateRemoteMusicState, RemoteCommandName } from './RemoteControlServer';
 
 // GR-03 Fix: timeout wrapper per IPC handler asincroni che invocano FFmpeg.
 // Evita hang permanenti dell'app se FFmpeg si blocca o il file è illeggibile.
@@ -259,14 +259,17 @@ ipcMain.handle('detect-silence', async (_event, filePath: string, thresholdDb?: 
 
 // Controllo Remoto (2026-07-01, Step 1/N) — avvio/stop server LAN a mano dalle
 // Impostazioni. Nessun timeout/rate-limit: sono azioni istantanee locali, non FFmpeg.
-function forwardRemoteCommandToRenderer(name: RemoteCommandName): void {
+function forwardRemoteCommandToRenderer(name: RemoteCommandName, clipId?: string): void {
     if (mainWindowRef && !mainWindowRef.isDestroyed()) {
-        mainWindowRef.webContents.send('remote-command', { name });
+        mainWindowRef.webContents.send('remote-command', { name, clipId });
     }
 }
 ipcMain.handle('remote-control:start', () => startRemoteControlServer(forwardRemoteCommandToRenderer));
 ipcMain.handle('remote-control:stop', () => { stopRemoteControlServer(); return getRemoteControlStatus(); });
 ipcMain.handle('remote-control:status', () => getRemoteControlStatus());
+// Step 4/N — verso opposto: il renderer pubblica lo stato della colonna Music
+// (fire-and-forget, nessuna risposta attesa) così il server può servirlo al tablet.
+ipcMain.on('remote-control:publish-state', (_event, clips: unknown) => updateRemoteMusicState(clips));
 
 // 2026-07-01 — Stima BPM (rilevamento + persistenza, nessun uso ancora nel motore
 // audio). Timeout 25s: copre i 20s interni di AudioProcessor.detectBpm + grace.

@@ -81,6 +81,9 @@ export const MainGrid: React.FC = () => {
         loadClip: state.loadClip,
         playColumn: state.playColumn
     }));
+    // Controllo Remoto (2026-07-01, Step 4/N) — sottoscrizione reattiva separata:
+    // serve solo per sapere QUALI clip sono in play, non richiede altro dallo store.
+    const activeClips = useAudioStore((state) => state.activeClips);
 
     const [editingClip, setEditingClip] = useState<AudioClip | null>(null);
     const [activeId, setActiveId] = useState<string | null>(null);
@@ -272,6 +275,21 @@ export const MainGrid: React.FC = () => {
             });
         });
     }, [currentFilePath]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // CONTROLLO REMOTO (2026-07-01, Step 4/N) — pubblica lo stato della colonna
+    // Music (id/nome/in-play) al main a ogni cambio, così il server LAN può
+    // mostrarlo sul tablet. Fire-and-forget: se il server non è attivo, il main
+    // riceve comunque il messaggio ma non lo trasmette a nessun client connesso.
+    const musicColumnForRemote = columns.find(c => c.type === 'music');
+    useEffect(() => {
+        if (!window.electron?.publishRemoteState) return;
+        const clips = (musicColumnForRemote?.clips ?? []).map(c => ({
+            id: c.id,
+            name: c.title || c.name,
+            isPlaying: !!activeClips[c.id]
+        }));
+        window.electron.publishRemoteState(clips);
+    }, [musicColumnForRemote, activeClips]);
 
     // Sensors
     const sensors = useSensors(

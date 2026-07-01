@@ -1,12 +1,15 @@
-// Controllo Remoto da tablet/PC secondario (2026-07-01) — Step 1-3/N.
+// Controllo Remoto da tablet/PC secondario (2026-07-01) — Step 1-4/N.
 // Server HTTP locale in LAN, avviabile/disattivabile a mano dalle Impostazioni
 // (default OFF: nessuna superficie di rete attiva senza un'azione esplicita
 // dell'utente). Step 1: /health + PIN. Step 2: pagina web installabile come
 // PWA (manifest.json + sw.js) con verifica PIN (/api/verify-pin, con
-// rate-limit — vedi pinRateLimiter.ts). Step 3 (qui): canale comandi reale via
-// WebSocket, con un solo comando abilitato per ora (STOP ALL) — whitelist
-// esplicita in ALLOWED_COMMANDS, non un canale IPC generico apribile a
-// qualunque azione futura senza revisione.
+// rate-limit — vedi pinRateLimiter.ts). Step 3: canale comandi reale via
+// WebSocket, whitelist esplicita in ALLOWED_COMMANDS (non un canale IPC
+// generico apribile a qualunque azione futura senza revisione). Step 4 (qui):
+// verso opposto — il renderer pubblica lo stato della colonna Music
+// (updateRemoteMusicState, validato da remoteClipState.ts) e il server lo
+// trasmette in broadcast ai client WS autenticati; nuovi comandi playClip/
+// stopClip con clipId.
 import * as http from 'http';
 import * as os from 'os';
 import * as fs from 'fs';
@@ -15,6 +18,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { logger } from './logger';
 import { createPinRateLimiter } from './pinRateLimiter';
 import { INDEX_HTML, MANIFEST_JSON, SERVICE_WORKER_JS } from './remoteControlAssets';
+import { RemoteClipState, sanitizeRemoteClipState } from './remoteClipState';
 
 const PORT = 8787;
 const MAX_BODY_BYTES = 1024; // il body più grande atteso è {"pin":"123456"} — margine ampio
@@ -27,14 +31,30 @@ const ICON_PATH = join(__dirname, '../../build/icon.png');
 
 /** Comandi remoti abilitati in questo step. Whitelist esplicita — un comando
  *  non presente qui viene ignorato anche se il client lo invia autenticato. */
-export type RemoteCommandName = 'stopAll';
-const ALLOWED_COMMANDS: ReadonlySet<string> = new Set<RemoteCommandName>(['stopAll']);
+export type RemoteCommandName = 'stopAll' | 'playClip' | 'stopClip';
+const ALLOWED_COMMANDS: ReadonlySet<string> = new Set<RemoteCommandName>(['stopAll', 'playClip', 'stopClip']);
 
 let server: http.Server | null = null;
 let wss: WebSocketServer | null = null;
 let currentPin: string | null = null;
 let pinLimiter = createPinRateLimiter();
-let onRemoteCommand: ((name: RemoteCommandName) => void) | null = null;
+let onRemoteCommand: ((name: RemoteCommandName, clipId?: string) => void) | null = null;
+let musicState: RemoteClipState[] = [];
+const authenticatedClients = new Set<WebSocket>();
+
+function broadcastMusicState(): void {
+    const payload = JSON.stringify({ type: 'state', clips: musicState });
+    for (const client of authenticatedClients) {
+        if (client.readyState === WebSocket.OPEN) client.send(payload);
+    }
+}
+
+/** Chiamata dal main quando il renderer pubblica lo stato aggiornato della
+ *  colonna Music (vedi ipcMain 'remote-control:publish-state'). */
+export function updateRemoteMusicState(clips: unknown): void {
+    musicState = sanitizeRemoteClipState(clips);
+    broadcastMusicState();
+}
 
 function readJsonBody(req: http.IncomingMessage): Promise<unknown> {
     return new Promise((resolve, reject) => {
@@ -91,10 +111,11 @@ export function getRemoteControlStatus(): RemoteControlStatus {
 
 /**
  * @param handleCommand invocata quando un client autenticato invia un comando
- *   nella whitelist ALLOWED_COMMANDS — il chiamante (main/index.ts) inoltra al
- *   renderer via webContents.send, stesso pattern del canale 'open-file'.
+ *   nella whitelist ALLOWED_COMMANDS (con clipId per playClip/stopClip) — il
+ *   chiamante (main/index.ts) inoltra al renderer via webContents.send, stesso
+ *   pattern del canale 'open-file'.
  */
-export function startRemoteControlServer(handleCommand: (name: RemoteCommandName) => void): RemoteControlStatus {
+export function startRemoteControlServer(handleCommand: (name: RemoteCommandName, clipId?: string) => void): RemoteControlStatus {
     if (server) return getRemoteControlStatus(); // già avviato, idempotente
 
     currentPin = generatePin();
@@ -193,16 +214,22 @@ export function startRemoteControlServer(handleCommand: (name: RemoteCommandName
                 authenticated = true;
                 pinLimiter.reset(clientKey); // PIN corretto: non penalizzare futuri tentativi legittimi da questo IP
                 clearTimeout(authTimeout);
+                authenticatedClients.add(ws);
+                ws.send(JSON.stringify({ type: 'state', clips: musicState })); // stato corrente subito alla connessione
                 return;
             }
 
             if (m.type === 'command' && typeof m.name === 'string' && ALLOWED_COMMANDS.has(m.name)) {
-                onRemoteCommand?.(m.name as RemoteCommandName);
-                ws.send(JSON.stringify({ type: 'command-ack', name: m.name }));
+                const clipId = typeof m.clipId === 'string' ? m.clipId : undefined;
+                onRemoteCommand?.(m.name as RemoteCommandName, clipId);
+                ws.send(JSON.stringify({ type: 'command-ack', name: m.name, clipId }));
             }
         });
 
-        ws.on('close', () => clearTimeout(authTimeout));
+        ws.on('close', () => {
+            clearTimeout(authTimeout);
+            authenticatedClients.delete(ws);
+        });
     });
 
     // Bind su tutte le interfacce: deve essere raggiungibile da altri dispositivi sulla LAN, non solo localhost.
@@ -219,6 +246,8 @@ export function stopRemoteControlServer(): void {
     wss?.close();
     wss = null;
     onRemoteCommand = null;
+    authenticatedClients.clear();
+    musicState = [];
     server.close();
     server = null;
     currentPin = null;
