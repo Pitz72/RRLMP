@@ -243,14 +243,18 @@
 .theme-spectrum .tab.on .ti { color: #4ade80; }
 
 /* clip settings — swatch header */
-.theme-spectrum .clipset { width: min(720px, 92vw); max-height: 92vh; }
+/* Step 1 (allargamento modali): più largo per mostrare più campi affiancati e
+   ridurre lo scroll verticale. Il contenuto interno resta responsivo. */
+.theme-spectrum .clipset { width: min(1000px, 95vw); max-height: 92vh; }
 .theme-spectrum .cs-swatch { width: 28px; height: 28px; border-radius: 9px; flex-shrink: 0; }
 
 /* ---------- form controls (Spectrum) ---------- */
 /* .sect-h: solo tipografia — il colore lo porta la classe Tailwind passata dal componente */
 .theme-spectrum .sect-h { font-size: 10px; text-transform: uppercase; letter-spacing: .16em; font-weight: 800; }
 /* modale impostazioni a tab */
-.theme-spectrum .settings { width: min(960px, 90vw); height: 80vh; }
+/* Step 1 (allargamento modali): più larga e un filo più alta per far entrare più
+   contenuto per tab senza scroll (o riducendolo). */
+.theme-spectrum .settings { width: min(1240px, 95vw); height: 85vh; }
 /* toggle pill */
 .theme-spectrum .tgl { display: inline-flex; align-items: center; gap: 9px; cursor: pointer; user-select: none; }
 .theme-spectrum .tgl-track { width: 38px; height: 21px; border-radius: 11px; background: #2a2a30; position: relative; transition: background .18s; flex-shrink: 0; }

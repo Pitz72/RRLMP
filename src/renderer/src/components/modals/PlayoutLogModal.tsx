@@ -71,7 +71,7 @@ export const PlayoutLogModal: React.FC<PlayoutLogModalProps> = ({ onClose }) => 
 
     return (
         <div className="ov" style={{ zIndex: 200 }}>
-            <div className="ov-panel anim-in w-full max-w-3xl max-h-[80vh]">
+            <div className="ov-panel anim-in w-full max-w-6xl max-h-[85vh]">
 
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-800">
@@ -134,10 +134,10 @@ export const PlayoutLogModal: React.FC<PlayoutLogModalProps> = ({ onClose }) => 
                                             )}
                                         </td>
                                         <td className="px-4 py-2 text-right text-zinc-400 font-mono">{durationSec(entry)}</td>
-                                        <td className="px-4 py-2 text-zinc-200 font-medium max-w-[160px] truncate" title={entry.clipName}>
+                                        <td className="px-4 py-2 text-zinc-200 font-medium max-w-[320px] truncate" title={entry.clipName}>
                                             {entry.clipName}
                                         </td>
-                                        <td className="px-4 py-2 text-zinc-500 max-w-[160px] truncate">
+                                        <td className="px-4 py-2 text-zinc-500 max-w-[320px] truncate">
                                             {entry.artist && entry.title
                                                 ? `${entry.artist} — ${entry.title}`
                                                 : entry.artist || entry.title || '—'}

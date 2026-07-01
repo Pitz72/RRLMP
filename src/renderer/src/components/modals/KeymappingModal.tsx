@@ -228,7 +228,7 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
 
     return (
         <div className="ov" style={{ zIndex: 50 }}>
-            <div className="ov-panel anim-in w-full max-w-5xl max-h-[90vh]">
+            <div className="ov-panel anim-in w-full max-w-7xl max-h-[92vh]">
 
                 {/* HEADER */}
                 <div className="p-4 flex justify-between items-center border-b border-zinc-800 bg-zinc-950/50 rounded-t-lg shrink-0">
@@ -315,7 +315,7 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
                                                 <td className="px-6 py-3">
                                                     <div className="flex items-center gap-2">
                                                         <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: clip.customColor || col.color }} />
-                                                        <span className="font-medium text-zinc-200 truncate max-w-[200px]">{clip.name}</span>
+                                                        <span className="font-medium text-zinc-200 truncate max-w-[360px]">{clip.name}</span>
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-3">
