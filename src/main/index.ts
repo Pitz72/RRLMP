@@ -3,7 +3,7 @@ import { join, normalize, isAbsolute, extname } from 'path';
 import * as fs from 'fs';
 import { AudioProcessor } from './AudioProcessor';
 import { logger } from './logger';
-import { startRemoteControlServer, stopRemoteControlServer, getRemoteControlStatus } from './RemoteControlServer';
+import { startRemoteControlServer, stopRemoteControlServer, getRemoteControlStatus, RemoteCommandName } from './RemoteControlServer';
 
 // GR-03 Fix: timeout wrapper per IPC handler asincroni che invocano FFmpeg.
 // Evita hang permanenti dell'app se FFmpeg si blocca o il file è illeggibile.
@@ -259,7 +259,12 @@ ipcMain.handle('detect-silence', async (_event, filePath: string, thresholdDb?: 
 
 // Controllo Remoto (2026-07-01, Step 1/N) — avvio/stop server LAN a mano dalle
 // Impostazioni. Nessun timeout/rate-limit: sono azioni istantanee locali, non FFmpeg.
-ipcMain.handle('remote-control:start', () => startRemoteControlServer());
+function forwardRemoteCommandToRenderer(name: RemoteCommandName): void {
+    if (mainWindowRef && !mainWindowRef.isDestroyed()) {
+        mainWindowRef.webContents.send('remote-command', { name });
+    }
+}
+ipcMain.handle('remote-control:start', () => startRemoteControlServer(forwardRemoteCommandToRenderer));
 ipcMain.handle('remote-control:stop', () => { stopRemoteControlServer(); return getRemoteControlStatus(); });
 ipcMain.handle('remote-control:status', () => getRemoteControlStatus());
 

@@ -44,6 +44,7 @@ declare global {
             remoteControlStart: () => Promise<RemoteControlStatus>;
             remoteControlStop: () => Promise<RemoteControlStatus>;
             remoteControlStatus: () => Promise<RemoteControlStatus>;
+            onRemoteCommand: (callback: (data: { name: string }) => void) => () => void;
             checkFilesExist: (paths: string[]) => Promise<{ missing: string[] }>;
             saveProject: (content: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
             loadProject: () => Promise<{ success: boolean; data?: string; filePath?: string; error?: string }>;

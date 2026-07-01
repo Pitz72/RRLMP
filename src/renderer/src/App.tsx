@@ -349,6 +349,13 @@ function App() {
         // main (globalShortcut rimosso) — ESC è gestito in handleKeyDown qui sopra.
         // L'API preload onEmergencyStop resta esposta ma inutilizzata.
 
+        // Controllo Remoto (2026-07-01, Step 3/N) — comandi dal tablet/PC secondario
+        // inoltrati dal main via IPC. Whitelist lato server (RemoteControlServer.ts,
+        // ALLOWED_COMMANDS): qui gestiamo solo l'unico comando abilitato per ora.
+        const unsubscribeRemoteCommand = window.electron.onRemoteCommand?.((data) => {
+            if (data.name === 'stopAll') useAudioStore.getState().stopAll();
+        });
+
         window.addEventListener('dragover', handleDrag);
         window.addEventListener('drop', handleDrag);
         window.addEventListener('keydown', handleKeyDown);
@@ -359,6 +366,7 @@ function App() {
             window.removeEventListener('keydown', handleKeyDown);
             if (unsubscribeClose) unsubscribeClose();
             if (unsubscribeMidi) unsubscribeMidi();
+            if (unsubscribeRemoteCommand) unsubscribeRemoteCommand();
         };
     }, []);
 

@@ -30,6 +30,11 @@ if (process.contextIsolated) {
             remoteControlStart: () => ipcRenderer.invoke('remote-control:start'),
             remoteControlStop: () => ipcRenderer.invoke('remote-control:stop'),
             remoteControlStatus: () => ipcRenderer.invoke('remote-control:status'),
+            onRemoteCommand: (callback: (data: { name: string }) => void) => {
+                const subscription = (_event: IpcRendererEvent, data: { name: string }) => callback(data);
+                ipcRenderer.on('remote-command', subscription);
+                return () => ipcRenderer.removeListener('remote-command', subscription);
+            },
             checkFilesExist: (paths: string[]) => ipcRenderer.invoke('check-files-exist', paths),
 
             // Persistence APIs

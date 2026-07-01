@@ -1,11 +1,13 @@
-// Controllo Remoto (2026-07-01, Step 2/N) — asset statici della pagina web
+// Controllo Remoto (2026-07-01, Step 2-3/N) — asset statici della pagina web
 // servita dal server LAN: shell HTML/CSS/JS + manifest PWA + service worker.
 // Tenuti in un file separato da RemoteControlServer.ts per non appesantire la
 // logica del server con markup/stringhe lunghe.
 //
-// Nessun comando reale in questo step: la pagina permette solo di inserire il
-// PIN e vedere se è corretto (endpoint /api/verify-pin). Il canale comandi
-// vero e proprio (WebSocket) arriva nello Step 3.
+// Step 3: dopo la verifica PIN via HTTP (/api/verify-pin, solo per un feedback
+// immediato all'utente), la pagina apre una connessione WebSocket indipendente
+// e la autentica di nuovo con lo stesso PIN (il server non fida della sola
+// verifica HTTP per autorizzare comandi sul socket). Un solo comando abilitato
+// per ora: STOP ALL.
 
 export const INDEX_HTML = `<!DOCTYPE html>
 <html lang="it">
@@ -67,6 +69,14 @@ export const INDEX_HTML = `<!DOCTYPE html>
   #status { margin-top: 16px; font-size: 13px; min-height: 18px; }
   #status.ok { color: #4ade80; }
   #status.err { color: #f87171; }
+  #controls { display: none; margin-top: 20px; }
+  #stopAll {
+    background: #dc2626;
+    color: #fff;
+    font-size: 18px;
+    padding: 22px;
+    letter-spacing: 0.05em;
+  }
 </style>
 </head>
 <body>
@@ -76,16 +86,51 @@ export const INDEX_HTML = `<!DOCTYPE html>
     <input id="pin" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="------" />
     <button id="connect">Connetti</button>
     <div id="status"></div>
+    <div id="controls">
+      <button id="stopAll">■ STOP ALL</button>
+    </div>
   </div>
 <script>
 (function () {
   var pinInput = document.getElementById('pin');
   var btn = document.getElementById('connect');
   var status = document.getElementById('status');
+  var controls = document.getElementById('controls');
+  var stopAllBtn = document.getElementById('stopAll');
+  var socket = null;
 
   function setStatus(text, cls) {
     status.textContent = text;
     status.className = cls || '';
+  }
+
+  function openCommandChannel(pin) {
+    var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    var ws = new WebSocket(proto + '//' + location.host + '/ws');
+    ws.onopen = function () {
+      ws.send(JSON.stringify({ type: 'auth', pin: pin }));
+    };
+    ws.onmessage = function (event) {
+      var msg;
+      try { msg = JSON.parse(event.data); } catch (e) { return; }
+      if (msg.type === 'auth-result') {
+        if (msg.ok) {
+          socket = ws;
+          setStatus('Connesso.', 'ok');
+          controls.style.display = 'block';
+        } else {
+          setStatus(msg.error === 'rate-limited' ? 'Troppi tentativi, riprova più tardi.' : 'PIN errato.', 'err');
+        }
+      }
+    };
+    ws.onclose = function () {
+      if (socket === ws) {
+        socket = null;
+        controls.style.display = 'none';
+        setStatus('Disconnesso.', 'err');
+      }
+    };
+    ws.onerror = function () { /* gestito da onclose */ };
   }
 
   function tryConnect() {
@@ -108,7 +153,7 @@ export const INDEX_HTML = `<!DOCTYPE html>
       .then(function (data) {
         if (!data) return;
         if (data.ok) {
-          setStatus('Connesso.', 'ok');
+          openCommandChannel(pin);
         } else {
           setStatus('PIN errato.', 'err');
         }
@@ -119,6 +164,13 @@ export const INDEX_HTML = `<!DOCTYPE html>
 
   btn.addEventListener('click', tryConnect);
   pinInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') tryConnect(); });
+
+  stopAllBtn.addEventListener('click', function () {
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    stopAllBtn.disabled = true;
+    socket.send(JSON.stringify({ type: 'command', name: 'stopAll' }));
+    setTimeout(function () { stopAllBtn.disabled = false; }, 500);
+  });
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(function () { /* PWA opzionale, nessun impatto se fallisce */ });

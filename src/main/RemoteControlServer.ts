@@ -1,29 +1,40 @@
-// Controllo Remoto da tablet/PC secondario (2026-07-01) — Step 1-2/N.
+// Controllo Remoto da tablet/PC secondario (2026-07-01) — Step 1-3/N.
 // Server HTTP locale in LAN, avviabile/disattivabile a mano dalle Impostazioni
 // (default OFF: nessuna superficie di rete attiva senza un'azione esplicita
-// dell'utente). Step 1: /health + PIN. Step 2 (qui): pagina web installabile
-// come PWA (manifest.json + sw.js) con verifica PIN (/api/verify-pin, con
-// rate-limit — vedi pinRateLimiter.ts). Nessun comando reale ancora: il canale
-// comandi vero e proprio (WebSocket) arriva nello Step 3.
+// dell'utente). Step 1: /health + PIN. Step 2: pagina web installabile come
+// PWA (manifest.json + sw.js) con verifica PIN (/api/verify-pin, con
+// rate-limit — vedi pinRateLimiter.ts). Step 3 (qui): canale comandi reale via
+// WebSocket, con un solo comando abilitato per ora (STOP ALL) — whitelist
+// esplicita in ALLOWED_COMMANDS, non un canale IPC generico apribile a
+// qualunque azione futura senza revisione.
 import * as http from 'http';
 import * as os from 'os';
 import * as fs from 'fs';
 import { join } from 'path';
+import { WebSocketServer, WebSocket } from 'ws';
 import { logger } from './logger';
 import { createPinRateLimiter } from './pinRateLimiter';
 import { INDEX_HTML, MANIFEST_JSON, SERVICE_WORKER_JS } from './remoteControlAssets';
 
 const PORT = 8787;
 const MAX_BODY_BYTES = 1024; // il body più grande atteso è {"pin":"123456"} — margine ampio
+const AUTH_TIMEOUT_MS = 10_000; // una connessione WS deve autenticarsi entro 10s o viene chiusa
 
 // Stesso path usato in main/index.ts per l'icona della finestra: funziona sia in
 // dev (progetto non pacchettizzato) sia in produzione (build/icon.png è incluso
 // esplicitamente in package.json build.files, leggibile anche dentro app.asar).
 const ICON_PATH = join(__dirname, '../../build/icon.png');
 
+/** Comandi remoti abilitati in questo step. Whitelist esplicita — un comando
+ *  non presente qui viene ignorato anche se il client lo invia autenticato. */
+export type RemoteCommandName = 'stopAll';
+const ALLOWED_COMMANDS: ReadonlySet<string> = new Set<RemoteCommandName>(['stopAll']);
+
 let server: http.Server | null = null;
+let wss: WebSocketServer | null = null;
 let currentPin: string | null = null;
 let pinLimiter = createPinRateLimiter();
+let onRemoteCommand: ((name: RemoteCommandName) => void) | null = null;
 
 function readJsonBody(req: http.IncomingMessage): Promise<unknown> {
     return new Promise((resolve, reject) => {
@@ -78,11 +89,17 @@ export function getRemoteControlStatus(): RemoteControlStatus {
     return { running: true, port: PORT, pin: currentPin ?? undefined, addresses: getLocalLanAddresses() };
 }
 
-export function startRemoteControlServer(): RemoteControlStatus {
+/**
+ * @param handleCommand invocata quando un client autenticato invia un comando
+ *   nella whitelist ALLOWED_COMMANDS — il chiamante (main/index.ts) inoltra al
+ *   renderer via webContents.send, stesso pattern del canale 'open-file'.
+ */
+export function startRemoteControlServer(handleCommand: (name: RemoteCommandName) => void): RemoteControlStatus {
     if (server) return getRemoteControlStatus(); // già avviato, idempotente
 
     currentPin = generatePin();
     pinLimiter = createPinRateLimiter(); // stato pulito ad ogni avvio, nessun residuo dalla sessione precedente
+    onRemoteCommand = handleCommand;
 
     const srv = http.createServer((req, res) => {
         if (req.method === 'GET' && req.url === '/health') {
@@ -148,15 +165,60 @@ export function startRemoteControlServer(): RemoteControlStatus {
         currentPin = null;
     });
 
+    const socketServer = new WebSocketServer({ server: srv, path: '/ws' });
+    socketServer.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
+        let authenticated = false;
+        const clientKey = req.socket.remoteAddress || 'unknown';
+
+        const authTimeout = setTimeout(() => {
+            if (!authenticated) ws.close();
+        }, AUTH_TIMEOUT_MS);
+
+        ws.on('message', (raw: Buffer) => {
+            let msg: unknown;
+            try { msg = JSON.parse(raw.toString('utf8')); } catch { return; }
+            if (typeof msg !== 'object' || msg === null) return;
+            const m = msg as Record<string, unknown>;
+
+            if (!authenticated) {
+                if (m.type !== 'auth') return; // ignora qualunque messaggio prima dell'autenticazione
+                if (!pinLimiter.allow(clientKey)) {
+                    ws.send(JSON.stringify({ type: 'auth-result', ok: false, error: 'rate-limited' }));
+                    ws.close();
+                    return;
+                }
+                const ok = currentPin !== null && String(m.pin) === currentPin;
+                ws.send(JSON.stringify({ type: 'auth-result', ok }));
+                if (!ok) { ws.close(); return; }
+                authenticated = true;
+                pinLimiter.reset(clientKey); // PIN corretto: non penalizzare futuri tentativi legittimi da questo IP
+                clearTimeout(authTimeout);
+                return;
+            }
+
+            if (m.type === 'command' && typeof m.name === 'string' && ALLOWED_COMMANDS.has(m.name)) {
+                onRemoteCommand?.(m.name as RemoteCommandName);
+                ws.send(JSON.stringify({ type: 'command-ack', name: m.name }));
+            }
+        });
+
+        ws.on('close', () => clearTimeout(authTimeout));
+    });
+
     // Bind su tutte le interfacce: deve essere raggiungibile da altri dispositivi sulla LAN, non solo localhost.
     srv.listen(PORT, '0.0.0.0');
     server = srv;
+    wss = socketServer;
     logger.info(`[RemoteControlServer] Avviato su porta ${PORT}`);
     return getRemoteControlStatus();
 }
 
 export function stopRemoteControlServer(): void {
     if (!server) return;
+    wss?.clients.forEach((c) => c.terminate());
+    wss?.close();
+    wss = null;
+    onRemoteCommand = null;
     server.close();
     server = null;
     currentPin = null;
