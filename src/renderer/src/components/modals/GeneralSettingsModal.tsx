@@ -89,11 +89,42 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
     // spento a ogni avvio dell'app (nessun opt-in di rete automatico e silenzioso).
     const [remoteStatus, setRemoteStatus] = useState<RemoteControlStatus>({ running: false });
     const [remoteToggleBusy, setRemoteToggleBusy] = useState(false);
+    const [remoteUrlCopied, setRemoteUrlCopied] = useState(false);
 
     useEffect(() => {
         if (!isOpen || !window.electron?.remoteControlStatus) return;
         window.electron.remoteControlStatus().then(setRemoteStatus).catch(() => {});
     }, [isOpen]);
+
+    // Copia l'URL del server remoto (es. per incollarlo in Telegram e aprirlo dal
+    // tablet con un tap). Stesso pattern robusto del COPY del Debug Overlay
+    // (v1.4.1): navigator.clipboard può rigettare per permesso/focus -> fallback
+    // execCommand su una textarea temporanea, mai un errore mostrato all'utente.
+    const handleCopyRemoteUrl = async () => {
+        const address = remoteStatus.addresses?.[0];
+        if (!address || !remoteStatus.port) return;
+        const url = `http://${address}:${remoteStatus.port}`;
+        try {
+            if (navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(url);
+            } else {
+                throw new Error('clipboard API non disponibile');
+            }
+        } catch {
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = url;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            } catch { /* ultima istanza: nessun blocco all'utente */ }
+        }
+        setRemoteUrlCopied(true);
+        setTimeout(() => setRemoteUrlCopied(false), 2000);
+    };
 
     const handleToggleRemoteControl = async () => {
         if (!window.electron?.remoteControlStart || !window.electron?.remoteControlStop) return;
@@ -231,7 +262,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <SectionTitle color="text-sky-400">Controllo Remoto (Beta)</SectionTitle>
-                                        <p className="text-[10px] text-zinc-600 mt-0.5 italic">Server locale in rete (LAN) per comandare l'app da un tablet/PC secondario. Nessun comando reale ancora attivo: solo avvio/verifica del server.</p>
+                                        <p className="text-[10px] text-zinc-600 mt-0.5 italic">Server locale in rete (LAN) per comandare l'app da un tablet/PC secondario: STOP ALL e play/stop della colonna Music.</p>
                                     </div>
                                     <Toggle
                                         enabled={remoteStatus.running}
@@ -241,13 +272,21 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     />
                                 </div>
                                 {remoteStatus.running && (
-                                    <div className="card !p-3 space-y-1">
+                                    <div className="card !p-3 space-y-2">
                                         <p className="text-xs text-zinc-300">PIN: <span className="font-mono text-sky-400 text-sm tracking-widest">{remoteStatus.pin}</span></p>
                                         <p className="text-xs text-zinc-400">Porta: <span className="font-mono">{remoteStatus.port}</span></p>
                                         {remoteStatus.addresses && remoteStatus.addresses.length > 0 && (
-                                            <p className="text-xs text-zinc-400">Indirizzi LAN: <span className="font-mono">{remoteStatus.addresses.join(', ')}</span></p>
+                                            <>
+                                                <p className="text-xs text-zinc-400">Indirizzi LAN: <span className="font-mono">{remoteStatus.addresses.join(', ')}</span></p>
+                                                <button
+                                                    onClick={() => void handleCopyRemoteUrl()}
+                                                    className="!w-auto px-3 py-1.5 text-xs"
+                                                >
+                                                    {remoteUrlCopied ? '✓ Copiato' : `Copia link (http://${remoteStatus.addresses[0]}:${remoteStatus.port})`}
+                                                </button>
+                                            </>
                                         )}
-                                        <p className="text-[10px] text-zinc-600 italic">Il server si ferma automaticamente alla chiusura dell'app. Non viene mai riavviato in automatico al prossimo avvio.</p>
+                                        <p className="text-[10px] text-zinc-600 italic">Utile per inviare il link via Telegram/WhatsApp al dispositivo secondario invece di digitarlo a mano. Il server si ferma automaticamente alla chiusura dell'app.</p>
                                     </div>
                                 )}
                             </section>
