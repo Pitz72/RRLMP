@@ -20,14 +20,40 @@ const ALLOWED_MEDIA_EXTENSIONS = new Set(['.mp3', '.wav', '.ogg', '.m4a', '.aac'
 
 // LI-02: semaforo di concorrenza per gli IPC handler FFmpeg-heavy.
 // Limita le chiamate parallele per tipo per evitare flood dal renderer.
+//
+// v1.7.1 — FIX bug regia (2026-07-01): era un limitatore "a scarto" (se il
+// semaforo era pieno, la richiesta in eccesso veniva RIGETTATA subito con
+// IPC_RATE_LIMITED, mai eseguita). Con batch che lanciano molte richieste in
+// parallelo (es. import M3U di decine di brani, o il batch auto-silenzio al
+// caricamento progetto) solo le prime `max` passavano davvero; il resto veniva
+// scartato e i chiamanti (vedi detectSilence in MainGrid/GlobalControls)
+// trattavano l'errore come "successo, nessun silenzio" — marcando le clip come
+// "controllate" senza che l'analisi fosse mai realmente avvenuta. Ora è una
+// vera coda FIFO: le richieste in eccesso ASPETTANO il proprio turno invece di
+// essere scartate. Il timeout (withIpcTimeout) parte solo quando `fn()` viene
+// davvero invocata, quindi l'attesa in coda non consuma budget di timeout.
 const _ipcInflight = new Map<string, number>();
+const _ipcQueues = new Map<string, Array<() => void>>();
 function withConcurrencyLimit<T>(key: string, max: number, fn: () => Promise<T>): Promise<T> {
-    const current = _ipcInflight.get(key) ?? 0;
-    if (current >= max) {
-        return Promise.resolve({ success: false, error: 'IPC_RATE_LIMITED' } as unknown as T);
-    }
-    _ipcInflight.set(key, current + 1);
-    return fn().finally(() => _ipcInflight.set(key, (_ipcInflight.get(key) ?? 1) - 1));
+    return new Promise<T>((resolve, reject) => {
+        const run = () => {
+            _ipcInflight.set(key, (_ipcInflight.get(key) ?? 0) + 1);
+            fn().then(resolve, reject).finally(() => {
+                _ipcInflight.set(key, Math.max(0, (_ipcInflight.get(key) ?? 1) - 1));
+                const queue = _ipcQueues.get(key);
+                const next = queue?.shift();
+                if (next) next();
+            });
+        };
+        const current = _ipcInflight.get(key) ?? 0;
+        if (current >= max) {
+            const queue = _ipcQueues.get(key) ?? [];
+            queue.push(run);
+            _ipcQueues.set(key, queue);
+            return;
+        }
+        run();
+    });
 }
 
 // SEC (audit 2026-05-29): valida che un path appartenga al nostro recorder temporaneo
