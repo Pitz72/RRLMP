@@ -8,6 +8,16 @@
 // e la autentica di nuovo con lo stesso PIN (il server non fida della sola
 // verifica HTTP per autorizzare comandi sul socket). Un solo comando abilitato
 // per ora: STOP ALL.
+//
+// Richiesta esplicita dell'utente (2026-07-01): la pagina deve proporre
+// l'installazione come PWA PRIMA ancora di chiedere il PIN — non un'opzione
+// secondaria dopo l'uso, ma il primo schermo che l'operatore vede. Se la
+// pagina è già aperta come app installata (display-mode standalone / iOS
+// navigator.standalone), lo schermo di installazione viene saltato del tutto.
+// Su browser che non supportano l'evento 'beforeinstallprompt' (iOS Safari,
+// Firefox desktop) non è possibile far scattare il prompt nativo: dopo un
+// breve timeout mostriamo istruzioni manuali + un pulsante per procedere
+// comunque nel browser, così l'operatore non resta bloccato.
 
 export const INDEX_HTML = `<!DOCTYPE html>
 <html lang="it">
@@ -77,10 +87,31 @@ export const INDEX_HTML = `<!DOCTYPE html>
     padding: 22px;
     letter-spacing: 0.05em;
   }
+  .icon-preview { width: 64px; height: 64px; border-radius: 14px; margin: 0 auto 16px; display: block; }
+  #installScreen { display: none; }
+  #pinScreen { display: none; }
+  .btn-secondary {
+    background: transparent;
+    color: #94a3b8;
+    border: 1px solid #475569;
+    margin-top: 10px;
+    font-weight: 400;
+    font-size: 13px;
+  }
+  #installInstructions { font-size: 11px; color: #64748b; margin-top: 14px; line-height: 1.5; display: none; }
 </style>
 </head>
 <body>
-  <div class="card">
+  <div class="card" id="installScreen">
+    <img class="icon-preview" src="/icon.png" alt="" />
+    <h1>INSTALLA L'APP</h1>
+    <p class="sub">Per un controllo a schermo intero, senza barra del browser, installa questa pagina come app sul dispositivo.</p>
+    <button id="installBtn" style="display:none;">Installa app</button>
+    <button id="skipInstall" class="btn-secondary">Continua nel browser</button>
+    <p id="installInstructions">Non è stato possibile proporre l'installazione automatica su questo browser. Usa il menu del browser (⋮ o Condividi) e cerca "Aggiungi a schermata Home" o "Installa app".</p>
+  </div>
+
+  <div class="card" id="pinScreen">
     <h1>RUNTIME LIVE MACHINE PRO</h1>
     <p class="sub">Regia Remota — inserisci il PIN mostrato in regia</p>
     <input id="pin" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="------" />
@@ -92,6 +123,59 @@ export const INDEX_HTML = `<!DOCTYPE html>
   </div>
 <script>
 (function () {
+  var installScreen = document.getElementById('installScreen');
+  var pinScreen = document.getElementById('pinScreen');
+  var installBtn = document.getElementById('installBtn');
+  var skipInstall = document.getElementById('skipInstall');
+  var installInstructions = document.getElementById('installInstructions');
+  var deferredInstallPrompt = null;
+
+  function showPinScreen() {
+    installScreen.style.display = 'none';
+    pinScreen.style.display = 'block';
+  }
+
+  function isRunningStandalone() {
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  }
+
+  if (isRunningStandalone()) {
+    // Già installata e aperta come app: nessun senso proporre di nuovo l'installazione.
+    showPinScreen();
+  } else {
+    installScreen.style.display = 'block';
+
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      installBtn.style.display = 'block';
+      installInstructions.style.display = 'none';
+    });
+
+    window.addEventListener('appinstalled', function () {
+      deferredInstallPrompt = null;
+      showPinScreen();
+    });
+
+    // Browser senza 'beforeinstallprompt' (iOS Safari, Firefox desktop, ecc.):
+    // se il prompt nativo non si presenta entro 1.5s, mostra le istruzioni manuali.
+    setTimeout(function () {
+      if (!deferredInstallPrompt) installInstructions.style.display = 'block';
+    }, 1500);
+
+    installBtn.addEventListener('click', function () {
+      if (!deferredInstallPrompt) return;
+      installBtn.disabled = true;
+      deferredInstallPrompt.prompt();
+      deferredInstallPrompt.userChoice.finally(function () {
+        deferredInstallPrompt = null;
+        showPinScreen();
+      });
+    });
+
+    skipInstall.addEventListener('click', showPinScreen);
+  }
+
   var pinInput = document.getElementById('pin');
   var btn = document.getElementById('connect');
   var status = document.getElementById('status');
