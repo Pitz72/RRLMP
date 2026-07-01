@@ -3,6 +3,7 @@ import * as mm from 'music-metadata';
 import * as ffmpeg from 'fluent-ffmpeg';
 import { spawn } from 'child_process';
 import { logger } from './logger';
+import { computeEnergyEnvelope, estimateBpmFromEnvelope } from './bpmDetection';
 
 // Fix ESM/CJS interop per questi pacchetti old-school exports
 const ffmpegStatic = require('ffmpeg-static');
@@ -474,6 +475,71 @@ export class AudioProcessor {
                 }
             });
 
+        } catch (error) {
+            resolve({ success: false, error: String(error) });
+        }
+    });
+  }
+
+  /**
+   * BPM Detection (2026-07-01) — stima il tempo del brano per abilitare in
+   * futuro crossfade beat-aligned negli show musicali (solo rilevamento +
+   * persistenza in questo step, nessun uso ancora nel motore audio).
+   *
+   * Decodifica i primi 60s del file in PCM16 mono a 11025Hz via FFmpeg (pipe
+   * su stdout, nessun file temporaneo), poi passa i campioni all'algoritmo
+   * puro (onset detection + autocorrelazione) in bpmDetection.ts.
+   */
+  static async detectBpm(filePath: string): Promise<{ success: boolean; data?: { bpm: number; confidence: number }; error?: string }> {
+    if (!fs.existsSync(filePath)) return { success: false, error: 'File non trovato' };
+
+    const SAMPLE_RATE = 11025;
+    const WINDOW_MS = 20;
+
+    return new Promise((resolve) => {
+        try {
+            const proc = spawn(safeFfmpegPath, [
+                '-i', filePath,
+                '-t', '60',
+                '-ac', '1',
+                '-ar', String(SAMPLE_RATE),
+                '-f', 's16le',
+                '-acodec', 'pcm_s16le',
+                'pipe:1'
+            ]);
+
+            const chunks: Buffer[] = [];
+            let stderrData = '';
+
+            const killTimeout = setTimeout(() => {
+                try { proc.kill('SIGKILL'); } catch { /* noop */ }
+                resolve({ success: false, error: 'Timeout: BPM detection exceeded 20s' });
+            }, 20000);
+
+            proc.stdout.on('data', (chunk: Buffer) => { chunks.push(chunk); });
+            proc.stderr.on('data', (chunk: Buffer) => { stderrData += chunk.toString(); });
+            proc.on('error', (err: Error) => { clearTimeout(killTimeout); resolve({ success: false, error: err.message }); });
+            proc.on('close', () => {
+                clearTimeout(killTimeout);
+                try {
+                    const pcm = Buffer.concat(chunks);
+                    if (pcm.length < SAMPLE_RATE * 2) { // meno di ~1s di audio decodificato
+                        return resolve({ success: false, error: 'Audio insufficiente per la stima BPM' });
+                    }
+                    // Buffer PCM16LE -> Int16Array (rispetta l'allineamento del buffer sottostante)
+                    const sampleCount = Math.floor(pcm.length / 2);
+                    const samples = new Int16Array(pcm.buffer, pcm.byteOffset, sampleCount);
+
+                    const envelope = computeEnergyEnvelope(samples, SAMPLE_RATE, WINDOW_MS);
+                    const envelopeRateHz = 1000 / WINDOW_MS;
+                    const estimate = estimateBpmFromEnvelope(envelope, envelopeRateHz);
+
+                    if (!estimate) return resolve({ success: false, error: 'BPM non rilevabile (nessuna periodicità marcata)' });
+                    resolve({ success: true, data: estimate });
+                } catch (parseErr) {
+                    resolve({ success: false, error: String(parseErr) });
+                }
+            });
         } catch (error) {
             resolve({ success: false, error: String(error) });
         }
