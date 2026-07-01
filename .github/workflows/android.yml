@@ -1,0 +1,42 @@
+name: Build Android APK
+
+# Controllo Remoto RRLMP — build dell'app Android (guscio WebView, cartella
+# android/). Solo manuale (workflow_dispatch): produce un APK debug-signed,
+# sideloadabile sul tablet, come artifact scaricabile. Nessun Android Studio
+# locale necessario. Il debug signing basta per l'uso personale in LAN.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.5'
+
+      - name: Build debug APK
+        working-directory: android
+        run: gradle assembleDebug --no-daemon --stacktrace
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rrlmp-remoto-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+          retention-days: 14
+          if-no-files-found: error
