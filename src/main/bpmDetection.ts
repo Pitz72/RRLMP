@@ -1,0 +1,90 @@
+// BPM Detection (2026-07-01) — stima automatica del tempo di un brano per abilitare
+// in futuro crossfade beat-aligned negli show musicali (nessun uso del BPM ancora
+// nel motore audio: questo modulo copre solo la logica pura di stima).
+//
+// Approccio: onset detection + autocorrelazione, in puro JS/TS, senza dipendenze
+// esterne. AudioProcessor.detectBpm() decodifica il file in PCM mono a bassa
+// samplerate via FFmpeg e passa i campioni a queste funzioni pure (testabili
+// senza FFmpeg/filesystem).
+
+export interface BpmEstimate {
+    bpm: number;
+    /** 0..1, quanto è marcata la periodicità trovata nell'inviluppo energetico. */
+    confidence: number;
+}
+
+const MIN_BPM = 60;
+const MAX_BPM = 200;
+/** Range "di riferimento" in cui riportare le ottave doppie/dimezzate del lag trovato. */
+const OCTAVE_LOW = 90;
+const OCTAVE_HIGH = 180;
+
+/**
+ * Calcola l'inviluppo di energia (RMS a finestre) da campioni PCM16 mono.
+ * `windowMs` determina la risoluzione temporale dell'inviluppo (e quindi la
+ * frequenza di campionamento dell'inviluppo stesso, ritornata dal chiamante).
+ */
+export function computeEnergyEnvelope(samples: Int16Array, sampleRate: number, windowMs = 20): number[] {
+    const windowSize = Math.max(1, Math.round((sampleRate * windowMs) / 1000));
+    const envelope: number[] = [];
+    for (let i = 0; i < samples.length; i += windowSize) {
+        const end = Math.min(i + windowSize, samples.length);
+        let sumSq = 0;
+        for (let j = i; j < end; j++) {
+            const v = samples[j] / 32768;
+            sumSq += v * v;
+        }
+        envelope.push(Math.sqrt(sumSq / (end - i)));
+    }
+    return envelope;
+}
+
+/**
+ * Stima il BPM tramite autocorrelazione dell'inviluppo di energia: cerca il
+ * ritardo (lag), nel range 60-200 BPM, per cui l'inviluppo correla meglio con
+ * se stesso — cioè il periodo del beat dominante.
+ *
+ * @param envelope inviluppo di energia (vedi computeEnergyEnvelope)
+ * @param envelopeRateHz frequenza di campionamento dell'inviluppo (= 1000/windowMs)
+ */
+export function estimateBpmFromEnvelope(envelope: number[], envelopeRateHz: number): BpmEstimate | null {
+    if (envelopeRateHz <= 0 || envelope.length < envelopeRateHz * 2) return null; // servono almeno ~2s di dati
+
+    const mean = envelope.reduce((a, b) => a + b, 0) / envelope.length;
+    const centered = envelope.map(v => v - mean);
+
+    const energyVariance = centered.reduce((a, b) => a + b * b, 0) / centered.length;
+    if (!isFinite(energyVariance) || energyVariance <= 0) return null; // segnale piatto/silenzio: nessun beat rilevabile
+
+    const minLag = Math.max(1, Math.floor((60 / MAX_BPM) * envelopeRateHz));
+    const maxLag = Math.min(centered.length - 1, Math.ceil((60 / MIN_BPM) * envelopeRateHz));
+    if (minLag >= maxLag) return null;
+
+    let bestLag = -1;
+    let bestScore = -Infinity;
+    for (let lag = minLag; lag <= maxLag; lag++) {
+        let sum = 0;
+        for (let i = 0; i + lag < centered.length; i++) {
+            sum += centered[i] * centered[i + lag];
+        }
+        const norm = sum / (centered.length - lag);
+        if (norm > bestScore) {
+            bestScore = norm;
+            bestLag = lag;
+        }
+    }
+    if (bestLag <= 0) return null;
+
+    const confidence = Math.max(0, Math.min(1, bestScore / energyVariance));
+
+    let bpm = 60 / (bestLag / envelopeRateHz);
+    // Riporta ottave doppie/dimezzate del lag trovato nel range di riferimento
+    // (l'autocorrelazione su musica con beat marcato spesso trova anche il
+    // sottomultiplo/multiplo del tempo percepito).
+    while (bpm < OCTAVE_LOW) bpm *= 2;
+    while (bpm > OCTAVE_HIGH) bpm /= 2;
+
+    if (!isFinite(bpm) || bpm <= 0) return null;
+
+    return { bpm: Math.round(bpm * 10) / 10, confidence: Math.round(confidence * 100) / 100 };
+}
