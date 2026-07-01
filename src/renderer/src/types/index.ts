@@ -158,8 +158,21 @@ export interface AudioClip {
     isAnalyzing?: boolean;
 
     // Silence analysis tracking (v0.14.10) — persistito nel .lmp
-    /** True se il rilevamento silenzio IPC è già stato eseguito su questa clip. */
+    /** @deprecated v1.7.1: sostituito da silenceCheckedV2 (bug rate-limiter, vedi sotto).
+     * Mantenuto solo per compat strutturale dei .lmp vecchi, non più letto dalla logica. */
     silenceChecked?: boolean;
+    // v1.7.1 — FIX bug regia: il vecchio silenceChecked poteva risultare true anche
+    // quando l'analisi NON era mai realmente avvenuta (richiesta scartata dal
+    // rate-limiter IPC, trattata per errore come "nessun silenzio trovato" — vedi
+    // withConcurrencyLimit in main/index.ts). Nuovo campo con nome diverso: nei .lmp
+    // esistenti nessuna clip lo possiede ancora, quindi al primo caricamento dopo
+    // l'aggiornamento OGNI clip viene ricontrollata per davvero una volta sola
+    // (controllo/reimpostazione generale); da quel momento in poi silenceCheckedV2
+    // viene impostato SOLO su un esito reale (successo o fallimento esplicito
+    // dell'analisi), mai su un errore/timeout — che invece lascia la clip "da
+    // ricontrollare" al prossimo caricamento.
+    /** True solo se il rilevamento silenzio è realmente avvenuto con esito valido. */
+    silenceCheckedV2?: boolean;
 
     // Audio metadata (v0.16.4) — estratti da tag ID3/Vorbis, persistiti nel .lmp
     /** Artista/Autore dal tag ID3 */

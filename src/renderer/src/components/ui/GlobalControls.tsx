@@ -16,6 +16,7 @@ import { debugLog } from '../../store/useDebugStore';
 import { AboutModal } from '../modals/AboutModal';
 import { toast } from '../../store/useToastStore';
 import { confirm } from '../../store/useConfirmStore';
+import { classifySilenceResult } from '../../utils/silenceDetection';
 
 
 
@@ -585,16 +586,22 @@ export const GlobalControls = () => {
                             if (newClip) {
                                 added++;
                                 loadClip(newClip);
-                                // Auto-silence detection
+                                // Auto-silence detection (v1.7.1: vedi classifySilenceResult —
+                                // un fallimento/rate-limit NON viene più segnato come "controllato")
                                 if (window.electron?.detectSilence) {
                                     updateClip(preshowColId, newClip.id, { isAnalyzing: true });
                                     window.electron.detectSilence(filePath).then(r => {
-                                        if (r.success && r.data && !r.data.noSilence) {
-                                            updateClip(preshowColId, newClip.id, { trimStart: r.data.trimStart, trimEnd: r.data.trimEnd, isAnalyzing: false, silenceChecked: true });
+                                        const c = classifySilenceResult(r);
+                                        if (c.checked) {
+                                            updateClip(preshowColId, newClip.id, {
+                                                ...(c.trimStart !== undefined ? { trimStart: c.trimStart, trimEnd: c.trimEnd } : {}),
+                                                isAnalyzing: false,
+                                                silenceCheckedV2: true
+                                            });
                                         } else {
-                                            updateClip(preshowColId, newClip.id, { isAnalyzing: false, silenceChecked: true });
+                                            updateClip(preshowColId, newClip.id, { isAnalyzing: false });
                                         }
-                                    }).catch(() => updateClip(preshowColId, newClip.id, { isAnalyzing: false, silenceChecked: true }));
+                                    }).catch(() => updateClip(preshowColId, newClip.id, { isAnalyzing: false }));
                                 }
                             }
                         }

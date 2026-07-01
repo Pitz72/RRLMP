@@ -26,6 +26,7 @@ import { SortableClip } from './SortableClip'; // New component
 import { Upload } from 'lucide-react';
 import { ClipSettingsModal } from '../modals/ClipSettingsModal';
 import { AudioClip, Column } from '../../types';
+import { classifySilenceResult } from '../../utils/silenceDetection';
 
 // Helper component for Drop Area (Column)
 interface SortableColumnProps {
@@ -147,8 +148,12 @@ export const MainGrid: React.FC = () => {
         const musicCol = freshColumns.find(c => c.type === 'music');
         if (!musicCol) return;
 
-        const unanalyzed = musicCol.clips.filter(c => !c.silenceChecked && !c.isMissing);
-        debugLog(`AutoSilence[music] load: ${musicCol.clips.length} clip totali, ${unanalyzed.length} da analizzare (silenceChecked assente/false)`, 'info');
+        // v1.7.1: gate su silenceCheckedV2 (non più il vecchio silenceChecked, che
+        // poteva risultare true senza analisi reale — vedi tipo in types/index.ts).
+        // Nei .lmp esistenti nessuna clip lo possiede ancora: al primo caricamento
+        // dopo l'aggiornamento QUESTO batch ricontrolla realmente ogni clip una volta.
+        const unanalyzed = musicCol.clips.filter(c => !c.silenceCheckedV2 && !c.isMissing);
+        debugLog(`AutoSilence[music] load: ${musicCol.clips.length} clip totali, ${unanalyzed.length} da analizzare (silenceCheckedV2 assente/false)`, 'info');
         if (unanalyzed.length === 0 || !window.electron?.detectSilence) return;
 
         setMusicAnalyzingCount(unanalyzed.length);
@@ -158,24 +163,26 @@ export const MainGrid: React.FC = () => {
         unanalyzed.forEach(clip => {
             updateClip('col-music', clip.id, { isAnalyzing: true });
             window.electron.detectSilence(clip.path).then(result => {
-                if (result.success && result.data && !result.data.noSilence) {
+                const r = classifySilenceResult(result);
+                if (r.checked) {
                     updateClip('col-music', clip.id, {
-                        trimStart: result.data.trimStart,
-                        trimEnd: result.data.trimEnd,
+                        ...(r.trimStart !== undefined ? { trimStart: r.trimStart, trimEnd: r.trimEnd } : {}),
                         isAnalyzing: false,
-                        silenceChecked: true
+                        silenceCheckedV2: true
                     });
-                    optimized++;
+                    if (r.trimStart !== undefined) optimized++;
                 } else {
-                    updateClip('col-music', clip.id, { isAnalyzing: false, silenceChecked: true });
+                    updateClip('col-music', clip.id, { isAnalyzing: false });
+                    debugLog(`AutoSilence[music]: analisi fallita per "${clip.name}" (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');
                 }
                 processed++;
                 setMusicAnalyzingCount(n => Math.max(0, n - 1));
                 if (processed === unanalyzed.length && optimized > 0) {
                     toast(`Silenzio rimosso automaticamente da ${optimized} canzon${optimized === 1 ? 'e' : 'i'}.`, 'success');
                 }
-            }).catch(() => {
-                updateClip('col-music', clip.id, { isAnalyzing: false, silenceChecked: true });
+            }).catch((err) => {
+                updateClip('col-music', clip.id, { isAnalyzing: false });
+                debugLog(`AutoSilence[music]: eccezione per "${clip.name}": ${err}`, 'error');
                 processed++;
                 setMusicAnalyzingCount(n => Math.max(0, n - 1));
             });
@@ -196,8 +203,8 @@ export const MainGrid: React.FC = () => {
             return;
         }
 
-        const unanalyzed = preshowCol.clips.filter(c => !c.silenceChecked && !c.isMissing);
-        debugLog(`AutoSilence[preshow] load: colonna id="${preshowCol.id}", ${preshowCol.clips.length} clip totali, ${unanalyzed.length} da analizzare (silenceChecked assente/false)`, 'info');
+        const unanalyzed = preshowCol.clips.filter(c => !c.silenceCheckedV2 && !c.isMissing);
+        debugLog(`AutoSilence[preshow] load: colonna id="${preshowCol.id}", ${preshowCol.clips.length} clip totali, ${unanalyzed.length} da analizzare (silenceCheckedV2 assente/false)`, 'info');
         if (unanalyzed.length === 0 || !window.electron?.detectSilence) return;
 
         setPreshowAnalyzingCount(unanalyzed.length);
@@ -207,24 +214,26 @@ export const MainGrid: React.FC = () => {
         unanalyzed.forEach(clip => {
             updateClip('col-preshow', clip.id, { isAnalyzing: true });
             window.electron.detectSilence(clip.path).then(result => {
-                if (result.success && result.data && !result.data.noSilence) {
+                const r = classifySilenceResult(result);
+                if (r.checked) {
                     updateClip('col-preshow', clip.id, {
-                        trimStart: result.data.trimStart,
-                        trimEnd: result.data.trimEnd,
+                        ...(r.trimStart !== undefined ? { trimStart: r.trimStart, trimEnd: r.trimEnd } : {}),
                         isAnalyzing: false,
-                        silenceChecked: true
+                        silenceCheckedV2: true
                     });
-                    optimized++;
+                    if (r.trimStart !== undefined) optimized++;
                 } else {
-                    updateClip('col-preshow', clip.id, { isAnalyzing: false, silenceChecked: true });
+                    updateClip('col-preshow', clip.id, { isAnalyzing: false });
+                    debugLog(`AutoSilence[preshow]: analisi fallita per "${clip.name}" (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');
                 }
                 processed++;
                 setPreshowAnalyzingCount(n => Math.max(0, n - 1));
                 if (processed === unanalyzed.length && optimized > 0) {
                     toast(`Silenzio rimosso automaticamente da ${optimized} clip PRE-SHOW.`, 'success');
                 }
-            }).catch(() => {
-                updateClip('col-preshow', clip.id, { isAnalyzing: false, silenceChecked: true });
+            }).catch((err) => {
+                updateClip('col-preshow', clip.id, { isAnalyzing: false });
+                debugLog(`AutoSilence[preshow]: eccezione per "${clip.name}": ${err}`, 'error');
                 processed++;
                 setPreshowAnalyzingCount(n => Math.max(0, n - 1));
             });
@@ -298,19 +307,21 @@ export const MainGrid: React.FC = () => {
                     if (isPreshow) setPreshowAnalyzingCount(n => n + 1);
                     else setMusicAnalyzingCount(n => n + 1);
                     window.electron.detectSilence(newClip.path).then(result => {
-                        if (result.success && result.data && !result.data.noSilence) {
+                        const r = classifySilenceResult(result);
+                        if (r.checked) {
                             updateClip(colId, newClip.id, {
-                                trimStart: result.data.trimStart,
-                                trimEnd: result.data.trimEnd,
+                                ...(r.trimStart !== undefined ? { trimStart: r.trimStart, trimEnd: r.trimEnd } : {}),
                                 isAnalyzing: false,
-                                silenceChecked: true
+                                silenceCheckedV2: true
                             });
-                            debugLog(`AutoSilence [${newClip.name}]: trimStart=${result.data.trimStart}s, trimEnd=${result.data.trimEnd}s`, 'info');
+                            if (r.trimStart !== undefined) debugLog(`AutoSilence [${newClip.name}]: trimStart=${r.trimStart}s, trimEnd=${r.trimEnd}s`, 'info');
                         } else {
-                            updateClip(colId, newClip.id, { isAnalyzing: false, silenceChecked: true });
+                            updateClip(colId, newClip.id, { isAnalyzing: false });
+                            debugLog(`AutoSilence [${newClip.name}]: analisi fallita (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');
                         }
-                    }).catch(() => {
-                        updateClip(colId, newClip.id, { isAnalyzing: false, silenceChecked: true });
+                    }).catch((err) => {
+                        updateClip(colId, newClip.id, { isAnalyzing: false });
+                        debugLog(`AutoSilence [${newClip.name}]: eccezione: ${err}`, 'error');
                     }).finally(() => {
                         if (isPreshow) setPreshowAnalyzingCount(n => Math.max(0, n - 1));
                         else setMusicAnalyzingCount(n => Math.max(0, n - 1));
