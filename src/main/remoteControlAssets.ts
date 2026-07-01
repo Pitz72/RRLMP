@@ -101,6 +101,9 @@ export const INDEX_HTML = `<!DOCTYPE html>
     font-size: 13px;
   }
   #installInstructions { font-size: 11px; color: #64748b; margin-top: 14px; line-height: 1.5; display: none; }
+  #trustCertBox { font-size: 11px; color: #64748b; margin-top: 16px; padding-top: 16px; border-top: 1px solid #334155; line-height: 1.5; text-align: left; display: none; }
+  #trustCertBox a { color: #38bdf8; text-decoration: underline; }
+  #reloadAfterTrust { margin-top: 10px; }
   #clipList { margin-top: 16px; text-align: left; max-height: 50vh; overflow-y: auto; }
   .clip-row {
     display: flex;
@@ -129,6 +132,16 @@ export const INDEX_HTML = `<!DOCTYPE html>
     <button id="installBtn" style="display:none;">Installa app</button>
     <button id="skipInstall" class="btn-secondary">Continua nel browser</button>
     <p id="installInstructions">Non è stato possibile proporre l'installazione automatica su questo browser. Usa il menu del browser (⋮ o Condividi) e cerca "Aggiungi a schermata Home" o "Installa app".</p>
+    <div id="trustCertBox">
+      Il pulsante di installazione automatico compare solo se questa connessione è considerata sicura dal browser. Puoi provare a renderla tale installando il certificato del server come attendibile sul dispositivo (operazione unica, non necessaria per usare l'app):
+      <br /><br />
+      1. <a href="/rrlmp-cert.crt" download>Scarica il certificato</a><br />
+      2. Impostazioni del dispositivo → Sicurezza → Crittografia e credenziali → Installa un certificato → Certificato CA → seleziona il file scaricato<br />
+      3. Conferma l'avviso di Android sui certificati installati manualmente<br />
+      4. Torna qui e ricarica la pagina
+      <br />
+      <button id="reloadAfterTrust" class="btn-secondary">Ricarica pagina</button>
+    </div>
   </div>
 
   <div class="card" id="pinScreen">
@@ -150,7 +163,11 @@ export const INDEX_HTML = `<!DOCTYPE html>
   var installBtn = document.getElementById('installBtn');
   var skipInstall = document.getElementById('skipInstall');
   var installInstructions = document.getElementById('installInstructions');
+  var trustCertBox = document.getElementById('trustCertBox');
+  var reloadAfterTrust = document.getElementById('reloadAfterTrust');
   var deferredInstallPrompt = null;
+
+  reloadAfterTrust.addEventListener('click', function () { location.reload(); });
 
   function showPinScreen() {
     installScreen.style.display = 'none';
@@ -172,6 +189,7 @@ export const INDEX_HTML = `<!DOCTYPE html>
       deferredInstallPrompt = e;
       installBtn.style.display = 'block';
       installInstructions.style.display = 'none';
+      trustCertBox.style.display = 'none';
     });
 
     window.addEventListener('appinstalled', function () {
@@ -182,7 +200,10 @@ export const INDEX_HTML = `<!DOCTYPE html>
     // Browser senza 'beforeinstallprompt' (iOS Safari, Firefox desktop, ecc.):
     // se il prompt nativo non si presenta entro 1.5s, mostra le istruzioni manuali.
     setTimeout(function () {
-      if (!deferredInstallPrompt) installInstructions.style.display = 'block';
+      if (!deferredInstallPrompt) {
+        installInstructions.style.display = 'block';
+        trustCertBox.style.display = 'block';
+      }
     }, 1500);
 
     installBtn.addEventListener('click', function () {
