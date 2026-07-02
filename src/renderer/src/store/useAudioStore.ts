@@ -1525,12 +1525,21 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 const fadeMs = Math.round(plan.crossfadeSec * 1000);
                 debugLog(`Automix: TRANSIZIONE beat-match — ${fromClip.name} → ${toClip.name} | rate ${plan.rate.toFixed(4)}, aggancio ${plan.anchorBeatSec.toFixed(3)}s, partenza entrante ${plan.incomingStartSec.toFixed(3)}s, fade ${fadeMs}ms`, 'event');
 
+                // v1.10.26 (FIX "transizione secca", riscontro dev): l'uscente va marcato
+                // in fadingClipIds PRIMA di playClip — la conflict resolution di colonna
+                // dentro playClip FERMA di colpo le altre clip della stessa colonna e
+                // salta SOLO quelle in fadingClipIds (v0.13.2). Con il marker messo dopo
+                // (v1.10.23) l'uscente veniva stoppato all'istante: niente crossfade.
+                // Il fade vero resta armato solo DOPO il successo di playClip: in caso
+                // di partenza fallita si rimuove il marker e l'uscente prosegue intatto.
+                set(state => ({ fadingClipIds: [...state.fadingClipIds, fromClipId] }));
                 pendingCrossfadeFadeIn = fadeMs;
                 await get().playClip(toClip, undefined, { machine: true });
                 const toState = get().activeClips[toClipId];
                 if (!toState) {
                     // Partenza fallita (load error ecc.): l'uscente resta in onda intatto —
-                    // nessun fade era ancora stato armato. MAI dead air per un tentativo di mix.
+                    // il fade non era ancora stato armato. MAI dead air per un tentativo di mix.
+                    set(state => ({ fadingClipIds: state.fadingClipIds.filter(id => id !== fromClipId) }));
                     debugLog(`Automix: partenza di ${toClip.name} fallita — transizione annullata, uscente in onda`, 'error');
                     return { mode: 'skipped' as const, reason: 'partenza entrante fallita' };
                 }
@@ -1553,8 +1562,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
                 // Crossfade: l'uscente scende in fadeMs da ORA (l'entrante sta già
                 // salendo con il fade-in armato via pendingCrossfadeFadeIn) — rampe
-                // simmetriche, stessa struttura del crossfade esistente.
-                set(state => ({ fadingClipIds: [...state.fadingClipIds, fromClipId] }));
+                // simmetriche, stessa struttura del crossfade esistente. Il marker
+                // fadingClipIds è già stato messo PRIMA di playClip (v1.10.26).
                 fromPlayer.fadeTo(0, fadeMs);
                 clearTransitionTimeout(fromClipId);
                 _transitionTimeouts.set(fromClipId, setTimeout(() => {
