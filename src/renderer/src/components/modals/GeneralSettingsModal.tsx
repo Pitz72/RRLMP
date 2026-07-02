@@ -234,6 +234,9 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     {/* ── TAB: GENERALI ── */}
                     {activeTab === 'general' && (
                         <div className="p-6 space-y-6">
+                            {/* Task 1 (v1.10.15): due colonne — lingua | layout regia, opzioni indipendenti.
+                                md: → sotto i 768px di viewport il grid collassa a colonna singola. */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 items-start">
                             <section>
                                 <SectionTitle color="text-violet-400">{t('modal.settings.tab.language')}</SectionTitle>
                                 <p className="text-[10px] text-zinc-600 italic mb-3">Seleziona la lingua dell'interfaccia. La modifica è immediata.</p>
@@ -259,8 +262,6 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 </div>
                             </section>
 
-                            <Divider />
-
                             {/* LAYOUT REGIA — colonne visibili (Step 4 UI regia, v1.9.8) */}
                             <section className="space-y-3">
                                 <SectionTitle color="text-amber-400">Layout regia — colonne</SectionTitle>
@@ -285,6 +286,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     })}
                                 </div>
                             </section>
+                            </div>
 
                             <Divider />
 
@@ -346,6 +348,8 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
                             <Divider />
 
+                            {/* Task 1 (v1.10.15): due colonne — mixing | transizioni, opzioni indipendenti */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 items-start">
                             {/* MIXING INTELLIGENCE */}
                             <section className="space-y-4">
                                 <SectionTitle color="text-emerald-500">{t('modal.settings.mixingIntelligence')}</SectionTitle>
@@ -366,8 +370,6 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 />
                                 <p className="text-[10px] text-zinc-600 -mt-2 italic">Più alto = transizione più morbida.</p>
                             </section>
-
-                            <Divider />
 
                             {/* TRANSIZIONI */}
                             <section className="space-y-4">
@@ -397,6 +399,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     onChange={(v) => setSegueDuration(v)}
                                 />
                             </section>
+                            </div>
                         </div>
                     )}
 
@@ -404,6 +407,8 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     {activeTab === 'mic' && (
                         <div className="p-6 space-y-6">
 
+                            {/* Task 1 (v1.10.15): due colonne — ducking | canale mix, opzioni indipendenti */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 items-start">
                             {/* SMART MIC — DUCKING */}
                             <section className="space-y-3">
                                 <div className="flex items-center justify-between">
@@ -463,8 +468,6 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     </p>
                                 </div>
                             </section>
-
-                            <Divider />
 
                             {/* CANALE MIX MICROFONO */}
                             <section className="space-y-3">
@@ -536,6 +539,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     </div>
                                 )}
                             </section>
+                            </div>
                         </div>
                     )}
 
@@ -617,6 +621,8 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 </div>
                             </div>
 
+                            {/* Task 1 (v1.10.15): due colonne — card HPF/Glue/Limiter indipendenti */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                             {/* HPF */}
                             <div className={`space-y-3 card !p-3 transition-opacity ${masterChain.enabled ? '' : 'opacity-40 pointer-events-none'}`}>
                                 <div className="flex items-center justify-between">
@@ -672,6 +678,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     onChange={(v) => setMasterChain({ limiterThreshold: v })}
                                 />
                                 <p className="text-[10px] text-zinc-600 italic">Blocco assoluto per protezione trasmittente. 20:1, 2 ms att. Default: -1 dBFS.</p>
+                            </div>
                             </div>
 
                             <button
