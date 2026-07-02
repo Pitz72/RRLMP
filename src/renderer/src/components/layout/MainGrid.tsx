@@ -21,6 +21,7 @@ import {
 import { useProjectStore } from '../../store/useProjectStore';
 import { useAudioStore } from '../../store/useAudioStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { hasSupportedAudioExtension } from '../../utils/audioExtensions';
 import { debugLog } from '../../store/useDebugStore';
 import { ClipCard } from './ClipCard';
 import { SortableClip } from './SortableClip'; // New component
@@ -324,14 +325,8 @@ export const MainGrid: React.FC = () => {
         // GR12 Fix: filtra solo file audio supportati.
         // File non audio (immagini, PDF, exe...) vengono ignorati silenziosamente
         // invece di essere aggiunti e fallire al momento del caricamento.
-        // DND-05 (v1.3.4): aggiunti webm e mp4 — coerente con ALLOWED_MEDIA_EXTENSIONS
-        // in main/index.ts (sono formati audio validi serviti dal protocollo media://
-        // e usati dal session recording, che esporta WebM/Opus nativo).
-        const SUPPORTED_AUDIO_EXTENSIONS = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac', 'opus', 'wma', 'webm', 'mp4'];
-        const files = Array.from(e.dataTransfer.files).filter(file => {
-            const ext = file.name.split('.').pop()?.toLowerCase();
-            return ext && SUPPORTED_AUDIO_EXTENSIONS.includes(ext);
-        });
+        // v1.10.7: whitelist centralizzata in utils/audioExtensions.ts (era duplicata qui e nel pad FX).
+        const files = Array.from(e.dataTransfer.files).filter(file => hasSupportedAudioExtension(file.name));
 
         // Calcola l'indice di inserimento dal punto di drop (Y) rispetto alle clip esistenti.
         // Ogni SortableClip ha data-clip-id, li interroghiamo per trovare il "slot" corretto.
@@ -518,6 +513,25 @@ export const MainGrid: React.FC = () => {
         }),
     };
 
+    // Step 3 (UI regia): la colonna FX (type 'sfx') non è più nella griglia —
+    // i suoi effetti vivono nel minipad FX 5×5 (FxPadOverlay). La colonna
+    // resta nel modello dati (bus/polifonia/esenzioni del motore invariate).
+    // Step 4 (UI regia): filtra anche le colonne disattivate dal layout
+    // configurabile (preferenza globale hiddenColumnIds). Nascondere una
+    // colonna non elimina le sue clip.
+    const visibleColumns = columns.filter((col) => col.type !== 'sfx' && !hiddenColumnIds.includes(col.id));
+    // v1.10.7: i banner "Rilevamento silenzio…" vivono DENTRO le colonne — se
+    // Music/PRE-SHOW è nascosta dal layout, l'analisi al load partiva senza alcun
+    // feedback. Conteggio delle analisi in corso su colonne nascoste per il
+    // banner globale qui sotto.
+    const isColHidden = (type: 'music' | 'preshow') => {
+        const col = columns.find(c => c.type === type);
+        return !!col && hiddenColumnIds.includes(col.id);
+    };
+    const hiddenAnalyzingCount =
+        (isColHidden('preshow') ? preshowAnalyzingCount : 0) +
+        (isColHidden('music') ? musicAnalyzingCount : 0);
+
     return (
         <DndContext
             sensors={sensors}
@@ -526,13 +540,21 @@ export const MainGrid: React.FC = () => {
             onDragEnd={handleDragEnd}
         >
             <div className="flex h-full w-full text-white overflow-hidden relative gap-2.5 px-4 pb-4 pt-1">
-                {/* Step 3 (UI regia): la colonna FX (type 'sfx') non è più nella griglia —
-                    i suoi effetti vivono nel minipad FX 5×5 (FxPadOverlay). La colonna
-                    resta nel modello dati (bus/polifonia/esenzioni del motore invariate).
-                    Step 4 (UI regia): filtra anche le colonne disattivate dal layout
-                    configurabile (preferenza globale hiddenColumnIds). Nascondere una
-                    colonna non elimina le sue clip. */}
-                {columns.filter((col) => col.type !== 'sfx' && !hiddenColumnIds.includes(col.id)).map((col) => (
+                {/* v1.10.7: banner globale analisi su colonne nascoste */}
+                {hiddenAnalyzingCount > 0 && (
+                    <div className="absolute top-1 left-1/2 -translate-x-1/2 z-30 px-3 py-1.5 bg-amber-950/80 border border-amber-500/40 rounded text-amber-300 text-[10px] flex items-center gap-2 pointer-events-none">
+                        <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                        <span>Rilevamento silenzio su colonne nascoste… {hiddenAnalyzingCount} file in analisi</span>
+                    </div>
+                )}
+                {/* v1.10.7: tutte le colonne nascoste → board vuota senza spiegazione */}
+                {visibleColumns.length === 0 && (
+                    <div className="flex-1 flex flex-col items-center justify-center text-zinc-600 gap-2">
+                        <span className="text-sm font-semibold">Tutte le colonne sono nascoste</span>
+                        <span className="text-xs">Riattivale da Impostazioni → Generali → "Layout regia — colonne"</span>
+                    </div>
+                )}
+                {visibleColumns.map((col) => (
                     <SortableColumn
                         key={col.id}
                         column={col}

@@ -5,16 +5,13 @@ import { useAudioStore } from '../../store/useAudioStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { confirm } from '../../store/useConfirmStore';
 import { ClipSettingsModal } from '../modals/ClipSettingsModal';
+import { hasSupportedAudioExtension } from '../../utils/audioExtensions';
 import type { AudioClip } from '../../types';
 
 interface FxPadOverlayProps {
     isOpen: boolean;
     onClose: () => void;
 }
-
-// Estensioni audio accettate dal drop nativo (allineate a MainGrid.handleNativeDrop
-// e ad ALLOWED_MEDIA_EXTENSIONS nel main).
-const SUPPORTED_AUDIO_EXTENSIONS = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac', 'opus', 'wma', 'webm', 'mp4'];
 
 /**
  * Step 3 (UI regia) — Minipad FX 5×5 "jingle machine".
@@ -73,10 +70,8 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
         setIsDragOver(false);
         if (!sfxCol) return;
         if (!e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
-        const files = Array.from(e.dataTransfer.files).filter((file) => {
-            const ext = file.name.split('.').pop()?.toLowerCase();
-            return ext && SUPPORTED_AUDIO_EXTENSIONS.includes(ext);
-        });
+        // v1.10.7: whitelist centralizzata in utils/audioExtensions.ts
+        const files = Array.from(e.dataTransfer.files).filter((file) => hasSupportedAudioExtension(file.name));
         for (const file of files) {
             const newClip = addClip(sfxCol.id, file);
             if (newClip) await loadClip(newClip);

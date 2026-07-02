@@ -426,6 +426,10 @@ function App() {
                     <div className="brand mr-2">
                         <img src={appLogo} alt="Logo" className="brand-logo" title={`Runtime Live Machine PRO · v${__APP_VERSION__}`} />
                         <span className="brand-name">RLM <span style={{ color: '#4ade80' }}>PRO</span></span>
+                        {/* v1.10.7: versione di nuovo leggibile a colpo d'occhio (triage
+                            segnalazioni dalla regia) — dal compattamento v1.9.7 era solo
+                            nel tooltip del logo. */}
+                        <span className="text-[9px] font-mono text-zinc-600 self-end mb-0.5">v{__APP_VERSION__}</span>
                     </div>
 
                     {/* GLOBAL CONTROLS */}
