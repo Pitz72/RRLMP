@@ -18,6 +18,7 @@ import { toast } from '../../store/useToastStore';
 import { confirm } from '../../store/useConfirmStore';
 import { classifySilenceResult } from '../../utils/silenceDetection';
 import { populateDefaultFxIfVirgin } from '../../utils/defaultSfx';
+import { MIC_ARM_ENABLED } from '../../utils/featureFlags';
 
 
 
@@ -614,7 +615,10 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 )}
             </div>
 
-            {/* SMART MIC — ARM button + mini VU + Mic Mix Vol (v1.0.0+) */}
+            {/* SMART MIC — ARM button + mini VU + Mic Mix Vol (v1.0.0+).
+                v1.11.1: dietro MIC_ARM_ENABLED (vedi utils/featureFlags.ts) —
+                inaffidabile coi mixer USB che espongono il mix, non il solo mic. */}
+            {MIC_ARM_ENABLED && (
             <div className="flex items-center gap-2 border-l border-zinc-800 pl-2">
                 <div className="flex flex-col gap-1">
                     <button
@@ -683,6 +687,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                     </div>
                 )}
             </div>
+            )}
 
             {/* VU METER */}
             <VUMeter />

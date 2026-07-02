@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { DEFAULT_MASTER_CHAIN } from '../../engine/AudioContextManager';
 import { FlagIcon } from '../ui/FlagIcon';
 import { RemoteControlStatus } from '../../types';
+import { MIC_ARM_ENABLED } from '../../utils/featureFlags';
 
 interface Props {
     isOpen: boolean;
@@ -197,13 +198,15 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
     if (!isOpen) return null;
 
+    // v1.11.1: tab Microfono dietro MIC_ARM_ENABLED (vedi utils/featureFlags.ts) —
+    // il pannello resta nel JSX ma senza tab non è raggiungibile.
     const tabs: { id: SettingsTab; label: string; icon: string }[] = [
         { id: 'general',   label: 'Generali',    icon: '⚙️' },
         { id: 'audio',     label: 'Audio & Mix',  icon: '🎚️' },
         { id: 'mic',       label: 'Microfono',    icon: '🎙️' },
         { id: 'recording', label: 'Registrazione', icon: '⏺' },
         { id: 'chain',     label: 'Master Chain', icon: '⛓️' },
-    ];
+    ].filter(tab => MIC_ARM_ENABLED || tab.id !== 'mic') as { id: SettingsTab; label: string; icon: string }[];
 
     return (
         <div className="ov">
