@@ -38,6 +38,11 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad }: GlobalControlsProps
         micInputDeviceId, micThresholdDb, micActivationHoldMs, micReleaseHoldMs, micEnabled, micMixEnabled, micVolume, micBypassProcessing, setMicSettings } = useSettingsStore();
     const setMicActive = useAudioStore(s => s.setMicActive);
     const isMicActive = useAudioStore(s => s.isMicActive);
+    // v1.10.5: badge FX attivi sul toggle — a pad chiuso un effetto in onda
+    // (loop/lungo) non aveva NESSUN riscontro visivo in regia.
+    const activeClips = useAudioStore((s) => s.activeClips);
+    const sfxCol = columns.find((c) => c.type === 'sfx');
+    const sfxActiveCount = sfxCol ? sfxCol.clips.filter((c) => !!activeClips[c.id]).length : 0;
     // v1.5.0: Undo/Redo playlist (selettori reattivi per abilitare/disabilitare i pulsanti)
     const canUndo = useProjectStore((s) => s.undoStack.length > 0);
     const canRedo = useProjectStore((s) => s.redoStack.length > 0);
@@ -459,6 +464,12 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad }: GlobalControlsProps
                         <Grid3x3 size={14} />
                         <span>FX</span>
                     </div>
+                    {/* v1.10.5: badge effetti in onda (visibile anche a pad chiuso) */}
+                    {sfxActiveCount > 0 && (
+                        <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-emerald-500 text-black text-[9px] font-bold flex items-center justify-center animate-pulse pointer-events-none">
+                            {sfxActiveCount}
+                        </span>
+                    )}
                 </Button>
             )}
 
