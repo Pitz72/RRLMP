@@ -7,14 +7,14 @@ import { toast } from '../../store/useToastStore';
 import { debugLog } from '../../store/useDebugStore';
 import { Square, X, Disc3, Music2, Play, Shuffle } from 'lucide-react';
 
-// AUTOMIX SECTION — Fase C1 (v1.10.22) + C2 deck/transizione (v1.10.23).
-// Vista a schermo pieno ALTERNATIVA alla board (l'app non ha routing: toggle in
-// topbar, stato in App.tsx — stesso pattern concettuale del pad FX ma full-screen).
-// Scaletta = colonna Music (ordine = ordine colonna); deck IN ONDA/PROSSIMO;
-// pulsantone TRANSIZIONE (manuale — decisione utente 2026-07-02; l'opzione
-// "auto a fine brano" arriva in uno step successivo, default OFF).
+// AUTOMIX SECTION — Fase C1 (v1.10.22) + C2 deck/transizione (v1.10.23) +
+// auto a fine brano (v1.10.24). v1.10.25: restyling in linguaggio Spectrum
+// (riscontro utente: "manca un po' di estetica in linea con Spectrum Live") —
+// SOLO markup/classi, logica invariata. Le classi .amx-* vivono in spectrum.css
+// e riusano il vocabolario del tema: deck IN ONDA = .hero, righe = .clip,
+// pulsantone = .btn-green, toggle = .tgl, chiusura = .ov-x, STOP ALL = .stop.
 //
-// Scelte deliberate:
+// Scelte deliberate (invariate):
 // - z-30: sopra la board, SOTTO pad FX (40) / Keymapping (50) / modali .ov (200)
 //   → gli FX restano utilizzabili anche dentro l'automix.
 // - ESC NON chiude la vista: resta Emergency Stop globale (criterio 4 del piano).
@@ -33,15 +33,12 @@ const formatTime = (seconds: number) => {
 };
 
 /** Pallino di compatibilità col brano PRECEDENTE in scaletta (semantica C1). */
-const CompatDot: React.FC<{ level: 'green' | 'yellow' | 'red'; label: string }> = ({ level, label }) => {
-    const color = level === 'green' ? 'bg-emerald-500' : level === 'yellow' ? 'bg-yellow-500' : 'bg-red-500';
-    return (
-        <span className="flex items-center gap-1.5" title={label}>
-            <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${color}`} />
-            <span className="text-[10px] text-zinc-500">{label}</span>
-        </span>
-    );
-};
+const CompatDot: React.FC<{ level: 'green' | 'yellow' | 'red'; label: string }> = ({ level, label }) => (
+    <span className="amx-compat" title={label}>
+        <span className={`amx-dot ${level === 'green' ? 'g' : level === 'yellow' ? 'y' : 'r'}`} />
+        <span>{label}</span>
+    </span>
+);
 
 const REASON_LABEL: Record<string, string> = {
     'missing-bpm': 'BPM mancante → crossfade classico',
@@ -115,6 +112,9 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
 
     if (!isOpen) return null;
 
+    // Colore della colonna Music → border-left delle righe (stesso linguaggio .clip della board)
+    const colColor = musicCol?.customColor ?? musicCol?.color ?? '#EF4444';
+
     const nextCompat = currentClip && nextClip ? assessCompatibility(currentClip, nextClip) : null;
     const nextCompatLabel = nextCompat
         ? (nextCompat.rate !== undefined
@@ -137,140 +137,118 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
     };
 
     return (
-        <div className="fixed inset-0 z-30 bg-gradient-to-b from-[#101014] to-[#0a0a0c] flex flex-col text-white">
+        <div className="amx" style={{ '--col-color': colColor } as React.CSSProperties}>
             {/* HEADER */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 shrink-0">
-                <div className="flex items-center gap-3">
-                    <Disc3 size={22} className="text-emerald-400" />
+            <div className="amx-head">
+                <div className="amx-brand">
+                    <div className="amx-ico"><Disc3 size={20} /></div>
                     <div>
-                        <h2 className="font-black tracking-widest text-base">AUTOMIX</h2>
-                        <p className="text-[10px] text-zinc-500">Mix automatico sui BPM — scaletta = colonna {musicCol?.title ?? 'Music'}</p>
+                        <div className="amx-name">AUTOMIX</div>
+                        <div className="amx-sub">Mix automatico sui BPM · {musicCol?.title ?? 'Music'}</div>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
                     <button
                         onClick={stopAll}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition-colors"
+                        className="stop"
                         title="Ferma tutto (come in board — ESC resta l'Emergency Stop)"
                     >
-                        <Square fill="currentColor" size={12} /> STOP ALL
+                        <Square fill="currentColor" /> STOP ALL
                     </button>
-                    <button
-                        onClick={onClose}
-                        className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center transition-colors"
-                        title="Torna alla board"
-                    >
+                    <button onClick={onClose} className="ov-x" title="Torna alla board">
                         <X size={16} />
                     </button>
                 </div>
             </div>
 
-            {/* DECK — IN ONDA | TRANSIZIONE | PROSSIMO (C2, v1.10.23) */}
-            <div className="px-6 py-5 border-b border-zinc-800 shrink-0">
-                <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-5 items-stretch">
-                    {/* IN ONDA */}
-                    <div className={`rounded-xl border p-4 ${currentClip ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-zinc-800 bg-zinc-900/40'}`}>
-                        <p className="text-[9px] uppercase tracking-widest font-bold text-emerald-500 mb-2">In onda</p>
-                        {currentClip ? (
-                            <>
-                                <p className="text-lg font-bold truncate">{currentClip.name}</p>
-                                <div className="flex items-center gap-3 mt-1 text-xs font-mono text-zinc-400">
-                                    <span>{currentClip.bpm ? `${currentClip.bpm} BPM` : 'NO BPM'}</span>
-                                    <span className="text-zinc-600">·</span>
-                                    <span>{formatTime(currentTime)} / {formatTime(currentDuration)}</span>
-                                    <span className={`ml-auto ${remaining < 20 ? 'text-orange-400' : 'text-zinc-500'}`}>-{formatTime(remaining)}</span>
-                                </div>
-                                <div className="h-1.5 mt-3 rounded-full bg-zinc-800 overflow-hidden">
-                                    <div
-                                        className="h-full bg-emerald-500 transition-[width] duration-150"
-                                        style={{ width: `${currentDuration > 0 ? Math.min(100, (currentTime / currentDuration) * 100) : 0}%` }}
-                                    />
-                                </div>
-                            </>
-                        ) : (
-                            <p className="text-sm text-zinc-600 py-3">Niente in onda — premi START per partire dal primo brano.</p>
-                        )}
-                    </div>
+            {/* DECK — IN ONDA | TRANSIZIONE | PROSSIMO */}
+            <div className="amx-deckrow">
+                {/* IN ONDA (linguaggio .hero) */}
+                <div className={`amx-deck ${currentClip ? 'onair' : ''}`}>
+                    <div className="amx-deck-label">IN ONDA</div>
+                    {currentClip ? (
+                        <>
+                            <div className="amx-deck-title">{currentClip.name}</div>
+                            <div className="amx-deck-meta">
+                                <span className={`amx-bpm ${currentClip.bpm ? '' : 'off'}`}>{currentClip.bpm ? `${currentClip.bpm} BPM` : 'NO BPM'}</span>
+                                <span>{formatTime(currentTime)} / {formatTime(currentDuration)}</span>
+                                <span className={`amx-remain ${remaining < 20 ? 'warn' : ''}`}>-{formatTime(remaining)}</span>
+                            </div>
+                            <div className="amx-prog">
+                                <i style={{ width: `${currentDuration > 0 ? Math.min(100, (currentTime / currentDuration) * 100) : 0}%` }} />
+                            </div>
+                        </>
+                    ) : (
+                        <p className="amx-deck-empty">Niente in onda — premi START per partire dal primo brano.</p>
+                    )}
+                </div>
 
-                    {/* PULSANTONE */}
-                    <div className="flex flex-col items-center justify-center gap-2 min-w-[190px]">
-                        {currentClip ? (
-                            <>
-                                <button
-                                    onClick={() => void handleTransition()}
-                                    disabled={!nextClip || nextClip.isMissing}
-                                    className={`w-full px-6 py-5 rounded-2xl font-black tracking-widest text-base transition-all ${
-                                        nextClip && !nextClip.isMissing
-                                            ? 'bg-gradient-to-b from-emerald-500 to-emerald-600 text-black shadow-[0_0_30px_-8px_rgba(34,197,94,0.9)] hover:from-emerald-400 hover:to-emerald-500 active:scale-95'
-                                            : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
-                                    }`}
-                                    title={nextClip ? `Mixa verso: ${nextClip.name}` : 'Fine scaletta'}
-                                >
-                                    <span className="flex items-center justify-center gap-2"><Shuffle size={18} /> TRANSIZIONE</span>
-                                </button>
-                                <p className="text-[10px] text-zinc-500 text-center h-4">
-                                    {nextClip ? (nextClip.isMissing ? 'prossimo file MANCANTE' : nextCompatLabel) : 'fine scaletta'}
-                                </p>
-                            </>
-                        ) : (
+                {/* PULSANTONE + AUTO */}
+                <div className="amx-center">
+                    {currentClip ? (
+                        <>
                             <button
-                                onClick={handleStart}
-                                disabled={clips.every(c => c.isMissing)}
-                                className={`w-full px-6 py-5 rounded-2xl font-black tracking-widest text-base transition-all ${
-                                    clips.some(c => !c.isMissing)
-                                        ? 'bg-gradient-to-b from-emerald-500 to-emerald-600 text-black shadow-[0_0_30px_-8px_rgba(34,197,94,0.9)] hover:from-emerald-400 hover:to-emerald-500 active:scale-95'
-                                        : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
-                                }`}
+                                onClick={() => void handleTransition()}
+                                disabled={!nextClip || nextClip.isMissing}
+                                className="amx-big"
+                                title={nextClip ? `Mixa verso: ${nextClip.name}` : 'Fine scaletta'}
                             >
-                                <span className="flex items-center justify-center gap-2"><Play size={18} fill="currentColor" /> START</span>
+                                <Shuffle size={18} /> TRANSIZIONE
                             </button>
-                        )}
-                        {/* AUTO A FINE BRANO (default OFF, attiva solo a vista aperta) */}
-                        <label className="flex items-center gap-2 cursor-pointer text-[10px] mt-1 select-none" title="Quando il brano sta per finire, la transizione parte da sola (stessa logica del pulsante). Si disattiva chiudendo la vista.">
-                            <input
-                                type="checkbox"
-                                checked={autoMode}
-                                onChange={e => setAutoMode(e.target.checked)}
-                                className="w-3.5 h-3.5 accent-emerald-500"
-                            />
-                            <span className={autoMode ? 'text-emerald-400 font-bold' : 'text-zinc-500'}>Auto a fine brano</span>
-                        </label>
-                    </div>
+                            <p className="amx-hint">
+                                {nextClip ? (nextClip.isMissing ? 'prossimo file MANCANTE' : nextCompatLabel) : 'fine scaletta'}
+                            </p>
+                        </>
+                    ) : (
+                        <button
+                            onClick={handleStart}
+                            disabled={clips.every(c => c.isMissing)}
+                            className="amx-big"
+                        >
+                            <Play size={18} fill="currentColor" /> START
+                        </button>
+                    )}
+                    {/* AUTO A FINE BRANO (default OFF, attiva solo a vista aperta) — toggle .tgl del tema */}
+                    <label className="tgl" title="Quando il brano sta per finire, la transizione parte da sola (stessa logica del pulsante). Si disattiva chiudendo la vista.">
+                        <span className="tgl-lbl" style={autoMode ? { color: '#4ade80', fontWeight: 700 } : undefined}>Auto a fine brano</span>
+                        <div onClick={() => setAutoMode(v => !v)} className={`tgl-track ${autoMode ? 'on' : ''}`}>
+                            <div className="tgl-knob" />
+                        </div>
+                    </label>
+                </div>
 
-                    {/* PROSSIMO */}
-                    <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
-                        <p className="text-[9px] uppercase tracking-widest font-bold text-sky-500 mb-2">Prossimo</p>
-                        {nextClip ? (
-                            <>
-                                <p className="text-lg font-bold truncate text-zinc-200">{nextClip.name}</p>
-                                <div className="flex items-center gap-3 mt-1 text-xs font-mono text-zinc-400">
-                                    <span>{nextClip.bpm ? `${nextClip.bpm} BPM` : 'NO BPM'}</span>
-                                    <span className="text-zinc-600">·</span>
-                                    <span>{formatTime(nextClip.duration || 0)}</span>
+                {/* PROSSIMO (linguaggio .hero-next) */}
+                <div className="amx-deck next">
+                    <div className="amx-deck-label">PROSSIMO</div>
+                    {nextClip ? (
+                        <>
+                            <div className="amx-deck-title">{nextClip.name}</div>
+                            <div className="amx-deck-meta">
+                                <span className={`amx-bpm ${nextClip.bpm ? '' : 'off'}`}>{nextClip.bpm ? `${nextClip.bpm} BPM` : 'NO BPM'}</span>
+                                <span>{formatTime(nextClip.duration || 0)}</span>
+                            </div>
+                            {nextCompat && (
+                                <div style={{ marginTop: 10 }}>
+                                    <CompatDot level={nextCompat.level} label={nextCompatLabel} />
                                 </div>
-                                {nextCompat && (
-                                    <div className="mt-3">
-                                        <CompatDot level={nextCompat.level} label={nextCompatLabel} />
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <p className="text-sm text-zinc-600 py-3">{currentClip ? 'Fine scaletta — nessun brano dopo questo.' : 'Il prossimo brano compare qui a playlist avviata.'}</p>
-                        )}
-                    </div>
+                            )}
+                        </>
+                    ) : (
+                        <p className="amx-deck-empty">{currentClip ? 'Fine scaletta — nessun brano dopo questo.' : 'Il prossimo brano compare qui a playlist avviata.'}</p>
+                    )}
                 </div>
             </div>
 
-            {/* SCALETTA */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar px-6 py-4">
+            {/* SCALETTA (righe in linguaggio .clip) */}
+            <div className="amx-list">
                 {clips.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-zinc-600 gap-3">
+                    <div className="amx-empty">
                         <Music2 size={40} />
-                        <p className="text-sm">Nessun brano in scaletta.</p>
-                        <p className="text-xs">Trascina i brani nella colonna Music della board: l'elenco compare qui nello stesso ordine.</p>
+                        <p style={{ fontSize: 13 }}>Nessun brano in scaletta.</p>
+                        <p style={{ fontSize: 11 }}>Trascina i brani nella colonna Music della board: l'elenco compare qui nello stesso ordine.</p>
                     </div>
                 ) : (
-                    <div className="max-w-4xl mx-auto space-y-1">
+                    <div className="amx-list-inner">
                         {clips.map((clip, i) => {
                             const isPlaying = !!activeClips[clip.id] && !fadingClipIds.includes(clip.id);
                             const prev = i > 0 ? clips[i - 1] : null;
@@ -281,29 +259,19 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                                     : REASON_LABEL[compat.reason ?? ''] ?? 'crossfade classico')
                                 : 'primo brano';
                             return (
-                                <div
-                                    key={clip.id}
-                                    className={`flex items-center gap-4 px-4 py-2.5 rounded-lg border transition-colors ${
-                                        isPlaying
-                                            ? 'border-emerald-500/60 bg-emerald-500/10 shadow-[0_0_18px_-6px_rgba(34,197,94,0.6)]'
-                                            : 'border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900'
-                                    }`}
-                                >
-                                    <span className={`w-6 text-right text-xs font-mono ${isPlaying ? 'text-emerald-400' : 'text-zinc-600'}`}>{i + 1}</span>
-                                    <div className="flex-1 min-w-0">
-                                        <p className={`text-sm truncate ${isPlaying ? 'text-emerald-300 font-bold' : 'text-zinc-200'}`}>{clip.name}</p>
-                                        <div className="mt-0.5">
-                                            {compat
-                                                ? <CompatDot level={compat.level} label={compatLabel} />
-                                                : <span className="text-[10px] text-zinc-600">▶ primo brano — parte con START</span>}
-                                        </div>
+                                <div key={clip.id} className={`amx-row ${isPlaying ? 'live' : ''}`}>
+                                    <span className="amx-num">{i + 1}</span>
+                                    <div className="amx-row-main">
+                                        <div className="amx-row-title">{clip.name}</div>
+                                        {compat
+                                            ? <CompatDot level={compat.level} label={compatLabel} />
+                                            : <div className="amx-compat"><span>▶ primo brano — parte con START</span></div>}
                                     </div>
-                                    <span className="text-xs font-mono text-zinc-500 shrink-0">{formatTime(clip.duration || 0)}</span>
-                                    <span className={`shrink-0 text-[10px] font-mono px-2 py-1 rounded border ${
-                                        clip.bpm
-                                            ? 'border-emerald-500/40 text-emerald-400 bg-emerald-500/5'
-                                            : 'border-zinc-700 text-zinc-600'
-                                    }`} title={clip.bpm ? `Confidence ${clip.bpmConfidence ?? '—'}` : 'BPM non rilevato'}>
+                                    <span className="amx-time">{formatTime(clip.duration || 0)}</span>
+                                    <span
+                                        className={`amx-bpm ${clip.bpm ? '' : 'off'}`}
+                                        title={clip.bpm ? `Confidence ${clip.bpmConfidence ?? '—'}` : 'BPM non rilevato'}
+                                    >
                                         {clip.bpm ? `${clip.bpm} BPM` : 'NO BPM'}
                                     </span>
                                 </div>
