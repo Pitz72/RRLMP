@@ -232,6 +232,12 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                             const label = clip.title || clip.name;
                             const disabled = !!clip.isMissing;
                             const isSelected = selectedClipIds.includes(clip.id);
+                            // v1.10.10: un colore assegnato dalle impostazioni clip riempie
+                            // il pad (sfondo tinto + bordo). Solo customColor esplicito:
+                            // clip.color è il colore della colonna, uguale per tutti.
+                            // Non applicato su in-onda (verde), mancante (rosso) e MIDI
+                            // Learn (feedback cyan) — quegli stati devono restare leggibili.
+                            const padColor = !disabled && !isPlaying && !isMidiLearnMode ? clip.customColor : undefined;
                             // v1.10.2: NIENTE attributo `disabled` — Chromium sopprime i click
                             // anche sui discendenti di un button disabled, rendendo ⚙ e ×
                             // irraggiungibili (una clip col file mancante non era più né
@@ -241,6 +247,13 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                 <button
                                     key={clip.id}
                                     aria-disabled={disabled}
+                                    style={padColor ? { backgroundColor: `${padColor}2e`, borderColor: `${padColor}99` } : undefined}
+                                    onContextMenu={(e) => {
+                                        // v1.10.10: tasto destro = impostazioni clip (come la ⚙)
+                                        e.preventDefault();
+                                        e.currentTarget.blur();
+                                        setEditingClip(clip);
+                                    }}
                                     onClick={(e) => {
                                         // v1.10.3: togli il focus al pad appena cliccato — un button
                                         // focused viene ri-attivato da Space/Enter (attivazione nativa),
