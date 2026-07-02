@@ -39,7 +39,7 @@ declare global {
             detectSilence: (filePath: string, thresholdDb?: number) => Promise<{success: boolean, data?: {trimStart: number, trimEnd: number, noSilence?: boolean, thresholdUsed?: number}, error?: string}>;
             detectSmartCues: (filePath: string) => Promise<{success: boolean, data?: {introCue: number, outroCue: number}, error?: string}>;
             // 2026-07-01 — BPM Detection automatica (rilevamento + persistenza)
-            detectBpm: (filePath: string) => Promise<{success: boolean, data?: {bpm: number, confidence: number, detected: boolean}, error?: string}>;
+            detectBpm: (filePath: string) => Promise<{success: boolean, data?: {bpm: number, confidence: number, detected: boolean, beatOffsetSec?: number}, error?: string}>;
             // Controllo Remoto (2026-07-01, Step 1/N) — server LAN locale opt-in
             remoteControlStart: () => Promise<RemoteControlStatus>;
             remoteControlStop: () => Promise<RemoteControlStatus>;
@@ -216,8 +216,21 @@ export interface AudioClip {
     bpm?: number;
     /** True solo se il rilevamento BPM è realmente avvenuto con esito valido (successo
      *  o "non rilevabile" esplicito). Un fallimento (rate-limit/timeout) NON lo imposta,
-     *  per essere ritentato al prossimo caricamento — stesso pattern di silenceCheckedV2. */
+     *  per essere ritentato al prossimo caricamento — stesso pattern di silenceCheckedV2.
+     *  ⚠️ LEGACY dal v1.10.17: il gate attivo è bpmCheckedV2 (analisi con beat-offset);
+     *  questo campo resta solo nei .lmp salvati prima e non viene più scritto. */
     bpmChecked?: boolean;
+
+    // Automix Fase A (v1.10.17) — persistito nel .lmp
+    /** Fase della griglia dei beat: offset in secondi del PRIMO beat dall'inizio del
+     *  file (non del trim). Con bpm + beatOffsetSec ogni beat è t_k = offset + k·(60/bpm).
+     *  Assente se non stimabile → il motore automix degraderà a crossfade classico. */
+    beatOffsetSec?: number;
+    /** Gate versionato dell'analisi BPM (come silenceCheckedV2): true solo se l'analisi
+     *  v1.10.17+ (con beat-offset) è realmente avvenuta. Le clip con il solo bpmChecked
+     *  legacy vengono rianalizzate al prossimo caricamento per ottenere l'offset (e la
+     *  precisione dell'interpolazione parabolica v1.10.14). */
+    bpmCheckedV2?: boolean;
 }
 
 

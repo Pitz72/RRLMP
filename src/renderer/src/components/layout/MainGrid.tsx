@@ -249,19 +249,20 @@ export const MainGrid: React.FC = () => {
     }, [currentFilePath]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // AUTO-BPM DETECTION BATCH — colonna Music al caricamento progetto (2026-07-01)
-    // Solo rilevamento + persistenza (nessun uso ancora nel motore audio, vedi roadmap
-    // BPM Detection). Stesso schema del batch auto-silenzio qui sopra, gate su
-    // bpmChecked invece di silenceCheckedV2: nessuna UI di progresso (a differenza del
-    // trim silenzio non altera l'ascolto, quindi gira silenziosamente in background).
+    // Stesso schema del batch auto-silenzio qui sopra, nessuna UI di progresso
+    // (l'analisi BPM non altera l'ascolto, quindi gira silenziosamente in background).
+    // v1.10.17 (Automix Fase A): gate versionato bpmCheckedV2 — le clip analizzate
+    // prima (solo bpmChecked legacy) vengono rianalizzate UNA volta per ottenere
+    // anche beatOffsetSec (e la precisione dell'interpolazione parabolica v1.10.14).
     useEffect(() => {
         if (!currentFilePath) return;
         const freshColumns = useProjectStore.getState().columns;
         const musicCol = freshColumns.find(c => c.type === 'music');
         if (!musicCol) return;
 
-        const unanalyzed = musicCol.clips.filter(c => !c.bpmChecked && !c.isMissing);
+        const unanalyzed = musicCol.clips.filter(c => !c.bpmCheckedV2 && !c.isMissing);
         if (unanalyzed.length === 0 || !window.electron?.detectBpm) return;
-        debugLog(`AutoBpm[music] load: ${musicCol.clips.length} clip totali, ${unanalyzed.length} da analizzare (bpmChecked assente/false)`, 'info');
+        debugLog(`AutoBpm[music] load: ${musicCol.clips.length} clip totali, ${unanalyzed.length} da analizzare (bpmCheckedV2 assente/false)`, 'info');
 
         unanalyzed.forEach(clip => {
             window.electron.detectBpm(clip.path).then(result => {
@@ -269,7 +270,8 @@ export const MainGrid: React.FC = () => {
                 if (r.checked) {
                     updateClip('col-music', clip.id, {
                         ...(r.bpm !== undefined ? { bpm: r.bpm } : {}),
-                        bpmChecked: true
+                        ...(r.beatOffsetSec !== undefined ? { beatOffsetSec: r.beatOffsetSec } : {}),
+                        bpmCheckedV2: true
                     });
                 } else {
                     debugLog(`AutoBpm[music]: analisi fallita per "${clip.name}" (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');
@@ -379,13 +381,15 @@ export const MainGrid: React.FC = () => {
 
                 // Auto-BPM Detection per colonna Music (2026-07-01) — solo rilevamento +
                 // persistenza, nessuna UI di progresso (vedi batch al caricamento sopra).
+                // v1.10.17: gate/campi allineati al batch (bpmCheckedV2 + beatOffsetSec).
                 if (col?.type === 'music' && window.electron?.detectBpm) {
                     window.electron.detectBpm(newClip.path).then(result => {
                         const r = classifyBpmResult(result);
                         if (r.checked) {
                             updateClip(colId, newClip.id, {
                                 ...(r.bpm !== undefined ? { bpm: r.bpm } : {}),
-                                bpmChecked: true
+                                ...(r.beatOffsetSec !== undefined ? { beatOffsetSec: r.beatOffsetSec } : {}),
+                                bpmCheckedV2: true
                             });
                         } else {
                             debugLog(`AutoBpm [${newClip.name}]: analisi fallita (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');

@@ -3,7 +3,7 @@ import * as mm from 'music-metadata';
 import * as ffmpeg from 'fluent-ffmpeg';
 import { spawn } from 'child_process';
 import { logger } from './logger';
-import { computeEnergyEnvelope, estimateBpmFromEnvelope } from './bpmDetection';
+import { computeEnergyEnvelope, estimateBpmFromEnvelope, estimateBeatOffsetSec } from './bpmDetection';
 
 // Fix ESM/CJS interop per questi pacchetti old-school exports
 const ffmpegStatic = require('ffmpeg-static');
@@ -489,8 +489,13 @@ export class AudioProcessor {
    * Decodifica i primi 60s del file in PCM16 mono a 11025Hz via FFmpeg (pipe
    * su stdout, nessun file temporaneo), poi passa i campioni all'algoritmo
    * puro (onset detection + autocorrelazione) in bpmDetection.ts.
+   *
+   * v1.10.17 (Automix Fase A, step A2): il risultato include anche
+   * `beatOffsetSec` — la fase della griglia dei beat (offset del primo beat
+   * dall'inizio del file), quando stimabile. Estensione ADDITIVA: i campi
+   * esistenti sono invariati, i chiamanti vecchi continuano a funzionare.
    */
-  static async detectBpm(filePath: string): Promise<{ success: boolean; data?: { bpm: number; confidence: number; detected: boolean }; error?: string }> {
+  static async detectBpm(filePath: string): Promise<{ success: boolean; data?: { bpm: number; confidence: number; detected: boolean; beatOffsetSec?: number }; error?: string }> {
     if (!fs.existsSync(filePath)) return { success: false, error: 'File non trovato' };
 
     const SAMPLE_RATE = 11025;
@@ -539,7 +544,11 @@ export class AudioProcessor {
                     // come "controllato" per non ritentare a ogni caricamento (vedi
                     // detected:false, letto da classifyBpmResult nel renderer).
                     if (!estimate) return resolve({ success: true, data: { bpm: 0, confidence: 0, detected: false } });
-                    resolve({ success: true, data: { ...estimate, detected: true } });
+                    // v1.10.17 (Fase A Automix): fase della griglia dei beat sul BPM
+                    // appena stimato. Se non stimabile (null) il campo resta assente:
+                    // a valle scatterà il fallback crossfade classico (Fase D).
+                    const beatOffsetSec = estimateBeatOffsetSec(envelope, envelopeRateHz, estimate.bpm);
+                    resolve({ success: true, data: { ...estimate, detected: true, ...(beatOffsetSec !== null ? { beatOffsetSec } : {}) } });
                 } catch (parseErr) {
                     resolve({ success: false, error: String(parseErr) });
                 }

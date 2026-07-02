@@ -23,4 +23,22 @@ describe('classifyBpmResult', () => {
         const r = classifyBpmResult({ success: true, data: null });
         expect(r.checked).toBe(false);
     });
+
+    // v1.10.17 (Automix Fase A, step A2) — passthrough del beat-offset
+    it('beatOffsetSec presente -> propagato insieme al bpm', () => {
+        const r = classifyBpmResult({ success: true, data: { bpm: 120, confidence: 0.9, detected: true, beatOffsetSec: 0.34 } });
+        expect(r).toEqual({ checked: true, bpm: 120, beatOffsetSec: 0.34 });
+    });
+
+    it('beatOffsetSec assente (main vecchio o fase non stimabile) -> solo bpm, campo assente', () => {
+        const r = classifyBpmResult({ success: true, data: { bpm: 120, confidence: 0.9, detected: true } });
+        expect(r.bpm).toBe(120);
+        expect('beatOffsetSec' in r).toBe(false);
+    });
+
+    it('beatOffsetSec non finito -> scartato (difensivo)', () => {
+        const r = classifyBpmResult({ success: true, data: { bpm: 120, confidence: 0.9, detected: true, beatOffsetSec: NaN } });
+        expect(r.bpm).toBe(120);
+        expect(r.beatOffsetSec).toBeUndefined();
+    });
 });

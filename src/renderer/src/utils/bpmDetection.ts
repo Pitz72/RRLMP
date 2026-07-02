@@ -6,7 +6,7 @@
 
 export interface BpmDetectResult {
     success: boolean;
-    data?: { bpm: number; confidence: number; detected: boolean } | null;
+    data?: { bpm: number; confidence: number; detected: boolean; beatOffsetSec?: number } | null;
     error?: string;
 }
 
@@ -15,6 +15,9 @@ export interface BpmClassification {
     checked: boolean;
     /** presente solo se l'analisi ha prodotto una stima valida (detected:true). */
     bpm?: number;
+    /** v1.10.17 (Automix Fase A): fase della griglia dei beat, se stimata dal main.
+     *  Può mancare anche con bpm presente (inviluppo senza salite nette). */
+    beatOffsetSec?: number;
 }
 
 export function classifyBpmResult(result: BpmDetectResult): BpmClassification {
@@ -24,5 +27,11 @@ export function classifyBpmResult(result: BpmDetectResult): BpmClassification {
     if (!result.data.detected) {
         return { checked: true }; // analisi riuscita, nessuna periodicità marcata (es. voce/ambient)
     }
-    return { checked: true, bpm: result.data.bpm };
+    return {
+        checked: true,
+        bpm: result.data.bpm,
+        ...(typeof result.data.beatOffsetSec === 'number' && isFinite(result.data.beatOffsetSec)
+            ? { beatOffsetSec: result.data.beatOffsetSec }
+            : {})
+    };
 }
