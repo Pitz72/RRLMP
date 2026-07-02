@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { classifyBpmResult } from '../bpmDetection';
 
 describe('classifyBpmResult', () => {
-    it('BPM rilevato -> checked + bpm', () => {
+    it('BPM rilevato -> checked + bpm (+confidence dal v1.10.20)', () => {
         const r = classifyBpmResult({ success: true, data: { bpm: 128, confidence: 0.8, detected: true } });
-        expect(r).toEqual({ checked: true, bpm: 128 });
+        expect(r).toEqual({ checked: true, bpm: 128, confidence: 0.8 });
     });
 
     it('analisi riuscita ma nessuna periodicità marcata (voce/ambient) -> checked, nessun bpm', () => {
@@ -27,7 +27,7 @@ describe('classifyBpmResult', () => {
     // v1.10.17 (Automix Fase A, step A2) — passthrough del beat-offset
     it('beatOffsetSec presente -> propagato insieme al bpm', () => {
         const r = classifyBpmResult({ success: true, data: { bpm: 120, confidence: 0.9, detected: true, beatOffsetSec: 0.34 } });
-        expect(r).toEqual({ checked: true, bpm: 120, beatOffsetSec: 0.34 });
+        expect(r).toEqual({ checked: true, bpm: 120, beatOffsetSec: 0.34, confidence: 0.9 });
     });
 
     it('beatOffsetSec assente (main vecchio o fase non stimabile) -> solo bpm, campo assente', () => {
@@ -40,5 +40,11 @@ describe('classifyBpmResult', () => {
         const r = classifyBpmResult({ success: true, data: { bpm: 120, confidence: 0.9, detected: true, beatOffsetSec: NaN } });
         expect(r.bpm).toBe(120);
         expect(r.beatOffsetSec).toBeUndefined();
+    });
+
+    // v1.10.20 (chiusura A3) — la confidence è il segnale di fallback della Fase D
+    it('confidence propagata insieme a bpm e offset', () => {
+        const r = classifyBpmResult({ success: true, data: { bpm: 120, confidence: 0.62, detected: true, beatOffsetSec: 0.4 } });
+        expect(r).toEqual({ checked: true, bpm: 120, beatOffsetSec: 0.4, confidence: 0.62 });
     });
 });

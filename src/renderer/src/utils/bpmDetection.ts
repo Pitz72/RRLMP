@@ -18,6 +18,9 @@ export interface BpmClassification {
     /** v1.10.17 (Automix Fase A): fase della griglia dei beat, se stimata dal main.
      *  Può mancare anche con bpm presente (inviluppo senza salite nette). */
     beatOffsetSec?: number;
+    /** v1.10.20 (chiusura A3): confidence 0..1 della stima — segnale di fallback
+     *  della Fase D (soglia ≥0.5, vedi docs/automix/VALIDAZIONE-A3.md). */
+    confidence?: number;
 }
 
 export function classifyBpmResult(result: BpmDetectResult): BpmClassification {
@@ -32,6 +35,9 @@ export function classifyBpmResult(result: BpmDetectResult): BpmClassification {
         bpm: result.data.bpm,
         ...(typeof result.data.beatOffsetSec === 'number' && isFinite(result.data.beatOffsetSec)
             ? { beatOffsetSec: result.data.beatOffsetSec }
+            : {}),
+        ...(typeof result.data.confidence === 'number' && isFinite(result.data.confidence)
+            ? { confidence: result.data.confidence }
             : {})
     };
 }

@@ -271,6 +271,7 @@ export const MainGrid: React.FC = () => {
                     updateClip('col-music', clip.id, {
                         ...(r.bpm !== undefined ? { bpm: r.bpm } : {}),
                         ...(r.beatOffsetSec !== undefined ? { beatOffsetSec: r.beatOffsetSec } : {}),
+                        ...(r.confidence !== undefined ? { bpmConfidence: r.confidence } : {}),
                         bpmCheckedV2: true
                     });
                     // v1.10.18 (Fase A, supporto A3): esito nel Debug Overlay — servono i
@@ -394,6 +395,7 @@ export const MainGrid: React.FC = () => {
                             updateClip(colId, newClip.id, {
                                 ...(r.bpm !== undefined ? { bpm: r.bpm } : {}),
                                 ...(r.beatOffsetSec !== undefined ? { beatOffsetSec: r.beatOffsetSec } : {}),
+                                ...(r.confidence !== undefined ? { bpmConfidence: r.confidence } : {}),
                                 bpmCheckedV2: true
                             });
                             // v1.10.18: stesso log del batch (validazione A3 dal Debug Overlay)

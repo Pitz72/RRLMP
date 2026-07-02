@@ -226,6 +226,10 @@ export interface AudioClip {
      *  file (non del trim). Con bpm + beatOffsetSec ogni beat è t_k = offset + k·(60/bpm).
      *  Assente se non stimabile → il motore automix degraderà a crossfade classico. */
     beatOffsetSec?: number;
+    /** Confidence 0..1 della stima BPM. Segnale di fallback della Fase D: la validazione
+     *  A3 su musica reale (docs/automix/VALIDAZIONE-A3.md) ha mostrato che i brani a
+     *  tempo variabile escono a ~0.3-0.45 e quelli buoni a 0.53+ → soglia automix ≥0.5. */
+    bpmConfidence?: number;
     /** Gate versionato dell'analisi BPM (come silenceCheckedV2): true solo se l'analisi
      *  v1.10.17+ (con beat-offset) è realmente avvenuta. Le clip con il solo bpmChecked
      *  legacy vengono rianalizzate al prossimo caricamento per ottenere l'offset (e la
