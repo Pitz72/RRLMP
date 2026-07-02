@@ -162,11 +162,20 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                             const isPlaying = !!activeClips[clip.id];
                             const label = clip.title || clip.name;
                             const disabled = !!clip.isMissing;
+                            // v1.10.2: NIENTE attributo `disabled` — Chromium sopprime i click
+                            // anche sui discendenti di un button disabled, rendendo ⚙ e ×
+                            // irraggiungibili (una clip col file mancante non era più né
+                            // rimovibile né editabile). Il blocco del play è nel guard del
+                            // onClick; lo stato è comunicato con aria-disabled + stili.
                             return (
                                 <button
                                     key={clip.id}
-                                    disabled={disabled}
-                                    onClick={() => (isPlaying ? stopClip(clip.id) : playClip(clip))}
+                                    aria-disabled={disabled}
+                                    onClick={() => {
+                                        if (disabled) return;
+                                        if (isPlaying) stopClip(clip.id);
+                                        else playClip(clip);
+                                    }}
                                     title={disabled ? `File mancante: ${label}` : label}
                                     className={`group relative h-20 rounded-lg border p-2 text-left flex flex-col justify-between transition-all overflow-hidden ${
                                         disabled
