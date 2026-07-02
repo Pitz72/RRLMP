@@ -6,6 +6,7 @@ import { useSettingsStore } from '../../store/useSettingsStore';
 import { confirm } from '../../store/useConfirmStore';
 import { toast } from '../../store/useToastStore';
 import { ClipSettingsModal } from '../modals/ClipSettingsModal';
+import { FxQuickSettingsModal } from '../modals/FxQuickSettingsModal';
 import { hasSupportedAudioExtension } from '../../utils/audioExtensions';
 import type { AudioClip } from '../../types';
 
@@ -51,9 +52,13 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
     const setFxPadSide = useSettingsStore((s) => s.setFxPadSide);
 
     const [isDragOver, setIsDragOver] = useState(false);
-    // v1.10.1: impostazioni clip FX dal pad (⚙ su hover) — con la colonna FX fuori
-    // dalla griglia, questa è l'unica superficie da cui aprire ClipSettingsModal
-    // per un effetto (volume/fade/trim/nome/colore/keybind).
+    // v1.10.1: impostazioni clip FX dal pad — con la colonna FX fuori dalla
+    // griglia, il pad è l'unica superficie da cui configurare un effetto.
+    // v1.10.11: due livelli — `quickClip` apre la modale RAPIDA (nome/colore/
+    // volume/loop, il caso comune per una jingle machine); `editingClip` apre
+    // la ClipSettingsModal completa (trim/marker/fade/keybind), raggiungibile
+    // da "Impostazioni complete…" dentro la rapida.
+    const [quickClip, setQuickClip] = useState<AudioClip | null>(null);
     const [editingClip, setEditingClip] = useState<AudioClip | null>(null);
 
     const sfxCol = columns.find((c) => c.type === 'sfx');
@@ -121,7 +126,8 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
         e.stopPropagation();
         // v1.10.3: come handleRemove — niente focus residuo sul pad sotto la modale.
         (e.currentTarget as HTMLElement).closest('button')?.blur();
-        setEditingClip(clip);
+        // v1.10.11: ⚙/tasto destro aprono la modale rapida (la completa è linkata da lì)
+        setQuickClip(clip);
     };
 
     // v1.10.8: libreria FX di default (CC0/PD, bundlata con l'app) — aggiunge al
@@ -252,7 +258,7 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                         // v1.10.10: tasto destro = impostazioni clip (come la ⚙)
                                         e.preventDefault();
                                         e.currentTarget.blur();
-                                        setEditingClip(clip);
+                                        setQuickClip(clip);
                                     }}
                                     onClick={(e) => {
                                         // v1.10.3: togli il focus al pad appena cliccato — un button
@@ -334,7 +340,17 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
             </div>
         </div>
 
-        {/* SETTINGS MODAL (v1.10.1) — stesso guscio della griglia (.ov z-200, sopra il pad) */}
+        {/* QUICK SETTINGS (v1.10.11) — nome/colore/volume/loop, il caso comune FX */}
+        {quickClip && (
+            <FxQuickSettingsModal
+                clip={quickClip}
+                onClose={() => setQuickClip(null)}
+                onSave={handleSaveClip}
+                onOpenFull={(clip) => setEditingClip(clip)}
+            />
+        )}
+
+        {/* SETTINGS MODAL COMPLETA (v1.10.1) — da "Impostazioni complete…" della rapida */}
         {editingClip && (
             <ClipSettingsModal
                 clip={editingClip}

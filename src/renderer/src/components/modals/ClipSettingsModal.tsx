@@ -25,7 +25,8 @@ interface ClipSettingsModalProps {
 }
 
 // 30 colori — stessa palette di ColumnHeader (5 righe x 6 colonne)
-const COLUMN_COLORS = [
+// v1.10.11: esportata per FxQuickSettingsModal (stessa palette, stessa semantica)
+export const COLUMN_COLORS = [
     '#EF4444', '#F97316', '#F59E0B', '#FB923C', '#DC2626', '#B45309',
     '#84CC16', '#22C55E', '#10B981', '#14B8A6', '#65A30D', '#059669',
     '#06B6D4', '#3B82F6', '#6366F1', '#0EA5E9', '#1D4ED8', '#0369A1',
