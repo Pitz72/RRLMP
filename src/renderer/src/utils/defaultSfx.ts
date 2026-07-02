@@ -3,22 +3,28 @@ import { useAudioStore } from '../store/useAudioStore';
 import type { AudioClip } from '../types';
 
 /**
- * v1.10.9 — Popola la colonna FX con la libreria di default (CC0, bundlata)
- * SOLO su progetto "vergine": nessun `.lmp` caricato E colonna FX vuota.
+ * v1.11.2 — Popola la colonna FX con la libreria di default (CC0, bundlata)
+ * ogni volta che il pad è VUOTO: progetto vergine, "Nuovo Progetto" E anche
+ * apertura di un `.lmp` senza clip FX (richiesta utente 2026-07-02: prima
+ * serviva un reset manuale per far apparire i suoni su un progetto caricato).
+ * Un `.lmp` salvato CON clip FX resta ovviamente intatto: la regola scatta
+ * solo a colonna vuota.
  *
- * Nato in v1.10.8 come effect di solo-avvio in App.tsx; estratto qui e chiamato
- * ANCHE dopo "Nuovo Progetto" perché `resetProject()` svuota le colonne DOPO il
- * popolamento di avvio → il pad tornava vuoto (bug segnalato in dev 2026-07-02).
+ * Storia: nata in v1.10.8 come effect di solo-avvio in App.tsx; estratta in
+ * v1.10.9 (populateDefaultFxIfVirgin) e chiamata anche dopo i resetProject;
+ * generalizzata in v1.11.2 (il vincolo "nessun .lmp caricato" è stato tolto).
  *
- * Dopo il popolamento isDirty/undo vengono azzerati: il progetto di partenza
- * resta "pulito" (niente prompt di salvataggio spuri, niente passo undo
- * fantasma). Il doppio check su currentFilePath (prima e dopo l'IPC) evita di
- * interferire con l'apertura di un `.lmp` arrivata nel frattempo (doppio click).
+ * Dopo il popolamento isDirty/undo vengono azzerati: i default sono la vista
+ * di partenza, non una modifica (niente prompt di salvataggio spuri, niente
+ * passo undo fantasma). Se poi l'utente salva, le clip finiscono nel `.lmp`
+ * come qualunque altra. Il doppio check su currentFilePath (deve restare LO
+ * STESSO prima e dopo l'IPC) evita di scrivere su un progetto diverso arrivato
+ * nel frattempo (open-file da doppio click, load concorrente).
  */
-export async function populateDefaultFxIfVirgin(): Promise<void> {
+export async function populateDefaultFxIfPadEmpty(): Promise<void> {
     try {
         const ps = useProjectStore.getState();
-        if (ps.currentFilePath) return;
+        const pathAtStart = ps.currentFilePath;
         const sfx = ps.columns.find((c) => c.type === 'sfx');
         if (!sfx || sfx.clips.length > 0) return;
         if (!window.electron?.restoreDefaultSfx) return;
@@ -27,7 +33,7 @@ export async function populateDefaultFxIfVirgin(): Promise<void> {
         if (!res.success || !res.sounds || res.sounds.length === 0) return;
 
         const fresh = useProjectStore.getState();
-        if (fresh.currentFilePath) return; // nel frattempo è arrivato un .lmp
+        if (fresh.currentFilePath !== pathAtStart) return; // nel frattempo è cambiato progetto
         const freshSfx = fresh.columns.find((c) => c.type === 'sfx');
         if (!freshSfx || freshSfx.clips.length > 0) return;
 

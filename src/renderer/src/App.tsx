@@ -26,7 +26,7 @@ import { confirm, confirmThree } from './store/useConfirmStore';
 import { ListChecks } from 'lucide-react';
 import { FxPadOverlay } from './components/ui/FxPadOverlay';
 import { AutomixView } from './components/automix/AutomixView';
-import { populateDefaultFxIfVirgin } from './utils/defaultSfx';
+import { populateDefaultFxIfPadEmpty } from './utils/defaultSfx';
 
 
 import appLogo from './assets/logo.png';
@@ -57,13 +57,12 @@ function App() {
         };
     }, []);
 
-    // v1.10.8/v1.10.9: FX di default su progetto "vergine" — logica estratta in
-    // utils/defaultSfx.ts (populateDefaultFxIfVirgin), chiamata anche dopo
-    // "Nuovo Progetto" (qui sotto e in GlobalControls): resetProject() svuotava
-    // le colonne DOPO il popolamento di avvio → pad vuoto (bug dev 2026-07-02).
+    // v1.10.8/v1.10.9/v1.11.2: FX di default a pad vuoto — logica in
+    // utils/defaultSfx.ts (populateDefaultFxIfPadEmpty), chiamata anche dopo
+    // "Nuovo Progetto" (qui sotto e in GlobalControls) e dopo ogni load .lmp.
     // Il ritardo all'avvio lascia passare un eventuale open-file da doppio click.
     useEffect(() => {
-        const t = setTimeout(() => { void populateDefaultFxIfVirgin(); }, 800);
+        const t = setTimeout(() => { void populateDefaultFxIfPadEmpty(); }, 800);
         return () => clearTimeout(t);
     }, []);
 
@@ -129,6 +128,8 @@ function App() {
                         useProjectStore.getState().loadProject(projectData, filePath);
                         useProjectStore.getState().setDirty(false);
                         setShowWelcome(false);
+                        // v1.11.2: .lmp senza clip FX → pad popolato coi default
+                        void populateDefaultFxIfPadEmpty();
                     } catch (e) {
                         toast('File LMP non valido: ' + (e instanceof Error ? e.message : 'struttura non riconosciuta'), 'error');
                     }
@@ -416,7 +417,7 @@ function App() {
                         useAudioStore.getState().stopAll();
                         setShowWelcome(false);
                         // v1.10.9: reset → colonna FX vuota → ripopola i default
-                        void populateDefaultFxIfVirgin();
+                        void populateDefaultFxIfPadEmpty();
                     }}
                     onLoadProject={async () => {
                         const result = await window.electron.loadProject();
@@ -429,6 +430,8 @@ function App() {
                                 useAudioStore.getState().stopAll();
                                 store.setDirty(false);
                                 setShowWelcome(false);
+                                // v1.11.2: .lmp senza clip FX → pad popolato coi default
+                                void populateDefaultFxIfPadEmpty();
                             } catch (e) {
                                 toast('File LMP non valido: ' + (e instanceof Error ? e.message : 'struttura non riconosciuta'), 'error');
                             }

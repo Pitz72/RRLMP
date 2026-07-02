@@ -17,7 +17,7 @@ import { AboutModal } from '../modals/AboutModal';
 import { toast } from '../../store/useToastStore';
 import { confirm } from '../../store/useConfirmStore';
 import { classifySilenceResult } from '../../utils/silenceDetection';
-import { populateDefaultFxIfVirgin } from '../../utils/defaultSfx';
+import { populateDefaultFxIfPadEmpty } from '../../utils/defaultSfx';
 import { MIC_ARM_ENABLED } from '../../utils/featureFlags';
 
 
@@ -384,7 +384,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
         stopAll();
         resetProject();
         // v1.10.9: reset → colonna FX vuota → ripopola i default
-        void populateDefaultFxIfVirgin();
+        void populateDefaultFxIfPadEmpty();
     };
 
     const handleSaveProject = async () => {
@@ -449,6 +449,8 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                     loadProject(projectData, result.filePath);
                     stopAll();
                     setDirty(false);
+                    // v1.11.2: .lmp senza clip FX → pad popolato coi default
+                    void populateDefaultFxIfPadEmpty();
                     // Integrity check (v0.14.2)
                     runIntegrityCheck().then(missing => {
                         if (missing > 0) console.warn(`[Integrity] ${missing} file mancante/i nel progetto caricato.`);
