@@ -107,3 +107,69 @@ export function estimateBpmFromEnvelope(envelope: number[], envelopeRateHz: numb
 
     return { bpm: Math.round(bpm * 10) / 10, confidence: Math.round(confidence * 100) / 100 };
 }
+
+/**
+ * Fase A Automix (v1.10.16) — stima la FASE della griglia dei beat: l'offset in
+ * secondi (dall'inizio dell'audio analizzato) del primo beat. Con `bpm` +
+ * `beatOffsetSec` il motore di transizione può calcolare la posizione di
+ * qualunque beat: t_k = offset + k * (60/bpm).
+ *
+ * Metodo: comb-filter sulla fase. Il periodo è noto (dal BPM stimato); per ogni
+ * fase p ∈ [0, periodo) si somma l'energia di ONSET in p + k*periodo — la fase
+ * col massimo è quella dei beat. Si usa l'onset (derivata positiva
+ * dell'inviluppo, half-wave rectified) invece dell'inviluppo grezzo: il beat è
+ * dove l'energia SALE, e i picchi di salita sono molto più netti del plateau
+ * RMS (un sustain lungo non deve vincere sul transiente).
+ *
+ * NB: il BPM passato è quello già riportato in ottava (90-180). Se il tempo
+ * "vero" fosse il sottomultiplo, metà dei beat della griglia cade tra gli
+ * onset reali, ma la fase di massimo resta agganciata agli onset veri: per
+ * l'allineamento delle transizioni è comunque corretta.
+ *
+ * @param envelope inviluppo di energia (vedi computeEnergyEnvelope)
+ * @param envelopeRateHz frequenza di campionamento dell'inviluppo
+ * @param bpm tempo stimato (da estimateBpmFromEnvelope)
+ * @returns offset del primo beat in secondi, o null se non stimabile
+ */
+export function estimateBeatOffsetSec(envelope: number[], envelopeRateHz: number, bpm: number): number | null {
+    if (!isFinite(bpm) || bpm <= 0 || envelopeRateHz <= 0) return null;
+    const period = (60 / bpm) * envelopeRateHz; // in campioni di inviluppo (frazionario)
+    if (!isFinite(period) || period < 2 || envelope.length < period * 2) return null;
+
+    // Onset: derivata positiva dell'inviluppo, half-wave rectified.
+    const onset = new Array<number>(envelope.length).fill(0);
+    for (let i = 1; i < envelope.length; i++) {
+        const d = envelope[i] - envelope[i - 1];
+        if (d > 0) onset[i] = d;
+    }
+
+    // Comb-filter: fase a passo sub-campione (0.25) con interpolazione lineare
+    // dell'onset — il periodo è frazionario (v1.10.14), quantizzare la fase al
+    // campione intero butterebbe via la precisione appena guadagnata.
+    const PHASE_STEP = 0.25;
+    let bestPhase = 0;
+    let bestAvg = -Infinity;
+    for (let p = 0; p < period; p += PHASE_STEP) {
+        let sum = 0;
+        let count = 0;
+        for (let t = p; t < onset.length - 1; t += period) {
+            const i = Math.floor(t);
+            const frac = t - i;
+            sum += onset[i] * (1 - frac) + onset[i + 1] * frac;
+            count++;
+        }
+        if (count > 0) {
+            const avg = sum / count;
+            if (avg > bestAvg) {
+                bestAvg = avg;
+                bestPhase = p;
+            }
+        }
+    }
+    // Nessuna salita di energia in tutto l'inviluppo (segnale piatto/decrescente):
+    // la fase sarebbe arbitraria, meglio dichiarare "non stimabile".
+    if (bestAvg <= 0) return null;
+
+    const offsetSec = bestPhase / envelopeRateHz;
+    return Math.round(offsetSec * 1000) / 1000; // ms di precisione, come i trim
+}
