@@ -1,9 +1,0 @@
-// Progetto satellite Android per il Controllo Remoto di RRLMP (2026-07-01).
-// Guscio WebView minimale: carica la pagina web servita dal server LAN
-// (src/main/remoteControlAssets.ts) e riusa il canale WS+PIN esistente.
-// Nessuna dipendenza AndroidX: solo SDK Android + Kotlin stdlib, per restare
-// il più leggero e prevedibile possibile in build CI.
-plugins {
-    id 'com.android.application' version '8.2.2' apply false
-    id 'org.jetbrains.kotlin.android' version '1.9.22' apply false
-}

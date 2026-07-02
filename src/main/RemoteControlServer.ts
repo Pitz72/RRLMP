@@ -1,32 +1,31 @@
-// Controllo Remoto da tablet/PC secondario (2026-07-01) — Step 1-4/N + HTTPS.
-// Server locale in LAN, avviabile/disattivabile a mano dalle Impostazioni
-// (default OFF: nessuna superficie di rete attiva senza un'azione esplicita
-// dell'utente). Step 1: /health + PIN. Step 2: pagina web installabile come
-// PWA (manifest.json + sw.js) con verifica PIN (/api/verify-pin, con
-// rate-limit — vedi pinRateLimiter.ts). Step 3: canale comandi reale via
-// WebSocket, whitelist esplicita in ALLOWED_COMMANDS (non un canale IPC
-// generico apribile a qualunque azione futura senza revisione). Step 4:
-// verso opposto — il renderer pubblica lo stato della colonna Music
-// (updateRemoteMusicState, validato da remoteClipState.ts) e il server lo
-// trasmette in broadcast ai client WS autenticati; comandi playClip/stopClip
-// con clipId.
+// Controllo Remoto da tablet/PC secondario (2026-07-01) — server locale in
+// LAN, avviabile/disattivabile a mano dalle Impostazioni (default OFF: nessuna
+// superficie di rete attiva senza un'azione esplicita dell'utente).
+// Endpoint: /health + pagina web con verifica PIN (/api/verify-pin, con
+// rate-limit — vedi pinRateLimiter.ts). Canale comandi reale via WebSocket,
+// whitelist esplicita in ALLOWED_COMMANDS (non un canale IPC generico apribile
+// a qualunque azione futura senza revisione). Verso opposto: il renderer
+// pubblica lo stato della colonna Music (updateRemoteMusicState, validato da
+// remoteClipState.ts) e il server lo trasmette in broadcast ai client WS
+// autenticati; comandi playClip/stopClip con clipId.
 //
-// HTTP semplice (2026-07-01): il controllo remoto è pensato per essere usato
-// tramite l'app Android nativa (guscio WebView, cartella android/), non dal
-// browser. Un'app nativa non è soggetta ai vincoli di "secure context" del
-// browser: può parlare in ws:// cleartext sulla LAN senza avvisi né prompt di
-// installazione PWA. Questo ci permette di eliminare del tutto la macchina dei
-// certificati auto-firmati (il "buco nero" del primo prototipo) — la sicurezza
-// resta affidata al PIN + autenticazione sul WebSocket, adeguata per una LAN.
+// v1.11.3 — MODELLO DEFINITIVO (decisione utente 2026-07-02): pagina HTTP
+// aperta nel BROWSER del dispositivo in LAN, punto. La storia completa: la PWA
+// installabile richiedeva secure context → macchina dei certificati
+// auto-firmati ("buco nero" PKI); l'app Android nativa (APK WebView + mDNS)
+// la scavalcava ma aggiungeva un intero progetto satellite da mantenere e
+// testare ("stavamo complicando tutto"). Rimossi entrambi: niente manifest/
+// service worker, niente cartella android/, niente mDNS. La sicurezza resta
+// affidata al PIN + autenticazione sul WebSocket, adeguata per una LAN; lo
+// schermo intero si ottiene col pulsante Fullscreen nella pagina.
 import * as http from 'http';
 import * as os from 'os';
 import * as fs from 'fs';
 import { join } from 'path';
 import { WebSocketServer, WebSocket } from 'ws';
-import { Bonjour } from 'bonjour-service';
 import { logger } from './logger';
 import { createPinRateLimiter } from './pinRateLimiter';
-import { INDEX_HTML, MANIFEST_JSON, SERVICE_WORKER_JS } from './remoteControlAssets';
+import { INDEX_HTML } from './remoteControlAssets';
 import { RemoteClipState, sanitizeRemoteClipState } from './remoteClipState';
 
 const PORT = 8787;
@@ -47,7 +46,6 @@ let server: http.Server | null = null;
 let wss: WebSocketServer | null = null;
 let currentPin: string | null = null;
 let pinLimiter = createPinRateLimiter();
-let bonjour: Bonjour | null = null;
 let onRemoteCommand: ((name: RemoteCommandName, clipId?: string) => void) | null = null;
 let musicState: RemoteClipState[] = [];
 const authenticatedClients = new Set<WebSocket>();
@@ -120,33 +118,6 @@ export function getRemoteControlStatus(): RemoteControlStatus {
 }
 
 /**
- * Pubblica il servizio via mDNS/DNS-SD (`_rrlmp._tcp`) così l'app Android può
- * trovare il PC in regia automaticamente, senza digitare l'IP. Best-effort: se
- * mDNS non è disponibile (es. porta 5353 occupata su Windows da un altro
- * servizio Bonjour) l'errore viene solo loggato — il server resta pienamente
- * funzionante e l'inserimento manuale dell'IP continua a funzionare.
- */
-function startMdnsAdvertisement(): void {
-    try {
-        bonjour = new Bonjour();
-        bonjour.publish({ name: 'RRLMP Regia Remota', type: 'rrlmp', port: PORT });
-        logger.info('[RemoteControlServer] mDNS: servizio _rrlmp._tcp pubblicato');
-    } catch (err) {
-        logger.error(`[RemoteControlServer] mDNS non disponibile: ${(err as Error).message}`);
-        bonjour = null;
-    }
-}
-
-function stopMdnsAdvertisement(): void {
-    const b = bonjour;
-    bonjour = null;
-    if (!b) return;
-    try {
-        b.unpublishAll(() => { try { b.destroy(); } catch { /* best-effort */ } });
-    } catch { /* best-effort */ }
-}
-
-/**
  * @param handleCommand invocata quando un client autenticato invia un comando
  *   nella whitelist ALLOWED_COMMANDS (con clipId per playClip/stopClip) — il
  *   chiamante (main/index.ts) inoltra al renderer via webContents.send, stesso
@@ -169,18 +140,6 @@ export function startRemoteControlServer(handleCommand: (name: RemoteCommandName
         if (req.method === 'GET' && req.url === '/') {
             res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
             res.end(INDEX_HTML);
-            return;
-        }
-
-        if (req.method === 'GET' && req.url === '/manifest.json') {
-            res.writeHead(200, { 'Content-Type': 'application/manifest+json' });
-            res.end(MANIFEST_JSON);
-            return;
-        }
-
-        if (req.method === 'GET' && req.url === '/sw.js') {
-            res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
-            res.end(SERVICE_WORKER_JS);
             return;
         }
 
@@ -273,14 +232,12 @@ export function startRemoteControlServer(handleCommand: (name: RemoteCommandName
     srv.listen(PORT, '0.0.0.0');
     server = srv;
     wss = socketServer;
-    startMdnsAdvertisement();
     logger.info(`[RemoteControlServer] Avviato su porta ${PORT}`);
     return getRemoteControlStatus();
 }
 
 export function stopRemoteControlServer(): void {
     if (!server) return;
-    stopMdnsAdvertisement();
     wss?.clients.forEach((c) => c.terminate());
     wss?.close();
     wss = null;

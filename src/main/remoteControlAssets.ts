@@ -1,25 +1,20 @@
-// Controllo Remoto (2026-07-01, Step 2-3/N) — asset statici della pagina web
-// servita dal server LAN: shell HTML/CSS/JS + manifest PWA + service worker.
-// Tenuti in un file separato da RemoteControlServer.ts per non appesantire la
-// logica del server con markup/stringhe lunghe.
+// Controllo Remoto (2026-07-01/02) — asset statici della pagina web servita
+// dal server LAN. Tenuti in un file separato da RemoteControlServer.ts per non
+// appesantire la logica del server con markup/stringhe lunghe.
 //
-// Step 3: dopo la verifica PIN via HTTP (/api/verify-pin, solo per un feedback
+// v1.11.3 — DECISIONE UTENTE (2026-07-02): il controllo remoto torna alla
+// prima idea, la più semplice — pagina HTTP aperta nel BROWSER del tablet/PC
+// in LAN. Niente più PWA installabile (richiedeva secure context → il buco
+// nero dei certificati) e niente app Android (APK/WebView/mDNS, "stavamo
+// complicando tutto"). Al posto dell'installazione: un pulsante SCHERMO
+// INTERO (Fullscreen API, nascosto dove non supportata, es. iPhone).
+//
+// Flusso: dopo la verifica PIN via HTTP (/api/verify-pin, solo per un feedback
 // immediato all'utente), la pagina apre una connessione WebSocket indipendente
 // e la autentica di nuovo con lo stesso PIN (il server non fida della sola
-// verifica HTTP per autorizzare comandi sul socket).
-// Step 4: la pagina mostra la lista della colonna Music (ricevuta via messaggi
-// 'state' sul WebSocket, aggiornata in tempo reale) con un bottone play/stop
-// per clip, oltre allo STOP ALL globale.
-//
-// Richiesta esplicita dell'utente (2026-07-01): la pagina deve proporre
-// l'installazione come PWA PRIMA ancora di chiedere il PIN — non un'opzione
-// secondaria dopo l'uso, ma il primo schermo che l'operatore vede. Se la
-// pagina è già aperta come app installata (display-mode standalone / iOS
-// navigator.standalone), lo schermo di installazione viene saltato del tutto.
-// Su browser che non supportano l'evento 'beforeinstallprompt' (iOS Safari,
-// Firefox desktop) non è possibile far scattare il prompt nativo: dopo un
-// breve timeout mostriamo istruzioni manuali + un pulsante per procedere
-// comunque nel browser, così l'operatore non resta bloccato.
+// verifica HTTP per autorizzare comandi sul socket). La pagina mostra la lista
+// della colonna Music (messaggi 'state' sul WebSocket, in tempo reale) con un
+// bottone play/stop per clip, oltre allo STOP ALL globale.
 
 export const INDEX_HTML = `<!DOCTYPE html>
 <html lang="it">
@@ -28,7 +23,7 @@ export const INDEX_HTML = `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <meta name="theme-color" content="#0f172a" />
 <title>RRLMP — Regia Remota</title>
-<link rel="manifest" href="/manifest.json" />
+<link rel="icon" href="/icon.png" />
 <link rel="apple-touch-icon" href="/icon.png" />
 <style>
   * { box-sizing: border-box; }
@@ -89,18 +84,21 @@ export const INDEX_HTML = `<!DOCTYPE html>
     padding: 22px;
     letter-spacing: 0.05em;
   }
-  .icon-preview { width: 64px; height: 64px; border-radius: 14px; margin: 0 auto 16px; display: block; }
-  #installScreen { display: none; }
-  #pinScreen { display: none; }
-  .btn-secondary {
+  /* v1.11.3: pulsante schermo intero — fisso in alto a destra, sempre
+     raggiungibile (sia sulla schermata PIN che sui controlli). */
+  #fullscreenBtn {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    width: auto;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 400;
     background: transparent;
     color: #94a3b8;
     border: 1px solid #475569;
-    margin-top: 10px;
-    font-weight: 400;
-    font-size: 13px;
+    display: none;
   }
-  #installInstructions { font-size: 11px; color: #64748b; margin-top: 14px; line-height: 1.5; display: none; }
   #clipList { margin-top: 16px; text-align: left; max-height: 50vh; overflow-y: auto; }
   .clip-row {
     display: flex;
@@ -122,14 +120,7 @@ export const INDEX_HTML = `<!DOCTYPE html>
 </style>
 </head>
 <body>
-  <div class="card" id="installScreen">
-    <img class="icon-preview" src="/icon.png" alt="" />
-    <h1>INSTALLA L'APP</h1>
-    <p class="sub">Per un controllo a schermo intero, senza barra del browser, installa questa pagina come app sul dispositivo.</p>
-    <button id="installBtn" style="display:none;">Installa app</button>
-    <button id="skipInstall" class="btn-secondary">Continua nel browser</button>
-    <p id="installInstructions">Non è stato possibile proporre l'installazione automatica su questo browser. Usa il menu del browser (⋮ o Condividi) e cerca "Aggiungi a schermata Home" o "Installa app".</p>
-  </div>
+  <button id="fullscreenBtn" type="button">⛶ Schermo intero</button>
 
   <div class="card" id="pinScreen">
     <h1>RUNTIME LIVE MACHINE PRO</h1>
@@ -145,63 +136,27 @@ export const INDEX_HTML = `<!DOCTYPE html>
   </div>
 <script>
 (function () {
-  var installScreen = document.getElementById('installScreen');
-  var pinScreen = document.getElementById('pinScreen');
-  var installBtn = document.getElementById('installBtn');
-  var skipInstall = document.getElementById('skipInstall');
-  var installInstructions = document.getElementById('installInstructions');
-  var deferredInstallPrompt = null;
-
-  function showPinScreen() {
-    installScreen.style.display = 'none';
-    pinScreen.style.display = 'block';
-  }
-
-  function isRunningStandalone() {
-    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
-  }
-
-  // L'app Android nativa (guscio WebView) carica la pagina con ?app=1: qui siamo
-  // già dentro un'app installata, quindi lo schermo "installa" non ha senso.
-  var isNativeApp = /[?&]app=1(&|$)/.test(window.location.search);
-
-  if (isRunningStandalone() || isNativeApp) {
-    // Già installata e aperta come app: nessun senso proporre di nuovo l'installazione.
-    showPinScreen();
-  } else {
-    installScreen.style.display = 'block';
-
-    window.addEventListener('beforeinstallprompt', function (e) {
-      e.preventDefault();
-      deferredInstallPrompt = e;
-      installBtn.style.display = 'block';
-      installInstructions.style.display = 'none';
-    });
-
-    window.addEventListener('appinstalled', function () {
-      deferredInstallPrompt = null;
-      showPinScreen();
-    });
-
-    // Browser senza 'beforeinstallprompt' (iOS Safari, Firefox desktop, ecc.):
-    // se il prompt nativo non si presenta entro 1.5s, mostra le istruzioni manuali.
-    setTimeout(function () {
-      if (!deferredInstallPrompt) {
-        installInstructions.style.display = 'block';
+  // v1.11.3: schermo intero via Fullscreen API (serve un gesto utente, quindi
+  // un pulsante è l'unica via). Nascosto dove l'API non c'è (es. iPhone).
+  var fullscreenBtn = document.getElementById('fullscreenBtn');
+  var docEl = document.documentElement;
+  if (docEl.requestFullscreen || docEl.webkitRequestFullscreen) {
+    fullscreenBtn.style.display = 'block';
+    function isFullscreen() {
+      return !!(document.fullscreenElement || document.webkitFullscreenElement);
+    }
+    function updateFullscreenLabel() {
+      fullscreenBtn.textContent = isFullscreen() ? '⛶ Esci da schermo intero' : '⛶ Schermo intero';
+    }
+    fullscreenBtn.addEventListener('click', function () {
+      if (isFullscreen()) {
+        (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      } else {
+        (docEl.requestFullscreen || docEl.webkitRequestFullscreen).call(docEl);
       }
-    }, 1500);
-
-    installBtn.addEventListener('click', function () {
-      if (!deferredInstallPrompt) return;
-      installBtn.disabled = true;
-      deferredInstallPrompt.prompt();
-      deferredInstallPrompt.userChoice.finally(function () {
-        deferredInstallPrompt = null;
-        showPinScreen();
-      });
     });
-
-    skipInstall.addEventListener('click', showPinScreen);
+    document.addEventListener('fullscreenchange', updateFullscreenLabel);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenLabel);
   }
 
   var pinInput = document.getElementById('pin');
@@ -321,54 +276,8 @@ export const INDEX_HTML = `<!DOCTYPE html>
     sendCommand('stopAll');
     setTimeout(function () { stopAllBtn.disabled = false; }, 500);
   });
-
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(function () { /* PWA opzionale, nessun impatto se fallisce */ });
-  }
 })();
 </script>
 </body>
 </html>
-`;
-
-export const MANIFEST_JSON = JSON.stringify({
-    name: 'RRLMP — Regia Remota',
-    short_name: 'RRLMP Remoto',
-    start_url: '/',
-    display: 'standalone',
-    background_color: '#0f172a',
-    theme_color: '#0f172a',
-    orientation: 'any',
-    icons: [
-        { src: '/icon.png', sizes: '1024x1024', type: 'image/png', purpose: 'any' }
-    ]
-});
-
-// Service worker minimale: cache solo la shell statica (mai le risposte di
-// /api/*, che devono sempre arrivare fresche dal server). Rende la pagina
-// installabile e riduce i tempi di ricarica in LAN, ma il controllo remoto
-// vero e proprio richiede sempre una connessione di rete al server.
-export const SERVICE_WORKER_JS = `
-const CACHE_NAME = 'rrlmp-remote-shell-v1';
-const SHELL_URLS = ['/', '/manifest.json', '/icon.png'];
-
-self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_URLS)));
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))))
-  );
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-  if (url.pathname.startsWith('/api/')) return; // mai cachare i comandi/verifiche
-  event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
-  );
-});
 `;

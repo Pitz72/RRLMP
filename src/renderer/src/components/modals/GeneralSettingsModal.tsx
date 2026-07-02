@@ -108,7 +108,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
     const handleCopyRemoteUrl = async () => {
         const address = remoteStatus.addresses?.[0];
         if (!address || !remoteStatus.port) return;
-        const url = `https://${address}:${remoteStatus.port}`; // il server ora è HTTPS (certificato auto-firmato, serve per l'installabilità PWA)
+        const url = `http://${address}:${remoteStatus.port}`; // v1.11.3: il server è HTTP puro (da v1.9.1); il commento HTTPS era un residuo del prototipo PWA
         try {
             if (navigator.clipboard?.writeText) {
                 await navigator.clipboard.writeText(url);
@@ -318,11 +318,11 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                                     onClick={() => void handleCopyRemoteUrl()}
                                                     className="!w-auto px-3 py-1.5 text-xs"
                                                 >
-                                                    {remoteUrlCopied ? '✓ Copiato' : `Copia link (https://${remoteStatus.addresses[0]}:${remoteStatus.port})`}
+                                                    {remoteUrlCopied ? '✓ Copiato' : `Copia link (http://${remoteStatus.addresses[0]}:${remoteStatus.port})`}
                                                 </button>
                                             </>
                                         )}
-                                        <p className="text-[10px] text-zinc-600 italic">Utile per inviare il link via Telegram/WhatsApp al dispositivo secondario invece di digitarlo a mano. Al primo collegamento il browser mostrerà un avviso "connessione non sicura" (certificato auto-firmato, non da una CA pubblica): è normale, va accettato una sola volta ("Avanzate" → "Procedi"). Il server si ferma automaticamente alla chiusura dell'app.</p>
+                                        <p className="text-[10px] text-zinc-600 italic">Apri il link nel browser del tablet/PC secondario (stessa rete) e inserisci il PIN; il pulsante "Schermo intero" nella pagina toglie la barra del browser. Utile inviare il link via Telegram/WhatsApp invece di digitarlo a mano. Il server si ferma automaticamente alla chiusura dell'app.</p>
                                     </div>
                                 )}
                             </section>
