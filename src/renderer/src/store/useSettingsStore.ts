@@ -48,6 +48,11 @@ interface SettingsState {
     // La colonna FX (type 'sfx') non compare qui: vive già nel pad dedicato.
     hiddenColumnIds: string[];
 
+    // v1.10.6: angolo del pad FX (in basso a sinistra o destra). A destra il pad
+    // copre NoteBoard/ultima colonna e l'angolo dei toast: l'operatore può
+    // spostarlo dal pulsante nell'header del pad. Preferenza globale persistita.
+    fxPadSide: 'left' | 'right';
+
     setOutputDeviceId: (id: string) => void;
     setGlobalMidiBind: (actionKey: string, midiMessage: string) => void;
     setMasterVolume: (v: number) => void;
@@ -71,6 +76,8 @@ interface SettingsState {
     setRecordingSettings: (updates: { format?: 'webm' | 'wav'; bitrate?: number }) => void;
     /** v1.9.8: mostra/nascondi una colonna nella board (preferenza globale). */
     toggleColumnVisibility: (columnId: string) => void;
+    /** v1.10.6: sposta il pad FX nell'angolo sinistro/destro. */
+    setFxPadSide: (side: 'left' | 'right') => void;
 }
 
 
@@ -114,6 +121,9 @@ export const useSettingsStore = create<SettingsState>()(
             // Layout regia (v1.9.8) — nessuna colonna nascosta di default
             hiddenColumnIds: [],
 
+            // Pad FX (v1.10.6) — in basso a destra come in v1.9.7
+            fxPadSide: 'right' as const,
+
             setOutputDeviceId: (id) => set({ outputDeviceId: id }),
             setGlobalMidiBind: (actionKey, midiMessage) => set((state) => ({
                 globalMidiBinds: { ...state.globalMidiBinds, [actionKey]: midiMessage }
@@ -156,6 +166,7 @@ export const useSettingsStore = create<SettingsState>()(
                     ? state.hiddenColumnIds.filter((id) => id !== columnId)
                     : [...state.hiddenColumnIds, columnId],
             })),
+            setFxPadSide: (side) => set({ fxPadSide: side }),
         }),
 
         {

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, Zap, Upload, Music4, Settings2 } from 'lucide-react';
+import { X, Zap, Upload, Music4, Settings2, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { useProjectStore } from '../../store/useProjectStore';
 import { useAudioStore } from '../../store/useAudioStore';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import { confirm } from '../../store/useConfirmStore';
 import { ClipSettingsModal } from '../modals/ClipSettingsModal';
 import type { AudioClip } from '../../types';
@@ -45,6 +46,11 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
     const playClip = useAudioStore((s) => s.playClip);
     const stopClip = useAudioStore((s) => s.stopClip);
     const loadClip = useAudioStore((s) => s.loadClip);
+
+    // v1.10.6: angolo del pad (sinistra/destra), preferenza globale persistita —
+    // a destra copre NoteBoard/ultima colonna e l'angolo dei toast (z-200).
+    const fxPadSide = useSettingsStore((s) => s.fxPadSide);
+    const setFxPadSide = useSettingsStore((s) => s.setFxPadSide);
 
     const [isDragOver, setIsDragOver] = useState(false);
     // v1.10.1: impostazioni clip FX dal pad (⚙ su hover) — con la colonna FX fuori
@@ -126,8 +132,11 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
 
     return (
         <>
+        {/* v1.10.6: z-150→z-40 — il pad deve stare SOTTO tutte le modali
+            (KeymappingModal è la più bassa, z-50; .ov standard 200, Confirm 300).
+            Prima, a z-150, galleggiava sopra la KeymappingModal. */}
         <div
-            className={`fixed bottom-4 right-4 z-[150] w-[560px] max-w-[calc(100vw-2rem)] max-h-[80vh] flex flex-col rounded-2xl border shadow-[0_30px_90px_-20px_rgba(0,0,0,0.85)] backdrop-blur-xl transition-colors ${
+            className={`fixed bottom-4 ${fxPadSide === 'left' ? 'left-4' : 'right-4'} z-40 w-[560px] max-w-[calc(100vw-2rem)] max-h-[80vh] flex flex-col rounded-2xl border shadow-[0_30px_90px_-20px_rgba(0,0,0,0.85)] backdrop-blur-xl transition-colors ${
                 isDragOver ? 'border-emerald-500' : 'border-zinc-700'
             }`}
             style={{ background: 'rgba(13,13,15,0.96)' }}
@@ -142,13 +151,26 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                     <span className="text-sm font-bold tracking-wider text-zinc-100">FX / CARTWALL</span>
                     <span className="text-[10px] font-mono text-zinc-500">{clips.length}</span>
                 </div>
-                <button
-                    onClick={onClose}
-                    title="Nascondi il pad FX"
-                    className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 transition-colors"
-                >
-                    <X size={16} />
-                </button>
+                <div className="flex items-center gap-1.5">
+                    {/* v1.10.6: snap sinistra/destra — per liberare NoteBoard/colonna coperte */}
+                    <button
+                        onClick={(e) => {
+                            e.currentTarget.blur();
+                            setFxPadSide(fxPadSide === 'left' ? 'right' : 'left');
+                        }}
+                        title={fxPadSide === 'left' ? 'Sposta il pad a destra' : 'Sposta il pad a sinistra'}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 transition-colors"
+                    >
+                        {fxPadSide === 'left' ? <ChevronsRight size={16} /> : <ChevronsLeft size={16} />}
+                    </button>
+                    <button
+                        onClick={onClose}
+                        title="Nascondi il pad FX"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 transition-colors"
+                    >
+                        <X size={16} />
+                    </button>
+                </div>
             </div>
 
             {/* BODY — griglia pad 5 colonne */}
