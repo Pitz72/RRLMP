@@ -25,6 +25,7 @@ import { toast } from './store/useToastStore';
 import { confirm, confirmThree } from './store/useConfirmStore';
 import { ListChecks } from 'lucide-react';
 import { FxPadOverlay } from './components/ui/FxPadOverlay';
+import { AutomixView } from './components/automix/AutomixView';
 import { populateDefaultFxIfVirgin } from './utils/defaultSfx';
 
 
@@ -35,6 +36,9 @@ function App() {
     const [showPlayoutLog, setShowPlayoutLog] = useState(false);
     const [showMidiSim, setShowMidiSim] = useState(false);
     const [showFxPad, setShowFxPad] = useState(false);
+    // Automix Section (Fase C1, v1.10.22) — vista full-screen alternativa alla
+    // board, stesso pattern del pad FX (nessun routing nell'app).
+    const [showAutomix, setShowAutomix] = useState(false);
     const masterChain = useSettingsStore((s) => s.masterChain);
 
     // LI-04: cleanup singleton audio/MIDI all'unmount (hot-reload dev + ricarica pagina)
@@ -403,6 +407,7 @@ function App() {
             {showPlayoutLog && <PlayoutLogModal onClose={() => setShowPlayoutLog(false)} />}
             <MidiSimulatorModal isOpen={showMidiSim} onClose={() => setShowMidiSim(false)} />
             <FxPadOverlay isOpen={showFxPad} onClose={() => setShowFxPad(false)} />
+            <AutomixView isOpen={showAutomix} onClose={() => setShowAutomix(false)} />
 
             {showWelcome && (
                 <WelcomeScreen
@@ -447,7 +452,12 @@ function App() {
 
                     {/* GLOBAL CONTROLS */}
 
-                    <GlobalControls fxPadOpen={showFxPad} onToggleFxPad={() => setShowFxPad((v) => !v)} />
+                    <GlobalControls
+                        fxPadOpen={showFxPad}
+                        onToggleFxPad={() => setShowFxPad((v) => !v)}
+                        automixOpen={showAutomix}
+                        onToggleAutomix={() => setShowAutomix((v) => !v)}
+                    />
                 </div>
 
                 <div className="flex items-center gap-4 shrink-0">

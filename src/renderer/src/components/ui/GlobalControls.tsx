@@ -3,7 +3,7 @@ import { useAudioStore } from '../../store/useAudioStore';
 import AudioContextManager from '../../engine/AudioContextManager';
 import MicManager from '../../engine/MicManager';
 import { Button } from './Button';
-import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic, Check, Mic, MicOff, Undo2, Redo2, Grid3x3, Files, ChevronDown } from 'lucide-react';
+import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic, Check, Mic, MicOff, Undo2, Redo2, Grid3x3, Files, ChevronDown, Disc3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 
@@ -28,9 +28,12 @@ interface GlobalControlsProps {
     /** Step 3 (UI regia): stato/azione del minipad FX, gestiti in App.tsx. */
     fxPadOpen?: boolean;
     onToggleFxPad?: () => void;
+    /** Automix Section (Fase C1, v1.10.22): stato/azione della vista full-screen. */
+    automixOpen?: boolean;
+    onToggleAutomix?: () => void;
 }
 
-export const GlobalControls = ({ fxPadOpen, onToggleFxPad }: GlobalControlsProps) => {
+export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggleAutomix }: GlobalControlsProps) => {
     const { t } = useTranslation();
     const { stopAll } = useAudioStore();
     const loadClip = useAudioStore((s) => s.loadClip);
@@ -668,6 +671,27 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad }: GlobalControlsProps
                             {sfxActiveCount}
                         </span>
                     )}
+                </Button>
+            )}
+
+            {/* AUTOMIX (Fase C1, v1.10.22) — toggle della vista full-screen, accanto a FX */}
+            {onToggleAutomix && (
+                <Button
+                    size="sm"
+                    onClick={(e) => {
+                        // v1.10.3: blur anti-retrigger (come FX)
+                        e.currentTarget.blur();
+                        onToggleAutomix();
+                    }}
+                    className={`${automixOpen
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50'
+                        : 'tool'} mr-4`}
+                    title="Automix — mix automatico sui BPM (colonna Music)"
+                >
+                    <div className="flex items-center gap-1.5 font-bold text-[11px]">
+                        <Disc3 size={14} />
+                        <span>MIX</span>
+                    </div>
                 </Button>
             )}
 

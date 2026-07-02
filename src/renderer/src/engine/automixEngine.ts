@@ -76,6 +76,30 @@ export function crossfadeDurationSec(bpmOutgoing: number, beats: number = AUTOMI
 /** Motivi di fallback (Fase D) — telemetria/indicatori UI li useranno così come sono. */
 export type ClassicReason = 'missing-bpm' | 'missing-offset' | 'low-confidence' | 'rate-cap' | 'no-beat-available';
 
+/**
+ * Compatibilità di mix tra due brani ADIACENTI in scaletta (indicatore C1):
+ * verde = beat-match comodo (deviazione ≤4%), giallo = al limite (≤ cap 8%),
+ * rosso = si andrà di crossfade classico (delta troppo grande o dati mancanti).
+ * Stessa semantica octave-aware di computeTempoMatchRate.
+ */
+export function assessCompatibility(
+    prev: BeatInfo,
+    next: BeatInfo,
+    options?: Partial<{ maxRateDeviation: number; minConfidence: number }>
+): { level: 'green' | 'yellow' | 'red'; reason?: ClassicReason; rate?: number } {
+    const opt = { ...AUTOMIX_DEFAULTS, ...(options ?? {}) };
+    if (!prev.bpm || !next.bpm) return { level: 'red', reason: 'missing-bpm' };
+    if (prev.beatOffsetSec === undefined || next.beatOffsetSec === undefined) {
+        return { level: 'red', reason: 'missing-offset' };
+    }
+    if ((prev.bpmConfidence ?? 0) < opt.minConfidence || (next.bpmConfidence ?? 0) < opt.minConfidence) {
+        return { level: 'red', reason: 'low-confidence' };
+    }
+    const rate = computeTempoMatchRate(prev.bpm, next.bpm, opt.maxRateDeviation);
+    if (rate === null) return { level: 'red', reason: 'rate-cap' };
+    return { level: Math.abs(rate - 1) <= 0.04 ? 'green' : 'yellow', rate };
+}
+
 export type TransitionPlan =
     | {
         mode: 'beatmatched';

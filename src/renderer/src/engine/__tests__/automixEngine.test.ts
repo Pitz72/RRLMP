@@ -4,6 +4,7 @@ import {
     computeTempoMatchRate,
     crossfadeDurationSec,
     planTransition,
+    assessCompatibility,
     AUTOMIX_DEFAULTS
 } from '../automixEngine';
 
@@ -132,5 +133,35 @@ describe('planTransition (regole Fase D incluse)', () => {
             options: { maxRateDeviation: 0.15 }
         });
         expect(plan.mode).toBe('beatmatched');
+    });
+});
+
+describe('assessCompatibility (indicatore C1)', () => {
+    const good = (bpm: number) => ({ bpm, beatOffsetSec: 0.3, bpmConfidence: 0.7 });
+
+    it('delta ≤4% → verde (120 vs 118)', () => {
+        const r = assessCompatibility(good(120), good(118));
+        expect(r.level).toBe('green');
+        expect(r.rate).toBeCloseTo(120 / 118, 6);
+    });
+
+    it('delta tra 4% e 8% → giallo (120 vs 113)', () => {
+        const r = assessCompatibility(good(120), good(113));
+        expect(r.level).toBe('yellow');
+    });
+
+    it('octave-aware: 90 vs 175.9 → verde (half-time, rate ~1.023)', () => {
+        expect(assessCompatibility(good(90), good(175.9)).level).toBe('green');
+    });
+
+    it('oltre il cap → rosso/rate-cap (120 vs 135)', () => {
+        expect(assessCompatibility(good(120), good(135))).toEqual({ level: 'red', reason: 'rate-cap' });
+    });
+
+    it('bpm/offset/confidence mancanti o deboli → rosso col motivo giusto', () => {
+        expect(assessCompatibility({ ...good(120), bpm: undefined }, good(118)).reason).toBe('missing-bpm');
+        expect(assessCompatibility(good(120), { ...good(118), beatOffsetSec: undefined }).reason).toBe('missing-offset');
+        expect(assessCompatibility(good(120), { ...good(118), bpmConfidence: 0.41 }).reason).toBe('low-confidence');
+        expect(assessCompatibility(good(120), { ...good(118), bpmConfidence: undefined }).reason).toBe('low-confidence');
     });
 });
