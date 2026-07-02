@@ -238,12 +238,14 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                             const label = clip.title || clip.name;
                             const disabled = !!clip.isMissing;
                             const isSelected = selectedClipIds.includes(clip.id);
-                            // v1.10.10: un colore assegnato dalle impostazioni clip riempie
-                            // il pad (sfondo tinto + bordo). Solo customColor esplicito:
-                            // clip.color è il colore della colonna, uguale per tutti.
-                            // Non applicato su in-onda (verde), mancante (rosso) e MIDI
-                            // Learn (feedback cyan) — quegli stati devono restare leggibili.
-                            const padColor = !disabled && !isPlaying && !isMidiLearnMode ? clip.customColor : undefined;
+                            // v1.10.10/13: un colore assegnato dalle impostazioni riempie il
+                            // pad. Solo customColor esplicito (clip.color è il colore di
+                            // colonna, uguale per tutti). Da fermo = colore "spento" (velo +
+                            // glow tenue); IN RIPRODUZIONE = ACCESO a colore pieno con tutto
+                            // il pulsante illuminato (prima diventava verde come i pad neutri
+                            // — riscontro dev). Mancante (rosso) e MIDI Learn (cyan) restano
+                            // prioritari.
+                            const fxColor = !disabled && !isMidiLearnMode ? clip.customColor : undefined;
                             // v1.10.2: NIENTE attributo `disabled` — Chromium sopprime i click
                             // anche sui discendenti di un button disabled, rendendo ⚙ e ×
                             // irraggiungibili (una clip col file mancante non era più né
@@ -253,16 +255,20 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                 <button
                                     key={clip.id}
                                     aria-disabled={disabled}
-                                    style={padColor ? {
-                                        // v1.10.12: pad "acceso" nel colore scelto (riscontro dev:
-                                        // il velo ~18% di v1.10.10 era troppo timido) — riempimento
-                                        // più pieno, bordo vivo e glow esterno+interno, stesso
-                                        // linguaggio luminoso dello stato in-onda (che resta verde).
-                                        backgroundColor: `${padColor}47`,
-                                        borderColor: padColor,
-                                        boxShadow: `0 0 18px -2px ${padColor}b3, inset 0 0 26px -14px ${padColor}`,
+                                    style={fxColor ? (isPlaying ? {
+                                        // ACCESO: colore pieno, bordo schiarito, glow forte
+                                        // esterno + luce interna — tutto il pulsante illuminato.
+                                        backgroundColor: fxColor,
+                                        borderColor: `color-mix(in srgb, ${fxColor} 45%, #fff)`,
+                                        boxShadow: `0 0 30px 1px ${fxColor}e6, inset 0 0 22px rgba(255,255,255,0.30)`,
                                         color: '#fff',
-                                    } : undefined}
+                                    } : {
+                                        // SPENTO: velo del colore + glow tenue (v1.10.12)
+                                        backgroundColor: `${fxColor}47`,
+                                        borderColor: fxColor,
+                                        boxShadow: `0 0 18px -2px ${fxColor}b3, inset 0 0 26px -14px ${fxColor}`,
+                                        color: '#fff',
+                                    }) : undefined}
                                     onContextMenu={(e) => {
                                         // v1.10.10: tasto destro = impostazioni clip (come la ⚙)
                                         e.preventDefault();
@@ -289,9 +295,11 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                     className={`group relative h-20 rounded-lg border p-2 text-left flex flex-col justify-between transition-all overflow-hidden ${
                                         disabled
                                             ? 'border-red-800/60 bg-red-950/30 text-red-400/70 cursor-not-allowed'
-                                            : isPlaying
-                                                ? 'border-emerald-500 bg-emerald-500/15 text-emerald-200 shadow-[0_0_18px_-4px_rgba(34,197,94,0.6)]'
-                                                : 'border-zinc-700 bg-zinc-800/40 text-zinc-200 hover:border-slate-400 hover:bg-zinc-800'
+                                            : fxColor
+                                                ? '' /* v1.10.13: pad colorato → stile tutto inline (spento/ACCESO) */
+                                                : isPlaying
+                                                    ? 'border-emerald-500 bg-emerald-500/15 text-emerald-200 shadow-[0_0_18px_-4px_rgba(34,197,94,0.6)]'
+                                                    : 'border-zinc-700 bg-zinc-800/40 text-zinc-200 hover:border-slate-400 hover:bg-zinc-800'
                                     } ${
                                         /* v1.10.4: feedback MIDI Learn — stesse classi della ClipCard */
                                         isMidiLearnMode && isSelected ? 'ring-2 ring-cyan-400 ring-dashed' : ''
@@ -312,7 +320,7 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                             </span>
                                         )}
                                         {isPlaying && (
-                                            <span className="ml-auto w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                                            <span className={`ml-auto w-2 h-2 rounded-full animate-pulse ${fxColor ? 'bg-white' : 'bg-emerald-400'}`} />
                                         )}
                                     </div>
                                     {/* Impostazioni clip (⚙ su hover, v1.10.1) */}

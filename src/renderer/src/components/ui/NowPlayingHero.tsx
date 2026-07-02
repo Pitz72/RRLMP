@@ -15,13 +15,17 @@ const fmt = (s: number): string => {
 };
 
 // Priorità di scelta del brano "in onda" da mettere in evidenza.
-const TYPE_PRIORITY = ['music', 'preshow', 'voice', 'asset', 'sfx'];
+// v1.10.13: 'sfx' RIMOSSO — gli effetti del pad (brevi, spesso sovrapposti ad
+// altro) non devono far comparire/cambiare la hero (riscontro dev). Il loro
+// riscontro visivo è il pad acceso + il badge sul toggle FX.
+const TYPE_PRIORITY = ['music', 'preshow', 'voice', 'asset'];
 
 export const NowPlayingHero: React.FC = () => {
     const activeClips = useAudioStore((s) => s.activeClips);
     const columns = useProjectStore((s) => s.columns);
 
-    const actives = Object.values(activeClips);
+    // Esclusi gli FX anche dal fallback "prima clip attiva".
+    const actives = Object.values(activeClips).filter((a) => a.clip.type !== 'sfx');
     // Scegli la clip da mostrare: music > preshow > voice > altro; fallback alla prima attiva.
     let onAir: typeof actives[number] | null = null;
     for (const type of TYPE_PRIORITY) {
