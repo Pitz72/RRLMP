@@ -3,7 +3,7 @@ import { useAudioStore } from '../../store/useAudioStore';
 import AudioContextManager from '../../engine/AudioContextManager';
 import MicManager from '../../engine/MicManager';
 import { Button } from './Button';
-import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic, Check, Mic, MicOff, Undo2, Redo2, Grid3x3 } from 'lucide-react';
+import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic, Check, Mic, MicOff, Undo2, Redo2, Grid3x3, Files, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 
@@ -71,6 +71,36 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad }: GlobalControlsProps
     const [showSettings, setShowSettings] = useState(false);
     const [showAbout, setShowAbout] = useState(false);
     const [showKeymapping, setShowKeymapping] = useState(false);
+
+    // v1.10.19 (Task 2 sessione Automix, deciso con l'utente): i 6 pulsanti file
+    // (nuovo/salva/salva-come/carica/M3U/export) raggruppati in un menu a tendina —
+    // a 1366px la topbar traboccava (misura empirica: pulsanti sopra REC/orologio).
+    const [showFileMenu, setShowFileMenu] = useState(false);
+    const fileMenuRef = useRef<HTMLDivElement | null>(null);
+
+    // Chiusura del menu file: click fuori, o ESC in capture (stopPropagation come
+    // le modali — ESC-01 v1.4.13: chiudere il menu NON deve innescare l'Emergency Stop).
+    useEffect(() => {
+        if (!showFileMenu) return;
+        const onDown = (e: MouseEvent) => {
+            if (fileMenuRef.current && !fileMenuRef.current.contains(e.target as Node)) {
+                setShowFileMenu(false);
+            }
+        };
+        const onEsc = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                e.stopPropagation();
+                e.preventDefault();
+                setShowFileMenu(false);
+            }
+        };
+        window.addEventListener('mousedown', onDown);
+        window.addEventListener('keydown', onEsc, true);
+        return () => {
+            window.removeEventListener('mousedown', onDown);
+            window.removeEventListener('keydown', onEsc, true);
+        };
+    }, [showFileMenu]);
 
     // Export Progress State
     const [exportProgress, setExportProgress] = useState({ isOpen: false, current: 0, total: 0, filename: '' });
@@ -312,6 +342,173 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad }: GlobalControlsProps
         stopAll();
     };
 
+    // v1.10.19: handler dei 6 comandi file, estratti VERBATIM dai vecchi pulsanti
+    // della topbar (ora voci del menu a tendina) — zero cambi di logica.
+    const handleNewProject = async () => {
+        if (isDirty && !await confirm('Nuovo Progetto: le modifiche non salvate andranno perse. Continuare?', 'Nuovo Progetto', 'Annulla')) return;
+        stopAll();
+        resetProject();
+        // v1.10.9: reset → colonna FX vuota → ripopola i default
+        void populateDefaultFxIfVirgin();
+    };
+
+    const handleSaveProject = async () => {
+        const projectData = {
+            version: __APP_VERSION__,
+            timestamp: Date.now(),
+            project: { columns }
+        };
+        const json = JSON.stringify(projectData, null, 2);
+
+        let result;
+        if (currentFilePath) {
+            result = await window.electron.saveProjectDirect(json, currentFilePath);
+        } else {
+            result = await window.electron.saveProject(json);
+        }
+
+        if (result.success) {
+            setDirty(false);
+            if (result.filePath) {
+                // If we did a saveProject (dialog), update path.
+                // Direct save preserves path, so no change needed unless we want to be safe.
+                // But loadProject signature is clumsy.
+                // IF result.filePath is returned, update it.
+                loadProject({ columns }, result.filePath, { preserveUiState: true });
+            }
+        } else {
+            if (result.error) toast('Salvataggio fallito: ' + result.error, 'error');
+        }
+    };
+
+    const handleSaveAs = async () => {
+        const projectData = {
+            version: __APP_VERSION__,
+            timestamp: Date.now(),
+            project: { columns }
+        };
+        const json = JSON.stringify(projectData, null, 2);
+        const result = await window.electron.saveProject(json);
+
+        if (result.success && result.filePath) {
+            setDirty(false);
+            loadProject({ columns }, result.filePath, { preserveUiState: true });
+        }
+    };
+
+    const handleLoadProject = async () => {
+        if (isDirty && !await confirm('Hai modifiche non salvate. Caricare un nuovo progetto le sovrascriverà. Continuare?', 'Carica comunque', 'Annulla')) return;
+
+        const result = await window.electron.loadProject();
+        // PERSIST-04 (v1.3.3): il main ora torna success:false con error
+        // esplicito se il file non è JSON valido. Surfacciamo all'utente.
+        if (!result.success && (result as { error?: string }).error) {
+            toast((result as { error: string }).error, 'error');
+            return;
+        }
+        if (result.success && result.data) {
+            try {
+                const parsed = JSON.parse(result.data);
+                const projectData = validateLmpProjectData(parsed.project);
+                {
+                    loadProject(projectData, result.filePath);
+                    stopAll();
+                    setDirty(false);
+                    // Integrity check (v0.14.2)
+                    runIntegrityCheck().then(missing => {
+                        if (missing > 0) console.warn(`[Integrity] ${missing} file mancante/i nel progetto caricato.`);
+                    });
+                    // v2026-07-01: il rilevamento silenzio PRE-SHOW è ora AUTOMATICO
+                    // (batch in MainGrid, parte al cambio di currentFilePath) → niente più
+                    // prompt qui. Vale per ogni via di caricamento, incluse le clip già caricate.
+                }
+
+            } catch (e) {
+                toast('File LMP non valido: ' + (e instanceof Error ? e.message : 'struttura non riconosciuta'), 'error');
+            }
+        }
+    };
+
+    const handleImportM3u = async () => {
+        if (!window.electron?.importM3u) return;
+        const result = await window.electron.importM3u();
+        if (!result.success || !result.paths || result.paths.length === 0) {
+            if (result.success) toast('Nessun file audio trovato nella playlist.', 'warning');
+            return;
+        }
+        const preshowColId = 'col-preshow';
+        let added = 0;
+        for (const filePath of result.paths) {
+            const newClip = addClipFromPath(preshowColId, filePath);
+            if (newClip) {
+                added++;
+                loadClip(newClip);
+                // Auto-silence detection (v1.7.1: vedi classifySilenceResult —
+                // un fallimento/rate-limit NON viene più segnato come "controllato")
+                if (window.electron?.detectSilence) {
+                    updateClip(preshowColId, newClip.id, { isAnalyzing: true });
+                    window.electron.detectSilence(filePath).then(r => {
+                        const c = classifySilenceResult(r);
+                        if (c.checked) {
+                            updateClip(preshowColId, newClip.id, {
+                                ...(c.trimStart !== undefined ? { trimStart: c.trimStart, trimEnd: c.trimEnd } : {}),
+                                isAnalyzing: false,
+                                silenceCheckedV2: true
+                            });
+                        } else {
+                            updateClip(preshowColId, newClip.id, { isAnalyzing: false });
+                        }
+                    }).catch(() => updateClip(preshowColId, newClip.id, { isAnalyzing: false }));
+                }
+            }
+        }
+        toast(`M3U importata — ${added} tracce aggiunte a PRE-SHOW`, 'success');
+    };
+
+    const handleExportProject = async () => {
+        // v1.4.14 (#4a): l'export è legato al file di salvataggio aperto.
+        // Senza progetto salvato non c'è una cartella di riferimento → si
+        // chiede prima di salvare (l'archivio audio/ vive accanto al .lmp).
+        if (!currentFilePath) {
+            toast('Salva prima il progetto: l’archivio audio viene creato accanto al file di salvataggio.', 'error', 6000);
+            return;
+        }
+        if (isDirty && !await confirm('Ci sono modifiche non salvate. Si consiglia di salvare prima di esportare. Continuare comunque?', 'Esporta comunque', 'Annulla')) return;
+
+        const projectData = {
+            version: __APP_VERSION__,
+            timestamp: Date.now(),
+            project: { columns }
+        };
+        const json = JSON.stringify(projectData, null, 2);
+
+        // User feedback: Loading state?
+        // For now detailed alerts.
+        try {
+            // Reset and Open Modal
+            setExportProgress({ isOpen: true, current: 0, total: 0, filename: 'Starting...' });
+
+            const result = await window.electron.exportProject(json, currentFilePath);
+
+            // Close Modal
+            setExportProgress(prev => ({ ...prev, isOpen: false }));
+
+            if (result.success) {
+                // v1.4.14 (#4): archivio sincronizzato col banco regia
+                // (copiati i nuovi/cambiati, rimossi gli orfani).
+                const s = result.stats;
+                const parts = [`${s?.copied || 0} copiati`];
+                if (s?.pruned) parts.push(`${s.pruned} rimossi`);
+                toast(`Archivio audio sincronizzato — ${parts.join(', ')} in:\n${result.path}\\audio`, 'success', 7000);
+            } else {
+                if (result.error) toast(`Errore esportazione: ${result.error}`, 'error');
+            }
+        } catch (e) {
+            setExportProgress(prev => ({ ...prev, isOpen: false }));
+            toast('Errore chiamando Export IPC', 'error');
+        }
+    };
+
     return (
         <div className="flex items-center gap-4 border-l border-zinc-800 pl-4 ml-4">
 
@@ -496,214 +693,72 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad }: GlobalControlsProps
                 </Button>
             </div>
 
-            {/* PERSISTENCE */}
+            {/* PERSISTENCE — v1.10.19: i 6 pulsanti file raggruppati in un menu a
+                tendina (la topbar traboccava a 1366px; deciso con l'utente 2026-07-02). */}
             <div className="flex items-center gap-2 border-l border-zinc-800 pl-4">
-                <Button
-                    size="sm"
-                    className="tool"
-                    title={t('welcome.newProject')}
-                    onClick={async () => {
-                        if (isDirty && !await confirm('Nuovo Progetto: le modifiche non salvate andranno perse. Continuare?', 'Nuovo Progetto', 'Annulla')) return;
-                        stopAll();
-                        resetProject();
-                        // v1.10.9: reset → colonna FX vuota → ripopola i default
-                        void populateDefaultFxIfVirgin();
-                    }}
-                >
-                    <FilePlus2 size={16} />
-                </Button>
-                <Button
-                    size="sm"
-                    className={`${isDirty ? 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/50 hover:bg-yellow-500 hover:text-white' : 'tool'} transition-all`}
-                    title={t('controls.save')}
-                    onClick={async () => {
-                        const projectData = {
-                            version: __APP_VERSION__,
-                            timestamp: Date.now(),
-                            project: { columns }
-                        };
-                        const json = JSON.stringify(projectData, null, 2);
-
-                        let result;
-                        if (currentFilePath) {
-                            result = await window.electron.saveProjectDirect(json, currentFilePath);
-                        } else {
-                            result = await window.electron.saveProject(json);
-                        }
-
-                        if (result.success) {
-                            setDirty(false);
-                            if (result.filePath) {
-                                // If we did a saveProject (dialog), update path. 
-                                // Direct save preserves path, so no change needed unless we want to be safe.
-                                // But loadProject signature is clumsy.
-                                // IF result.filePath is returned, update it.
-                                loadProject({ columns }, result.filePath, { preserveUiState: true });
-                            }
-                        } else {
-                            if (result.error) toast('Salvataggio fallito: ' + result.error, 'error');
-                        }
-                    }}
-                >
-                    <FileCheck2 size={16} className={isDirty ? "animate-pulse" : ""} />
-                </Button>
-
-                <Button
-                    size="sm"
-                    className="tool ml-1"
-                    title={t('controls.saveAs')}
-                    onClick={async () => {
-                        const projectData = {
-                            version: __APP_VERSION__,
-                            timestamp: Date.now(),
-                            project: { columns }
-                        };
-                        const json = JSON.stringify(projectData, null, 2);
-                        const result = await window.electron.saveProject(json);
-
-                        if (result.success && result.filePath) {
-                            setDirty(false);
-                            loadProject({ columns }, result.filePath, { preserveUiState: true });
-                        }
-                    }}
-                >
-                    <FileOutput size={16} />
-
-                </Button>
-
-                <Button
-                    size="sm"
-                    className="tool"
-                    title={t('welcome.loadProject')}
-                    onClick={async () => {
-                        if (isDirty && !await confirm('Hai modifiche non salvate. Caricare un nuovo progetto le sovrascriverà. Continuare?', 'Carica comunque', 'Annulla')) return;
-
-                        const result = await window.electron.loadProject();
-                        // PERSIST-04 (v1.3.3): il main ora torna success:false con error
-                        // esplicito se il file non è JSON valido. Surfacciamo all'utente.
-                        if (!result.success && (result as { error?: string }).error) {
-                            toast((result as { error: string }).error, 'error');
-                            return;
-                        }
-                        if (result.success && result.data) {
-                            try {
-                                const parsed = JSON.parse(result.data);
-                                const projectData = validateLmpProjectData(parsed.project);
-                                {
-                                    loadProject(projectData, result.filePath);
-                                    stopAll();
-                                    setDirty(false);
-                                    // Integrity check (v0.14.2)
-                                    runIntegrityCheck().then(missing => {
-                                        if (missing > 0) console.warn(`[Integrity] ${missing} file mancante/i nel progetto caricato.`);
-                                    });
-                                    // v2026-07-01: il rilevamento silenzio PRE-SHOW è ora AUTOMATICO
-                                    // (batch in MainGrid, parte al cambio di currentFilePath) → niente più
-                                    // prompt qui. Vale per ogni via di caricamento, incluse le clip già caricate.
-                                }
-
-                            } catch (e) {
-                                toast('File LMP non valido: ' + (e instanceof Error ? e.message : 'struttura non riconosciuta'), 'error');
-                            }
-                        }
-                    }}
-                >
-                    <FolderInput size={16} />
-                </Button>
-                <Button
-                    size="sm"
-                    className="tool"
-                    title={t('controls.importM3u')}
-                    onClick={async () => {
-                        if (!window.electron?.importM3u) return;
-                        const result = await window.electron.importM3u();
-                        if (!result.success || !result.paths || result.paths.length === 0) {
-                            if (result.success) toast('Nessun file audio trovato nella playlist.', 'warning');
-                            return;
-                        }
-                        const preshowColId = 'col-preshow';
-                        let added = 0;
-                        for (const filePath of result.paths) {
-                            const newClip = addClipFromPath(preshowColId, filePath);
-                            if (newClip) {
-                                added++;
-                                loadClip(newClip);
-                                // Auto-silence detection (v1.7.1: vedi classifySilenceResult —
-                                // un fallimento/rate-limit NON viene più segnato come "controllato")
-                                if (window.electron?.detectSilence) {
-                                    updateClip(preshowColId, newClip.id, { isAnalyzing: true });
-                                    window.electron.detectSilence(filePath).then(r => {
-                                        const c = classifySilenceResult(r);
-                                        if (c.checked) {
-                                            updateClip(preshowColId, newClip.id, {
-                                                ...(c.trimStart !== undefined ? { trimStart: c.trimStart, trimEnd: c.trimEnd } : {}),
-                                                isAnalyzing: false,
-                                                silenceCheckedV2: true
-                                            });
-                                        } else {
-                                            updateClip(preshowColId, newClip.id, { isAnalyzing: false });
-                                        }
-                                    }).catch(() => updateClip(preshowColId, newClip.id, { isAnalyzing: false }));
-                                }
-                            }
-                        }
-                        toast(`M3U importata — ${added} tracce aggiunte a PRE-SHOW`, 'success');
-                    }}
-                >
-                    <ListMusic size={16} />
-                </Button>
-                <Button
-                    size="sm"
-                    className="tool ml-1"
-                    title={t('controls.export')}
-                    onClick={async () => {
-                        // v1.4.14 (#4a): l'export è legato al file di salvataggio aperto.
-                        // Senza progetto salvato non c'è una cartella di riferimento → si
-                        // chiede prima di salvare (l'archivio audio/ vive accanto al .lmp).
-                        if (!currentFilePath) {
-                            toast('Salva prima il progetto: l’archivio audio viene creato accanto al file di salvataggio.', 'error', 6000);
-                            return;
-                        }
-                        if (isDirty && !await confirm('Ci sono modifiche non salvate. Si consiglia di salvare prima di esportare. Continuare comunque?', 'Esporta comunque', 'Annulla')) return;
-
-                        const projectData = {
-                            version: __APP_VERSION__,
-                            timestamp: Date.now(),
-                            project: { columns }
-                        };
-                        const json = JSON.stringify(projectData, null, 2);
-
-                        // User feedback: Loading state?
-                        // For now detailed alerts.
-                        try {
-                            // Reset and Open Modal
-                            setExportProgress({ isOpen: true, current: 0, total: 0, filename: 'Starting...' });
-
-                            const result = await window.electron.exportProject(json, currentFilePath);
-
-                            // Close Modal
-                            setExportProgress(prev => ({ ...prev, isOpen: false }));
-
-                            if (result.success) {
-                                // v1.4.14 (#4): archivio sincronizzato col banco regia
-                                // (copiati i nuovi/cambiati, rimossi gli orfani).
-                                const s = result.stats;
-                                const parts = [`${s?.copied || 0} copiati`];
-                                if (s?.pruned) parts.push(`${s.pruned} rimossi`);
-                                toast(`Archivio audio sincronizzato — ${parts.join(', ')} in:\n${result.path}\\audio`, 'success', 7000);
-                            } else {
-                                if (result.error) toast(`Errore esportazione: ${result.error}`, 'error');
-                            }
-                        } catch (e) {
-                            setExportProgress(prev => ({ ...prev, isOpen: false }));
-                            toast('Errore chiamando Export IPC', 'error');
-                        }
-                    }}
-
-                >
-                    <HardDriveDownload size={16} />
-                </Button>
-
+                <div className="relative" ref={fileMenuRef}>
+                    <Button
+                        size="sm"
+                        className={`${showFileMenu ? 'bg-zinc-700 text-white border border-zinc-600' : 'tool'} relative`}
+                        title="Menu file — nuovo/salva/carica/M3U/esporta"
+                        onClick={(e) => {
+                            // v1.10.3: blur anti-retrigger (Space/Enter non deve riaprire il menu)
+                            e.currentTarget.blur();
+                            setShowFileMenu(v => !v);
+                        }}
+                    >
+                        <div className="flex items-center gap-1.5 font-bold text-[11px]">
+                            <Files size={14} />
+                            <span>FILE</span>
+                            <ChevronDown size={12} className={`transition-transform ${showFileMenu ? 'rotate-180' : ''}`} />
+                        </div>
+                        {/* Indicatore modifiche non salvate (prima era il pulsante Salva giallo) */}
+                        {isDirty && (
+                            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse pointer-events-none" />
+                        )}
+                    </Button>
+                    {showFileMenu && (
+                        <div className="absolute left-0 top-full mt-2 w-60 bg-zinc-900 border border-zinc-700 rounded-lg shadow-2xl z-50 py-1">
+                            <button
+                                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
+                                onClick={() => { setShowFileMenu(false); void handleNewProject(); }}
+                            >
+                                <FilePlus2 size={15} className="shrink-0" /> {t('welcome.newProject')}
+                            </button>
+                            <button
+                                className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs transition-colors text-left ${isDirty ? 'text-yellow-400 hover:bg-yellow-500/10' : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'}`}
+                                onClick={() => { setShowFileMenu(false); void handleSaveProject(); }}
+                            >
+                                <FileCheck2 size={15} className={`shrink-0 ${isDirty ? 'animate-pulse' : ''}`} /> {t('controls.save')}
+                            </button>
+                            <button
+                                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
+                                onClick={() => { setShowFileMenu(false); void handleSaveAs(); }}
+                            >
+                                <FileOutput size={15} className="shrink-0" /> {t('controls.saveAs')}
+                            </button>
+                            <button
+                                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
+                                onClick={() => { setShowFileMenu(false); void handleLoadProject(); }}
+                            >
+                                <FolderInput size={15} className="shrink-0" /> {t('welcome.loadProject')}
+                            </button>
+                            <div className="h-px bg-zinc-800 my-1" />
+                            <button
+                                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
+                                onClick={() => { setShowFileMenu(false); void handleImportM3u(); }}
+                            >
+                                <ListMusic size={15} className="shrink-0" /> {t('controls.importM3u')}
+                            </button>
+                            <button
+                                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
+                                onClick={() => { setShowFileMenu(false); void handleExportProject(); }}
+                            >
+                                <HardDriveDownload size={15} className="shrink-0" /> {t('controls.export')}
+                            </button>
+                        </div>
+                    )}
+                </div>
                 <Button
                     size="sm"
                     className={`${
