@@ -253,7 +253,16 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                 <button
                                     key={clip.id}
                                     aria-disabled={disabled}
-                                    style={padColor ? { backgroundColor: `${padColor}2e`, borderColor: `${padColor}99` } : undefined}
+                                    style={padColor ? {
+                                        // v1.10.12: pad "acceso" nel colore scelto (riscontro dev:
+                                        // il velo ~18% di v1.10.10 era troppo timido) — riempimento
+                                        // più pieno, bordo vivo e glow esterno+interno, stesso
+                                        // linguaggio luminoso dello stato in-onda (che resta verde).
+                                        backgroundColor: `${padColor}47`,
+                                        borderColor: padColor,
+                                        boxShadow: `0 0 18px -2px ${padColor}b3, inset 0 0 26px -14px ${padColor}`,
+                                        color: '#fff',
+                                    } : undefined}
                                     onContextMenu={(e) => {
                                         // v1.10.10: tasto destro = impostazioni clip (come la ⚙)
                                         e.preventDefault();
