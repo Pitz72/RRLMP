@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { X, Zap, Upload, Music4 } from 'lucide-react';
+import { X, Zap, Upload, Music4, Settings2 } from 'lucide-react';
 import { useProjectStore } from '../../store/useProjectStore';
 import { useAudioStore } from '../../store/useAudioStore';
 import { confirm } from '../../store/useConfirmStore';
+import { ClipSettingsModal } from '../modals/ClipSettingsModal';
+import type { AudioClip } from '../../types';
 
 interface FxPadOverlayProps {
     isOpen: boolean;
@@ -32,12 +34,17 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
     const columns = useProjectStore((s) => s.columns);
     const addClip = useProjectStore((s) => s.addClip);
     const removeClip = useProjectStore((s) => s.removeClip);
+    const updateClip = useProjectStore((s) => s.updateClip);
     const activeClips = useAudioStore((s) => s.activeClips);
     const playClip = useAudioStore((s) => s.playClip);
     const stopClip = useAudioStore((s) => s.stopClip);
     const loadClip = useAudioStore((s) => s.loadClip);
 
     const [isDragOver, setIsDragOver] = useState(false);
+    // v1.10.1: impostazioni clip FX dal pad (⚙ su hover) — con la colonna FX fuori
+    // dalla griglia, questa è l'unica superficie da cui aprire ClipSettingsModal
+    // per un effetto (volume/fade/trim/nome/colore/keybind).
+    const [editingClip, setEditingClip] = useState<AudioClip | null>(null);
 
     const sfxCol = columns.find((c) => c.type === 'sfx');
 
@@ -83,9 +90,31 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
         }
     };
 
+    // Parità con MainGrid.handleSaveClip: snapshot undo PRIMA della modifica
+    // (updateClip è condivisa con le scritture runtime che NON devono entrare
+    // nella cronologia) + riallineamento live del player se la clip è in onda.
+    const handleSaveClip = (clipId: string, updates: Partial<AudioClip>) => {
+        if (!sfxCol) return;
+        useProjectStore.getState()._snapshot();
+        updateClip(sfxCol.id, clipId, updates);
+        useAudioStore.getState().syncActiveClipSettings(clipId);
+    };
+
+    const handleDeleteClip = (clipId: string) => {
+        if (!sfxCol) return;
+        if (activeClips[clipId]) stopClip(clipId);
+        removeClip(sfxCol.id, clipId);
+    };
+
+    const handleEdit = (e: React.MouseEvent, clip: AudioClip) => {
+        e.stopPropagation();
+        setEditingClip(clip);
+    };
+
     const midiLabel = (bind?: string) => bind?.replace('NOTE:', 'N').replace('CC:', 'C');
 
     return (
+        <>
         <div
             className={`fixed bottom-4 right-4 z-[150] w-[560px] max-w-[calc(100vw-2rem)] max-h-[80vh] flex flex-col rounded-2xl border shadow-[0_30px_90px_-20px_rgba(0,0,0,0.85)] backdrop-blur-xl transition-colors ${
                 isDragOver ? 'border-emerald-500' : 'border-zinc-700'
@@ -163,6 +192,16 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                             <span className="ml-auto w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                                         )}
                                     </div>
+                                    {/* Impostazioni clip (⚙ su hover, v1.10.1) */}
+                                    <span
+                                        role="button"
+                                        tabIndex={-1}
+                                        onClick={(e) => handleEdit(e, clip)}
+                                        title="Impostazioni clip"
+                                        className="absolute top-1 right-6 w-4 h-4 rounded flex items-center justify-center bg-black/50 text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-cyan-300 transition-opacity"
+                                    >
+                                        <Settings2 size={11} />
+                                    </span>
                                     {/* Rimuovi (× su hover) */}
                                     <span
                                         role="button"
@@ -186,5 +225,17 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                 <span>Trascina qui i file audio per aggiungere effetti · click per suonare/fermare · ESC = STOP ALL globale</span>
             </div>
         </div>
+
+        {/* SETTINGS MODAL (v1.10.1) — stesso guscio della griglia (.ov z-200, sopra il pad) */}
+        {editingClip && (
+            <ClipSettingsModal
+                clip={editingClip}
+                isOpen={true}
+                onClose={() => setEditingClip(null)}
+                onSave={handleSaveClip}
+                onDelete={handleDeleteClip}
+            />
+        )}
+        </>
     );
 };
