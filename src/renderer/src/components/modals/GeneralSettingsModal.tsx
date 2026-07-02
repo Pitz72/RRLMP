@@ -237,9 +237,14 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     {/* ── TAB: GENERALI ── */}
                     {activeTab === 'general' && (
                         <div className="p-6 space-y-6">
-                            {/* Task 1 (v1.10.15): due colonne — lingua | layout regia, opzioni indipendenti.
-                                md: → sotto i 768px di viewport il grid collassa a colonna singola. */}
+                            {/* Task 1 (v1.10.15): due colonne — opzioni indipendenti.
+                                md: → sotto i 768px di viewport il grid collassa a colonna singola.
+                                v1.11.4 (rifinitura): Controllo Remoto spostato nella colonna
+                                sinistra sotto Lingua — prima era full-width sotto il grid e
+                                finiva sempre sotto scroll, mentre la colonna sinistra aveva
+                                spazio morto (Layout regia è la sezione più alta). */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 items-start">
+                            <div className="space-y-6">
                             <section>
                                 <SectionTitle color="text-violet-400">{t('modal.settings.tab.language')}</SectionTitle>
                                 <p className="text-[10px] text-zinc-600 italic mb-3">Seleziona la lingua dell'interfaccia. La modifica è immediata.</p>
@@ -265,37 +270,11 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 </div>
                             </section>
 
-                            {/* LAYOUT REGIA — colonne visibili (Step 4 UI regia, v1.9.8) */}
-                            <section className="space-y-3">
-                                <SectionTitle color="text-amber-400">Layout regia — colonne</SectionTitle>
-                                <p className="text-[10px] text-zinc-600 -mt-2 italic">Attiva o disattiva le colonne mostrate nella board, secondo le necessità della trasmissione. Preferenza globale (vale per tutti i progetti). Nascondere una colonna NON elimina le sue clip: restano nel progetto e ricompaiono riattivandola. Gli FX hanno il loro pad dedicato.</p>
-                                <div className="space-y-2">
-                                    {columns.filter(c => c.type !== 'sfx').map(col => {
-                                        const visible = !hiddenColumnIds.includes(col.id);
-                                        return (
-                                            <div key={col.id} className="card !p-3 flex items-center justify-between gap-3">
-                                                <div className="flex items-center gap-2 min-w-0">
-                                                    <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: col.customColor || col.color }} />
-                                                    <span className="text-sm text-zinc-200 truncate">{col.title}</span>
-                                                </div>
-                                                <Toggle
-                                                    enabled={visible}
-                                                    onToggle={() => toggleColumnVisibility(col.id)}
-                                                    labelOn="Visibile"
-                                                    labelOff="Nascosta"
-                                                />
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </section>
-                            </div>
-
                             <Divider />
 
-                            {/* CONTROLLO REMOTO (2026-07-01, Step 1/N) — prototipo: server LAN opt-in */}
+                            {/* CONTROLLO REMOTO (2026-07-01, Step 1/N) — server LAN opt-in */}
                             <section className="space-y-3">
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between gap-3">
                                     <div>
                                         <SectionTitle color="text-sky-400">Controllo Remoto (Beta)</SectionTitle>
                                         <p className="text-[10px] text-zinc-600 mt-0.5 italic">Server locale in rete (LAN) per comandare l'app da un tablet/PC secondario: STOP ALL e play/stop della colonna Music.</p>
@@ -326,6 +305,33 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     </div>
                                 )}
                             </section>
+                            </div>
+
+                            {/* LAYOUT REGIA — colonne visibili (Step 4 UI regia, v1.9.8) */}
+                            <section className="space-y-3">
+                                <SectionTitle color="text-amber-400">Layout regia — colonne</SectionTitle>
+                                <p className="text-[10px] text-zinc-600 -mt-2 italic">Attiva o disattiva le colonne mostrate nella board, secondo le necessità della trasmissione. Preferenza globale (vale per tutti i progetti). Nascondere una colonna NON elimina le sue clip: restano nel progetto e ricompaiono riattivandola. Gli FX hanno il loro pad dedicato.</p>
+                                <div className="space-y-2">
+                                    {columns.filter(c => c.type !== 'sfx').map(col => {
+                                        const visible = !hiddenColumnIds.includes(col.id);
+                                        return (
+                                            <div key={col.id} className="card !p-3 flex items-center justify-between gap-3">
+                                                <div className="flex items-center gap-2 min-w-0">
+                                                    <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: col.customColor || col.color }} />
+                                                    <span className="text-sm text-zinc-200 truncate">{col.title}</span>
+                                                </div>
+                                                <Toggle
+                                                    enabled={visible}
+                                                    onToggle={() => toggleColumnVisibility(col.id)}
+                                                    labelOn="Visibile"
+                                                    labelOff="Nascosta"
+                                                />
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </section>
+                            </div>
                         </div>
                     )}
 
@@ -624,8 +630,10 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 </div>
                             </div>
 
-                            {/* Task 1 (v1.10.15): due colonne — card HPF/Glue/Limiter indipendenti */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                            {/* Task 1 (v1.10.15): due colonne — card HPF/Glue/Limiter indipendenti.
+                                v1.11.4 (rifinitura): items-stretch — la card HPF (corta) si
+                                allinea in altezza alla Glue, prima restava un "gradino". */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
                             {/* HPF */}
                             <div className={`space-y-3 card !p-3 transition-opacity ${masterChain.enabled ? '' : 'opacity-40 pointer-events-none'}`}>
                                 <div className="flex items-center justify-between">
