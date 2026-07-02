@@ -25,6 +25,7 @@ import { toast } from './store/useToastStore';
 import { confirm, confirmThree } from './store/useConfirmStore';
 import { ListChecks } from 'lucide-react';
 import { FxPadOverlay } from './components/ui/FxPadOverlay';
+import { populateDefaultFxIfVirgin } from './utils/defaultSfx';
 
 
 import appLogo from './assets/logo.png';
@@ -52,35 +53,13 @@ function App() {
         };
     }, []);
 
-    // v1.10.8: FX di default al primo sguardo — SOLO su progetto "vergine"
-    // (nessun .lmp caricato E colonna FX vuota). Popola col-sfx con la libreria
-    // CC0 bundlata (copiata in userData dal main) e poi azzera isDirty/undo:
-    // il progetto di partenza resta "pulito" (niente prompt di salvataggio spuri,
-    // niente passo undo fantasma). Se l'app parte aprendo un .lmp (doppio click),
-    // il doppio check su currentFilePath (prima e dopo l'IPC) salta il popolamento.
+    // v1.10.8/v1.10.9: FX di default su progetto "vergine" — logica estratta in
+    // utils/defaultSfx.ts (populateDefaultFxIfVirgin), chiamata anche dopo
+    // "Nuovo Progetto" (qui sotto e in GlobalControls): resetProject() svuotava
+    // le colonne DOPO il popolamento di avvio → pad vuoto (bug dev 2026-07-02).
+    // Il ritardo all'avvio lascia passare un eventuale open-file da doppio click.
     useEffect(() => {
-        const t = setTimeout(async () => {
-            try {
-                const ps = useProjectStore.getState();
-                if (ps.currentFilePath) return;
-                const sfx = ps.columns.find((c) => c.type === 'sfx');
-                if (!sfx || sfx.clips.length > 0) return;
-                if (!window.electron?.restoreDefaultSfx) return;
-                const res = await window.electron.restoreDefaultSfx();
-                if (!res.success || !res.sounds || res.sounds.length === 0) return;
-                const fresh = useProjectStore.getState();
-                if (fresh.currentFilePath) return; // nel frattempo è arrivato un .lmp
-                const freshSfx = fresh.columns.find((c) => c.type === 'sfx');
-                if (!freshSfx || freshSfx.clips.length > 0) return;
-                const added: NonNullable<ReturnType<typeof fresh.addClipFromPath>>[] = [];
-                for (const s of res.sounds) {
-                    const clip = fresh.addClipFromPath(freshSfx.id, s.path);
-                    if (clip) added.push(clip);
-                }
-                useProjectStore.setState({ isDirty: false, undoStack: [], redoStack: [] });
-                for (const c of added) await useAudioStore.getState().loadClip(c);
-            } catch { /* best-effort: senza libreria il pad resta semplicemente vuoto */ }
-        }, 800);
+        const t = setTimeout(() => { void populateDefaultFxIfVirgin(); }, 800);
         return () => clearTimeout(t);
     }, []);
 
@@ -431,6 +410,8 @@ function App() {
                         useProjectStore.getState().resetProject();
                         useAudioStore.getState().stopAll();
                         setShowWelcome(false);
+                        // v1.10.9: reset → colonna FX vuota → ripopola i default
+                        void populateDefaultFxIfVirgin();
                     }}
                     onLoadProject={async () => {
                         const result = await window.electron.loadProject();

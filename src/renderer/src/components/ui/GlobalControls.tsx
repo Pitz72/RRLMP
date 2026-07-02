@@ -17,6 +17,7 @@ import { AboutModal } from '../modals/AboutModal';
 import { toast } from '../../store/useToastStore';
 import { confirm } from '../../store/useConfirmStore';
 import { classifySilenceResult } from '../../utils/silenceDetection';
+import { populateDefaultFxIfVirgin } from '../../utils/defaultSfx';
 
 
 
@@ -505,6 +506,8 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad }: GlobalControlsProps
                         if (isDirty && !await confirm('Nuovo Progetto: le modifiche non salvate andranno perse. Continuare?', 'Nuovo Progetto', 'Annulla')) return;
                         stopAll();
                         resetProject();
+                        // v1.10.9: reset → colonna FX vuota → ripopola i default
+                        void populateDefaultFxIfVirgin();
                     }}
                 >
                     <FilePlus2 size={16} />
