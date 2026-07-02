@@ -443,11 +443,14 @@ function App() {
                     {/* BRAND (Spectrum) */}
                     <div className="brand mr-2">
                         <img src={appLogo} alt="Logo" className="brand-logo" title={`Runtime Live Machine PRO · v${__APP_VERSION__}`} />
-                        <span className="brand-name">RLM <span style={{ color: '#4ade80' }}>PRO</span></span>
-                        {/* v1.10.7: versione di nuovo leggibile a colpo d'occhio (triage
-                            segnalazioni dalla regia) — dal compattamento v1.9.7 era solo
-                            nel tooltip del logo. */}
-                        <span className="text-[9px] font-mono text-zinc-600 self-end mb-0.5">v{__APP_VERSION__}</span>
+                        {/* v1.10.27 (rifiniture utente): versione allineata alla BASELINE del
+                            nome (prima self-end approssimativo) e "PRO" iridescente con la
+                            classe .pro del tema (prima verde fisso hardcoded). */}
+                        <div className="flex items-baseline gap-1.5">
+                            <span className="brand-name">RLM <span className="pro">PRO</span></span>
+                            {/* v1.10.7: versione leggibile a colpo d'occhio (triage regia) */}
+                            <span className="text-[9px] font-mono text-zinc-600">v{__APP_VERSION__}</span>
+                        </div>
                     </div>
 
                     {/* GLOBAL CONTROLS */}
@@ -460,14 +463,14 @@ function App() {
                     />
                 </div>
 
-                <div className="flex items-center gap-4 shrink-0">
+                {/* v1.10.27 (rifiniture): gap-4→gap-2 e Log icon-only — spazio topbar */}
+                <div className="flex items-center gap-2 shrink-0">
                     <button
                         onClick={() => setShowPlayoutLog(true)}
-                        className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 hover:text-cyan-300 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 hover:border-cyan-600/50 rounded transition-all"
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400 hover:text-cyan-300 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 hover:border-cyan-600/50 rounded transition-all"
                         title="Apri Playout Log"
                     >
                         <ListChecks size={13} />
-                        Log
                     </button>
                     <RecordingButton />
                     <OnAirTimer />

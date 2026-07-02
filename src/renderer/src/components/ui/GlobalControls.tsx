@@ -3,7 +3,7 @@ import { useAudioStore } from '../../store/useAudioStore';
 import AudioContextManager from '../../engine/AudioContextManager';
 import MicManager from '../../engine/MicManager';
 import { Button } from './Button';
-import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic, Check, Mic, MicOff, Undo2, Redo2, Grid3x3, Files, ChevronDown, Disc3 } from 'lucide-react';
+import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic, Check, Mic, MicOff, Undo2, Redo2, Grid3x3, Files, ChevronDown, Disc3, Wrench } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 
@@ -81,6 +81,14 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
     const [showFileMenu, setShowFileMenu] = useState(false);
     const fileMenuRef = useRef<HTMLDivElement | null>(null);
 
+    // v1.10.27 (rifiniture utente): anche i comandi non-immediati (annulla/ripeti,
+    // MIDI Learn, tastiera, impostazioni, info) vanno in un menu a tendina come
+    // FILE — in topbar restano solo i controlli da diretta (ARM/VU/Master/STOP/
+    // FX/MIX). Il caso scatenante: col mic armato compare il Mic Vol e la barra
+    // non aveva più spazio.
+    const [showToolsMenu, setShowToolsMenu] = useState(false);
+    const toolsMenuRef = useRef<HTMLDivElement | null>(null);
+
     // Chiusura del menu file: click fuori, o ESC in capture (stopPropagation come
     // le modali — ESC-01 v1.4.13: chiudere il menu NON deve innescare l'Emergency Stop).
     useEffect(() => {
@@ -104,6 +112,29 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
             window.removeEventListener('keydown', onEsc, true);
         };
     }, [showFileMenu]);
+
+    // v1.10.27: stessa chiusura (click fuori / ESC in capture) per il menu strumenti.
+    useEffect(() => {
+        if (!showToolsMenu) return;
+        const onDown = (e: MouseEvent) => {
+            if (toolsMenuRef.current && !toolsMenuRef.current.contains(e.target as Node)) {
+                setShowToolsMenu(false);
+            }
+        };
+        const onEsc = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                e.stopPropagation();
+                e.preventDefault();
+                setShowToolsMenu(false);
+            }
+        };
+        window.addEventListener('mousedown', onDown);
+        window.addEventListener('keydown', onEsc, true);
+        return () => {
+            window.removeEventListener('mousedown', onDown);
+            window.removeEventListener('keydown', onEsc, true);
+        };
+    }, [showToolsMenu]);
 
     // Export Progress State
     const [exportProgress, setExportProgress] = useState({ isOpen: false, current: 0, total: 0, filename: '' });
@@ -513,10 +544,78 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
     };
 
     return (
-        <div className="flex items-center gap-4 border-l border-zinc-800 pl-4 ml-4">
+        <div className="flex items-center gap-2 border-l border-zinc-800 pl-3 ml-2">
+
+            {/* FILE MENU (v1.10.19, spostato in testa in v1.10.27 su richiesta utente:
+                subito dopo titolo+versione). Trigger a larghezza STABILE tra chiuso e
+                aperto: prima lo stato aperto perdeva la width fissa di .tool → shift
+                di layout e "STOP ALL su due righe" (bug segnalato). */}
+            <div className="relative" ref={fileMenuRef}>
+                <Button
+                    size="sm"
+                    className={`${showFileMenu ? 'bg-zinc-700 text-white border-zinc-600' : 'bg-white/5 text-zinc-300 hover:bg-white/10 border-white/10'} border relative whitespace-nowrap`}
+                    title="Menu file — nuovo/salva/carica/M3U/esporta"
+                    onClick={(e) => {
+                        // v1.10.3: blur anti-retrigger (Space/Enter non deve riaprire il menu)
+                        e.currentTarget.blur();
+                        setShowFileMenu(v => !v);
+                    }}
+                >
+                    <div className="flex items-center gap-1.5 font-bold text-[11px]">
+                        <Files size={14} />
+                        <span>FILE</span>
+                        <ChevronDown size={12} className={`transition-transform ${showFileMenu ? 'rotate-180' : ''}`} />
+                    </div>
+                    {/* Indicatore modifiche non salvate (prima era il pulsante Salva giallo) */}
+                    {isDirty && (
+                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse pointer-events-none" />
+                    )}
+                </Button>
+                {showFileMenu && (
+                    <div className="absolute left-0 top-full mt-2 w-60 bg-zinc-900 border border-zinc-700 rounded-lg shadow-2xl z-50 py-1">
+                        <button
+                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
+                            onClick={() => { setShowFileMenu(false); void handleNewProject(); }}
+                        >
+                            <FilePlus2 size={15} className="shrink-0" /> {t('welcome.newProject')}
+                        </button>
+                        <button
+                            className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs transition-colors text-left ${isDirty ? 'text-yellow-400 hover:bg-yellow-500/10' : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'}`}
+                            onClick={() => { setShowFileMenu(false); void handleSaveProject(); }}
+                        >
+                            <FileCheck2 size={15} className={`shrink-0 ${isDirty ? 'animate-pulse' : ''}`} /> {t('controls.save')}
+                        </button>
+                        <button
+                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
+                            onClick={() => { setShowFileMenu(false); void handleSaveAs(); }}
+                        >
+                            <FileOutput size={15} className="shrink-0" /> {t('controls.saveAs')}
+                        </button>
+                        <button
+                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
+                            onClick={() => { setShowFileMenu(false); void handleLoadProject(); }}
+                        >
+                            <FolderInput size={15} className="shrink-0" /> {t('welcome.loadProject')}
+                        </button>
+                        <div className="h-px bg-zinc-800 my-1" />
+                        <button
+                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
+                            onClick={() => { setShowFileMenu(false); void handleImportM3u(); }}
+                        >
+                            <ListMusic size={15} className="shrink-0" /> {t('controls.importM3u')}
+                        </button>
+                        <button
+                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
+                            onClick={() => { setShowFileMenu(false); void handleExportProject(); }}
+                        >
+                            <HardDriveDownload size={15} className="shrink-0" /> {t('controls.export')}
+                        </button>
+                    </div>
+                )}
+            </div>
 
             {/* SMART MIC — ARM button + mini VU + Mic Mix Vol (v1.0.0+) */}
-            <div className="flex items-center gap-3 border-r border-zinc-800 pr-4 mr-2">
+            <div className="flex items-center gap-2 border-l border-zinc-800 pl-2">
                 <div className="flex flex-col gap-1">
                     <button
                         onClick={handleArmToggle}
@@ -567,7 +666,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
 
                 {/* Mic Volume Slider (visibile solo se armato) */}
                 {isArmed && (
-                    <div className="flex flex-col w-20 animate-in fade-in slide-in-from-left-2">
+                    <div className="flex flex-col w-16 animate-in fade-in slide-in-from-left-2">
                         <div className="flex justify-between items-center mb-0.5">
                             <span className="text-[9px] text-zinc-500 font-bold uppercase">Mic Vol</span>
                             <span className="text-[9px] text-red-400 font-mono">{Math.round(micVolume * 100)}%</span>
@@ -595,7 +694,8 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 }}
             >
                 <Volume2 size={16} className={`${pendingBind === 'masterVolume' ? 'text-cyan-400 animate-bounce' : 'text-zinc-500 group-hover:text-white'} transition-colors`} />
-                <div className="flex flex-col w-32">
+                {/* v1.10.27: w-32 → w-24, guadagno spazio topbar (rifiniture utente) */}
+                <div className="flex flex-col w-24">
                     <div className="flex justify-between">
                         <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold mb-0.5">{t('controls.masterVol')}</span>
                         {globalMidiBinds['masterVolume'] && (
@@ -620,7 +720,9 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 )}
             </div>
 
-            {/* GLOBAL STOP */}
+            {/* GLOBAL STOP — v1.10.27: etichetta compatta "ALL" (richiesta utente:
+                "solo ALL accanto al pulsante stop dentro l'etichetta rossa, lascia
+                intendere che stoppa tutto") + whitespace-nowrap anti-wrap. */}
             <Button
                 onClick={() => {
                     if (isMidiLearnMode) {
@@ -629,14 +731,15 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                         handleStopAll();
                     }
                 }}
+                title={`${t('controls.stopAll')} — ferma tutto (Emergency Stop)`}
                 className={`${isMidiLearnMode
                     ? (pendingBind === 'stopAll' ? 'bg-cyan-600 text-white animate-pulse' : 'bg-zinc-800 text-cyan-500 border-cyan-500/50 hover:bg-zinc-700')
-                    : 'stop'} mr-4 relative`}
+                    : 'stop'} relative whitespace-nowrap`}
                 size="sm"
             >
                 <div className="flex items-center gap-2">
                     <Square fill="currentColor" size={14} />
-                    <span className="font-bold">{t('controls.stopAll')}</span>
+                    <span className="font-bold">ALL</span>
                 </div>
                 {globalMidiBinds['stopAll'] && (
                     <span className="absolute -top-2 -right-1 text-[8px] bg-zinc-900 border border-zinc-700 text-cyan-500 px-1 rounded">
@@ -657,8 +760,8 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                         onToggleFxPad();
                     }}
                     className={`${fxPadOpen
-                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50'
-                        : 'tool'} mr-4 relative`}
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
+                        : 'bg-white/5 text-zinc-300 hover:bg-white/10 border-white/10'} border relative whitespace-nowrap`}
                     title="Pad FX (5×5) — mostra/nascondi"
                 >
                     <div className="flex items-center gap-1.5 font-bold text-[11px]">
@@ -684,8 +787,8 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                         onToggleAutomix();
                     }}
                     className={`${automixOpen
-                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50'
-                        : 'tool'} mr-4`}
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
+                        : 'bg-white/5 text-zinc-300 hover:bg-white/10 border-white/10'} border whitespace-nowrap`}
                     title="Automix — mix automatico sui BPM (colonna Music)"
                 >
                     <div className="flex items-center gap-1.5 font-bold text-[11px]">
@@ -695,155 +798,98 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 </Button>
             )}
 
-            {/* UNDO / REDO (v1.5.0) */}
-            <div className="flex items-center gap-1 border-l border-zinc-800 pl-4">
-                <Button
-                    size="sm"
-                    disabled={!canUndo}
-                    className={`${canUndo ? 'tool' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}
-                    title="Annulla (Ctrl+Z)"
-                    onClick={() => undo()}
-                >
-                    <Undo2 size={16} />
-                </Button>
-                <Button
-                    size="sm"
-                    disabled={!canRedo}
-                    className={`${canRedo ? 'tool' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}
-                    title="Ripeti (Ctrl+Y)"
-                    onClick={() => redo()}
-                >
-                    <Redo2 size={16} />
-                </Button>
-            </div>
-
-            {/* PERSISTENCE — v1.10.19: i 6 pulsanti file raggruppati in un menu a
-                tendina (la topbar traboccava a 1366px; deciso con l'utente 2026-07-02). */}
-            <div className="flex items-center gap-2 border-l border-zinc-800 pl-4">
-                <div className="relative" ref={fileMenuRef}>
+            {/* STRUMENTI (v1.10.27) — menu a tendina per i comandi non-immediati
+                (annulla/ripeti, MIDI Learn, tastiera, impostazioni, info), stessa
+                logica del menu FILE. Richiesta utente: in topbar restano solo i
+                controlli da diretta; il caso scatenante era il Mic Vol che compare
+                ad ARM attivo e faceva traboccare la barra. */}
+            <div className="relative flex items-center gap-2 border-l border-zinc-800 pl-3">
+                <div className="relative" ref={toolsMenuRef}>
                     <Button
                         size="sm"
-                        className={`${showFileMenu ? 'bg-zinc-700 text-white border border-zinc-600' : 'tool'} relative`}
-                        title="Menu file — nuovo/salva/carica/M3U/esporta"
+                        className={`${showToolsMenu ? 'bg-zinc-700 text-white border-zinc-600' : 'bg-white/5 text-zinc-300 hover:bg-white/10 border-white/10'} border relative whitespace-nowrap`}
+                        title="Strumenti — annulla/ripeti, MIDI, tastiera, impostazioni, info"
                         onClick={(e) => {
-                            // v1.10.3: blur anti-retrigger (Space/Enter non deve riaprire il menu)
                             e.currentTarget.blur();
-                            setShowFileMenu(v => !v);
+                            setShowToolsMenu(v => !v);
                         }}
                     >
                         <div className="flex items-center gap-1.5 font-bold text-[11px]">
-                            <Files size={14} />
-                            <span>FILE</span>
-                            <ChevronDown size={12} className={`transition-transform ${showFileMenu ? 'rotate-180' : ''}`} />
+                            <Wrench size={14} />
+                            <ChevronDown size={12} className={`transition-transform ${showToolsMenu ? 'rotate-180' : ''}`} />
                         </div>
-                        {/* Indicatore modifiche non salvate (prima era il pulsante Salva giallo) */}
-                        {isDirty && (
-                            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse pointer-events-none" />
+                        {/* Stato MIDI visibile anche a menu chiuso: countdown learn / errore */}
+                        {isMidiLearnMode && (
+                            <span className="absolute -top-2 -right-1 text-[8px] bg-zinc-900 border border-cyan-500 text-cyan-400 px-1 rounded animate-pulse pointer-events-none">
+                                {midiLearnCountdown !== null ? `${midiLearnCountdown}s` : 'MIDI'}
+                            </span>
+                        )}
+                        {!isMidiLearnMode && !midiSupported && (
+                            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-500 pointer-events-none" title="MIDI non disponibile" />
                         )}
                     </Button>
-                    {showFileMenu && (
-                        <div className="absolute left-0 top-full mt-2 w-60 bg-zinc-900 border border-zinc-700 rounded-lg shadow-2xl z-50 py-1">
+                    {showToolsMenu && (
+                        <div className="absolute right-0 top-full mt-2 w-64 bg-zinc-900 border border-zinc-700 rounded-lg shadow-2xl z-50 py-1">
                             <button
-                                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
-                                onClick={() => { setShowFileMenu(false); void handleNewProject(); }}
+                                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                                disabled={!canUndo}
+                                onClick={() => { setShowToolsMenu(false); undo(); }}
                             >
-                                <FilePlus2 size={15} className="shrink-0" /> {t('welcome.newProject')}
+                                <Undo2 size={15} className="shrink-0" /> Annulla
+                                <span className="ml-auto text-[9px] font-mono text-zinc-600">Ctrl+Z</span>
                             </button>
                             <button
-                                className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs transition-colors text-left ${isDirty ? 'text-yellow-400 hover:bg-yellow-500/10' : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'}`}
-                                onClick={() => { setShowFileMenu(false); void handleSaveProject(); }}
+                                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                                disabled={!canRedo}
+                                onClick={() => { setShowToolsMenu(false); redo(); }}
                             >
-                                <FileCheck2 size={15} className={`shrink-0 ${isDirty ? 'animate-pulse' : ''}`} /> {t('controls.save')}
+                                <Redo2 size={15} className="shrink-0" /> Ripeti
+                                <span className="ml-auto text-[9px] font-mono text-zinc-600">Ctrl+Y</span>
+                            </button>
+                            <div className="h-px bg-zinc-800 my-1" />
+                            <button
+                                className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs transition-colors text-left disabled:opacity-40 disabled:cursor-not-allowed ${isMidiLearnMode ? 'text-cyan-400 bg-cyan-500/10' : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'}`}
+                                disabled={!midiSupported}
+                                onClick={() => { setShowToolsMenu(false); setIsMidiLearnMode(!isMidiLearnMode); }}
+                            >
+                                <span className="shrink-0 font-bold text-[10px] w-[15px]">M</span>
+                                {isMidiLearnMode ? 'MIDI Learn — attivo (esci)' : t('controls.midiLearn')}
+                                <span className="ml-auto text-[9px] font-mono">
+                                    {!midiSupported
+                                        ? <span className="text-red-400">✕ n/d</span>
+                                        : midiInputCount > 0
+                                            ? <span className="text-emerald-400">{midiInputCount} ctrl</span>
+                                            : <span className="text-zinc-600">0 ctrl</span>}
+                                </span>
                             </button>
                             <button
                                 className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
-                                onClick={() => { setShowFileMenu(false); void handleSaveAs(); }}
+                                onClick={() => { setShowToolsMenu(false); setShowKeymapping(true); }}
                             >
-                                <FileOutput size={15} className="shrink-0" /> {t('controls.saveAs')}
-                            </button>
-                            <button
-                                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
-                                onClick={() => { setShowFileMenu(false); void handleLoadProject(); }}
-                            >
-                                <FolderInput size={15} className="shrink-0" /> {t('welcome.loadProject')}
+                                <Command size={15} className="shrink-0" /> {t('controls.keybinds')}
                             </button>
                             <div className="h-px bg-zinc-800 my-1" />
                             <button
                                 className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
-                                onClick={() => { setShowFileMenu(false); void handleImportM3u(); }}
+                                onClick={() => { setShowToolsMenu(false); setShowSettings(true); }}
                             >
-                                <ListMusic size={15} className="shrink-0" /> {t('controls.importM3u')}
+                                <SlidersHorizontal size={15} className="shrink-0" /> {t('controls.settings')}
                             </button>
                             <button
                                 className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
-                                onClick={() => { setShowFileMenu(false); void handleExportProject(); }}
+                                onClick={() => { setShowToolsMenu(false); setShowAbout(true); }}
                             >
-                                <HardDriveDownload size={15} className="shrink-0" /> {t('controls.export')}
+                                <BookOpen size={15} className="shrink-0" /> {t('controls.info')}
                             </button>
                         </div>
                     )}
                 </div>
-                <Button
-                    size="sm"
-                    className={`${
-                        !midiSupported
-                            ? 'bg-red-900/40 text-red-500 border border-red-500/40'
-                            : isMidiLearnMode
-                                ? 'bg-cyan-500 text-white animate-pulse'
-                                : 'tool'
-                    } ml-2 relative`}
-                    title={!midiSupported ? 'MIDI non disponibile' : t('controls.midiLearn')}
-                    onClick={() => setIsMidiLearnMode(!isMidiLearnMode)}
-                >
-                    <div className="flex items-center gap-1 font-bold text-[10px]">
-                        <span>MIDI</span>
-                        {/* M2: badge numero controller */}
-                        {midiSupported && midiInputCount > 0 && (
-                            <span className="text-[8px] bg-emerald-600 text-white px-1 rounded-full">{midiInputCount}</span>
-                        )}
-                        {!midiSupported && (
-                            <span className="text-[8px] text-red-400">✕</span>
-                        )}
-                    </div>
-                    {/* M3: countdown visivo */}
-                    {isMidiLearnMode && midiLearnCountdown !== null && (
-                        <span className="absolute -top-2 -right-1 text-[8px] bg-zinc-900 border border-cyan-500 text-cyan-400 px-1 rounded">
-                            {midiLearnCountdown}s
-                        </span>
-                    )}
-                </Button>
 
-                <Button
-                    size="sm"
-                    className="tool ml-1"
-                    title={t('controls.keybinds')}
-                    onClick={() => setShowKeymapping(true)}
-                >
-                    <Command size={16} />
-                </Button>
-
-                <Button
-                    size="sm"
-                    className="tool ml-2"
-                    title={t('controls.settings')}
-
-                    onClick={() => setShowSettings(true)}
-                >
-                    <SlidersHorizontal size={16} />
-                </Button>
-
-                <Button
-                    size="sm"
-                    className="tool ml-1"
-                    title={t('controls.info')}
-                    onClick={() => setShowAbout(true)}
-                >
-                    <BookOpen size={16} />
-                </Button>
-
-                {/* AUTO-SAVED BADGE (v0.16.0) — appare 3s dopo ogni auto-backup riuscito */}
+                {/* AUTO-SAVED BADGE (v0.16.0) — appare 3s dopo ogni auto-backup riuscito.
+                    v1.10.27: FLOTTANTE sotto la topbar (absolute) → zero larghezza
+                    occupata, niente shift di layout quando compare/scompare. */}
                 <span
-                    className={`flex items-center gap-1 text-[10px] font-medium text-emerald-400 ml-2 transition-opacity duration-500 ${showAutoSaved ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                    className={`absolute right-0 top-full mt-1 z-40 flex items-center gap-1 text-[10px] font-medium text-emerald-400 bg-zinc-900/90 border border-emerald-500/30 rounded px-2 py-0.5 transition-opacity duration-500 whitespace-nowrap ${showAutoSaved ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                 >
                     <Check size={11} strokeWidth={2.5} />
                     Auto-saved
