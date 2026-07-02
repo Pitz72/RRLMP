@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useProjectStore } from '../../store/useProjectStore';
 import { useAudioStore } from '../../store/useAudioStore';
-import { assessCompatibility } from '../../engine/automixEngine';
+import { useSettingsStore } from '../../store/useSettingsStore';
+import { assessCompatibility, crossfadeDurationSec } from '../../engine/automixEngine';
 import { toast } from '../../store/useToastStore';
+import { debugLog } from '../../store/useDebugStore';
 import { Square, X, Disc3, Music2, Play, Shuffle } from 'lucide-react';
 
 // AUTOMIX SECTION — Fase C1 (v1.10.22) + C2 deck/transizione (v1.10.23).
@@ -57,8 +59,14 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
     const playClip = useAudioStore(s => s.playClip);
     const automixTransition = useAudioStore(s => s.automixTransition);
 
-    if (!isOpen) return null;
+    // Auto a fine brano (richiesta utente 2026-07-02) — DEFAULT OFF e attiva SOLO
+    // a vista aperta: chiudere la vista disattiva l'automazione (l'automix è
+    // un'eccezione controllata alla filosofia NO automazione dello show).
+    const [autoMode, setAutoMode] = useState(false);
+    // Anti re-trigger: una sola auto-transizione per clip in onda.
+    const autoFiredRef = useRef<Set<string>>(new Set());
 
+    // NB: derivazioni PRIMA dell'early-return — gli hook sotto ne dipendono.
     const musicCol = columns.find(c => c.type === 'music');
     const clips = musicCol?.clips ?? [];
 
@@ -72,6 +80,40 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
     const currentDuration = currentClip?.duration || 0;
     const currentTime = currentState ? currentState.progress * (currentState.player.getDuration() || currentDuration) : 0;
     const remaining = Math.max(0, currentDuration - currentTime);
+
+    // Reset dell'anti re-trigger quando non c'è più nulla in onda (nuovo giro di
+    // playlist → le clip possono ri-transizionare in auto).
+    useEffect(() => {
+        if (!currentClip) autoFiredRef.current.clear();
+    }, [currentClip]);
+
+    // AUTO A FINE BRANO: quando mancano (durata del fade + margine) secondi alla
+    // fine effettiva, parte la STESSA transizione del pulsantone. Guardie: vista
+    // aperta, auto ON, durata nota, prossimo presente e non mancante, one-shot per clip.
+    useEffect(() => {
+        if (!isOpen || !autoMode || !currentClip || !nextClip || nextClip.isMissing) return;
+        if (currentDuration <= 0 || currentTime <= 0) return;
+        if (autoFiredRef.current.has(currentClip.id)) return;
+        const fadeSec = currentClip.bpm
+            ? crossfadeDurationSec(currentClip.bpm)
+            : useSettingsStore.getState().crossfadeDuration / 1000;
+        // Margine 2.5s: lead di aggancio (0.5s) + fino a 1 beat di arrotondamento +
+        // latenza avvio. Più stretto e il piano degrada quasi sempre a classico
+        // (anchor + fade devono stare PRIMA della fine effettiva — guardia Fase D,
+        // verificata empiricamente in preview con margine 1.5 → no-beat-available).
+        const thresholdSec = fadeSec + 2.5;
+        if (remaining <= thresholdSec) {
+            autoFiredRef.current.add(currentClip.id);
+            debugLog(`Automix: AUTO-transizione a fine brano — ${currentClip.name} (-${remaining.toFixed(1)}s) → ${nextClip.name}`, 'event');
+            void automixTransition(currentClip.id, nextClip.id).then(result => {
+                if (result.mode === 'skipped') {
+                    toast(`Auto-transizione non eseguita: ${result.reason ?? 'stato non valido'}`, 'warning');
+                }
+            });
+        }
+    }, [isOpen, autoMode, currentClip, nextClip, remaining, currentDuration, currentTime, automixTransition]);
+
+    if (!isOpen) return null;
 
     const nextCompat = currentClip && nextClip ? assessCompatibility(currentClip, nextClip) : null;
     const nextCompatLabel = nextCompat
@@ -183,6 +225,16 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                                 <span className="flex items-center justify-center gap-2"><Play size={18} fill="currentColor" /> START</span>
                             </button>
                         )}
+                        {/* AUTO A FINE BRANO (default OFF, attiva solo a vista aperta) */}
+                        <label className="flex items-center gap-2 cursor-pointer text-[10px] mt-1 select-none" title="Quando il brano sta per finire, la transizione parte da sola (stessa logica del pulsante). Si disattiva chiudendo la vista.">
+                            <input
+                                type="checkbox"
+                                checked={autoMode}
+                                onChange={e => setAutoMode(e.target.checked)}
+                                className="w-3.5 h-3.5 accent-emerald-500"
+                            />
+                            <span className={autoMode ? 'text-emerald-400 font-bold' : 'text-zinc-500'}>Auto a fine brano</span>
+                        </label>
                     </div>
 
                     {/* PROSSIMO */}
