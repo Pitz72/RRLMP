@@ -273,6 +273,11 @@ export const MainGrid: React.FC = () => {
                         ...(r.beatOffsetSec !== undefined ? { beatOffsetSec: r.beatOffsetSec } : {}),
                         bpmCheckedV2: true
                     });
+                    // v1.10.18 (Fase A, supporto A3): esito nel Debug Overlay — servono i
+                    // numeri (BPM, confidence, offset) per la validazione su musica reale.
+                    debugLog(`AutoBpm[music]: "${clip.name}" → ${r.bpm !== undefined
+                        ? `${r.bpm} BPM (conf ${result.data?.confidence ?? '?'}${r.beatOffsetSec !== undefined ? `, primo beat a ${r.beatOffsetSec}s` : ', offset non stimabile'})`
+                        : 'nessuna periodicità rilevabile'}`, 'info');
                 } else {
                     debugLog(`AutoBpm[music]: analisi fallita per "${clip.name}" (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');
                 }
@@ -391,6 +396,10 @@ export const MainGrid: React.FC = () => {
                                 ...(r.beatOffsetSec !== undefined ? { beatOffsetSec: r.beatOffsetSec } : {}),
                                 bpmCheckedV2: true
                             });
+                            // v1.10.18: stesso log del batch (validazione A3 dal Debug Overlay)
+                            debugLog(`AutoBpm [${newClip.name}]: ${r.bpm !== undefined
+                                ? `${r.bpm} BPM (conf ${result.data?.confidence ?? '?'}${r.beatOffsetSec !== undefined ? `, primo beat a ${r.beatOffsetSec}s` : ', offset non stimabile'})`
+                                : 'nessuna periodicità rilevabile'}`, 'info');
                         } else {
                             debugLog(`AutoBpm [${newClip.name}]: analisi fallita (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');
                         }
