@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { IAudioPlayer } from '../engine/AudioPlayer.interface';
 import { StreamPlayer } from '../engine/StreamPlayer';
 import { AudioClip, PlayoutLogEntry, TransitionType } from '../types';
+import { planTransition } from '../engine/automixEngine';
 import AudioContextManager from '../engine/AudioContextManager';
 import { debugLog } from './useDebugStore';
 import { useProjectStore } from './useProjectStore';
@@ -58,6 +59,10 @@ interface AudioStore {
     stopClip: (clipId: string) => void;
     previewTransition: (clip: AudioClip) => Promise<void>;
     stopPreviewTransition: (clipId: string) => void;
+    // v1.10.23 (Automix Fase C2): transizione richiesta dalla Automix Section —
+    // beat-match se il piano lo consente, altrimenti crossfade classico (Fase D).
+    // Ritorna l'esito per la telemetria/toast della vista.
+    automixTransition: (fromClipId: string, toClipId: string) => Promise<{ mode: 'beatmatched' | 'classic' | 'skipped'; reason?: string }>;
     stopAll: () => void;
     setMicActive: (active: boolean) => void;
     // v1.4.7 (#14): riallinea il player di una clip GIÀ in onda alle impostazioni
@@ -322,6 +327,42 @@ const _transitionTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 const clearTransitionTimeout = (clipId: string) => {
     const h = _transitionTimeouts.get(clipId);
     if (h) { clearTimeout(h); _transitionTimeouts.delete(clipId); }
+};
+
+// v1.10.23 (Automix Fase C2) — stato module-level del controller automix.
+// _automixInFlight: anti doppio-pressione sul pulsantone TRANSIZIONE.
+// _rateRampTimers: rampe di rientro del playbackRate a 1.0 (piano B.5) per clipId;
+// si auto-fermano se la clip esce da activeClips (stop manuale / STOP ALL).
+let _automixInFlight = false;
+const AUTOMIX_RATE_RAMP_PER_SEC = 0.001; // 0.1%/s — inudibile; delta tipico 3% → ~30s
+const _rateRampTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const clearRateRamp = (clipId: string) => {
+    const h = _rateRampTimers.get(clipId);
+    // setTimeout e setInterval condividono il pool di handle: clearInterval è
+    // sicuro su entrambi (l'handle può essere l'uno o l'altro a seconda della fase).
+    if (h) { clearInterval(h); _rateRampTimers.delete(clipId); }
+};
+const startRateRampBack = (clipId: string, delayMs: number) => {
+    clearRateRamp(clipId);
+    const t = setTimeout(() => {
+        const TICK_MS = 250;
+        const step = AUTOMIX_RATE_RAMP_PER_SEC * (TICK_MS / 1000);
+        const iv = setInterval(() => {
+            const st = useAudioStore.getState().activeClips[clipId];
+            const pl = st?.player;
+            if (!st || !pl?.getPlaybackRate || !pl.setPlaybackRate) { clearRateRamp(clipId); return; }
+            const r = pl.getPlaybackRate();
+            if (Math.abs(r - 1) <= step) {
+                pl.setPlaybackRate(1);
+                clearRateRamp(clipId);
+                debugLog(`Automix: rate rientrato a 1.0 per ${st.clip.name}`, 'event');
+                return;
+            }
+            pl.setPlaybackRate(r > 1 ? r - step : r + step);
+        }, TICK_MS);
+        _rateRampTimers.set(clipId, iv);
+    }, delayMs);
+    _rateRampTimers.set(clipId, t);
 };
 
 // GR-02 Fix: Mappa run-ID per evitare race condition in playClip.
@@ -1425,6 +1466,111 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
             // Svuota completamente il set preview dopo lo stop
             set({ previewingClipIds: [] });
+        },
+
+        // v1.10.23 (Automix Fase C2) — transizione richiesta dal pulsantone della
+        // Automix Section. ORCHESTRA le API esistenti (playClip/fadeTo/stopClip) e
+        // le stesse strutture del crossfade play_next (fadingClipIds,
+        // _transitionTimeouts, pendingCrossfadeFadeIn): il resto dell'app non
+        // cambia comportamento. Il piano (beat-match o fallback classico) viene
+        // dal motore puro planTransition (engine/automixEngine.ts, Fase B+D).
+        automixTransition: async (fromClipId: string, toClipId: string) => {
+            if (_automixInFlight) return { mode: 'skipped' as const, reason: 'transizione già in corso' };
+            const fromState = get().activeClips[fromClipId];
+            const toClip = getFreshClipById(toClipId);
+            if (!fromState || !toClip || toClip.isMissing || get().activeClips[toClipId]) {
+                return { mode: 'skipped' as const, reason: 'stato non valido (uscente fermo, entrante già in onda o file mancante)' };
+            }
+            _automixInFlight = true;
+            try {
+                const fromClip = getFreshClipById(fromClipId) ?? fromState.clip;
+                const fromPlayer = fromState.player;
+                const positionSec = fromPlayer.getCurrentTime();
+                const durationSec = fromPlayer.getDuration() || fromClip.duration || 0;
+
+                const plan = planTransition({
+                    outgoing: {
+                        bpm: fromClip.bpm, beatOffsetSec: fromClip.beatOffsetSec, bpmConfidence: fromClip.bpmConfidence,
+                        positionSec,
+                        effectiveEndSec: durationSec > 0 ? durationSec - (fromClip.trimEnd || 0) : undefined
+                    },
+                    incoming: {
+                        bpm: toClip.bpm, beatOffsetSec: toClip.beatOffsetSec, bpmConfidence: toClip.bpmConfidence,
+                        trimStartSec: toClip.trimStart || 0
+                    },
+                    // Lead più largo del default: l'aggancio deve restare nel futuro anche
+                    // dopo load()+play() dell'entrante (latenza assorbita poi dalla
+                    // correzione di fase qui sotto).
+                    options: { minLeadSec: 0.5 }
+                });
+
+                if (plan.mode === 'classic') {
+                    // FALLBACK (Fase D): stessa sequenza del ramo crossfade di play_next.
+                    const { crossfadeDuration } = useSettingsStore.getState();
+                    debugLog(`Automix: TRANSIZIONE → crossfade classico (${plan.reason}) — ${fromClip.name} → ${toClip.name}, fade ${crossfadeDuration}ms`, 'event');
+                    set(state => ({ fadingClipIds: [...state.fadingClipIds, fromClipId] }));
+                    fromPlayer.fadeTo(0, crossfadeDuration);
+                    clearTransitionTimeout(fromClipId);
+                    _transitionTimeouts.set(fromClipId, setTimeout(() => {
+                        _transitionTimeouts.delete(fromClipId);
+                        get().stopClip(fromClipId);
+                        set(state => ({ fadingClipIds: state.fadingClipIds.filter(id => id !== fromClipId) }));
+                    }, crossfadeDuration + 200));
+                    pendingCrossfadeFadeIn = crossfadeDuration;
+                    await get().playClip(toClip, undefined, { machine: true });
+                    return { mode: 'classic' as const, reason: plan.reason };
+                }
+
+                // BEAT-MATCH (piano B.1-B.5)
+                const fadeMs = Math.round(plan.crossfadeSec * 1000);
+                debugLog(`Automix: TRANSIZIONE beat-match — ${fromClip.name} → ${toClip.name} | rate ${plan.rate.toFixed(4)}, aggancio ${plan.anchorBeatSec.toFixed(3)}s, partenza entrante ${plan.incomingStartSec.toFixed(3)}s, fade ${fadeMs}ms`, 'event');
+
+                pendingCrossfadeFadeIn = fadeMs;
+                await get().playClip(toClip, undefined, { machine: true });
+                const toState = get().activeClips[toClipId];
+                if (!toState) {
+                    // Partenza fallita (load error ecc.): l'uscente resta in onda intatto —
+                    // nessun fade era ancora stato armato. MAI dead air per un tentativo di mix.
+                    debugLog(`Automix: partenza di ${toClip.name} fallita — transizione annullata, uscente in onda`, 'error');
+                    return { mode: 'skipped' as const, reason: 'partenza entrante fallita' };
+                }
+                const toPlayer = toState.player;
+                toPlayer.setPlaybackRate?.(plan.rate);
+
+                // CORREZIONE DI FASE post-avvio: assorbe TUTTA la latenza reale di
+                // load()+play() (decine-centinaia di ms, non schedulabile a priori).
+                // Ora che entrambe suonano: quando l'uscente sarà su anchorBeatSec,
+                // l'entrante deve trovarsi su incomingStartSec — da lì le griglie
+                // restano agganciate dal rate. La seek avviene nei primissimi ms del
+                // fade-in (volume ~0) → inudibile.
+                const posOutNow = fromPlayer.getCurrentTime();
+                let aligned = plan.incomingStartSec + (posOutNow - plan.anchorBeatSec) * plan.rate;
+                // Mai posizioni negative: si avanza a beat INTERI dell'entrante
+                // (griglia equivalente, l'aggancio di fase resta identico).
+                const periodIn = 60 / (toClip.bpm as number);
+                if (aligned < 0) aligned += Math.ceil(-aligned / periodIn) * periodIn;
+                toPlayer.seek(aligned);
+
+                // Crossfade: l'uscente scende in fadeMs da ORA (l'entrante sta già
+                // salendo con il fade-in armato via pendingCrossfadeFadeIn) — rampe
+                // simmetriche, stessa struttura del crossfade esistente.
+                set(state => ({ fadingClipIds: [...state.fadingClipIds, fromClipId] }));
+                fromPlayer.fadeTo(0, fadeMs);
+                clearTransitionTimeout(fromClipId);
+                _transitionTimeouts.set(fromClipId, setTimeout(() => {
+                    _transitionTimeouts.delete(fromClipId);
+                    get().stopClip(fromClipId);
+                    set(state => ({ fadingClipIds: state.fadingClipIds.filter(id => id !== fromClipId) }));
+                }, fadeMs + 200));
+
+                // B.5: a uscente terminato, rientro graduale del rate a 1.0 (0.1%/s,
+                // inudibile) così i mix successivi non accumulano scostamento.
+                startRateRampBack(toClipId, fadeMs + 500);
+
+                return { mode: 'beatmatched' as const };
+            } finally {
+                _automixInFlight = false;
+            }
         },
 
         // v1.4.7 (#14): sync live delle impostazioni clip sul player in onda.

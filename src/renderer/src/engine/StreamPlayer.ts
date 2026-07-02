@@ -239,6 +239,21 @@ export class StreamPlayer implements IAudioPlayer {
         this.audioElement.currentTime = time;
     }
 
+    // v1.10.23 (Automix Fase C2): tempo-match — rate dell'entrante con pitch
+    // preservato (preservesPitch è il default in Chromium 120, esplicitato per
+    // chiarezza). Clamp prudenziale 0.5-2.0: il motore automix applica cap ±8%,
+    // il clamp protegge da chiamate errate. NB: currentTime/ontimeupdate restano
+    // sull'asse del FILE (il rate non li scala) → trim/marker/fade invariati.
+    setPlaybackRate(rate: number): void {
+        if (!isFinite(rate) || rate <= 0) return;
+        this.audioElement.preservesPitch = true;
+        this.audioElement.playbackRate = Math.max(0.5, Math.min(2, rate));
+    }
+
+    getPlaybackRate(): number {
+        return this.audioElement.playbackRate;
+    }
+
     startFadeOut(): void {
         if (!this.volumeGainNode) return;
         debugLog(`StreamPlayer: Starting FadeOut (${this.fadeOutDuration}ms)`, 'event');

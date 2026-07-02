@@ -25,4 +25,9 @@ export interface IAudioPlayer {
     onPlaybackError?(callback: (clipId: string) => void): void;
     updateSettings(clip: AudioClip): void;
     fadeTo(volume: number, duration: number): void;
+    // v1.10.23 (Automix Fase C2): tempo-match dell'entrante. Opzionali — solo
+    // StreamPlayer li implementa; il controller automix degrada senza (optional
+    // chaining), nessun altro percorso dell'app li usa.
+    setPlaybackRate?(rate: number): void;
+    getPlaybackRate?(): number;
 }
