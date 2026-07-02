@@ -444,7 +444,12 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad }: GlobalControlsProps
             {onToggleFxPad && (
                 <Button
                     size="sm"
-                    onClick={onToggleFxPad}
+                    onClick={(e) => {
+                        // v1.10.3: blur — un toggle focused verrebbe ri-attivato da
+                        // Space/Enter, aprendo/chiudendo il pad a sorpresa in diretta.
+                        e.currentTarget.blur();
+                        onToggleFxPad();
+                    }}
                     className={`${fxPadOpen
                         ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50'
                         : 'tool'} mr-4 relative`}

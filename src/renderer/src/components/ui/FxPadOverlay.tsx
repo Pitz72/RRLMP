@@ -83,6 +83,9 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
 
     const handleRemove = async (e: React.MouseEvent, clipId: string, label: string) => {
         e.stopPropagation();
+        // v1.10.3: il click sulla × focalizza il button-cella genitore → blur
+        // per evitare che Space/Enter (es. durante il ConfirmDialog) lo ri-attivi.
+        (e.currentTarget as HTMLElement).closest('button')?.blur();
         if (!sfxCol) return;
         if (await confirm(`Rimuovere l'effetto "${label}" dal pad?`, 'Rimuovi', 'Annulla')) {
             if (activeClips[clipId]) stopClip(clipId);
@@ -108,6 +111,8 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
 
     const handleEdit = (e: React.MouseEvent, clip: AudioClip) => {
         e.stopPropagation();
+        // v1.10.3: come handleRemove — niente focus residuo sul pad sotto la modale.
+        (e.currentTarget as HTMLElement).closest('button')?.blur();
         setEditingClip(clip);
     };
 
@@ -171,7 +176,12 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                 <button
                                     key={clip.id}
                                     aria-disabled={disabled}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                        // v1.10.3: togli il focus al pad appena cliccato — un button
+                                        // focused viene ri-attivato da Space/Enter (attivazione nativa),
+                                        // e in diretta significherebbe ri-sparare l'effetto in onda
+                                        // premendo un tasto (stessa classe di incidente di ASSET-02).
+                                        e.currentTarget.blur();
                                         if (disabled) return;
                                         if (isPlaying) stopClip(clip.id);
                                         else playClip(clip);
