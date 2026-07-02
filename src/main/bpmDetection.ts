@@ -62,12 +62,14 @@ export function estimateBpmFromEnvelope(envelope: number[], envelopeRateHz: numb
 
     let bestLag = -1;
     let bestScore = -Infinity;
+    const scores = new Map<number, number>();
     for (let lag = minLag; lag <= maxLag; lag++) {
         let sum = 0;
         for (let i = 0; i + lag < centered.length; i++) {
             sum += centered[i] * centered[i + lag];
         }
         const norm = sum / (centered.length - lag);
+        scores.set(lag, norm);
         if (norm > bestScore) {
             bestScore = norm;
             bestLag = lag;
@@ -77,7 +79,24 @@ export function estimateBpmFromEnvelope(envelope: number[], envelopeRateHz: numb
 
     const confidence = Math.max(0, Math.min(1, bestScore / energyVariance));
 
-    let bpm = 60 / (bestLag / envelopeRateHz);
+    // v1.10.14 (preparazione Automix): interpolazione parabolica del picco di
+    // autocorrelazione → lag frazionario. Con inviluppo a 50Hz il lag INTERO
+    // quantizza il BPM a passi grossi (~±2.5 BPM attorno a 120: 95 BPM reali
+    // venivano letti 93.8) — troppo per il tempo-match via playbackRate, dove
+    // l'errore di stima diventa deriva di fase nel crossfade beat-aligned.
+    // Fit di una parabola sui 3 punti attorno al picco: il vertice è il periodo vero.
+    let refinedLag = bestLag;
+    const sPrev = scores.get(bestLag - 1);
+    const sNext = scores.get(bestLag + 1);
+    if (sPrev !== undefined && sNext !== undefined) {
+        const denom = sPrev - 2 * bestScore + sNext;
+        if (denom < 0) { // picco concavo valido
+            const delta = 0.5 * (sPrev - sNext) / denom;
+            if (isFinite(delta) && Math.abs(delta) <= 0.5) refinedLag = bestLag + delta;
+        }
+    }
+
+    let bpm = 60 / (refinedLag / envelopeRateHz);
     // Riporta ottave doppie/dimezzate del lag trovato nel range di riferimento
     // (l'autocorrelazione su musica con beat marcato spesso trova anche il
     // sottomultiplo/multiplo del tempo percepito).

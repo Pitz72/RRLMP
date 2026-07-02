@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { computeEnergyEnvelope, estimateBpmFromEnvelope } from '../bpmDetection';
 
 // Costruisce un inviluppo sintetico con impulsi periodici ogni `periodSamples`
-// campioni, per simulare un beat regolare a BPM noto.
+// campioni, per simulare un beat regolare a BPM noto. Il periodo può essere
+// FRAZIONARIO (v1.10.14): `i % 31.578` produce impulsi la cui spaziatura media
+// è il periodo vero, come i beat reali campionati da una griglia a 50Hz.
 function makePeriodicEnvelope(length: number, periodSamples: number, amplitude = 1): number[] {
     const env: number[] = [];
     for (let i = 0; i < length; i++) {
@@ -52,6 +54,26 @@ describe('estimateBpmFromEnvelope', () => {
         // 280 BPM raddoppiato/dimezzato deve ricadere nel range 90-180
         expect(result!.bpm).toBeGreaterThanOrEqual(90);
         expect(result!.bpm).toBeLessThanOrEqual(180);
+    });
+
+    it('v1.10.14: stima ~95 BPM con periodo FRAZIONARIO (interpolazione parabolica del picco)', () => {
+        // 95 BPM a 50Hz = periodo 31.578 campioni: il lag intero più vicino (32)
+        // darebbe 93.75 BPM — è il caso reale osservato nei test v1.8.0
+        // ("95 atteso → 93.8 rilevato"). Con l'interpolazione l'errore deve
+        // scendere sotto ±0.5 BPM.
+        const envelopeRateHz = 50;
+        const periodSamples = (60 / 95) * envelopeRateHz; // 31.578...
+        const envelope = makePeriodicEnvelope(envelopeRateHz * 30, periodSamples);
+        const result = estimateBpmFromEnvelope(envelope, envelopeRateHz);
+        expect(result).not.toBeNull();
+        expect(Math.abs(result!.bpm - 95)).toBeLessThan(0.5);
+    });
+
+    it('v1.10.14: il caso a periodo intero resta esatto (120 BPM → 120.0)', () => {
+        const envelopeRateHz = 50;
+        const envelope = makePeriodicEnvelope(envelopeRateHz * 20, 25);
+        const result = estimateBpmFromEnvelope(envelope, envelopeRateHz);
+        expect(result!.bpm).toBeCloseTo(120, 1);
     });
 
     it('ritorna null su inviluppo troppo corto (<2s di dati)', () => {
