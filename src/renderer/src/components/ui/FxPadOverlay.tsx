@@ -35,6 +35,12 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
     const addClip = useProjectStore((s) => s.addClip);
     const removeClip = useProjectStore((s) => s.removeClip);
     const updateClip = useProjectStore((s) => s.updateClip);
+    // v1.10.4: MIDI Learn — in learn mode il click sul pad SELEZIONA la clip
+    // (per l'assegnazione in App.handleMidiMessage) invece di suonarla,
+    // parità con la ClipCard (AUDIT-LI v1.3.11: mai audio in onda durante il learn).
+    const isMidiLearnMode = useProjectStore((s) => s.isMidiLearnMode);
+    const selectedClipIds = useProjectStore((s) => s.selectedClipIds);
+    const selectClip = useProjectStore((s) => s.selectClip);
     const activeClips = useAudioStore((s) => s.activeClips);
     const playClip = useAudioStore((s) => s.playClip);
     const stopClip = useAudioStore((s) => s.stopClip);
@@ -167,6 +173,7 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                             const isPlaying = !!activeClips[clip.id];
                             const label = clip.title || clip.name;
                             const disabled = !!clip.isMissing;
+                            const isSelected = selectedClipIds.includes(clip.id);
                             // v1.10.2: NIENTE attributo `disabled` — Chromium sopprime i click
                             // anche sui discendenti di un button disabled, rendendo ⚙ e ×
                             // irraggiungibili (una clip col file mancante non era più né
@@ -182,6 +189,12 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                         // e in diretta significherebbe ri-sparare l'effetto in onda
                                         // premendo un tasto (stessa classe di incidente di ASSET-02).
                                         e.currentTarget.blur();
+                                        // v1.10.4: in MIDI Learn il click seleziona (anche clip mancanti,
+                                        // come la ClipCard: il ramo learn precede il check isMissing).
+                                        if (isMidiLearnMode) {
+                                            selectClip(clip.id, e.ctrlKey || e.metaKey ? 'toggle' : 'single');
+                                            return;
+                                        }
                                         if (disabled) return;
                                         if (isPlaying) stopClip(clip.id);
                                         else playClip(clip);
@@ -193,6 +206,11 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                             : isPlaying
                                                 ? 'border-emerald-500 bg-emerald-500/15 text-emerald-200 shadow-[0_0_18px_-4px_rgba(34,197,94,0.6)]'
                                                 : 'border-zinc-700 bg-zinc-800/40 text-zinc-200 hover:border-slate-400 hover:bg-zinc-800'
+                                    } ${
+                                        /* v1.10.4: feedback MIDI Learn — stesse classi della ClipCard */
+                                        isMidiLearnMode && isSelected ? 'ring-2 ring-cyan-400 ring-dashed' : ''
+                                    } ${
+                                        isMidiLearnMode && !isSelected ? 'border-dashed border-cyan-800 opacity-80' : ''
                                     }`}
                                 >
                                     <span className="text-[11px] font-semibold leading-tight line-clamp-2 pr-4">{label}</span>
