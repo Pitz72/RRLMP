@@ -52,6 +52,38 @@ function App() {
         };
     }, []);
 
+    // v1.10.8: FX di default al primo sguardo — SOLO su progetto "vergine"
+    // (nessun .lmp caricato E colonna FX vuota). Popola col-sfx con la libreria
+    // CC0 bundlata (copiata in userData dal main) e poi azzera isDirty/undo:
+    // il progetto di partenza resta "pulito" (niente prompt di salvataggio spuri,
+    // niente passo undo fantasma). Se l'app parte aprendo un .lmp (doppio click),
+    // il doppio check su currentFilePath (prima e dopo l'IPC) salta il popolamento.
+    useEffect(() => {
+        const t = setTimeout(async () => {
+            try {
+                const ps = useProjectStore.getState();
+                if (ps.currentFilePath) return;
+                const sfx = ps.columns.find((c) => c.type === 'sfx');
+                if (!sfx || sfx.clips.length > 0) return;
+                if (!window.electron?.restoreDefaultSfx) return;
+                const res = await window.electron.restoreDefaultSfx();
+                if (!res.success || !res.sounds || res.sounds.length === 0) return;
+                const fresh = useProjectStore.getState();
+                if (fresh.currentFilePath) return; // nel frattempo è arrivato un .lmp
+                const freshSfx = fresh.columns.find((c) => c.type === 'sfx');
+                if (!freshSfx || freshSfx.clips.length > 0) return;
+                const added: NonNullable<ReturnType<typeof fresh.addClipFromPath>>[] = [];
+                for (const s of res.sounds) {
+                    const clip = fresh.addClipFromPath(freshSfx.id, s.path);
+                    if (clip) added.push(clip);
+                }
+                useProjectStore.setState({ isDirty: false, undoStack: [], redoStack: [] });
+                for (const c of added) await useAudioStore.getState().loadClip(c);
+            } catch { /* best-effort: senza libreria il pad resta semplicemente vuoto */ }
+        }, 800);
+        return () => clearTimeout(t);
+    }, []);
+
     // REC-03 (v1.3.1): se il recorder raggiunge il cap chunks, interrompi la sessione
     // in modo pulito tramite lo store (no perdita di audio: ferma + salva quanto raccolto).
     useEffect(() => {

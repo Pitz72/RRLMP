@@ -1,6 +1,6 @@
 {
   "name": "runtime-live-machine-pro",
-  "version": "1.10.7",
+  "version": "1.10.8",
   "description": "Professional Broadcast Audio Architecture",
   "homepage": "https://gitlab.com/pizzisimone1972/RRLMP",
   "main": "out/main/index.js",
@@ -25,6 +25,12 @@
       "out/**/*",
       "package.json",
       "build/icon.png"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/default-sfx",
+        "to": "default-sfx"
+      }
     ],
     "asarUnpack": [
       "node_modules/ffmpeg-static/ffmpeg*",

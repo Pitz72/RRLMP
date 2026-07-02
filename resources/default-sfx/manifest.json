@@ -1,0 +1,82 @@
+[
+  {
+    "file": "Applausi.wav",
+    "title": "Applausi",
+    "durationSec": 6.32,
+    "license": "CC0",
+    "author": "Sandermotions",
+    "source": "https://commons.wikimedia.org/wiki/File:277021_sandermotions_applause-2.wav"
+  },
+  {
+    "file": "Risata malvagia.ogg",
+    "title": "Risata malvagia",
+    "durationSec": 10.9,
+    "license": "CC0",
+    "author": "freesound",
+    "source": "https://commons.wikimedia.org/wiki/File:Evil_laugh.ogg"
+  },
+  {
+    "file": "Rullo di tamburi.ogg",
+    "title": "Rullo di tamburi",
+    "durationSec": 3.98,
+    "license": "CC0",
+    "author": "Iwan Sounds and DIY",
+    "source": "https://commons.wikimedia.org/wiki/File:Drum_Roll_Intro.ogg"
+  },
+  {
+    "file": "Gong.ogg",
+    "title": "Gong",
+    "durationSec": 5.599977324263039,
+    "license": "CC0",
+    "author": "PDSounds description: http://www.pdsounds.org/sounds/gong_or_bell_vibrant",
+    "source": "https://commons.wikimedia.org/wiki/File:Gong_or_bell_vibrant_(short).ogg"
+  },
+  {
+    "file": "Clacson.wav",
+    "title": "Clacson",
+    "durationSec": 3.5141458333333335,
+    "license": "CC0",
+    "author": "15HPanska_Ruttner_Jan",
+    "source": "https://commons.wikimedia.org/wiki/File:Car_Horn.wav"
+  },
+  {
+    "file": "Campanello.wav",
+    "title": "Campanello",
+    "durationSec": 0.781156462585034,
+    "license": "CC0",
+    "author": "Soundscape_Leuphana",
+    "source": "https://commons.wikimedia.org/wiki/File:Bicycle-bell-3.wav"
+  },
+  {
+    "file": "Buu.wav",
+    "title": "Buu",
+    "durationSec": 5.4990022675736965,
+    "license": "Public domain",
+    "author": "Brendon",
+    "source": "https://commons.wikimedia.org/wiki/File:Soundgoats_-_Audience_Booing.wav"
+  },
+  {
+    "file": "Buzzer.wav",
+    "title": "Buzzer",
+    "durationSec": 1.555736961451247,
+    "license": "CC0",
+    "author": "David Pride",
+    "source": "https://commons.wikimedia.org/wiki/File:Buzzer.wav"
+  },
+  {
+    "file": "Registratore di cassa.ogg",
+    "title": "Registratore di cassa",
+    "durationSec": 2.231519274376417,
+    "license": "Public domain",
+    "author": "Me",
+    "source": "https://commons.wikimedia.org/wiki/File:Cash_register.ogg"
+  },
+  {
+    "file": "Ding.opus",
+    "title": "Ding",
+    "durationSec": 2.941,
+    "license": "Public domain",
+    "author": "ARINC Characteristic 715-3 Airborne Passenger Address Amplifier (PA AMP).",
+    "source": "https://commons.wikimedia.org/wiki/File:Airplane_Chime_Sound_Effect.opus"
+  }
+]

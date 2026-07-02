@@ -38,6 +38,8 @@ if (process.contextIsolated) {
             publishRemoteState: (clips: Array<{ id: string; name: string; isPlaying: boolean }>) =>
                 ipcRenderer.send('remote-control:publish-state', clips),
             checkFilesExist: (paths: string[]) => ipcRenderer.invoke('check-files-exist', paths),
+            // v1.10.8 — libreria FX di default (CC0): copia in userData e ritorna i path
+            restoreDefaultSfx: () => ipcRenderer.invoke('restore-default-sfx'),
 
             // Persistence APIs
             saveProject: (content: string) => ipcRenderer.invoke('dialog:save-project', content),

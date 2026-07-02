@@ -47,6 +47,7 @@ declare global {
             onRemoteCommand: (callback: (data: { name: string; clipId?: string }) => void) => () => void;
             publishRemoteState: (clips: Array<{ id: string; name: string; isPlaying: boolean }>) => void;
             checkFilesExist: (paths: string[]) => Promise<{ missing: string[] }>;
+            restoreDefaultSfx: () => Promise<{ success: boolean; sounds?: Array<{ title: string; path: string }>; error?: string }>;
             saveProject: (content: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
             loadProject: () => Promise<{ success: boolean; data?: string; filePath?: string; error?: string }>;
             exportProject: (projectJsonString: string, lmpPath?: string) => Promise<{ success: boolean; path?: string; stats?: { copied: number; skipped: number; pruned?: number }; error?: string }>;

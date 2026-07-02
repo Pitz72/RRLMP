@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { X, Zap, Upload, Music4, Settings2, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { X, Zap, Upload, Music4, Settings2, ChevronsLeft, ChevronsRight, Sparkles } from 'lucide-react';
 import { useProjectStore } from '../../store/useProjectStore';
 import { useAudioStore } from '../../store/useAudioStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { confirm } from '../../store/useConfirmStore';
+import { toast } from '../../store/useToastStore';
 import { ClipSettingsModal } from '../modals/ClipSettingsModal';
 import { hasSupportedAudioExtension } from '../../utils/audioExtensions';
 import type { AudioClip } from '../../types';
@@ -123,6 +124,38 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
         setEditingClip(clip);
     };
 
+    // v1.10.8: libreria FX di default (CC0/PD, bundlata con l'app) — aggiunge al
+    // pad i suoni di default MANCANTI (confronto per path in userData); gli FX
+    // personali e i default già presenti non vengono toccati.
+    const handleRestoreDefaults = async (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.currentTarget.blur();
+        if (!sfxCol) return;
+        if (!window.electron?.restoreDefaultSfx) return;
+        if (!(await confirm(
+            'Aggiungere al pad gli effetti di default mancanti (libreria inclusa nel software)? Gli FX già presenti non vengono toccati.',
+            'Ripristina', 'Annulla'
+        ))) return;
+        const res = await window.electron.restoreDefaultSfx();
+        if (!res.success || !res.sounds) {
+            toast(`Libreria FX di default non disponibile: ${res.error ?? 'errore sconosciuto'}`, 'error');
+            return;
+        }
+        const fresh = useProjectStore.getState();
+        const freshSfx = fresh.columns.find((c) => c.type === 'sfx');
+        if (!freshSfx) return;
+        const existingPaths = new Set(freshSfx.clips.map((c) => c.path));
+        let added = 0;
+        for (const s of res.sounds) {
+            if (existingPaths.has(s.path)) continue;
+            const clip = fresh.addClipFromPath(freshSfx.id, s.path);
+            if (clip) {
+                added++;
+                await loadClip(clip);
+            }
+        }
+        toast(added > 0 ? `${added} effetti di default aggiunti al pad` : 'Tutti gli effetti di default sono già nel pad', added > 0 ? 'success' : 'info');
+    };
+
     const midiLabel = (bind?: string) => bind?.replace('NOTE:', 'N').replace('CC:', 'C');
 
     return (
@@ -147,6 +180,14 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                     <span className="text-[10px] font-mono text-zinc-500">{clips.length}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
+                    {/* v1.10.8: ripristino libreria FX di default (CC0) */}
+                    <button
+                        onClick={handleRestoreDefaults}
+                        title="Ripristina gli FX di default (libreria CC0 inclusa nel software)"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 transition-colors"
+                    >
+                        <Sparkles size={15} />
+                    </button>
                     {/* v1.10.6: snap sinistra/destra — per liberare NoteBoard/colonna coperte */}
                     <button
                         onClick={(e) => {

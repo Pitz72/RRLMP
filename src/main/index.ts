@@ -295,6 +295,46 @@ ipcMain.handle('check-files-exist', async (_event, paths: string[]) => {
     return { missing };
 });
 
+// v1.10.8 — Libreria FX di default (suoni CC0/Public Domain curati in
+// resources/default-sfx, con manifest.json di provenienza file-per-file).
+// Copia i suoni bundlati in userData/default-sfx (solo i mancanti o di
+// dimensione diversa — idempotente) e restituisce titolo+path assoluto: il
+// renderer li aggiunge a col-sfx. Le copie in userData sono scrivibili e
+// indipendenti dalla cartella di installazione (che su Program Files è
+// read-only e sparisce a disinstallazione/update).
+ipcMain.handle('restore-default-sfx', async () => {
+    try {
+        const sourceDir = app.isPackaged
+            ? join(process.resourcesPath, 'default-sfx')
+            : join(app.getAppPath(), 'resources', 'default-sfx');
+        const manifestPath = join(sourceDir, 'manifest.json');
+        if (!fs.existsSync(manifestPath)) {
+            return { success: false, error: 'Libreria FX di default non trovata (manifest assente)' };
+        }
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8')) as Array<{ file: string; title?: string }>;
+        if (!Array.isArray(manifest)) return { success: false, error: 'Manifest default-sfx non valido' };
+        const destDir = join(app.getPath('userData'), 'default-sfx');
+        if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+        const sounds: Array<{ title: string; path: string }> = [];
+        for (const entry of manifest) {
+            // Solo nomi file semplici dal manifest bundlato (niente separatori/..)
+            if (typeof entry?.file !== 'string' || /[\\/]|\.\./.test(entry.file)) continue;
+            if (!ALLOWED_MEDIA_EXTENSIONS.has(extname(entry.file).toLowerCase())) continue;
+            const src = join(sourceDir, entry.file);
+            if (!fs.existsSync(src)) continue;
+            const dest = join(destDir, entry.file);
+            if (!fs.existsSync(dest) || fs.statSync(dest).size !== fs.statSync(src).size) {
+                fs.copyFileSync(src, dest);
+            }
+            sounds.push({ title: entry.title || entry.file, path: dest });
+        }
+        return { success: true, sounds };
+    } catch (err) {
+        logger.error(`restore-default-sfx: ${(err as Error).message}`);
+        return { success: false, error: (err as Error).message };
+    }
+});
+
 // Force Close (Called by Renderer when safe)
 ipcMain.on('force-close', () => {
     const wins = BrowserWindow.getAllWindows();
