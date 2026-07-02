@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { AudioProcessor } from './AudioProcessor';
 import { logger } from './logger';
 import { startRemoteControlServer, stopRemoteControlServer, getRemoteControlStatus, updateRemoteMusicState, RemoteCommandName } from './RemoteControlServer';
+import { initUpdateManager, checkForUpdates, downloadUpdate, quitAndInstall } from './updateManager';
 
 // GR-03 Fix: timeout wrapper per IPC handler asincroni che invocano FFmpeg.
 // Evita hang permanenti dell'app se FFmpeg si blocca o il file è illeggibile.
@@ -922,7 +923,25 @@ ipcMain.handle('save-playout-log', async (event, csvContent: string, suggestedNa
     }
 });
 
-// Apre un URL nel browser di sistema (usato dall'update checker)
+// Auto-Updater (2026-07-02) — vedi updateManager.ts. checkForUpdates è usato
+// sia dal check automatico all'avvio sia dal pulsante manuale in Info/Impostazioni.
+ipcMain.handle('check-for-updates', async () => {
+    await checkForUpdates();
+    return { success: true };
+});
+
+ipcMain.handle('download-update', async () => {
+    await downloadUpdate();
+    return { success: true };
+});
+
+ipcMain.handle('quit-and-install', () => {
+    quitAndInstall();
+    return { success: true };
+});
+
+// Apre un URL nel browser di sistema (usato dal fallback dell'auto-updater su
+// macOS/.deb e da AboutModal per i link esterni)
 ipcMain.handle('open-external', async (_event, url: string) => {
     // SEC (audit 2026-05-29): il downloadUrl proviene dal feed di aggiornamento remoto.
     // Consenti solo http/https per evitare apertura di schemi pericolosi via feed compromesso.
@@ -1233,6 +1252,8 @@ app.whenReady().then(() => {
     app.on('activate', function () {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
+
+    initUpdateManager(() => mainWindowRef);
 });
 
 app.on('will-quit', () => {

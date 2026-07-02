@@ -1,6 +1,15 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 const { webUtils } = require('electron');
 
+// Speculare a UpdaterStatusPayload in src/main/updateManager.ts
+type UpdaterStatusPayload =
+    | { type: 'checking' }
+    | { type: 'not-available' }
+    | { type: 'available'; version: string; canAutoInstall: boolean; downloadUrl?: string; releaseNotes?: string }
+    | { type: 'downloading'; percent: number }
+    | { type: 'ready'; version: string; canAutoInstall: boolean }
+    | { type: 'error'; message: string };
+
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 if (process.contextIsolated) {
@@ -80,6 +89,17 @@ if (process.contextIsolated) {
             // Utilities
             openExternal: (url: string) => ipcRenderer.invoke('open-external', url),
             getPlatform: () => process.platform,
+            // Auto-Updater (2026-07-02) — payload speculare a UpdaterStatusPayload in
+            // src/main/updateManager.ts (non importato direttamente: preload e main
+            // hanno rootDir separati in tsconfig, il tipo va tenuto allineato a mano).
+            checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+            downloadUpdate: () => ipcRenderer.invoke('download-update'),
+            quitAndInstall: () => ipcRenderer.invoke('quit-and-install'),
+            onUpdaterStatus: (callback: (status: UpdaterStatusPayload) => void) => {
+                const subscription = (_event: IpcRendererEvent, status: UpdaterStatusPayload) => callback(status);
+                ipcRenderer.on('updater:status', subscription);
+                return () => ipcRenderer.removeListener('updater:status', subscription);
+            },
             // v1.2.3 — Apertura diretta file .lmp da doppio click / file association OS
             loadProjectFromPath: (filePath: string) => ipcRenderer.invoke('load-project-path', filePath),
             onOpenFile: (callback: (filePath: string) => void) => {

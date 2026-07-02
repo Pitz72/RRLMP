@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { MainGrid } from './components/layout/MainGrid';
 import DebugOverlay from './components/debug/DebugOverlay';
@@ -27,6 +27,8 @@ import { ListChecks } from 'lucide-react';
 import { FxPadOverlay } from './components/ui/FxPadOverlay';
 import { AutomixView } from './components/automix/AutomixView';
 import { populateDefaultFxIfPadEmpty } from './utils/defaultSfx';
+import { UpdateModal } from './components/modals/UpdateModal';
+import { UpdaterStatusPayload } from './types';
 
 
 import appLogo from './assets/logo.png';
@@ -40,6 +42,21 @@ function App() {
     // board, stesso pattern del pad FX (nessun routing nell'app).
     const [showAutomix, setShowAutomix] = useState(false);
     const masterChain = useSettingsStore((s) => s.masterChain);
+
+    // Auto-Updater (2026-07-02) — stato centralizzato qui: un solo listener sul
+    // canale IPC 'updater:status', un solo UpdateModal renderizzato in tutta
+    // l'app. WelcomeScreen/AboutModal ricevono solo lo stato in lettura + un
+    // trigger per aprire il popup manualmente.
+    const [updaterStatus, setUpdaterStatus] = useState<UpdaterStatusPayload>({ type: 'not-available' });
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
+    // true quando l'aggiornamento in arrivo è stato richiesto a mano (pulsante
+    // "Controlla aggiornamenti ora") — in quel caso il popup va mostrato SUBITO,
+    // ignorando il gating on-air (richiesta esplicita dell'utente).
+    const manualUpdateCheckRef = useRef(false);
+    // true quando un aggiornamento è disponibile ma la diretta è in corso —
+    // il popup resta in coda finché onAirStartTime non torna a null.
+    const pendingUpdateNoticeRef = useRef(false);
+    const onAirStartTime = useAudioStore((s) => s.onAirStartTime);
 
     // LI-04: cleanup singleton audio/MIDI all'unmount (hot-reload dev + ricarica pagina)
     // v1.2.27 (NEW-LI-01): chiamata esplicita a setMicActive(false) PRIMA di destroy()
@@ -182,6 +199,39 @@ function App() {
             navigator.mediaDevices.removeEventListener('devicechange', handleDeviceChange);
         };
     }, []);
+
+    // Auto-Updater — sottoscrizione unica allo stato pubblicato dal main
+    // process (src/main/updateManager.ts). Il popup si apre subito se la
+    // regia non è live (onAirStartTime null) o se il check era manuale;
+    // altrimenti resta accodato — vedi l'effetto successivo.
+    useEffect(() => {
+        const unsub = window.electron.onUpdaterStatus((status) => {
+            setUpdaterStatus(status);
+            if (status.type === 'available' || status.type === 'ready') {
+                const isLive = useAudioStore.getState().onAirStartTime !== null;
+                if (manualUpdateCheckRef.current || !isLive) {
+                    manualUpdateCheckRef.current = false;
+                    setShowUpdateModal(true);
+                } else {
+                    pendingUpdateNoticeRef.current = true;
+                }
+            }
+        });
+        return unsub;
+    }, []);
+
+    // Apre il popup accodato non appena la diretta finisce (stopAll → onAirStartTime null).
+    useEffect(() => {
+        if (onAirStartTime === null && pendingUpdateNoticeRef.current) {
+            pendingUpdateNoticeRef.current = false;
+            setShowUpdateModal(true);
+        }
+    }, [onAirStartTime]);
+
+    const handleCheckUpdatesNow = () => {
+        manualUpdateCheckRef.current = true;
+        void window.electron.checkForUpdates();
+    };
 
     useEffect(() => {
         const handleDrag = (e: DragEvent) => {
@@ -409,9 +459,19 @@ function App() {
             <MidiSimulatorModal isOpen={showMidiSim} onClose={() => setShowMidiSim(false)} />
             <FxPadOverlay isOpen={showFxPad} onClose={() => setShowFxPad(false)} />
             <AutomixView isOpen={showAutomix} onClose={() => setShowAutomix(false)} />
+            <UpdateModal
+                isOpen={showUpdateModal}
+                status={updaterStatus}
+                currentVersion={__APP_VERSION__}
+                onClose={() => setShowUpdateModal(false)}
+                onDownload={() => void window.electron.downloadUpdate()}
+                onInstall={() => void window.electron.quitAndInstall()}
+            />
 
             {showWelcome && (
                 <WelcomeScreen
+                    updaterStatus={updaterStatus}
+                    onOpenUpdateModal={() => setShowUpdateModal(true)}
                     onNewProject={() => {
                         useProjectStore.getState().resetProject();
                         useAudioStore.getState().stopAll();
@@ -463,6 +523,9 @@ function App() {
                         onToggleFxPad={() => setShowFxPad((v) => !v)}
                         automixOpen={showAutomix}
                         onToggleAutomix={() => setShowAutomix((v) => !v)}
+                        updaterStatus={updaterStatus}
+                        onOpenUpdateModal={() => setShowUpdateModal(true)}
+                        onCheckUpdatesNow={handleCheckUpdatesNow}
                     />
                 </div>
 

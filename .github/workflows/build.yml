@@ -1,24 +1,30 @@
-name: Build and Package RRLMP
+name: Build and Release
+
+# Trigger esclusivamente manuale (workflow_dispatch).
+# La build gira sempre; la pubblicazione sulla repo pubblica RRLMP-Releases
+# è una decisione esplicita separata (input publish_release).
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: 'Publish release to Ecosystem-Runtime/RRLMP-Releases after build'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['true', 'false']
+
+permissions:
+  contents: write
 
 jobs:
-  build:
-    name: Build (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-
+  build-linux:
+    name: Build (Linux)
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
@@ -32,16 +38,131 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      - name: Upload Artifacts
+      - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: RRLMP-${{ matrix.os }}
+          name: linux-artifacts
           path: |
             builds/v*/*.AppImage
             builds/v*/*.deb
-            builds/v*/*.dmg
+            builds/v*/latest-linux.yml
+          retention-days: 30
+
+  build-windows:
+    name: Build (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Application
+        run: npm run build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifacts
+          path: |
             builds/v*/*.exe
-            builds/v*/*.zip
-            builds/v*/*.blockmap
-            builds/v*/latest*.yml
-          retention-days: 7
+            builds/v*/*.exe.blockmap
+            builds/v*/latest.yml
+          retention-days: 30
+
+  build-macos:
+    name: Build (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Application
+        run: npm run build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Upload macOS Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-artifacts
+          path: |
+            builds/v*/*.dmg
+          retention-days: 30
+
+  release:
+    name: Publish to RRLMP-Releases
+    needs: [build-linux, build-windows, build-macos]
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.publish_release == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version from package.json
+        id: version
+        run: echo "tag=v$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-artifacts
+          path: artifacts/linux
+
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-artifacts
+          path: artifacts/windows
+
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-artifacts
+          path: artifacts/macos
+
+      - name: Publish release to RRLMP-Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          repository: Ecosystem-Runtime/RRLMP-Releases
+          token: ${{ secrets.RELEASE_TOKEN }}
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: "Runtime Live Machine Pro ${{ steps.version.outputs.tag }}"
+          body: |
+            ## Runtime Live Machine Pro ${{ steps.version.outputs.tag }}
+
+            Scarica l'installer per la tua piattaforma:
+
+            | Piattaforma | File |
+            |----------|------|
+            | **Windows** | `*.exe` |
+            | **macOS** | `*.dmg` |
+            | **Linux (AppImage)** | `*.AppImage` |
+            | **Linux (deb)** | `*.deb` |
+
+            > macOS: build non firmata (nessun certificato Apple Developer) — al primo
+            > avvio va aperta con tasto destro → Apri per bypassare Gatekeeper.
+            > L'app si aggiorna automaticamente su Windows e Linux (AppImage); su macOS
+            > e Linux (deb) l'app segnala il nuovo aggiornamento e apre questa pagina.
+          files: |
+            artifacts/linux/**/*.AppImage
+            artifacts/linux/**/*.deb
+            artifacts/linux/**/latest-linux.yml
+            artifacts/windows/**/*.exe
+            artifacts/windows/**/*.exe.blockmap
+            artifacts/windows/**/latest.yml
+            artifacts/macos/**/*.dmg

@@ -1,6 +1,6 @@
 {
   "name": "runtime-live-machine-pro",
-  "version": "1.11.4",
+  "version": "1.11.5",
   "description": "Professional Broadcast Audio Architecture",
   "homepage": "https://gitlab.com/pizzisimone1972/RRLMP",
   "main": "out/main/index.js",
@@ -10,7 +10,8 @@
     "dev": "npm run build:main && npm run build:preload && start /b npm run dev:renderer && set \"NODE_ENV=development\" && electron .",
     "build:main": "tsc -p tsconfig.main.json",
     "build:preload": "tsc -p tsconfig.preload.json",
-    "build": "npm run build:main && npm run build:preload && vite build && electron-builder",
+    "build": "npm run build:main && npm run build:preload && vite build && electron-builder --publish never",
+    "release": "npm run build:main && npm run build:preload && vite build && electron-builder --publish always",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -18,8 +19,15 @@
   "build": {
     "appId": "com.antigravity.rrlmp",
     "productName": "Runtime Live Machine Pro",
+    "artifactName": "Runtime-Live-Machine-Pro-${version}.${ext}",
     "directories": {
       "output": "builds/v${version}"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Ecosystem-Runtime",
+      "repo": "RRLMP-Releases",
+      "releaseType": "release"
     },
     "files": [
       "out/**/*",
@@ -80,6 +88,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "clsx": "^2.1.0",
+    "electron-updater": "^6.8.9",
     "ffmpeg-static": "^5.3.0",
     "ffprobe-static": "^3.1.0",
     "fluent-ffmpeg": "^2.1.3",

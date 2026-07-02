@@ -29,6 +29,15 @@ export interface RemoteControlStatus {
     addresses?: string[];
 }
 
+/** Auto-Updater (2026-07-02) — speculare a UpdaterStatusPayload in src/main/updateManager.ts. */
+export type UpdaterStatusPayload =
+    | { type: 'checking' }
+    | { type: 'not-available' }
+    | { type: 'available'; version: string; canAutoInstall: boolean; downloadUrl?: string; releaseNotes?: string }
+    | { type: 'downloading'; percent: number }
+    | { type: 'ready'; version: string; canAutoInstall: boolean }
+    | { type: 'error'; message: string };
+
 declare global {
     interface Window {
         electron: {
@@ -84,6 +93,11 @@ declare global {
             // Utilities (esposte dal preload da tempo, mai dichiarate)
             openExternal: (url: string) => Promise<{ success: boolean; error?: string }>;
             getPlatform: () => string;
+            // Auto-Updater (2026-07-02)
+            checkForUpdates: () => Promise<{ success: boolean }>;
+            downloadUpdate: () => Promise<{ success: boolean }>;
+            quitAndInstall: () => Promise<{ success: boolean }>;
+            onUpdaterStatus: (callback: (status: UpdaterStatusPayload) => void) => () => void;
         }
 
 

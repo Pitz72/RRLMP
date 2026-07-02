@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
-import appLogo from '../../assets/logo.png';
-import { checkForUpdates, UpdateInfo } from '../../utils/updateChecker';
 import { useTranslation } from 'react-i18next';
+import appLogo from '../../assets/logo.png';
 import { FlagIcon } from '../ui/FlagIcon';
-import { UpdateModal } from './UpdateModal';
+import { UpdaterStatusPayload } from '../../types';
 
 interface WelcomeScreenProps {
     onNewProject: () => void;
     onLoadProject: () => void;
+    /** Auto-Updater (2026-07-02) — stato centralizzato in App.tsx, qui solo lettura per il badge. */
+    updaterStatus: UpdaterStatusPayload;
+    onOpenUpdateModal: () => void;
 }
 
 const LANGUAGES = [
@@ -21,23 +22,8 @@ const LANGUAGES = [
     { code: 'zh', label: '中文' },
 ];
 
-export const WelcomeScreen = ({ onNewProject, onLoadProject }: WelcomeScreenProps) => {
+export const WelcomeScreen = ({ onNewProject, onLoadProject, updaterStatus, onOpenUpdateModal }: WelcomeScreenProps) => {
     const { t, i18n } = useTranslation();
-    const [updateStatus, setUpdateStatus] = useState<'checking' | 'available' | 'latest' | 'error'>('checking');
-    const [updateInfo, setUpdateInfo] = useState<UpdateInfo>({ hasUpdate: false, remoteVersion: '' });
-    const [showUpdateModal, setShowUpdateModal] = useState(false);
-
-    useEffect(() => {
-        checkForUpdates(__APP_VERSION__).then((info) => {
-            setUpdateInfo(info);
-            if (info.hasUpdate) {
-                setUpdateStatus('available');
-                setShowUpdateModal(true);
-            } else {
-                setUpdateStatus('latest');
-            }
-        }).catch(() => setUpdateStatus('error'));
-    }, []);
 
     const changeLanguage = (lng: string) => {
         i18n.changeLanguage(lng);
@@ -46,13 +32,6 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject }: WelcomeScreenProp
     const currentLang = i18n.language?.slice(0, 2) || 'en';
 
     return (
-        <>
-        <UpdateModal
-            isOpen={showUpdateModal}
-            info={updateInfo}
-            currentVersion={__APP_VERSION__}
-            onClose={() => setShowUpdateModal(false)}
-        />
         <div className="ov" style={{ zIndex: 100 }}>
             <div className="ov-panel anim-in !flex-row" style={{ width: 720, maxHeight: '90vh' }}>
 
@@ -82,16 +61,17 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject }: WelcomeScreenProp
                         <span className="bg-zinc-800 text-zinc-400 px-2 py-1 rounded text-xs font-mono border border-zinc-700">
                             v{__APP_VERSION__}
                         </span>
-                        {updateStatus === 'checking' && <span className="text-xs text-zinc-500 animate-pulse">{t('welcome.checking')}</span>}
-                        {updateStatus === 'latest' && <span className="text-xs text-emerald-500 font-medium">{t('welcome.latest')}</span>}
-                        {updateStatus === 'available' && (
+                        {updaterStatus.type === 'checking' && <span className="text-xs text-zinc-500 animate-pulse">{t('welcome.checking')}</span>}
+                        {updaterStatus.type === 'not-available' && <span className="text-xs text-emerald-500 font-medium">{t('welcome.latest')}</span>}
+                        {(updaterStatus.type === 'available' || updaterStatus.type === 'downloading' || updaterStatus.type === 'ready') && (
                             <button
-                                onClick={() => setShowUpdateModal(true)}
+                                onClick={onOpenUpdateModal}
                                 className="text-xs text-amber-500 font-bold animate-bounce hover:text-amber-400 transition-colors"
                             >
-                                {t('welcome.updateAvailable', { version: updateInfo.remoteVersion })}
+                                {t('welcome.updateAvailable', { version: updaterStatus.type === 'downloading' ? '' : updaterStatus.version })}
                             </button>
                         )}
+                        {updaterStatus.type === 'error' && <span className="text-xs text-red-900">OFFLINE</span>}
                     </div>
 
                     {/* ACTIONS */}
@@ -153,6 +133,5 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject }: WelcomeScreenProp
 
             </div>
         </div>
-        </>
     );
 };

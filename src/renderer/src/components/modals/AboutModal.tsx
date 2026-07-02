@@ -1,54 +1,27 @@
-import { useState, useEffect } from 'react';
 import appLogo from '../../assets/logo.png';
 import { X, BookOpen, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { checkForUpdates, UpdateInfo } from '../../utils/updateChecker';
-import { UpdateModal } from './UpdateModal';
 import { useEscapeToClose } from '../../hooks/useEscapeToClose';
-
-// APP_VERSION injected by Vite
-
-
+import { UpdaterStatusPayload } from '../../types';
 
 interface AboutModalProps {
     isOpen: boolean;
     onClose: () => void;
+    /** Auto-Updater (2026-07-02) — stato centralizzato in App.tsx, qui solo lettura + trigger manuale. */
+    updaterStatus: UpdaterStatusPayload;
+    onOpenUpdateModal: () => void;
+    onCheckUpdatesNow: () => void;
 }
 
-export const AboutModal = ({ isOpen, onClose }: AboutModalProps) => {
+export const AboutModal = ({ isOpen, onClose, updaterStatus, onOpenUpdateModal, onCheckUpdatesNow }: AboutModalProps) => {
     const { t } = useTranslation();
-    const [updateStatus, setUpdateStatus] = useState<'checking' | 'available' | 'latest' | 'error'>('checking');
-    const [updateInfo, setUpdateInfo] = useState<UpdateInfo>({ hasUpdate: false, remoteVersion: '' });
-    const [showUpdateModal, setShowUpdateModal] = useState(false);
 
     // v1.4.13 (ESC-01): ESC chiude la modale invece di innescare lo STOP ALL.
     useEscapeToClose(isOpen, onClose);
 
-    useEffect(() => {
-        if (isOpen) {
-            setUpdateStatus('checking');
-            checkForUpdates(__APP_VERSION__).then((info) => {
-                setUpdateInfo(info);
-                if (info.hasUpdate) {
-                    setUpdateStatus('available');
-                    setShowUpdateModal(true);
-                } else {
-                    setUpdateStatus('latest');
-                }
-            }).catch(() => setUpdateStatus('error'));
-        }
-    }, [isOpen]);
-
     if (!isOpen) return null;
 
     return (
-        <>
-        <UpdateModal
-            isOpen={showUpdateModal}
-            info={updateInfo}
-            currentVersion={__APP_VERSION__}
-            onClose={() => setShowUpdateModal(false)}
-        />
         <div className="ov" style={{ zIndex: 100 }} onClick={onClose}>
             <div className="ov-panel anim-in p-6 w-[400px] relative" onClick={e => e.stopPropagation()}>
 
@@ -68,18 +41,18 @@ export const AboutModal = ({ isOpen, onClose }: AboutModalProps) => {
                     {/* VERSION & STATUS */}
                     <div className="flex items-center gap-2 mb-6">
                         <span className="text-zinc-500 text-xs font-mono">v{__APP_VERSION__}</span>
-                        {updateStatus === 'checking' && <RefreshCw size={12} className="text-zinc-600 animate-spin" />}
+                        {updaterStatus.type === 'checking' && <RefreshCw size={12} className="text-zinc-600 animate-spin" />}
 
-                        {updateStatus === 'latest' && <span className="text-[10px] text-emerald-500 border border-emerald-500/30 px-1.5 rounded bg-emerald-500/10">{t('welcome.latest')}</span>}
-                        {updateStatus === 'available' && (
+                        {updaterStatus.type === 'not-available' && <span className="text-[10px] text-emerald-500 border border-emerald-500/30 px-1.5 rounded bg-emerald-500/10">{t('welcome.latest')}</span>}
+                        {(updaterStatus.type === 'available' || updaterStatus.type === 'downloading' || updaterStatus.type === 'ready') && (
                             <button
-                                onClick={() => setShowUpdateModal(true)}
+                                onClick={onOpenUpdateModal}
                                 className="text-[10px] text-amber-500 border border-amber-500/30 px-1.5 rounded bg-amber-500/10 animate-pulse hover:bg-amber-500/20 transition-colors"
                             >
-                                {t('welcome.updateAvailable', { version: updateInfo.remoteVersion })}
+                                {t('welcome.updateAvailable', { version: updaterStatus.type === 'downloading' ? '' : updaterStatus.version })}
                             </button>
                         )}
-                        {updateStatus === 'error' && <span className="text-[10px] text-red-900">OFFLINE</span>}
+                        {updaterStatus.type === 'error' && <span className="text-[10px] text-red-900">OFFLINE</span>}
                     </div>
 
                     <div className="card w-full text-sm text-zinc-400 space-y-2 mb-4">
@@ -90,6 +63,14 @@ export const AboutModal = ({ isOpen, onClose }: AboutModalProps) => {
 
                     {/* NEW ACTIONS */}
                     <div className="flex flex-col w-full gap-2 mb-4">
+                        <button
+                            onClick={onCheckUpdatesNow}
+                            disabled={updaterStatus.type === 'checking'}
+                            className="bg-zinc-800/50 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/50 py-2 rounded flex items-center justify-center gap-2 text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <RefreshCw size={14} className={updaterStatus.type === 'checking' ? 'animate-spin' : ''} />
+                            <span>Controlla aggiornamenti ora</span>
+                        </button>
                         <button
                             disabled
                             className="bg-zinc-800/50 text-zinc-500 border border-zinc-700/50 py-2 rounded flex items-center justify-center gap-2 text-sm cursor-not-allowed opacity-70"
@@ -106,6 +87,5 @@ export const AboutModal = ({ isOpen, onClose }: AboutModalProps) => {
                 </div>
             </div>
         </div>
-        </>
     );
 };

@@ -19,6 +19,7 @@ import { confirm } from '../../store/useConfirmStore';
 import { classifySilenceResult } from '../../utils/silenceDetection';
 import { populateDefaultFxIfPadEmpty } from '../../utils/defaultSfx';
 import { MIC_ARM_ENABLED } from '../../utils/featureFlags';
+import { UpdaterStatusPayload } from '../../types';
 
 
 
@@ -32,9 +33,13 @@ interface GlobalControlsProps {
     /** Automix Section (Fase C1, v1.10.22): stato/azione della vista full-screen. */
     automixOpen?: boolean;
     onToggleAutomix?: () => void;
+    /** Auto-Updater (2026-07-02): stato centralizzato in App.tsx, inoltrato ad AboutModal. */
+    updaterStatus: UpdaterStatusPayload;
+    onOpenUpdateModal: () => void;
+    onCheckUpdatesNow: () => void;
 }
 
-export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggleAutomix }: GlobalControlsProps) => {
+export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggleAutomix, updaterStatus, onOpenUpdateModal, onCheckUpdatesNow }: GlobalControlsProps) => {
     const { t } = useTranslation();
     const { stopAll } = useAudioStore();
     const loadClip = useAudioStore((s) => s.loadClip);
@@ -904,7 +909,13 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
             </div>
 
             <GeneralSettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
-            <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
+            <AboutModal
+                isOpen={showAbout}
+                onClose={() => setShowAbout(false)}
+                updaterStatus={updaterStatus}
+                onOpenUpdateModal={onOpenUpdateModal}
+                onCheckUpdatesNow={onCheckUpdatesNow}
+            />
             <KeymappingModal isOpen={showKeymapping} onClose={() => setShowKeymapping(false)} />
             <ExportProgressModal
                 isOpen={exportProgress.isOpen}
