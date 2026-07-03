@@ -12,14 +12,17 @@
         "latest": "✅ 已是最新版本",
         "updateAvailable": "⬇️ 发现新版本 v{{version}}",
         "developedBy": "由 Simone Pizzi 与 Gemini 3.0 共同开发",
-        "copyright": "© 2026 Runtime Radio"
+        "copyright": "© 2026 Runtime Radio",
+        "comingSoon": "即将通过网页提供"
     },
     "columns": {
         "assets": "节目素材",
         "music": "本期音乐",
         "voice": "人声 / 录音",
         "sfx": "音效 / 播出板",
-        "preshow": "预播节目"
+        "preshow": "预播节目",
+        "jingle": "片花",
+        "promo": "宣传"
     },
     "controls": {
         "stopAll": "全部停止",
@@ -41,13 +44,29 @@
         "midiUnavailable": "MIDI 不可用",
         "midiLearnActive": "MIDI Learn — 已激活（退出）",
         "micDisarm": "解除麦克风 arm",
-        "micArm": "arm 麦克风（Smart Ducking + Mix Input）"
+        "micArm": "arm 麦克风（Smart Ducking + Mix Input）",
+        "saveFailed": "保存失败：{{err}}",
+        "m3uEmpty": "播放列表中未找到音频文件。",
+        "m3uImported": "已导入 M3U — {{count}} 首曲目已添加到预播节目",
+        "exportNeedsSave": "请先保存项目：音频存档会创建在保存文件旁边。",
+        "exportCopied": "已复制 {{count}} 个",
+        "exportPruned": "已移除 {{count}} 个",
+        "exportSynced": "音频存档已同步 — {{parts}}，位于：\n{{path}}\\audio",
+        "exportError": "导出出错：{{err}}",
+        "exportIpcError": "调用导出 IPC 时出错",
+        "exportStarting": "正在启动...",
+        "stopAllTipSuffix": "停止所有播放（紧急停止）",
+        "fileMenu": "文件",
+        "onMixBadge": "混音中",
+        "micVolBadge": "麦克风音量",
+        "autoSaved": "已自动保存"
     },
     "modal": {
         "about": {
             "title": "Runtime Live Machine Pro",
             "description": "专业广播音频架构",
-            "manual": "在线手册"
+            "manual": "在线手册",
+            "checkNow": "立即检查更新"
         },
         "settings": {
             "title": "常规设置",
@@ -183,7 +202,38 @@
             "clearNotes": "清除",
             "notesPlaceholder": "在此输入脚本、制作笔记、cue……",
             "charCount": "{{count}} 个字符",
-            "nonEmptyLines": "{{count}} 行非空"
+            "nonEmptyLines": "{{count}} 行非空",
+            "outroIncoherent": "Outro 标记与修剪/时长不一致 — 已停用。",
+            "analysisQueued": "分析已排队 — 并行 FFmpeg 操作过多。请几秒后重试。",
+            "autoTrimError": "Auto-Trim：FFmpeg 分析出错。",
+            "autoTrimNoSilence": "Auto-Trim：未在文件首尾检测到静音。",
+            "autoTrimApplied": "已应用 Auto-Trim — 起点：{{start}}秒 / 尾部剪切：{{end}}秒",
+            "silenceAnalysisError": "静音分析出错。",
+            "nameLabel": "片段名称",
+            "colorLabel": "颜色标签",
+            "volumeGain": "音量增益",
+            "globalKeybind": "全局快捷键",
+            "recordKeyPlaceholder": "点击并按下按键...",
+            "behaviorLabel": "播放行为",
+            "behaviorNormal": "普通",
+            "behaviorStacco": "片花（Jingle）",
+            "loopPlayback": "循环播放",
+            "autoplayNext": "自动播放下一个",
+            "nextStop": "停止",
+            "nextPlayNext": "播放下一个",
+            "testTransition": "测试 →",
+            "stopPreview": "停止",
+            "smoothFades": "平滑淡变",
+            "fadeInMs": "淡入（毫秒）",
+            "fadeOutMs": "淡出（毫秒）",
+            "manualInputs": "手动数值",
+            "autoTrim": "Auto-Trim",
+            "trimStartS": "起始修剪（秒）",
+            "trimEndS": "结尾修剪（秒）",
+            "introEndS": "Intro 结束（秒）",
+            "outroStartS": "Outro 开始（秒）",
+            "deleteClipBtn": "删除片段",
+            "saveChanges": "保存更改"
         },
         "dialog": {
             "unsaved": "有未保存的更改，您希望如何处理？",
@@ -261,6 +311,10 @@
             "downloadInstall": "下载并安装",
             "download": "下载",
             "restartInstall": "重启并安装"
+        },
+        "exportProgress": {
+            "title": "正在导出...",
+            "filesCount": "{{current}} / {{total}} 个文件"
         }
     },
     "automix": {
@@ -295,11 +349,19 @@
         "dragTracksHint": "将乐曲拖入面板的 Music 列：列表会按相同顺序显示在此处。",
         "firstTrackStart": "▶ 第一首 — 按 START 开始",
         "confidence": "Confidence {{v}}",
-        "bpmNotDetected": "未检测到 BPM"
+        "bpmNotDetected": "未检测到 BPM",
+        "skipInFlight": "过渡已在进行中",
+        "skipInvalidState": "状态无效（出场曲目已停止、进场曲目已在播出或文件缺失）",
+        "skipStartFailed": "进场曲目启动失败"
     },
     "nowPlaying": {
         "inLoop": "循环中",
-        "noTrack": "无乐曲播出"
+        "noTrack": "无乐曲播出",
+        "onAir": "ON AIR",
+        "onAirLabel": "正在播出",
+        "offAir": "未播出",
+        "outroIn": "OUTRO 倒计时 {{time}}",
+        "upNext": "即将播放"
     },
     "confirm": {
         "newProject": "新建项目：未保存的更改将丢失。是否继续？",
@@ -307,7 +369,8 @@
         "loadProject": "你有未保存的更改。加载新项目会覆盖它们。是否继续？",
         "loadProjectOk": "仍然加载",
         "exportUnsaved": "存在未保存的更改。建议先保存再导出。仍要继续吗？",
-        "exportUnsavedOk": "仍然导出"
+        "exportUnsavedOk": "仍然导出",
+        "defaultOk": "确认"
     },
     "waveform": {
         "position": "位置",
@@ -328,7 +391,14 @@
         "smartCuesDone": "Smart Cues — Intro：{{intro}}s · Outro：{{outro}}s",
         "smartCuesNone": "Smart Cues：未检测到有意义的 cue。",
         "smartCuesError": "Smart Cues：{{err}}",
-        "smartCuesAnalysisErr": "FFmpeg 分析过程中出错"
+        "smartCuesAnalysisErr": "FFmpeg 分析过程中出错",
+        "zoomOut": "缩小",
+        "zoomIn": "放大",
+        "statusLabel": "状态",
+        "btnTrimStart": "起始修剪",
+        "btnTrimEnd": "结尾修剪",
+        "btnSetIntro": "设置 Intro",
+        "btnSetOutro": "设置 Outro"
     },
     "grid": {
         "silenceRemovedSongs": "已自动从 {{count}} 首歌曲中移除静音。",
@@ -337,7 +407,8 @@
         "allColumnsHidden": "所有列均已隐藏",
         "reenableHint": "从 设置 → 常规 → 「导播布局 — 列」 重新启用它们",
         "silenceScanPreshow": "静音检测中…… 正在分析 {{count}} 个文件",
-        "silenceScanMusic": "静音检测中…… 正在分析 {{count}} 首歌曲"
+        "silenceScanMusic": "静音检测中…… 正在分析 {{count}} 首歌曲",
+        "dropAudioHere": "将音频拖放到此处"
     },
     "recording": {
         "startError": "启动录制出错：{{error}}",
@@ -345,18 +416,36 @@
         "exportLabel": "导出",
         "deleteTempTip": "删除临时录制",
         "stopTip": "停止录制",
-        "startTip": "开始会话录制（Master Mix）"
+        "startTip": "开始会话录制（Master Mix）",
+        "converting": "转换中...",
+        "recBadge": "REC"
     },
     "card": {
         "missingFile": "文件缺失",
-        "missingTitle": "⚠️ {{name}}（未找到文件）"
+        "missingTitle": "⚠️ {{name}}（未找到文件）",
+        "staccoBadge": "片花",
+        "loopBadge": "循环",
+        "nextBadge": "接续",
+        "upNextBadge": "▶ 即将播放",
+        "trimmingBadge": "修剪中…",
+        "fadeOutBadge": "淡出",
+        "priorityBadge": "优先",
+        "bpmTip": "估算的 BPM（自动分析）"
     },
     "column": {
         "rotationActiveTip": "Jingle&Promo 轮播已启用",
         "rotationConfigTip": "配置 Jingle&Promo 轮播",
         "changeColorTip": "更改列颜色",
         "colorLabel": "列颜色",
-        "resetColor": "↺ 恢复原始颜色"
+        "resetColor": "↺ 恢复原始颜色",
+        "endBadge": "结束",
+        "type": {
+            "asset": "素材",
+            "music": "音乐",
+            "voice": "人声",
+            "sfx": "音效",
+            "preshow": "预播"
+        }
     },
     "fxPad": {
         "restoreDefaultsTip": "恢复默认 FX（软件内置的 CC0 库）",
@@ -367,6 +456,80 @@
         "missingFileTip": "文件缺失：{{label}}",
         "settingsTip": "片段设置",
         "removeTip": "从 pad 移除",
-        "hint": "将音频文件拖到此处以添加效果 · 点击播放/停止 · ESC = 全局 STOP ALL"
+        "hint": "将音频文件拖到此处以添加效果 · 点击播放/停止 · ESC = 全局 STOP ALL",
+        "title": "音效 / 播出板",
+        "removeConfirm": "要从打击垫移除音效“{{label}}”吗？",
+        "removeOk": "移除",
+        "restoreConfirm": "要将缺失的默认音效添加到打击垫吗（软件自带音效库）？已有的音效不会被改动。",
+        "restoreOk": "恢复",
+        "libUnavailable": "默认音效库不可用：{{err}}"
+    },
+    "app": {
+        "unsavedBeforeOpen": "有未保存的更改。在打开新项目之前，您希望如何处理？",
+        "saveFailed": "保存失败：{{err}}",
+        "canceled": "已取消",
+        "invalidLmp": "LMP 文件无效：{{err}}",
+        "unknownStructure": "无法识别的结构",
+        "cannotOpenFile": "无法打开文件：{{err}}",
+        "unknownError": "未知错误",
+        "lmpReadError": "读取 LMP 文件时出错。",
+        "deleteSelectedConfirm": "删除所选的 {{count}} 个片段？",
+        "deleteLabel": "删除",
+        "saveError": "保存出错：{{err}}",
+        "openPlayoutLog": "打开播出日志"
+    },
+    "keymap": {
+        "title": "快捷键与 MIDI 面板",
+        "emergencyStop": "紧急停止（所有播放器）",
+        "stopAllMidi": "全部停止（MIDI）",
+        "masterVolumeMidi": "主音量（MIDI CC）",
+        "intro1": "点击 <1>Keyboard</1> 输入框并按下按键，即可将其分配给片段。",
+        "intro2": "点击 <1>Learn MIDI</1> 然后按下实体控制器。",
+        "intro3": "要移除，请使用红色 <1>X</1> 或 <3>Backspace</3>。",
+        "intro4": "<1>系统</1>绑定是固定的，无法修改。",
+        "thTarget": "目标",
+        "thType": "类型",
+        "thKeyboard": "键盘",
+        "systemSection": "全局系统操作",
+        "typeSystem": "系统",
+        "typeGlobal": "全局",
+        "typeClip": "片段",
+        "clickToSet": "点击设置...",
+        "listening": "监听中...",
+        "learnMidi": "MIDI 学习",
+        "conflictMsg": "按键“{{key}}”已分配给“{{name}}”。要移到此片段吗？先前的片段将失去绑定。",
+        "conflictOk": "移动",
+        "emptyColumn": "此列中没有片段",
+        "addClipsHint": "将片段添加到项目后可在此处进行映射。",
+        "closePanel": "关闭面板"
+    },
+    "midiSim": {
+        "title": "MIDI 模拟器",
+        "subtitle": "测试工具 · 无需设备",
+        "channel": "通道",
+        "note": "音符",
+        "value": "数值",
+        "send": "发送消息",
+        "lastSent": "最近发送：",
+        "footer": "速度为 0 的 Note Off 和 Note On 会被预先过滤（不触发）— 属预期行为。要测试 <1>MIDI Learn</1>：启用该模式，选择一个片段，然后发送 <3>Note On</3>。"
+    },
+    "errors": {
+        "unhandledRejection": "未处理的 Promise 拒绝",
+        "asyncError": "异步错误：{{msg}}",
+        "zoneError": "{{zone}} 出错",
+        "unknownRender": "未知的渲染错误。",
+        "retry": "重试"
+    },
+    "debug": {
+        "notMeasured": "未测量",
+        "normOff": "响度归一 关",
+        "stateInspector": "状态检查器",
+        "audioMonitor": "音频监视器",
+        "normalization": "响度归一",
+        "grNote": "GR 为负 = 正在工作；约 0 = 轻微/未激活",
+        "activeClips": "活动片段",
+        "logStream": "日志流",
+        "copy": "复制",
+        "clear": "清空"
     }
 }

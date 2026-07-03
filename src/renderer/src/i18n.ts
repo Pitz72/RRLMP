@@ -11,6 +11,16 @@ import pt from './locales/pt.json';
 import ru from './locales/ru.json';
 import zh from './locales/zh.json';
 
+// i18n main-process (2026-07-03): il main non ha accesso a i18next/localStorage —
+// gli si notifica la lingua via IPC (dialoghi nativi, errori IPC, vedi i18nMain.ts).
+// languageChanged scatta anche all'init → copre avvio E cambi da Impostazioni.
+const notifyMainLanguage = (lng: string) => {
+    try {
+        window.electron?.setAppLanguage?.(lng);
+    } catch { /* devMock/test: nessun bridge Electron */ }
+};
+i18n.on('languageChanged', notifyMainLanguage);
+
 i18n
     .use(LanguageDetector)
     .use(initReactI18next)

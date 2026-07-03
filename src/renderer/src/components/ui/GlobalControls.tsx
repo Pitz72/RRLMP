@@ -417,7 +417,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 loadProject({ columns }, result.filePath, { preserveUiState: true });
             }
         } else {
-            if (result.error) toast('Salvataggio fallito: ' + result.error, 'error');
+            if (result.error) toast(t('controls.saveFailed', 'Salvataggio fallito: {{err}}', { err: result.error }), 'error');
         }
     };
 
@@ -466,7 +466,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 }
 
             } catch (e) {
-                toast('File LMP non valido: ' + (e instanceof Error ? e.message : 'struttura non riconosciuta'), 'error');
+                toast(t('app.invalidLmp', 'File LMP non valido: {{err}}', { err: e instanceof Error ? e.message : t('app.unknownStructure', 'struttura non riconosciuta') }), 'error');
             }
         }
     };
@@ -475,7 +475,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
         if (!window.electron?.importM3u) return;
         const result = await window.electron.importM3u();
         if (!result.success || !result.paths || result.paths.length === 0) {
-            if (result.success) toast('Nessun file audio trovato nella playlist.', 'warning');
+            if (result.success) toast(t('controls.m3uEmpty', 'Nessun file audio trovato nella playlist.'), 'warning');
             return;
         }
         const preshowColId = 'col-preshow';
@@ -504,7 +504,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 }
             }
         }
-        toast(`M3U importata — ${added} tracce aggiunte a PRE-SHOW`, 'success');
+        toast(t('controls.m3uImported', 'M3U importata — {{count}} tracce aggiunte a PRE-SHOW', { count: added }), 'success');
     };
 
     const handleExportProject = async () => {
@@ -512,7 +512,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
         // Senza progetto salvato non c'è una cartella di riferimento → si
         // chiede prima di salvare (l'archivio audio/ vive accanto al .lmp).
         if (!currentFilePath) {
-            toast('Salva prima il progetto: l’archivio audio viene creato accanto al file di salvataggio.', 'error', 6000);
+            toast(t('controls.exportNeedsSave', 'Salva prima il progetto: l’archivio audio viene creato accanto al file di salvataggio.'), 'error', 6000);
             return;
         }
         if (isDirty && !await confirm(t('confirm.exportUnsaved', 'Ci sono modifiche non salvate. Si consiglia di salvare prima di esportare. Continuare comunque?'), t('confirm.exportUnsavedOk', 'Esporta comunque'), t('modal.dialog.cancel', 'Annulla'))) return;
@@ -528,7 +528,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
         // For now detailed alerts.
         try {
             // Reset and Open Modal
-            setExportProgress({ isOpen: true, current: 0, total: 0, filename: 'Starting...' });
+            setExportProgress({ isOpen: true, current: 0, total: 0, filename: t('controls.exportStarting', 'Avvio...') });
 
             const result = await window.electron.exportProject(json, currentFilePath);
 
@@ -539,15 +539,15 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 // v1.4.14 (#4): archivio sincronizzato col banco regia
                 // (copiati i nuovi/cambiati, rimossi gli orfani).
                 const s = result.stats;
-                const parts = [`${s?.copied || 0} copiati`];
-                if (s?.pruned) parts.push(`${s.pruned} rimossi`);
-                toast(`Archivio audio sincronizzato — ${parts.join(', ')} in:\n${result.path}\\audio`, 'success', 7000);
+                const parts = [t('controls.exportCopied', '{{count}} copiati', { count: s?.copied || 0 })];
+                if (s?.pruned) parts.push(t('controls.exportPruned', '{{count}} rimossi', { count: s.pruned }));
+                toast(t('controls.exportSynced', 'Archivio audio sincronizzato — {{parts}} in:\n{{path}}\\audio', { parts: parts.join(', '), path: result.path }), 'success', 7000);
             } else {
-                if (result.error) toast(`Errore esportazione: ${result.error}`, 'error');
+                if (result.error) toast(t('controls.exportError', 'Errore esportazione: {{err}}', { err: result.error }), 'error');
             }
         } catch (e) {
             setExportProgress(prev => ({ ...prev, isOpen: false }));
-            toast('Errore chiamando Export IPC', 'error');
+            toast(t('controls.exportIpcError', 'Errore chiamando Export IPC'), 'error');
         }
     };
 
@@ -571,7 +571,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 >
                     <div className="flex items-center gap-1.5 font-bold text-[11px]">
                         <Files size={14} />
-                        <span>FILE</span>
+                        <span>{t('controls.fileMenu', 'FILE')}</span>
                         <ChevronDown size={12} className={`transition-transform ${showFileMenu ? 'rotate-180' : ''}`} />
                     </div>
                     {/* Indicatore modifiche non salvate (prima era il pulsante Salva giallo) */}
@@ -644,7 +644,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                     </button>
                     {/* Badge indicatore Mix attivo */}
                     {isArmed && micMixEnabled && (
-                        <span className="text-[8px] text-center font-bold text-emerald-500 uppercase tracking-tighter">On Mix</span>
+                        <span className="text-[8px] text-center font-bold text-emerald-500 uppercase tracking-tighter">{t('controls.onMixBadge', 'On Mix')}</span>
                     )}
                 </div>
 
@@ -679,7 +679,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 {isArmed && (
                     <div className="flex flex-col w-16 animate-in fade-in slide-in-from-left-2">
                         <div className="flex justify-between items-center mb-0.5">
-                            <span className="text-[9px] text-zinc-500 font-bold uppercase">Mic Vol</span>
+                            <span className="text-[9px] text-zinc-500 font-bold uppercase">{t('controls.micVolBadge', 'Mic Vol')}</span>
                             <span className="text-[9px] text-red-400 font-mono">{Math.round(micVolume * 100)}%</span>
                         </div>
                         <input
@@ -743,7 +743,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                         handleStopAll();
                     }
                 }}
-                title={`${t('controls.stopAll')} — ferma tutto (Emergency Stop)`}
+                title={`${t('controls.stopAll')} — ${t('controls.stopAllTipSuffix', 'ferma tutto (Emergency Stop)')}`}
                 className={`${isMidiLearnMode
                     ? (pendingBind === 'stopAll' ? 'bg-cyan-600 text-white animate-pulse' : 'bg-zinc-800 text-cyan-500 border-cyan-500/50 hover:bg-zinc-700')
                     : 'stop'} relative whitespace-nowrap`}
@@ -904,7 +904,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                     className={`absolute right-0 top-full mt-1 z-40 flex items-center gap-1 text-[10px] font-medium text-emerald-400 bg-zinc-900/90 border border-emerald-500/30 rounded px-2 py-0.5 transition-opacity duration-500 whitespace-nowrap ${showAutoSaved ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                 >
                     <Check size={11} strokeWidth={2.5} />
-                    Auto-saved
+                    {t('controls.autoSaved', 'Salvataggio automatico')}
                 </span>
             </div>
 

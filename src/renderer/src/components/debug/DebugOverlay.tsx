@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDebugStore } from '../../store/useDebugStore';
 import { useAudioStore } from '../../store/useAudioStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import AudioContextManager from '../../engine/AudioContextManager';
 
 const DebugOverlay: React.FC = () => {
+    const { t } = useTranslation();
     const { isVisible, logs, clear } = useDebugStore();
     const activeClips = useAudioStore((state) => state.activeClips);
     // v1.4.4 — AUDIO MONITOR: stato omologazione + readout live (polling solo a overlay aperto)
@@ -28,8 +30,8 @@ const DebugOverlay: React.FC = () => {
     } catch { /* contesto non ancora pronto */ }
 
     const loudnessInfo = (clip: { loudnessLufs?: number }): string => {
-        if (clip.loudnessLufs === undefined || !isFinite(clip.loudnessLufs)) return 'non misurata';
-        if (!loudnessNormEnabled) return `${clip.loudnessLufs.toFixed(1)} LUFS (omolog. OFF)`;
+        if (clip.loudnessLufs === undefined || !isFinite(clip.loudnessLufs)) return t('debug.notMeasured', 'non misurata');
+        if (!loudnessNormEnabled) return `${clip.loudnessLufs.toFixed(1)} LUFS (${t('debug.normOff', 'omolog. OFF')})`;
         const g = Math.max(-9, Math.min(9, loudnessTargetLufs - clip.loudnessLufs));
         return `${clip.loudnessLufs.toFixed(1)} LUFS → ${g >= 0 ? '+' : ''}${g.toFixed(1)} dB`;
     };
@@ -65,16 +67,16 @@ const DebugOverlay: React.FC = () => {
         <div className="fixed inset-0 z-50 pointer-events-none flex flex-row font-mono text-xs">
             {/* Left Panel: State Dump */}
             <div className="w-1/2 h-full bg-black/80 text-green-400 p-4 overflow-auto pointer-events-auto border-r border-green-800">
-                <h3 className="font-bold mb-2 border-b border-green-800 pb-1">STATE INSPECTOR</h3>
+                <h3 className="font-bold mb-2 border-b border-green-800 pb-1">{t('debug.stateInspector', 'STATE INSPECTOR')}</h3>
 
                 {/* v1.4.4 — AUDIO MONITOR: verifica live Glue Multibanda + Omologazione */}
                 <div className="mb-4">
-                    <h4 className="text-white bg-green-900/50 px-1">Audio Monitor</h4>
+                    <h4 className="text-white bg-green-900/50 px-1">{t('debug.audioMonitor', 'Audio Monitor')}</h4>
                     <div className="mt-1 space-y-0.5">
                         <div>Glue Multibanda GR: <span className={glueGR < -0.1 ? 'text-cyan-300' : 'text-gray-500'}>{glueGR.toFixed(1)} dB</span></div>
                         <div>Limiter GR: <span className={limiterGR < -0.1 ? 'text-amber-300' : 'text-gray-500'}>{limiterGR.toFixed(1)} dB</span></div>
-                        <div>Omologazione: <span className={loudnessNormEnabled ? 'text-cyan-300' : 'text-gray-500'}>{loudnessNormEnabled ? `ON (target ${loudnessTargetLufs} LUFS)` : 'OFF'}</span></div>
-                        <div className="text-gray-500 text-[10px] italic">GR negativo = sta lavorando; ~0 = gentile/inattivo</div>
+                        <div>{t('debug.normalization', 'Omologazione')}: <span className={loudnessNormEnabled ? 'text-cyan-300' : 'text-gray-500'}>{loudnessNormEnabled ? `ON (target ${loudnessTargetLufs} LUFS)` : 'OFF'}</span></div>
+                        <div className="text-gray-500 text-[10px] italic">{t('debug.grNote', 'GR negativo = sta lavorando; ~0 = gentile/inattivo')}</div>
                         {Object.entries(activeClips).map(([id, state]) => (
                             <div key={id} className="text-green-300">• {state.clip.name}: {loudnessInfo(state.clip)}</div>
                         ))}
@@ -82,7 +84,7 @@ const DebugOverlay: React.FC = () => {
                 </div>
 
                 <div className="mb-4">
-                    <h4 className="text-white bg-green-900/50 px-1">Active Clips ({Object.keys(activeClips).length})</h4>
+                    <h4 className="text-white bg-green-900/50 px-1">{t('debug.activeClips', 'Active Clips')} ({Object.keys(activeClips).length})</h4>
                     <pre className="mt-1 whitespace-pre-wrap">
                         {JSON.stringify(
                             Object.entries(activeClips).reduce((acc, [id, state]) => ({
@@ -105,13 +107,13 @@ const DebugOverlay: React.FC = () => {
             {/* Right Panel: Logs */}
             <div className="w-1/2 h-full bg-black/80 text-gray-300 p-4 overflow-auto pointer-events-auto">
                 <div className="flex justify-between items-center mb-2 border-b border-gray-700 pb-1">
-                    <h3 className="font-bold text-white">LOG STREAM</h3>
+                    <h3 className="font-bold text-white">{t('debug.logStream', 'LOG STREAM')}</h3>
                     <div>
                         <button onClick={() => { void copyLogs(); }} className="bg-blue-900/50 hover:bg-blue-900 text-blue-200 px-2 py-0.5 rounded text-xs border border-blue-800 mr-2">
-                            COPY
+                            {t('debug.copy', 'COPY')}
                         </button>
                         <button onClick={clear} className="bg-red-900/50 hover:bg-red-900 text-red-200 px-2 py-0.5 rounded text-xs border border-red-800">
-                            CLEAR
+                            {t('debug.clear', 'CLEAR')}
                         </button>
                     </div>
                 </div>

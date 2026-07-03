@@ -12,14 +12,17 @@
         "latest": "✅ Latest Version",
         "updateAvailable": "⬇️ Update Available v{{version}}",
         "developedBy": "Developed by Simone Pizzi with Gemini 3.0",
-        "copyright": "© 2026 Runtime Radio"
+        "copyright": "© 2026 Runtime Radio",
+        "comingSoon": "Coming soon via Web"
     },
     "columns": {
         "assets": "SHOW ASSETS",
         "music": "EPISODE SONGS",
         "voice": "VOICE / RECORDINGS",
         "sfx": "SFX / CARTWALL",
-        "preshow": "PRE-SHOW"
+        "preshow": "PRE-SHOW",
+        "jingle": "JINGLE",
+        "promo": "PROMO"
     },
     "controls": {
         "stopAll": "STOP ALL",
@@ -41,13 +44,29 @@
         "midiUnavailable": "MIDI not available",
         "midiLearnActive": "MIDI Learn — active (exit)",
         "micDisarm": "Disarm microphone",
-        "micArm": "Arm microphone (Smart Ducking + Mix Input)"
+        "micArm": "Arm microphone (Smart Ducking + Mix Input)",
+        "saveFailed": "Save failed: {{err}}",
+        "m3uEmpty": "No audio files found in the playlist.",
+        "m3uImported": "M3U imported — {{count}} tracks added to PRE-SHOW",
+        "exportNeedsSave": "Save the project first: the audio archive is created next to the save file.",
+        "exportCopied": "{{count}} copied",
+        "exportPruned": "{{count}} removed",
+        "exportSynced": "Audio archive synced — {{parts}} in:\n{{path}}\\audio",
+        "exportError": "Export error: {{err}}",
+        "exportIpcError": "Error calling Export IPC",
+        "exportStarting": "Starting...",
+        "stopAllTipSuffix": "stops everything (Emergency Stop)",
+        "fileMenu": "FILE",
+        "onMixBadge": "On Mix",
+        "micVolBadge": "Mic Vol",
+        "autoSaved": "Auto-saved"
     },
     "modal": {
         "about": {
             "title": "Runtime Live Machine Pro",
             "description": "Professional Broadcast Audio Architecture",
-            "manual": "Online Manual"
+            "manual": "Online Manual",
+            "checkNow": "Check for updates now"
         },
         "settings": {
             "title": "General Settings",
@@ -183,7 +202,38 @@
             "clearNotes": "Clear",
             "notesPlaceholder": "Enter the script, production notes, cues here...",
             "charCount": "{{count}} characters",
-            "nonEmptyLines": "{{count}} non-empty lines"
+            "nonEmptyLines": "{{count}} non-empty lines",
+            "outroIncoherent": "Outro marker inconsistent with trim/duration — disabled.",
+            "analysisQueued": "Analysis queued — too many parallel FFmpeg operations. Try again in a few seconds.",
+            "autoTrimError": "Auto-Trim: error during FFmpeg analysis.",
+            "autoTrimNoSilence": "Auto-Trim: no silence detected at the file edges.",
+            "autoTrimApplied": "Auto-Trim applied — Start: {{start}}s / End cut: {{end}}s",
+            "silenceAnalysisError": "Error during silence analysis.",
+            "nameLabel": "Clip Name",
+            "colorLabel": "Color Label",
+            "volumeGain": "Volume Gain",
+            "globalKeybind": "Global Keybind",
+            "recordKeyPlaceholder": "Click and press a key...",
+            "behaviorLabel": "Playback Behavior",
+            "behaviorNormal": "Normal",
+            "behaviorStacco": "Jingle (Stinger)",
+            "loopPlayback": "Loop Playback",
+            "autoplayNext": "Autoplay Next",
+            "nextStop": "Stop",
+            "nextPlayNext": "Play Next",
+            "testTransition": "Test →",
+            "stopPreview": "Stop",
+            "smoothFades": "Smooth Fades",
+            "fadeInMs": "Fade In (ms)",
+            "fadeOutMs": "Fade Out (ms)",
+            "manualInputs": "Manual Inputs",
+            "autoTrim": "Auto-Trim",
+            "trimStartS": "Trim Start (s)",
+            "trimEndS": "Trim End (s)",
+            "introEndS": "Intro End (s)",
+            "outroStartS": "Outro Start (s)",
+            "deleteClipBtn": "DELETE CLIP",
+            "saveChanges": "SAVE CHANGES"
         },
         "dialog": {
             "unsaved": "There are unsaved changes. What do you want to do?",
@@ -261,6 +311,10 @@
             "downloadInstall": "Download and install",
             "download": "Download",
             "restartInstall": "Restart and install"
+        },
+        "exportProgress": {
+            "title": "Exporting...",
+            "filesCount": "{{current}} / {{total}} files"
         }
     },
     "fxPad": {
@@ -272,7 +326,13 @@
         "noColumn": "No FX column in the project.",
         "missingFileTip": "Missing file: {{label}}",
         "settingsTip": "Clip settings",
-        "removeTip": "Remove from the pad"
+        "removeTip": "Remove from the pad",
+        "title": "FX / CARTWALL",
+        "removeConfirm": "Remove the effect \"{{label}}\" from the pad?",
+        "removeOk": "Remove",
+        "restoreConfirm": "Add the missing default effects to the pad (library included with the software)? Existing FX are not touched.",
+        "restoreOk": "Restore",
+        "libUnavailable": "Default FX library unavailable: {{err}}"
     },
     "automix": {
         "reason": {
@@ -306,11 +366,19 @@
         "dragTracksHint": "Drag the tracks into the Music column of the board: the list appears here in the same order.",
         "firstTrackStart": "▶ first track — starts with START",
         "confidence": "Confidence {{v}}",
-        "bpmNotDetected": "BPM not detected"
+        "bpmNotDetected": "BPM not detected",
+        "skipInFlight": "transition already in progress",
+        "skipInvalidState": "invalid state (outgoing stopped, incoming already on air, or missing file)",
+        "skipStartFailed": "incoming track failed to start"
     },
     "nowPlaying": {
         "inLoop": "In loop",
-        "noTrack": "No track on air"
+        "noTrack": "No track on air",
+        "onAir": "ON AIR",
+        "onAirLabel": "ON AIR",
+        "offAir": "OFF AIR",
+        "outroIn": "OUTRO IN {{time}}",
+        "upNext": "UP NEXT"
     },
     "confirm": {
         "newProject": "New Project: unsaved changes will be lost. Continue?",
@@ -318,7 +386,8 @@
         "loadProject": "You have unsaved changes. Loading a new project will overwrite them. Continue?",
         "loadProjectOk": "Load anyway",
         "exportUnsaved": "There are unsaved changes. It is recommended to save before exporting. Continue anyway?",
-        "exportUnsavedOk": "Export anyway"
+        "exportUnsavedOk": "Export anyway",
+        "defaultOk": "Confirm"
     },
     "waveform": {
         "position": "Position",
@@ -339,7 +408,14 @@
         "smartCuesDone": "Smart Cues — Intro: {{intro}}s · Outro: {{outro}}s",
         "smartCuesNone": "Smart Cues: no significant cue detected.",
         "smartCuesError": "Smart Cues: {{err}}",
-        "smartCuesAnalysisErr": "error during FFmpeg analysis"
+        "smartCuesAnalysisErr": "error during FFmpeg analysis",
+        "zoomOut": "Zoom Out",
+        "zoomIn": "Zoom In",
+        "statusLabel": "Status",
+        "btnTrimStart": "Trim Start",
+        "btnTrimEnd": "Trim End",
+        "btnSetIntro": "Set Intro",
+        "btnSetOutro": "Set Outro"
     },
     "grid": {
         "silenceRemovedSongs": "Silence automatically removed from {{count}} songs.",
@@ -348,7 +424,8 @@
         "allColumnsHidden": "All columns are hidden",
         "reenableHint": "Re-enable them from Settings → General → \"Broadcast layout — columns\"",
         "silenceScanPreshow": "Silence detection… {{count}} files being analyzed",
-        "silenceScanMusic": "Silence detection… {{count}} songs being analyzed"
+        "silenceScanMusic": "Silence detection… {{count}} songs being analyzed",
+        "dropAudioHere": "Drop Audio Here"
     },
     "recording": {
         "startError": "Recording start error: {{error}}",
@@ -356,17 +433,103 @@
         "exportLabel": "EXPORT",
         "deleteTempTip": "Delete temporary recording",
         "stopTip": "Stop recording",
-        "startTip": "Start session recording (Master Mix)"
+        "startTip": "Start session recording (Master Mix)",
+        "converting": "Converting...",
+        "recBadge": "REC"
     },
     "card": {
         "missingFile": "MISSING FILE",
-        "missingTitle": "⚠️ {{name}} (File Not Found)"
+        "missingTitle": "⚠️ {{name}} (File Not Found)",
+        "staccoBadge": "JINGLE",
+        "loopBadge": "LOOP",
+        "nextBadge": "NEXT",
+        "upNextBadge": "▶ UP NEXT",
+        "trimmingBadge": "TRIM…",
+        "fadeOutBadge": "FADE OUT",
+        "priorityBadge": "PRIORITY",
+        "bpmTip": "Estimated BPM (automatic analysis)"
     },
     "column": {
         "rotationActiveTip": "Jingle & Promo rotation active",
         "rotationConfigTip": "Configure Jingle & Promo rotation",
         "changeColorTip": "Change column color",
         "colorLabel": "Column Color",
-        "resetColor": "↺ Restore original color"
+        "resetColor": "↺ Restore original color",
+        "endBadge": "END",
+        "type": {
+            "asset": "ASSET",
+            "music": "MUSIC",
+            "voice": "VOICE",
+            "sfx": "SFX",
+            "preshow": "PRESHOW"
+        }
+    },
+    "app": {
+        "unsavedBeforeOpen": "There are unsaved changes. What do you want to do before opening the new project?",
+        "saveFailed": "Save failed: {{err}}",
+        "canceled": "canceled",
+        "invalidLmp": "Invalid LMP file: {{err}}",
+        "unknownStructure": "unrecognized structure",
+        "cannotOpenFile": "Cannot open file: {{err}}",
+        "unknownError": "unknown error",
+        "lmpReadError": "Error reading LMP file.",
+        "deleteSelectedConfirm": "Delete {{count}} selected clips?",
+        "deleteLabel": "Delete",
+        "saveError": "Save error: {{err}}",
+        "openPlayoutLog": "Open Playout Log"
+    },
+    "keymap": {
+        "title": "Keybinds & MIDI Dashboard",
+        "emergencyStop": "Emergency Stop (all players)",
+        "stopAllMidi": "Stop All (MIDI)",
+        "masterVolumeMidi": "Master Volume (MIDI CC)",
+        "intro1": "Click a <1>Keyboard</1> input and press a key to assign it to the clip.",
+        "intro2": "Click <1>Learn MIDI</1> and press a physical controller.",
+        "intro3": "To remove, use the red <1>X</1> or <3>Backspace</3>.",
+        "intro4": "<1>System</1> bindings are fixed and cannot be changed.",
+        "thTarget": "Target",
+        "thType": "Type",
+        "thKeyboard": "Keyboard",
+        "systemSection": "Global System Actions",
+        "typeSystem": "System",
+        "typeGlobal": "Global",
+        "typeClip": "Clip",
+        "clickToSet": "Click to set...",
+        "listening": "LISTENING...",
+        "learnMidi": "Learn MIDI",
+        "conflictMsg": "The key \"{{key}}\" is already assigned to \"{{name}}\". Move it to this clip? The previous clip will lose the binding.",
+        "conflictOk": "Move",
+        "emptyColumn": "No clips in this column",
+        "addClipsHint": "Add clips to the project to map them here.",
+        "closePanel": "Close Panel"
+    },
+    "midiSim": {
+        "title": "MIDI Simulator",
+        "subtitle": "Test tool · no device required",
+        "channel": "Channel",
+        "note": "Note",
+        "value": "Value",
+        "send": "Send message",
+        "lastSent": "Last sent:",
+        "footer": "Note Off and Note On with velocity 0 are filtered upstream (no trigger) — expected behavior. To test <1>MIDI Learn</1>: enable the mode, select a clip, then send a <3>Note On</3>."
+    },
+    "errors": {
+        "unhandledRejection": "Unhandled promise rejection",
+        "asyncError": "Async error: {{msg}}",
+        "zoneError": "Error in {{zone}}",
+        "unknownRender": "Unknown render error.",
+        "retry": "Retry"
+    },
+    "debug": {
+        "notMeasured": "not measured",
+        "normOff": "norm. OFF",
+        "stateInspector": "STATE INSPECTOR",
+        "audioMonitor": "Audio Monitor",
+        "normalization": "Loudness normalization",
+        "grNote": "Negative GR = working; ~0 = gentle/inactive",
+        "activeClips": "Active Clips",
+        "logStream": "LOG STREAM",
+        "copy": "COPY",
+        "clear": "CLEAR"
     }
 }

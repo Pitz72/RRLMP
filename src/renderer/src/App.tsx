@@ -29,6 +29,9 @@ import { AutomixView } from './components/automix/AutomixView';
 import { populateDefaultFxIfPadEmpty } from './utils/defaultSfx';
 import { UpdateModal } from './components/modals/UpdateModal';
 import { UpdaterStatusPayload } from './types';
+// i18n: qui si usa i18n.t diretto (non l'hook) — i gestori vivono in closure di
+// useEffect con deps vuote e l'istanza i18n risolve sempre la lingua corrente.
+import i18n from './i18n';
 
 
 import appLogo from './assets/logo.png';
@@ -112,10 +115,10 @@ function App() {
                 const state = useProjectStore.getState();
                 if (state.isDirty) {
                     const response = await confirmThree(
-                        'Ci sono modifiche non salvate. Cosa vuoi fare prima di aprire il nuovo progetto?',
-                        'Salva',
-                        'Non Salvare',
-                        'Annulla'
+                        i18n.t('app.unsavedBeforeOpen', 'Ci sono modifiche non salvate. Cosa vuoi fare prima di aprire il nuovo progetto?'),
+                        i18n.t('modal.dialog.save', 'Salva'),
+                        i18n.t('modal.dialog.discard', 'Non Salvare'),
+                        i18n.t('modal.dialog.cancel', 'Annulla')
                     );
                     if (response === 'cancel') return;
                     if (response === 'confirm') {
@@ -129,7 +132,7 @@ function App() {
                             ? await window.electron.saveProjectDirect(json, state.currentFilePath)
                             : await window.electron.saveProject(json);
                         if (!saveRes.success) {
-                            toast('Salvataggio non riuscito: ' + (saveRes.error ?? 'annullato'), 'error');
+                            toast(i18n.t('app.saveFailed', 'Salvataggio non riuscito: {{err}}', { err: saveRes.error ?? i18n.t('app.canceled', 'annullato') }), 'error');
                             return;
                         }
                     }
@@ -148,13 +151,13 @@ function App() {
                         // v1.11.2: .lmp senza clip FX → pad popolato coi default
                         void populateDefaultFxIfPadEmpty();
                     } catch (e) {
-                        toast('File LMP non valido: ' + (e instanceof Error ? e.message : 'struttura non riconosciuta'), 'error');
+                        toast(i18n.t('app.invalidLmp', 'File LMP non valido: {{err}}', { err: e instanceof Error ? e.message : i18n.t('app.unknownStructure', 'struttura non riconosciuta') }), 'error');
                     }
                 } else {
-                    toast('Impossibile aprire il file: ' + (result.error ?? 'errore sconosciuto'), 'error');
+                    toast(i18n.t('app.cannotOpenFile', 'Impossibile aprire il file: {{err}}', { err: result.error ?? i18n.t('app.unknownError', 'errore sconosciuto') }), 'error');
                 }
             } catch (e) {
-                toast('Errore lettura file LMP.', 'error');
+                toast(i18n.t('app.lmpReadError', 'Errore lettura file LMP.'), 'error');
             }
         });
         return unsub;
@@ -289,7 +292,7 @@ function App() {
                 const { selectedClipIds, removeSelectedClips } = useProjectStore.getState();
                 if (selectedClipIds.length > 0) {
                     e.preventDefault();
-                    if (await confirm(`Eliminare ${selectedClipIds.length} clip selezionate?`, 'Elimina', 'Annulla')) {
+                    if (await confirm(i18n.t('app.deleteSelectedConfirm', 'Eliminare {{count}} clip selezionate?', { count: selectedClipIds.length }), i18n.t('app.deleteLabel', 'Elimina'), i18n.t('modal.dialog.cancel', 'Annulla'))) {
                         removeSelectedClips();
                     }
                 }
@@ -305,10 +308,10 @@ function App() {
 
             // v0.16.1: dialog completamente custom (non più nativo Windows)
             const response = await confirmThree(
-                'Ci sono modifiche non salvate. Cosa vuoi fare?',
-                'Salva',
-                'Non Salvare',
-                'Annulla'
+                i18n.t('modal.dialog.unsaved', 'Ci sono modifiche non salvate. Cosa vuoi fare?'),
+                i18n.t('modal.dialog.save', 'Salva'),
+                i18n.t('modal.dialog.discard', 'Non Salvare'),
+                i18n.t('modal.dialog.cancel', 'Annulla')
             );
 
             if (response === 'confirm') { // SAVE
@@ -324,7 +327,7 @@ function App() {
                 if (state.currentFilePath) {
                     const result = await window.electron.saveProjectDirect(json, state.currentFilePath);
                     if (result.success) window.electron.forceClose();
-                    else toast('Errore salvataggio: ' + result.error, 'error');
+                    else toast(i18n.t('app.saveError', 'Errore salvataggio: {{err}}', { err: result.error }), 'error');
                 } else {
                     const result = await window.electron.saveProject(json);
                     if (result.success) window.electron.forceClose();
@@ -493,7 +496,7 @@ function App() {
                                 // v1.11.2: .lmp senza clip FX → pad popolato coi default
                                 void populateDefaultFxIfPadEmpty();
                             } catch (e) {
-                                toast('File LMP non valido: ' + (e instanceof Error ? e.message : 'struttura non riconosciuta'), 'error');
+                                toast(i18n.t('app.invalidLmp', 'File LMP non valido: {{err}}', { err: e instanceof Error ? e.message : i18n.t('app.unknownStructure', 'struttura non riconosciuta') }), 'error');
                             }
                         }
                     }}
@@ -534,7 +537,7 @@ function App() {
                     <button
                         onClick={() => setShowPlayoutLog(true)}
                         className="flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400 hover:text-cyan-300 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 hover:border-cyan-600/50 rounded transition-all"
-                        title="Apri Playout Log"
+                        title={i18n.t('app.openPlayoutLog', 'Apri Playout Log')}
                     >
                         <ListChecks size={13} />
                     </button>

@@ -8,6 +8,7 @@ import { debugLog } from './useDebugStore';
 import { useProjectStore } from './useProjectStore';
 import { useSettingsStore } from './useSettingsStore';
 import * as AUDIO_CONST from '../constants/audioConstants';
+import i18n from '../i18n';
 
 // v1.2.19 (NEW-GR-04): cap FIFO sul playoutLog per evitare degrado progressivo
 // in memoria su sessioni broadcast lunghe (8h+ con jingle/SFX su tasti rapidi
@@ -1475,11 +1476,11 @@ export const useAudioStore = create<AudioStore>((set, get) => {
         // cambia comportamento. Il piano (beat-match o fallback classico) viene
         // dal motore puro planTransition (engine/automixEngine.ts, Fase B+D).
         automixTransition: async (fromClipId: string, toClipId: string) => {
-            if (_automixInFlight) return { mode: 'skipped' as const, reason: 'transizione già in corso' };
+            if (_automixInFlight) return { mode: 'skipped' as const, reason: i18n.t('automix.skipInFlight', 'transizione già in corso') };
             const fromState = get().activeClips[fromClipId];
             const toClip = getFreshClipById(toClipId);
             if (!fromState || !toClip || toClip.isMissing || get().activeClips[toClipId]) {
-                return { mode: 'skipped' as const, reason: 'stato non valido (uscente fermo, entrante già in onda o file mancante)' };
+                return { mode: 'skipped' as const, reason: i18n.t('automix.skipInvalidState', 'stato non valido (uscente fermo, entrante già in onda o file mancante)') };
             }
             _automixInFlight = true;
             try {
@@ -1541,7 +1542,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     // il fade non era ancora stato armato. MAI dead air per un tentativo di mix.
                     set(state => ({ fadingClipIds: state.fadingClipIds.filter(id => id !== fromClipId) }));
                     debugLog(`Automix: partenza di ${toClip.name} fallita — transizione annullata, uscente in onda`, 'error');
-                    return { mode: 'skipped' as const, reason: 'partenza entrante fallita' };
+                    return { mode: 'skipped' as const, reason: i18n.t('automix.skipStartFailed', 'partenza entrante fallita') };
                 }
                 const toPlayer = toState.player;
                 toPlayer.setPlaybackRate?.(plan.rate);

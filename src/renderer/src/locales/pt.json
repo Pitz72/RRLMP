@@ -12,14 +12,17 @@
         "latest": "✅ Versão mais recente",
         "updateAvailable": "⬇️ Atualização disponível v{{version}}",
         "developedBy": "Desenvolvido por Simone Pizzi com Gemini 3.0",
-        "copyright": "© 2026 Runtime Radio"
+        "copyright": "© 2026 Runtime Radio",
+        "comingSoon": "Em breve via Web"
     },
     "columns": {
-        "assets": "RECURSOS DO SHOW",
+        "assets": "RECURSOS DO PROGRAMA",
         "music": "MÚSICAS DO EPISÓDIO",
-        "voice": "VOZ / GRAVAÇÕES",
+        "voice": "VOZES / GRAVAÇÕES",
         "sfx": "SFX / CARTWALL",
-        "preshow": "PRÉ-SHOW"
+        "preshow": "PRÉ-SHOW",
+        "jingle": "JINGLE",
+        "promo": "PROMO"
     },
     "controls": {
         "stopAll": "PARAR TUDO",
@@ -41,13 +44,29 @@
         "midiUnavailable": "MIDI não disponível",
         "midiLearnActive": "MIDI Learn — ativo (sair)",
         "micDisarm": "Desarmar microfone",
-        "micArm": "Armar microfone (Smart Ducking + Mix Input)"
+        "micArm": "Armar microfone (Smart Ducking + Mix Input)",
+        "saveFailed": "Falha ao salvar: {{err}}",
+        "m3uEmpty": "Nenhum arquivo de áudio encontrado na playlist.",
+        "m3uImported": "M3U importada — {{count}} faixas adicionadas ao PRÉ-SHOW",
+        "exportNeedsSave": "Salve o projeto primeiro: o arquivo de áudio é criado ao lado do arquivo de salvamento.",
+        "exportCopied": "{{count}} copiados",
+        "exportPruned": "{{count}} removidos",
+        "exportSynced": "Arquivo de áudio sincronizado — {{parts}} em:\n{{path}}\\audio",
+        "exportError": "Erro de exportação: {{err}}",
+        "exportIpcError": "Erro ao chamar Export IPC",
+        "exportStarting": "Iniciando...",
+        "stopAllTipSuffix": "para tudo (parada de emergência)",
+        "fileMenu": "ARQUIVO",
+        "onMixBadge": "On Mix",
+        "micVolBadge": "Vol mic",
+        "autoSaved": "Salvamento automático"
     },
     "modal": {
         "about": {
             "title": "Runtime Live Machine Pro",
             "description": "Arquitetura de áudio broadcast profissional",
-            "manual": "Manual Online"
+            "manual": "Manual Online",
+            "checkNow": "Verificar atualizações agora"
         },
         "settings": {
             "title": "Configurações gerais",
@@ -183,7 +202,38 @@
             "clearNotes": "Limpar",
             "notesPlaceholder": "Introduza aqui o script, as notas de produção, os cues...",
             "charCount": "{{count}} caracteres",
-            "nonEmptyLines": "{{count}} linhas não vazias"
+            "nonEmptyLines": "{{count}} linhas não vazias",
+            "outroIncoherent": "Marcador de outro incoerente com o corte/duração — desativado.",
+            "analysisQueued": "Análise na fila — muitas operações FFmpeg em paralelo. Tente novamente em alguns segundos.",
+            "autoTrimError": "Auto-Trim: erro durante a análise do FFmpeg.",
+            "autoTrimNoSilence": "Auto-Trim: nenhum silêncio detectado nas bordas do arquivo.",
+            "autoTrimApplied": "Auto-Trim aplicado — Início: {{start}}s / Corte final: {{end}}s",
+            "silenceAnalysisError": "Erro durante a análise de silêncio.",
+            "nameLabel": "Nome do clipe",
+            "colorLabel": "Etiqueta de cor",
+            "volumeGain": "Ganho de volume",
+            "globalKeybind": "Atalho global",
+            "recordKeyPlaceholder": "Clique e pressione uma tecla...",
+            "behaviorLabel": "Comportamento de reprodução",
+            "behaviorNormal": "Normal",
+            "behaviorStacco": "Jingle (vinheta)",
+            "loopPlayback": "Reprodução em loop",
+            "autoplayNext": "Avanço automático",
+            "nextStop": "Parar",
+            "nextPlayNext": "Tocar próximo",
+            "testTransition": "Teste →",
+            "stopPreview": "Parar",
+            "smoothFades": "Fades suaves",
+            "fadeInMs": "Fade In (ms)",
+            "fadeOutMs": "Fade Out (ms)",
+            "manualInputs": "Valores manuais",
+            "autoTrim": "Auto-Trim",
+            "trimStartS": "Corte inicial (s)",
+            "trimEndS": "Corte final (s)",
+            "introEndS": "Fim da intro (s)",
+            "outroStartS": "Início do outro (s)",
+            "deleteClipBtn": "EXCLUIR CLIPE",
+            "saveChanges": "SALVAR ALTERAÇÕES"
         },
         "dialog": {
             "unsaved": "Há alterações não salvas. O que você deseja fazer?",
@@ -261,6 +311,10 @@
             "downloadInstall": "Transferir e instalar",
             "download": "Transferir",
             "restartInstall": "Reiniciar e instalar"
+        },
+        "exportProgress": {
+            "title": "Exportando...",
+            "filesCount": "{{current}} / {{total}} arquivos"
         }
     },
     "automix": {
@@ -295,11 +349,19 @@
         "dragTracksHint": "Arraste os temas para a coluna Music do painel: a lista aparece aqui na mesma ordem.",
         "firstTrackStart": "▶ primeiro tema — inicia com START",
         "confidence": "Confidence {{v}}",
-        "bpmNotDetected": "BPM não detetado"
+        "bpmNotDetected": "BPM não detetado",
+        "skipInFlight": "transição já em andamento",
+        "skipInvalidState": "estado inválido (saída parada, entrada já no ar ou arquivo ausente)",
+        "skipStartFailed": "falha ao iniciar a faixa de entrada"
     },
     "nowPlaying": {
         "inLoop": "Em loop",
-        "noTrack": "Nenhum tema no ar"
+        "noTrack": "Nenhum tema no ar",
+        "onAir": "ON AIR",
+        "onAirLabel": "NO AR",
+        "offAir": "FORA DO AR",
+        "outroIn": "OUTRO EM {{time}}",
+        "upNext": "A SEGUIR"
     },
     "confirm": {
         "newProject": "Novo Projeto: as alterações não guardadas serão perdidas. Continuar?",
@@ -307,7 +369,8 @@
         "loadProject": "Tem alterações não guardadas. Carregar um novo projeto irá sobrepô-las. Continuar?",
         "loadProjectOk": "Carregar mesmo assim",
         "exportUnsaved": "Existem alterações não guardadas. Recomenda-se guardar antes de exportar. Continuar mesmo assim?",
-        "exportUnsavedOk": "Exportar mesmo assim"
+        "exportUnsavedOk": "Exportar mesmo assim",
+        "defaultOk": "Confirmar"
     },
     "waveform": {
         "position": "Posição",
@@ -328,7 +391,14 @@
         "smartCuesDone": "Smart Cues — Intro: {{intro}}s · Outro: {{outro}}s",
         "smartCuesNone": "Smart Cues: nenhum cue significativo detetado.",
         "smartCuesError": "Smart Cues: {{err}}",
-        "smartCuesAnalysisErr": "erro durante a análise FFmpeg"
+        "smartCuesAnalysisErr": "erro durante a análise FFmpeg",
+        "zoomOut": "Reduzir zoom",
+        "zoomIn": "Ampliar zoom",
+        "statusLabel": "Status",
+        "btnTrimStart": "Corte inicial",
+        "btnTrimEnd": "Corte final",
+        "btnSetIntro": "Definir intro",
+        "btnSetOutro": "Definir outro"
     },
     "grid": {
         "silenceRemovedSongs": "Silêncio removido automaticamente de {{count}} músicas.",
@@ -337,7 +407,8 @@
         "allColumnsHidden": "Todas as colunas estão ocultas",
         "reenableHint": "Reative-as em Definições → Gerais → \"Layout de regia — colunas\"",
         "silenceScanPreshow": "Deteção de silêncio… {{count}} ficheiros em análise",
-        "silenceScanMusic": "Deteção de silêncio… {{count}} músicas em análise"
+        "silenceScanMusic": "Deteção de silêncio… {{count}} músicas em análise",
+        "dropAudioHere": "Solte o áudio aqui"
     },
     "recording": {
         "startError": "Erro ao iniciar a gravação: {{error}}",
@@ -345,18 +416,36 @@
         "exportLabel": "EXPORTAR",
         "deleteTempTip": "Eliminar gravação temporária",
         "stopTip": "Parar gravação",
-        "startTip": "Iniciar gravação de sessão (Master Mix)"
+        "startTip": "Iniciar gravação de sessão (Master Mix)",
+        "converting": "Convertendo...",
+        "recBadge": "REC"
     },
     "card": {
         "missingFile": "FICHEIRO EM FALTA",
-        "missingTitle": "⚠️ {{name}} (Ficheiro Não Encontrado)"
+        "missingTitle": "⚠️ {{name}} (Ficheiro Não Encontrado)",
+        "staccoBadge": "VINHETA",
+        "loopBadge": "LOOP",
+        "nextBadge": "NEXT",
+        "upNextBadge": "▶ UP NEXT",
+        "trimmingBadge": "TRIM…",
+        "fadeOutBadge": "FADE OUT",
+        "priorityBadge": "PRIORIDADE",
+        "bpmTip": "BPM estimado (análise automática)"
     },
     "column": {
         "rotationActiveTip": "Rotação Jingle&Promo ativa",
         "rotationConfigTip": "Configurar rotação Jingle&Promo",
         "changeColorTip": "Mudar cor da coluna",
         "colorLabel": "Cor da Coluna",
-        "resetColor": "↺ Repor cor original"
+        "resetColor": "↺ Repor cor original",
+        "endBadge": "FIM",
+        "type": {
+            "asset": "ASSET",
+            "music": "MUSIC",
+            "voice": "VOICE",
+            "sfx": "SFX",
+            "preshow": "PRESHOW"
+        }
     },
     "fxPad": {
         "restoreDefaultsTip": "Repor os FX predefinidos (biblioteca CC0 incluída no software)",
@@ -367,6 +456,80 @@
         "missingFileTip": "Ficheiro em falta: {{label}}",
         "settingsTip": "Definições da clip",
         "removeTip": "Remover do pad",
-        "hint": "Arraste aqui os ficheiros de áudio para adicionar efeitos · clique para tocar/parar · ESC = STOP ALL global"
+        "hint": "Arraste aqui os ficheiros de áudio para adicionar efeitos · clique para tocar/parar · ESC = STOP ALL global",
+        "title": "FX / CARTWALL",
+        "removeConfirm": "Remover o efeito \"{{label}}\" do pad?",
+        "removeOk": "Remover",
+        "restoreConfirm": "Adicionar ao pad os efeitos padrão ausentes (biblioteca incluída no software)? Os FX existentes não são alterados.",
+        "restoreOk": "Restaurar",
+        "libUnavailable": "Biblioteca FX padrão indisponível: {{err}}"
+    },
+    "app": {
+        "unsavedBeforeOpen": "Há alterações não salvas. O que você quer fazer antes de abrir o novo projeto?",
+        "saveFailed": "Falha ao salvar: {{err}}",
+        "canceled": "cancelado",
+        "invalidLmp": "Arquivo LMP inválido: {{err}}",
+        "unknownStructure": "estrutura não reconhecida",
+        "cannotOpenFile": "Não foi possível abrir o arquivo: {{err}}",
+        "unknownError": "erro desconhecido",
+        "lmpReadError": "Erro ao ler o arquivo LMP.",
+        "deleteSelectedConfirm": "Excluir {{count}} clipes selecionados?",
+        "deleteLabel": "Excluir",
+        "saveError": "Erro ao salvar: {{err}}",
+        "openPlayoutLog": "Abrir log de transmissão"
+    },
+    "keymap": {
+        "title": "Atalhos e painel MIDI",
+        "emergencyStop": "Parada de emergência (todos os players)",
+        "stopAllMidi": "Stop All (MIDI)",
+        "masterVolumeMidi": "Volume master (MIDI CC)",
+        "intro1": "Clique em um campo <1>Keyboard</1> e pressione uma tecla para atribuí-la ao clipe.",
+        "intro2": "Clique em <1>Learn MIDI</1> e acione um controlador físico.",
+        "intro3": "Para remover, use o <1>X</1> vermelho ou <3>Backspace</3>.",
+        "intro4": "As atribuições de <1>Sistema</1> são fixas e não podem ser alteradas.",
+        "thTarget": "Alvo",
+        "thType": "Tipo",
+        "thKeyboard": "Teclado",
+        "systemSection": "Ações globais do sistema",
+        "typeSystem": "Sistema",
+        "typeGlobal": "Global",
+        "typeClip": "Clipe",
+        "clickToSet": "Clique para definir...",
+        "listening": "OUVINDO...",
+        "learnMidi": "Learn MIDI",
+        "conflictMsg": "A tecla \"{{key}}\" já está atribuída a \"{{name}}\". Movê-la para este clipe? O clipe anterior perderá a atribuição.",
+        "conflictOk": "Mover",
+        "emptyColumn": "Nenhum clipe nesta coluna",
+        "addClipsHint": "Adicione clipes ao projeto para mapeá-los aqui.",
+        "closePanel": "Fechar painel"
+    },
+    "midiSim": {
+        "title": "Simulador MIDI",
+        "subtitle": "Ferramenta de teste · nenhum dispositivo necessário",
+        "channel": "Canal",
+        "note": "Nota",
+        "value": "Valor",
+        "send": "Enviar mensagem",
+        "lastSent": "Último enviado:",
+        "footer": "Note Off e Note On com velocity 0 são filtrados antes (sem disparo) — comportamento esperado. Para testar o <1>MIDI Learn</1>: ative o modo, selecione um clipe e envie um <3>Note On</3>."
+    },
+    "errors": {
+        "unhandledRejection": "Rejeição de promise não tratada",
+        "asyncError": "Erro assíncrono: {{msg}}",
+        "zoneError": "Erro em {{zone}}",
+        "unknownRender": "Erro de renderização desconhecido.",
+        "retry": "Tentar novamente"
+    },
+    "debug": {
+        "notMeasured": "não medida",
+        "normOff": "normal. OFF",
+        "stateInspector": "STATE INSPECTOR",
+        "audioMonitor": "Monitor de áudio",
+        "normalization": "Normalização",
+        "grNote": "GR negativo = trabalhando; ~0 = suave/inativo",
+        "activeClips": "Clipes ativos",
+        "logStream": "FLUXO DE LOG",
+        "copy": "COPIAR",
+        "clear": "LIMPAR"
     }
 }

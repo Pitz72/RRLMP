@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X, Send, Music } from 'lucide-react';
+import { useTranslation, Trans } from 'react-i18next';
 import MidiManager from '../../engine/MidiManager';
 import { useEscapeToClose } from '../../hooks/useEscapeToClose';
 
@@ -25,6 +26,7 @@ const TYPE_STATUS: Record<MsgType, number> = {
  * Aperto con Ctrl+Shift+M (coerente col Debug Overlay su Ctrl+Shift+D).
  */
 export const MidiSimulatorModal = ({ isOpen, onClose }: MidiSimulatorModalProps) => {
+    const { t } = useTranslation();
     const [channel, setChannel] = useState(1);   // 1-16 (UI), -1 nel byte
     const [note, setNote] = useState(60);          // 0-127 (nota o CC number)
     const [velocity, setVelocity] = useState(100); // 0-127 (velocity o CC value)
@@ -88,10 +90,10 @@ export const MidiSimulatorModal = ({ isOpen, onClose }: MidiSimulatorModalProps)
 
                 <div className="flex items-center gap-2 mb-1">
                     <Music size={18} className="text-emerald-400" />
-                    <h2 className="text-lg font-bold text-white">Simulatore MIDI</h2>
+                    <h2 className="text-lg font-bold text-white">{t('midiSim.title', 'Simulatore MIDI')}</h2>
                 </div>
                 <p className="text-[11px] text-amber-500/80 mb-5 uppercase tracking-wide">
-                    Strumento di test · nessun dispositivo richiesto
+                    {t('midiSim.subtitle', 'Strumento di test · nessun dispositivo richiesto')}
                 </p>
 
                 {/* TIPO MESSAGGIO */}
@@ -113,9 +115,9 @@ export const MidiSimulatorModal = ({ isOpen, onClose }: MidiSimulatorModalProps)
 
                 {/* CAMPI */}
                 <div className="grid grid-cols-3 gap-3 mb-5">
-                    {numField('Canale', channel, setChannel, 1, 16)}
-                    {numField(type === 'cc' ? 'CC #' : 'Nota', note, setNote, 0, 127)}
-                    {numField(type === 'cc' ? 'Valore' : 'Velocity', velocity, setVelocity, 0, 127)}
+                    {numField(t('midiSim.channel', 'Canale'), channel, setChannel, 1, 16)}
+                    {numField(type === 'cc' ? 'CC #' : t('midiSim.note', 'Nota'), note, setNote, 0, 127)}
+                    {numField(type === 'cc' ? t('midiSim.value', 'Valore') : 'Velocity', velocity, setVelocity, 0, 127)}
                 </div>
 
                 <button
@@ -123,20 +125,22 @@ export const MidiSimulatorModal = ({ isOpen, onClose }: MidiSimulatorModalProps)
                     className="btn btn-green w-full flex items-center justify-center gap-2"
                 >
                     <Send size={15} />
-                    Invia messaggio
+                    {t('midiSim.send', 'Invia messaggio')}
                 </button>
 
                 {lastSent && (
                     <div className="mt-4 card !p-3 text-[11px] font-mono text-zinc-400">
-                        <span className="text-zinc-600">Ultimo inviato:</span><br />
+                        <span className="text-zinc-600">{t('midiSim.lastSent', 'Ultimo inviato:')}</span><br />
                         <span className="text-emerald-400">{lastSent}</span>
                     </div>
                 )}
 
                 <p className="mt-4 text-[11px] text-zinc-500 leading-relaxed">
-                    Note Off e Note On con velocity 0 vengono filtrati a monte (nessun
-                    trigger) — comportamento atteso. Per testare il <b>MIDI Learn</b>:
-                    attiva la modalità, seleziona una clip, poi invia una <b>Note On</b>.
+                    <Trans i18nKey="midiSim.footer">
+                        Note Off e Note On con velocity 0 vengono filtrati a monte (nessun
+                        trigger) — comportamento atteso. Per testare il <b>MIDI Learn</b>:
+                        attiva la modalità, seleziona una clip, poi invia una <b>Note On</b>.
+                    </Trans>
                 </p>
             </div>
         </div>

@@ -37,6 +37,7 @@ if (import.meta.env.DEV && !w.electron) {
         saveProjectSilent: async () => ({ success: true }),
         saveProjectDirect: async () => ({ success: true }),
         showCloseDialog: async () => 1,
+        setAppLanguage: noop,
         forceClose: noop,
         onCheckCloseIntent: cleanup,
         showCloseDialogI18n: async () => 1,

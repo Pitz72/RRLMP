@@ -1,5 +1,7 @@
 import React, { Component, ReactNode } from 'react';
 import { toast } from '../../store/useToastStore';
+// Class component: niente hook — si usa i18n.t diretto (lingua corrente a runtime).
+import i18n from '../../i18n';
 
 // Installato una sola volta per tutta la sessione (più istanze ErrorBoundary non duplicano il listener)
 let _asyncHandlerInstalled = false;
@@ -14,9 +16,9 @@ if (typeof window !== 'undefined' && !_asyncHandlerInstalled) {
     window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
         const message = event.reason instanceof Error
             ? event.reason.message
-            : String(event.reason ?? 'Promise rejection non gestita');
+            : String(event.reason ?? i18n.t('errors.unhandledRejection', 'Promise rejection non gestita'));
         console.error('[ErrorBoundary] Unhandled async rejection:', event.reason);
-        toast(`Errore asincrono: ${message}`, 'error');
+        toast(i18n.t('errors.asyncError', 'Errore asincrono: {{msg}}', { msg: message }), 'error');
     });
 }
 
@@ -68,15 +70,15 @@ export class ErrorBoundary extends Component<Props, State> {
             return (
                 <div className="flex flex-col items-center justify-center gap-3 p-6 bg-red-950/30 border border-red-800 rounded-lg text-center">
                     <span className="text-2xl">⚠️</span>
-                    <p className="text-sm font-bold text-red-400">Errore in {zone}</p>
+                    <p className="text-sm font-bold text-red-400">{i18n.t('errors.zoneError', 'Errore in {{zone}}', { zone })}</p>
                     <p className="text-[11px] text-red-300/70 max-w-xs">
-                        {this.state.error?.message || 'Errore sconosciuto nel render.'}
+                        {this.state.error?.message || i18n.t('errors.unknownRender', 'Errore sconosciuto nel render.')}
                     </p>
                     <button
                         onClick={this.handleReset}
                         className="mt-1 px-4 py-1.5 bg-red-700 hover:bg-red-600 text-white text-xs rounded font-bold transition-colors"
                     >
-                        Riprova
+                        {i18n.t('errors.retry', 'Riprova')}
                     </button>
                 </div>
             );

@@ -113,7 +113,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
         if (safeOutro > 0 && knownDuration > 0) {
             const effectiveEnd = knownDuration - Number(trimEnd);
             if (safeOutro >= effectiveEnd || safeOutro <= Number(trimStart)) {
-                toast('Outro marker incoerente con trim/durata — disattivato.', 'warning');
+                toast(t('modal.clip.outroIncoherent', 'Outro marker incoerente con trim/durata — disattivato.'), 'warning');
                 safeOutro = 0;
             }
         }
@@ -160,23 +160,23 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
             if (!result.success || !result.data) {
                 // v1.2.22 (NEW-ME-01): distinguere rate-limit dagli errori reali
                 if (result.error === 'IPC_RATE_LIMITED') {
-                    toast('Analisi in coda — troppe operazioni FFmpeg parallele. Riprova tra qualche secondo.', 'warning');
+                    toast(t('modal.clip.analysisQueued', 'Analisi in coda — troppe operazioni FFmpeg parallele. Riprova tra qualche secondo.'), 'warning');
                 } else {
-                    toast('Auto-Trim: errore durante l\'analisi FFmpeg.', 'error');
+                    toast(t('modal.clip.autoTrimError', 'Auto-Trim: errore durante l\'analisi FFmpeg.'), 'error');
                 }
                 return;
             }
             if (result.data.noSilence) {
-                toast('Auto-Trim: nessun silenzio rilevato ai bordi del file.', 'warning');
+                toast(t('modal.clip.autoTrimNoSilence', 'Auto-Trim: nessun silenzio rilevato ai bordi del file.'), 'warning');
                 return;
             }
             setTrimStart(parseFloat(result.data.trimStart.toFixed(3)));
             setTrimEnd(parseFloat(result.data.trimEnd.toFixed(3)));
-            toast(`Auto-Trim applicato — Start: ${result.data.trimStart.toFixed(3)}s / End cut: ${result.data.trimEnd.toFixed(3)}s`, 'success');
+            toast(t('modal.clip.autoTrimApplied', 'Auto-Trim applicato — Start: {{start}}s / End cut: {{end}}s', { start: result.data.trimStart.toFixed(3), end: result.data.trimEnd.toFixed(3) }), 'success');
             debugLog(`Smart Trim: Start=${result.data.trimStart.toFixed(3)}, EndCut=${result.data.trimEnd.toFixed(3)}`, 'info');
         } catch (e) {
             console.error(e);
-            toast('Errore durante l\'analisi del silenzio.', 'error');
+            toast(t('modal.clip.silenceAnalysisError', 'Errore durante l\'analisi del silenzio.'), 'error');
         }
     };
 
@@ -226,7 +226,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                             <div className="space-y-6">
                                 {/* NAME */}
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Clip Name</label>
+                                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">{t('modal.clip.nameLabel', 'Nome Clip')}</label>
                                     <input
                                         type="text"
                                         value={name}
@@ -237,7 +237,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
 
                                 {/* COLORS */}
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Color Label</label>
+                                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">{t('modal.clip.colorLabel', 'Etichetta Colore')}</label>
                                     <div className="card !p-3 space-y-2">
                                         <div className="grid grid-cols-6 gap-1.5">
                                             {COLUMN_COLORS.map((c) => (
@@ -264,7 +264,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                 {/* VOLUME */}
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center">
-                                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Volume Gain</label>
+                                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">{t('modal.clip.volumeGain', 'Guadagno Volume')}</label>
                                         <span className="text-xs font-mono text-emerald-400">{(volume * 100).toFixed(0)}%</span>
                                     </div>
                                     <input
@@ -280,14 +280,14 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
 
                                 {/* KEYBIND */}
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Global Keybind</label>
+                                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">{t('modal.clip.globalKeybind', 'Scorciatoia Globale')}</label>
                                     <div className="flex gap-2">
                                         <input
                                             type="text"
                                             value={keybind}
                                             readOnly
                                             data-keybind-input
-                                            placeholder="Click to Record..."
+                                            placeholder={t('modal.clip.recordKeyPlaceholder', 'Clicca e premi un tasto...')}
                                             className="flex-1 sel mono text-center cursor-pointer"
                                             style={{ color: '#facc15' }}
                                             onKeyDown={(e) => {
@@ -317,19 +317,19 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                             <div className="space-y-6">
                                 {/* BEHAVIOR */}
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Playback Behavior</label>
+                                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">{t('modal.clip.behaviorLabel', 'Comportamento di Riproduzione')}</label>
                                     <div className="grid grid-cols-2 gap-2">
                                         <button
                                             onClick={() => setBehavior('normal')}
                                             className={`seg ${behavior === 'normal' ? 'on' : ''}`}
                                         >
-                                            Normal
+                                            {t('modal.clip.behaviorNormal', 'Normale')}
                                         </button>
                                         <button
                                             onClick={() => setBehavior('stacco')}
                                             className={`seg ${behavior === 'stacco' ? 'on-violet' : ''}`}
                                         >
-                                            Stacco (Jingle)
+                                            {t('modal.clip.behaviorStacco', 'Stacco (Jingle)')}
                                         </button>
                                     </div>
                                 </div>
@@ -337,7 +337,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                 {/* TOGGLES */}
                                 <div className="card space-y-3">
                                     <label className="flex items-center justify-between cursor-pointer group">
-                                        <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">Loop Playback</span>
+                                        <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">{t('modal.clip.loopPlayback', 'Riproduzione in Loop')}</span>
                                         <input
                                             type="checkbox"
                                             checked={isLooping}
@@ -349,14 +349,14 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                     <div className="h-px bg-zinc-900 my-1" />
 
                                     <label className="flex items-center justify-between cursor-pointer group">
-                                        <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">Autoplay Next</span>
+                                        <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">{t('modal.clip.autoplayNext', 'Avanzamento Automatico')}</span>
                                         <select
                                             value={nextAction}
                                             onChange={(e) => setNextAction(e.target.value as AudioClip['nextAction'])}
                                             className="bg-zinc-900 border border-zinc-800 rounded text-xs p-1 text-white outline-none focus:border-emerald-500"
                                         >
-                                            <option value="stop">Stop</option>
-                                            <option value="play_next">Play Next</option>
+                                            <option value="stop">{t('modal.clip.nextStop', 'Stop')}</option>
+                                            <option value="play_next">{t('modal.clip.nextPlayNext', 'Riproduci successiva')}</option>
                                         </select>
                                     </label>
 
@@ -392,7 +392,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                                     disabled={isPreviewingThisClip}
                                                 >
                                                     <PlayCircle size={13} />
-                                                    Test →
+                                                    {t('modal.clip.testTransition', 'Test →')}
                                                 </button>
                                                 {isPreviewingThisClip && (
                                                     <button
@@ -401,7 +401,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                                         title={t('modal.clip.stopPreviewTip', "Ferma l'anteprima")}
                                                     >
                                                         <StopCircle size={13} />
-                                                        Stop
+                                                        {t('modal.clip.stopPreview', 'Stop')}
                                                     </button>
                                                 )}
                                             </div>
@@ -432,10 +432,10 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {/* FADES */}
                                 <div className="card space-y-4">
-                                    <h3 className="text-xs uppercase text-zinc-500 font-bold border-b border-zinc-800 pb-2">Smooth Fades</h3>
+                                    <h3 className="text-xs uppercase text-zinc-500 font-bold border-b border-zinc-800 pb-2">{t('modal.clip.smoothFades', 'Dissolvenze')}</h3>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-1">
-                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">Fade In (ms)</label>
+                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">{t('modal.clip.fadeInMs', 'Fade In (ms)')}</label>
                                             <input
                                                 type="number"
                                                 value={fadeIn}
@@ -444,7 +444,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                             />
                                         </div>
                                         <div className="space-y-1">
-                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">Fade Out (ms)</label>
+                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">{t('modal.clip.fadeOutMs', 'Fade Out (ms)')}</label>
                                             <input
                                                 type="number"
                                                 value={fadeOut}
@@ -458,29 +458,29 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                 {/* MANUAL MARKERS INPUTS */}
                                 <div className="card space-y-4">
                                     <div className="flex justify-between items-center border-b border-zinc-800 pb-2">
-                                        <h3 className="text-xs uppercase text-zinc-500 font-bold">Manual Inputs</h3>
+                                        <h3 className="text-xs uppercase text-zinc-500 font-bold">{t('modal.clip.manualInputs', 'Valori Manuali')}</h3>
                                         <button
                                             onClick={detectSilence}
                                             className="flex items-center gap-1 text-[10px] text-purple-400 hover:text-purple-300 transition-colors border border-purple-500/30 rounded px-2 py-0.5 bg-purple-500/10"
                                         >
-                                            <Wand2 size={10} /> Auto-Trim
+                                            <Wand2 size={10} /> {t('modal.clip.autoTrim', 'Auto-Trim')}
                                         </button>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-1">
-                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">Trim Start (s)</label>
+                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">{t('modal.clip.trimStartS', 'Trim Start (s)')}</label>
                                             <input type="number" step="0.1" value={trimStart} onChange={(e) => setTrimStart(parseFloat(e.target.value) || 0)} className="sel text-center !text-blue-400" />
                                         </div>
                                         <div className="space-y-1">
-                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">Trim End (s)</label>
+                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">{t('modal.clip.trimEndS', 'Trim End (s)')}</label>
                                             <input type="number" step="0.1" value={trimEnd} onChange={(e) => setTrimEnd(parseFloat(e.target.value) || 0)} className="sel text-center !text-blue-400" />
                                         </div>
                                         <div className="space-y-1">
-                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">Intro End (s)</label>
+                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">{t('modal.clip.introEndS', 'Intro End (s)')}</label>
                                             <input type="number" step="0.1" value={introMarker} onChange={(e) => setIntroMarker(parseFloat(e.target.value) || 0)} className="sel text-center !text-emerald-400" />
                                         </div>
                                         <div className="space-y-1">
-                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">Outro Start (s)</label>
+                                            <label className="text-[10px] font-bold text-zinc-500 uppercase">{t('modal.clip.outroStartS', 'Outro Start (s)')}</label>
                                             <input type="number" step="0.1" value={outroMarker} onChange={(e) => setOutroMarker(parseFloat(e.target.value) || 0)} className="sel text-center !text-orange-400" />
                                         </div>
                                     </div>
@@ -523,14 +523,14 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                 {/* FOOTER */}
                 <div className="ov-foot" style={{ justifyContent: 'space-between' }}>
                     <button onClick={handleDelete} className="btn btn-danger">
-                        DELETE CLIP
+                        {t('modal.clip.deleteClipBtn', 'ELIMINA CLIP')}
                     </button>
                     <div className="flex gap-2">
                         <button onClick={onClose} className="btn btn-ghost">
-                            Cancel
+                            {t('modal.dialog.cancel', 'Annulla')}
                         </button>
                         <button onClick={handleSave} className="btn btn-green">
-                            SAVE CHANGES
+                            {t('modal.clip.saveChanges', 'SALVA MODIFICHE')}
                         </button>
                     </div>
                 </div>

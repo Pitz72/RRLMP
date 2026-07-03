@@ -64,6 +64,8 @@ declare global {
             saveProjectDirect: (content: string, filePath: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
 
             showCloseDialog: () => Promise<number>;
+            /** i18n (2026-07-03) — sincronizza la lingua col processo main (dialoghi nativi, errori IPC) */
+            setAppLanguage?: (lang: string) => void;
             showCloseDialogI18n?: (labels: {
                 btnSave: string; btnDiscard: string; btnCancel: string;
                 title: string; message: string;

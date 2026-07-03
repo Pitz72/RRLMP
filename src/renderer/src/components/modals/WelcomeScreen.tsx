@@ -91,7 +91,7 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject, updaterStatus, onOp
                         <button
                             disabled
                             className="bg-transparent text-zinc-600 font-medium py-2 text-sm cursor-not-allowed flex items-center justify-center gap-2"
-                            title="Coming Soon via Web"
+                            title={t('welcome.comingSoon', 'Presto disponibile via Web')}
                         >
                             {t('welcome.manual')}
                         </button>

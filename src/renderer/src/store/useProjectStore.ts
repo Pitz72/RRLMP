@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { Column, AudioClip, ClipType, RotationConfig } from '../types';
+import i18n from '../i18n';
 
 const VALID_CLIP_TYPES = new Set<ClipType>(['asset', 'music', 'voice', 'sfx', 'preshow']);
 
@@ -107,11 +108,11 @@ export function validateLmpProjectData(raw: unknown): { columns: Column[] } {
     if (anchor === -1) anchor = 0;
     let offset = 1;
     if (!hasId('col-jingle')) {
-        cols.splice(anchor + offset, 0, { id: 'col-jingle', title: 'JINGLE', type: 'asset', color: '#F59E0B', isLocked: false, clips: [] });
+        cols.splice(anchor + offset, 0, { id: 'col-jingle', title: i18n.t('columns.jingle', 'JINGLE'), type: 'asset', color: '#F59E0B', isLocked: false, clips: [] });
         offset++;
     }
     if (!hasId('col-promo')) {
-        cols.splice(anchor + offset, 0, { id: 'col-promo', title: 'PROMO', type: 'asset', color: '#06B6D4', isLocked: false, clips: [] });
+        cols.splice(anchor + offset, 0, { id: 'col-promo', title: i18n.t('columns.promo', 'PROMO'), type: 'asset', color: '#06B6D4', isLocked: false, clips: [] });
         offset++;
     }
     // Sanitize/inietta la config rotazione sulla PRE-SHOW (clamp every >= 1).
@@ -133,10 +134,14 @@ export function validateLmpProjectData(raw: unknown): { columns: Column[] } {
 // identico alle versioni precedenti finché l'operatore non la abilita.
 const DEFAULT_ROTATION = { jingleEnabled: false, jingleEvery: 4, promoEnabled: false, promoEvery: 6 } as const;
 
-const DEFAULT_COLUMNS: Column[] = [
+// i18n (2026-07-03): i titoli di default sono FUNZIONE (non costante) così vengono
+// risolti nella lingua corrente al momento della creazione del progetto. Il titolo
+// è dato di progetto (.lmp): una volta creato non cambia più al cambio lingua,
+// come un titolo rinominato dall'utente.
+const getDefaultColumns = (): Column[] => [
     {
         id: 'col-assets',
-        title: 'SHOW ASSETS',
+        title: i18n.t('columns.assets', 'SHOW ASSETS'),
         type: 'asset',
         color: '#10B981', // Emerald-500 (Green)
         isLocked: false, // v1.3.18: assets accetta i file trascinati come tutte le colonne (era true fino a v1.3.17, vedi MainGrid.handleNativeDrop)
@@ -147,7 +152,7 @@ const DEFAULT_COLUMNS: Column[] = [
         // ducking none, fadeOut 500ms) → una clip lanciata da sola si comporta come un asset.
         // È sorgente della rotazione PRE-SHOW (identificata per id stabile, non per type).
         id: 'col-jingle',
-        title: 'JINGLE',
+        title: i18n.t('columns.jingle', 'JINGLE'),
         type: 'asset',
         color: '#F59E0B', // Amber-500
         isLocked: false,
@@ -156,7 +161,7 @@ const DEFAULT_COLUMNS: Column[] = [
     {
         // v1.3.21: colonna PROMO. Vedi nota col-jingle.
         id: 'col-promo',
-        title: 'PROMO',
+        title: i18n.t('columns.promo', 'PROMO'),
         type: 'asset',
         color: '#06B6D4', // Cyan-500
         isLocked: false,
@@ -164,7 +169,7 @@ const DEFAULT_COLUMNS: Column[] = [
     },
     {
         id: 'col-music',
-        title: "CANZONI DELL'EPISODIO",
+        title: i18n.t('columns.music', "CANZONI DELL'EPISODIO"),
         type: 'music',
         color: '#EF4444', // Red-500
         isLocked: false,
@@ -172,7 +177,7 @@ const DEFAULT_COLUMNS: Column[] = [
     },
     {
         id: 'col-voice',
-        title: 'VOCI / PREREGISTRAZIONI',
+        title: i18n.t('columns.voice', 'VOCI / PREREGISTRAZIONI'),
         type: 'voice',
         color: '#F97316', // Orange-500
         isLocked: false,
@@ -180,7 +185,7 @@ const DEFAULT_COLUMNS: Column[] = [
     },
     {
         id: 'col-sfx',
-        title: 'SFX / CARTWALL',
+        title: i18n.t('columns.sfx', 'SFX / CARTWALL'),
         type: 'sfx',
         color: '#64748B', // Slate-500 (Grey)
         isLocked: false,
@@ -188,7 +193,7 @@ const DEFAULT_COLUMNS: Column[] = [
     },
     {
         id: 'col-preshow',
-        title: 'PRE-SHOW',
+        title: i18n.t('columns.preshow', 'PRE-SHOW'),
         type: 'preshow',
         color: '#8B5CF6', // Violet-500
         isLocked: false,
@@ -262,7 +267,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     isDirty: false,
     setDirty: (dirty) => set({ isDirty: dirty }),
 
-    columns: JSON.parse(JSON.stringify(DEFAULT_COLUMNS)),
+    columns: getDefaultColumns(),
     currentFilePath: null,
     undoStack: [],
     redoStack: [],
@@ -283,7 +288,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
     // PERSIST-09 (v1.3.3): resetProject ora azzera anche selectedClipIds (era l'unica
     // azione che cambia tutte le colonne senza ripulire la selezione).
-    resetProject: () => set({ columns: JSON.parse(JSON.stringify(DEFAULT_COLUMNS)), isDirty: false, currentFilePath: null, isMidiLearnMode: false, selectedClipIds: [], undoStack: [], redoStack: [] }),
+    resetProject: () => set({ columns: getDefaultColumns(), isDirty: false, currentFilePath: null, isMidiLearnMode: false, selectedClipIds: [], undoStack: [], redoStack: [] }),
 
     setColumnColor: (columnId, color) => { get()._snapshot(); set((state) => ({
         isDirty: true,

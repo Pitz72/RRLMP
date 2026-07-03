@@ -16,13 +16,18 @@
 // della colonna Music (messaggi 'state' sul WebSocket, in tempo reale) con un
 // bottone play/stop per clip, oltre allo STOP ALL globale.
 
+// i18n (2026-07-03): la pagina è servita a un dispositivo TERZO (tablet/PC in
+// LAN), quindi la lingua giusta è quella del BROWSER del dispositivo, non quella
+// della regia. Dizionario embedded (8 lingue, stesse dell'app) + rilevamento
+// client-side via navigator.language, fallback inglese. Nessuna dipendenza.
+
 export const INDEX_HTML = `<!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <meta name="theme-color" content="#0f172a" />
-<title>RRLMP — Regia Remota</title>
+<title>RRLMP — Remote Control</title>
 <link rel="icon" href="/icon.png" />
 <link rel="apple-touch-icon" href="/icon.png" />
 <style>
@@ -120,22 +125,40 @@ export const INDEX_HTML = `<!DOCTYPE html>
 </style>
 </head>
 <body>
-  <button id="fullscreenBtn" type="button">⛶ Schermo intero</button>
+  <button id="fullscreenBtn" type="button">⛶</button>
 
   <div class="card" id="pinScreen">
     <h1>RUNTIME LIVE MACHINE PRO</h1>
-    <p class="sub">Regia Remota — inserisci il PIN mostrato in regia</p>
+    <p class="sub" id="subLabel"></p>
     <input id="pin" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="------" />
-    <button id="connect">Connetti</button>
+    <button id="connect"></button>
     <div id="status"></div>
     <div id="controls">
       <button id="stopAll">■ STOP ALL</button>
       <div id="clipList"></div>
-      <p id="emptyState">Nessun brano nella colonna Music.</p>
+      <p id="emptyState"></p>
     </div>
   </div>
 <script>
 (function () {
+  // i18n client-side: lingua del BROWSER del dispositivo remoto (8 lingue, fallback en)
+  var RC_I18N = {
+    en: { sub: 'Remote Control — enter the PIN shown in the studio', connect: 'Connect', empty: 'No tracks in the Music column.', fsEnter: '⛶ Fullscreen', fsExit: '⛶ Exit fullscreen', connected: 'Connected.', rateLimited: 'Too many attempts, try again later.', wrongPin: 'Wrong PIN.', disconnected: 'Disconnected.', pin6: 'The PIN must have 6 digits.', verifying: 'Verifying…', connError: 'Server connection error.', play: '▶ Play', stop: '■ Stop', title: 'RRLMP — Remote Control' },
+    it: { sub: 'Regia Remota — inserisci il PIN mostrato in regia', connect: 'Connetti', empty: 'Nessun brano nella colonna Music.', fsEnter: '⛶ Schermo intero', fsExit: '⛶ Esci da schermo intero', connected: 'Connesso.', rateLimited: 'Troppi tentativi, riprova più tardi.', wrongPin: 'PIN errato.', disconnected: 'Disconnesso.', pin6: 'Il PIN deve avere 6 cifre.', verifying: 'Verifica in corso…', connError: 'Errore di connessione al server.', play: '▶ Play', stop: '■ Stop', title: 'RRLMP — Regia Remota' },
+    fr: { sub: 'Régie à distance — saisissez le PIN affiché en régie', connect: 'Connecter', empty: 'Aucun titre dans la colonne Music.', fsEnter: '⛶ Plein écran', fsExit: '⛶ Quitter le plein écran', connected: 'Connecté.', rateLimited: 'Trop de tentatives, réessayez plus tard.', wrongPin: 'PIN incorrect.', disconnected: 'Déconnecté.', pin6: 'Le PIN doit comporter 6 chiffres.', verifying: 'Vérification…', connError: 'Erreur de connexion au serveur.', play: '▶ Lecture', stop: '■ Stop', title: 'RRLMP — Régie à distance' },
+    de: { sub: 'Fernsteuerung — geben Sie die im Studio angezeigte PIN ein', connect: 'Verbinden', empty: 'Keine Titel in der Music-Spalte.', fsEnter: '⛶ Vollbild', fsExit: '⛶ Vollbild verlassen', connected: 'Verbunden.', rateLimited: 'Zu viele Versuche, versuchen Sie es später erneut.', wrongPin: 'Falsche PIN.', disconnected: 'Getrennt.', pin6: 'Die PIN muss 6 Ziffern haben.', verifying: 'Überprüfung…', connError: 'Verbindungsfehler zum Server.', play: '▶ Play', stop: '■ Stop', title: 'RRLMP — Fernsteuerung' },
+    es: { sub: 'Control remoto — introduce el PIN mostrado en el estudio', connect: 'Conectar', empty: 'No hay pistas en la columna Music.', fsEnter: '⛶ Pantalla completa', fsExit: '⛶ Salir de pantalla completa', connected: 'Conectado.', rateLimited: 'Demasiados intentos, inténtalo más tarde.', wrongPin: 'PIN incorrecto.', disconnected: 'Desconectado.', pin6: 'El PIN debe tener 6 dígitos.', verifying: 'Verificando…', connError: 'Error de conexión con el servidor.', play: '▶ Play', stop: '■ Stop', title: 'RRLMP — Control remoto' },
+    pt: { sub: 'Controle remoto — digite o PIN mostrado no estúdio', connect: 'Conectar', empty: 'Nenhuma faixa na coluna Music.', fsEnter: '⛶ Tela cheia', fsExit: '⛶ Sair da tela cheia', connected: 'Conectado.', rateLimited: 'Muitas tentativas, tente novamente mais tarde.', wrongPin: 'PIN incorreto.', disconnected: 'Desconectado.', pin6: 'O PIN deve ter 6 dígitos.', verifying: 'Verificando…', connError: 'Erro de conexão com o servidor.', play: '▶ Play', stop: '■ Stop', title: 'RRLMP — Controle remoto' },
+    ru: { sub: 'Удалённое управление — введите PIN, показанный в студии', connect: 'Подключить', empty: 'Нет треков в колонке Music.', fsEnter: '⛶ Полный экран', fsExit: '⛶ Выйти из полного экрана', connected: 'Подключено.', rateLimited: 'Слишком много попыток, попробуйте позже.', wrongPin: 'Неверный PIN.', disconnected: 'Отключено.', pin6: 'PIN должен состоять из 6 цифр.', verifying: 'Проверка…', connError: 'Ошибка соединения с сервером.', play: '▶ Play', stop: '■ Stop', title: 'RRLMP — Удалённое управление' },
+    zh: { sub: '远程控制 — 请输入直播间显示的 PIN 码', connect: '连接', empty: 'Music 列中没有曲目。', fsEnter: '⛶ 全屏', fsExit: '⛶ 退出全屏', connected: '已连接。', rateLimited: '尝试次数过多，请稍后再试。', wrongPin: 'PIN 码错误。', disconnected: '已断开连接。', pin6: 'PIN 码必须为 6 位数字。', verifying: '正在验证…', connError: '服务器连接错误。', play: '▶ 播放', stop: '■ 停止', title: 'RRLMP — 远程控制' }
+  };
+  var lang = (navigator.language || 'en').toLowerCase().split('-')[0];
+  var T = RC_I18N[lang] || RC_I18N.en;
+  document.documentElement.lang = lang in RC_I18N ? lang : 'en';
+  document.title = T.title;
+  document.getElementById('subLabel').textContent = T.sub;
+  document.getElementById('connect').textContent = T.connect;
+  document.getElementById('emptyState').textContent = T.empty;
   // v1.11.3: schermo intero via Fullscreen API (serve un gesto utente, quindi
   // un pulsante è l'unica via). Nascosto dove l'API non c'è (es. iPhone).
   var fullscreenBtn = document.getElementById('fullscreenBtn');
@@ -146,8 +169,9 @@ export const INDEX_HTML = `<!DOCTYPE html>
       return !!(document.fullscreenElement || document.webkitFullscreenElement);
     }
     function updateFullscreenLabel() {
-      fullscreenBtn.textContent = isFullscreen() ? '⛶ Esci da schermo intero' : '⛶ Schermo intero';
+      fullscreenBtn.textContent = isFullscreen() ? T.fsExit : T.fsEnter;
     }
+    updateFullscreenLabel();
     fullscreenBtn.addEventListener('click', function () {
       if (isFullscreen()) {
         (document.exitFullscreen || document.webkitExitFullscreen).call(document);
@@ -197,7 +221,7 @@ export const INDEX_HTML = `<!DOCTYPE html>
 
       var actionBtn = document.createElement('button');
       actionBtn.className = 'clip-btn ' + (clip.isPlaying ? 'stop' : 'play');
-      actionBtn.textContent = clip.isPlaying ? '■ Stop' : '▶ Play';
+      actionBtn.textContent = clip.isPlaying ? T.stop : T.play;
       actionBtn.addEventListener('click', function () {
         sendCommand(clip.isPlaying ? 'stopClip' : 'playClip', clip.id);
       });
@@ -220,10 +244,10 @@ export const INDEX_HTML = `<!DOCTYPE html>
       if (msg.type === 'auth-result') {
         if (msg.ok) {
           socket = ws;
-          setStatus('Connesso.', 'ok');
+          setStatus(T.connected, 'ok');
           controls.style.display = 'block';
         } else {
-          setStatus(msg.error === 'rate-limited' ? 'Troppi tentativi, riprova più tardi.' : 'PIN errato.', 'err');
+          setStatus(msg.error === 'rate-limited' ? T.rateLimited : T.wrongPin, 'err');
         }
       } else if (msg.type === 'state') {
         renderClipList(msg.clips);
@@ -233,7 +257,7 @@ export const INDEX_HTML = `<!DOCTYPE html>
       if (socket === ws) {
         socket = null;
         controls.style.display = 'none';
-        setStatus('Disconnesso.', 'err');
+        setStatus(T.disconnected, 'err');
       }
     };
     ws.onerror = function () { /* gestito da onclose */ };
@@ -242,18 +266,18 @@ export const INDEX_HTML = `<!DOCTYPE html>
   function tryConnect() {
     var pin = pinInput.value.trim();
     if (!/^\\d{6}$/.test(pin)) {
-      setStatus('Il PIN deve avere 6 cifre.', 'err');
+      setStatus(T.pin6, 'err');
       return;
     }
     btn.disabled = true;
-    setStatus('Verifica in corso…');
+    setStatus(T.verifying);
     fetch('/api/verify-pin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pin: pin })
     })
       .then(function (res) {
-        if (res.status === 429) { setStatus('Troppi tentativi, riprova più tardi.', 'err'); return null; }
+        if (res.status === 429) { setStatus(T.rateLimited, 'err'); return null; }
         return res.json();
       })
       .then(function (data) {
@@ -261,10 +285,10 @@ export const INDEX_HTML = `<!DOCTYPE html>
         if (data.ok) {
           openCommandChannel(pin);
         } else {
-          setStatus('PIN errato.', 'err');
+          setStatus(T.wrongPin, 'err');
         }
       })
-      .catch(function () { setStatus('Errore di connessione al server.', 'err'); })
+      .catch(function () { setStatus(T.connError, 'err'); })
       .finally(function () { btn.disabled = false; });
   }
 

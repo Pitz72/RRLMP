@@ -69,7 +69,7 @@ export const AboutModal = ({ isOpen, onClose, updaterStatus, onOpenUpdateModal, 
                             className="bg-zinc-800/50 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/50 py-2 rounded flex items-center justify-center gap-2 text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <RefreshCw size={14} className={updaterStatus.type === 'checking' ? 'animate-spin' : ''} />
-                            <span>Controlla aggiornamenti ora</span>
+                            <span>{t('modal.about.checkNow', 'Controlla aggiornamenti ora')}</span>
                         </button>
                         <button
                             disabled

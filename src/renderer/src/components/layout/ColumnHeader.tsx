@@ -85,15 +85,19 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
         >
             <div className="col-title" style={isDeadAirWarning ? { color: '#f59e0b', textShadow: 'none' } : undefined}>
                 {isDeadAirWarning && <AlertTriangle size={16} className="animate-bounce" />}
-                <span>{t(`columns.${column.id}`, column.title)}</span>
+                {/* Il titolo è dato di progetto (l'utente può rinominarlo): si mostra
+                    com'è salvato. I default vengono localizzati alla CREAZIONE del
+                    progetto (getDefaultColumns in useProjectStore) — un lookup per id
+                    qui sovrascriverebbe i titoli rinominati. */}
+                <span>{column.title}</span>
             </div>
 
             <div className="col-meta relative" ref={pickerRef}>
                 {isDeadAirWarning && (
-                    <span className="text-[10px] bg-amber-500 text-black px-1 rounded font-bold">END</span>
+                    <span className="text-[10px] bg-amber-500 text-black px-1 rounded font-bold">{t('column.endBadge', 'END')}</span>
                 )}
                 <div className={`col-type ${isDeadAirWarning ? 'text-amber-200 opacity-100' : ''}`}>
-                    {column.type.toUpperCase()}
+                    {t(`column.type.${column.type}`, column.type.toUpperCase())}
                 </div>
 
                 {/* v1.3.21 — Rotazione PRE-SHOW (Jingle&Promo) */}

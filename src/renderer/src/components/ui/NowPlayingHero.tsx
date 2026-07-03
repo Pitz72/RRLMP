@@ -108,11 +108,11 @@ export const NowPlayingHero: React.FC = () => {
         <div className="hero">
             <div className="hero-onair">
                 <span className={`dot ${clip ? 'pulse' : ''}`} style={clip ? undefined : { background: '#52525b', boxShadow: 'none' }} />
-                <span>ON AIR</span>
+                <span>{t('nowPlaying.onAir', 'ON AIR')}</span>
             </div>
 
             <div className="hero-info">
-                <span className="hero-label">{clip ? `IN ONDA · ${col?.title ?? ''}` : 'OFF AIR'}</span>
+                <span className="hero-label">{clip ? `${t('nowPlaying.onAirLabel', 'IN ONDA')} · ${col?.title ?? ''}` : t('nowPlaying.offAir', 'OFF AIR')}</span>
                 <span className="hero-title">{clip ? (clip.title || clip.name) : '—'}</span>
                 <span className="hero-artist">
                     {clip ? (clip.artist || (loop ? t('nowPlaying.inLoop', 'In loop') : ' ')) : t('nowPlaying.noTrack', 'Nessun brano in onda')}
@@ -126,13 +126,13 @@ export const NowPlayingHero: React.FC = () => {
                     {timerText}
                 </div>
                 {inOutroPre && (
-                    <div className="hero-cue pulse">OUTRO IN {fmt(outroT - elapsed)}</div>
+                    <div className="hero-cue pulse">{t('nowPlaying.outroIn', 'OUTRO IN {{time}}', { time: fmt(outroT - elapsed) })}</div>
                 )}
             </div>
 
             {nextClip && (
                 <div className="hero-next">
-                    <span className="nlbl">UP NEXT</span>
+                    <span className="nlbl">{t('nowPlaying.upNext', 'UP NEXT')}</span>
                     <span className="ntitle">{nextClip.title || nextClip.name}</span>
                 </div>
             )}

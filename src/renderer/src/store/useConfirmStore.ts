@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import i18n from '../i18n';
 
 interface ConfirmRequest {
     message: string;
@@ -28,9 +29,12 @@ export const useConfirmStore = create<ConfirmStore>((set, get) => ({
     request: null,
     threeWayRequest: null,
 
-    confirm: (message, confirmLabel = 'Conferma', cancelLabel = 'Annulla') => {
+    confirm: (message, confirmLabel, cancelLabel) => {
+        // Default risolti a runtime (non nei parametri) così seguono la lingua corrente
+        const okLabel = confirmLabel ?? i18n.t('confirm.defaultOk', 'Conferma');
+        const koLabel = cancelLabel ?? i18n.t('modal.dialog.cancel', 'Annulla');
         return new Promise<boolean>((resolve) => {
-            set({ request: { message, confirmLabel, cancelLabel, resolve } });
+            set({ request: { message, confirmLabel: okLabel, cancelLabel: koLabel, resolve } });
         });
     },
     respond: (value) => {

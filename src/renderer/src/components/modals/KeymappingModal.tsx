@@ -3,6 +3,7 @@ import { useProjectStore } from '../../store/useProjectStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import MidiManager from '../../engine/MidiManager';
 import { Keyboard, X, Info } from 'lucide-react';
+import { useTranslation, Trans } from 'react-i18next';
 import { confirm } from '../../store/useConfirmStore';
 
 interface KeymappingModalProps {
@@ -21,6 +22,7 @@ interface BindTarget {
 }
 
 export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClose }) => {
+    const { t } = useTranslation();
     const { columns, updateClip } = useProjectStore();
     const { globalMidiBinds, setGlobalMidiBind } = useSettingsStore();
 
@@ -30,7 +32,7 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
         {
             id: '__emergency_stop',
             type: 'global',
-            name: 'Emergency Stop (tutti i player)',
+            name: t('keymap.emergencyStop', 'Emergency Stop (tutti i player)'),
             keybind: '',
             midiBind: '',
             systemKeybind: 'Escape'
@@ -38,14 +40,14 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
         {
             id: 'stopAll',
             type: 'global',
-            name: 'Stop All (MIDI)',
+            name: t('keymap.stopAllMidi', 'Stop All (MIDI)'),
             keybind: '',
             midiBind: globalMidiBinds['stopAll'] || ''
         },
         {
             id: 'masterVolume',
             type: 'global',
-            name: 'Master Volume (MIDI CC)',
+            name: t('keymap.masterVolumeMidi', 'Master Volume (MIDI CC)'),
             keybind: '',
             midiBind: globalMidiBinds['masterVolume'] || ''
         }
@@ -144,9 +146,9 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
             // ConfirmDialog Promise-based (NON window.confirm — blocca thread audio).
             void (async () => {
                 const ok = await confirm(
-                    `Il tasto "${e.code}" è già assegnato a "${conflict.cl.name}". Vuoi spostarlo su questa clip? La clip precedente perderà il binding.`,
-                    'Sposta',
-                    'Annulla'
+                    t('keymap.conflictMsg', 'Il tasto "{{key}}" è già assegnato a "{{name}}". Vuoi spostarlo su questa clip? La clip precedente perderà il binding.', { key: e.code, name: conflict.cl.name }),
+                    t('keymap.conflictOk', 'Sposta'),
+                    t('modal.dialog.cancel', 'Annulla')
                 );
                 if (!ok) return;
                 updateClip(conflict.colId, conflict.cl.id, { keybind: '' });
@@ -171,7 +173,7 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
             <div className="flex items-center gap-2">
                 {pendingMidiTarget?.id === target.id ? (
                     <div className="w-32 bg-cyan-950 border border-cyan-500 text-cyan-400 rounded p-1.5 text-xs text-center font-bold animate-pulse shadow-[0_0_10px_rgba(6,182,212,0.3)]">
-                        LISTENING...
+                        {t('keymap.listening', 'IN ASCOLTO...')}
                     </div>
                 ) : (
                     <button
@@ -182,7 +184,7 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
                                 : 'bg-zinc-950 border-zinc-800 text-zinc-500 opacity-50 hover:opacity-100 hover:border-zinc-600'
                             }`}
                     >
-                        {target.midiBind ? target.midiBind.replace('NOTE:', 'Note ').replace('CC:', 'CC ') : 'Learn MIDI'}
+                        {target.midiBind ? target.midiBind.replace('NOTE:', 'Note ').replace('CC:', 'CC ') : t('keymap.learnMidi', 'Learn MIDI')}
                     </button>
                 )}
                 {target.midiBind && pendingMidiTarget?.id !== target.id && (
@@ -211,7 +213,7 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
                     type="text"
                     value={target.keybind}
                     readOnly
-                    placeholder="Click to set..."
+                    placeholder={t('keymap.clickToSet', 'Clicca e premi...')}
                     className={`w-32 bg-zinc-950 border rounded p-1.5 text-xs text-yellow-400 font-mono text-center cursor-pointer outline-none transition-all
                         ${target.keybind ? 'border-yellow-500/50 shadow-[0_0_8px_rgba(234,179,8,0.1)]' : 'border-zinc-800 opacity-50 hover:opacity-100 hover:border-zinc-600'}`}
                     onKeyDown={(e) => handleKeydownCapture(e, target)}
@@ -233,7 +235,7 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
                 {/* HEADER */}
                 <div className="p-4 flex justify-between items-center border-b border-zinc-800 bg-zinc-950/50 rounded-t-lg shrink-0">
                     <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                        <Keyboard className="text-cyan-400" /> Keybinds & MIDI Dashboard
+                        <Keyboard className="text-cyan-400" /> {t('keymap.title', 'Keybinds & MIDI Dashboard')}
                     </h2>
                     <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">
                         <X size={20} />
@@ -244,10 +246,10 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
                 <div className="bg-cyan-950/20 border-b border-cyan-900/30 p-3 shrink-0 flex items-start gap-3">
                     <Info className="text-cyan-500 shrink-0 mt-0.5" size={16} />
                     <p className="text-xs text-cyan-200/70 leading-relaxed">
-                        Clicca negli input <strong className="text-white">Keyboard</strong> e premi un tasto per assegnarlo alla clip.
-                        Clicca <strong className="text-white">Learn MIDI</strong> e premi un controller fisico.
-                        Per rimuovere usa la <strong className="text-red-400">X</strong> rossa o <kbd className="text-[10px] bg-zinc-800 px-1 rounded">Backspace</kbd>.
-                        I binding <strong className="text-zinc-300">Sistema</strong> sono fissi e non modificabili.
+                        <Trans i18nKey="keymap.intro1">Clicca negli input <strong className="text-white">Keyboard</strong> e premi un tasto per assegnarlo alla clip.</Trans>{' '}
+                        <Trans i18nKey="keymap.intro2">Clicca <strong className="text-white">Learn MIDI</strong> e premi un controller fisico.</Trans>{' '}
+                        <Trans i18nKey="keymap.intro3">Per rimuovere usa la <strong className="text-red-400">X</strong> rossa o <kbd className="text-[10px] bg-zinc-800 px-1 rounded">Backspace</kbd>.</Trans>{' '}
+                        <Trans i18nKey="keymap.intro4">I binding <strong className="text-zinc-300">Sistema</strong> sono fissi e non modificabili.</Trans>
                     </p>
                 </div>
 
@@ -256,9 +258,9 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
                     <table className="w-full text-left text-sm whitespace-nowrap">
                         <thead className="bg-zinc-950/80 sticky top-0 z-10 border-b border-zinc-800">
                             <tr>
-                                <th className="px-6 py-3 font-bold text-zinc-400 text-xs uppercase">Target</th>
-                                <th className="px-6 py-3 font-bold text-zinc-400 text-xs uppercase">Tipo</th>
-                                <th className="px-6 py-3 font-bold text-zinc-400 text-xs uppercase w-52">Keyboard</th>
+                                <th className="px-6 py-3 font-bold text-zinc-400 text-xs uppercase">{t('keymap.thTarget', 'Target')}</th>
+                                <th className="px-6 py-3 font-bold text-zinc-400 text-xs uppercase">{t('keymap.thType', 'Tipo')}</th>
+                                <th className="px-6 py-3 font-bold text-zinc-400 text-xs uppercase w-52">{t('keymap.thKeyboard', 'Keyboard')}</th>
                                 <th className="px-6 py-3 font-bold text-zinc-400 text-xs uppercase w-52">MIDI</th>
                             </tr>
                         </thead>
@@ -267,7 +269,7 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
                             {/* GLOBAL SECTION */}
                             <tr className="bg-zinc-950/60">
                                 <td colSpan={4} className="px-6 py-1.5 text-[10px] font-bold text-purple-400 uppercase tracking-widest">
-                                    — Azioni Globali di Sistema —
+                                    — {t('keymap.systemSection', 'Azioni Globali di Sistema')} —
                                 </td>
                             </tr>
                             {globalTargets.map(target => (
@@ -277,7 +279,7 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
                                     </td>
                                     <td className="px-6 py-3">
                                         <span className="text-[10px] bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
-                                            {target.systemKeybind ? 'Sistema' : 'Globale'}
+                                            {target.systemKeybind ? t('keymap.typeSystem', 'Sistema') : t('keymap.typeGlobal', 'Globale')}
                                         </span>
                                     </td>
                                     <td className="px-6 py-3">{renderKeyCell(target)}</td>
@@ -297,7 +299,7 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
                                     {col.clips.length === 0 && (
                                         <tr>
                                             <td colSpan={4} className="px-6 py-2 text-xs text-zinc-600 italic">
-                                                Nessuna clip in questa colonna
+                                                {t('keymap.emptyColumn', 'Nessuna clip in questa colonna')}
                                             </td>
                                         </tr>
                                     )}
@@ -319,7 +321,7 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-3">
-                                                    <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Clip</span>
+                                                    <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider">{t('keymap.typeClip', 'Clip')}</span>
                                                 </td>
                                                 <td className="px-6 py-3">{renderKeyCell(target)}</td>
                                                 <td className="px-6 py-3">{renderMidiCell(target)}</td>
@@ -332,7 +334,7 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
                             {columns.every(c => c.clips.length === 0) && globalTargets.length > 0 && (
                                 <tr>
                                     <td colSpan={4} className="text-center py-6 text-zinc-500 italic text-xs">
-                                        Aggiungi clip al progetto per mapparle qui.
+                                        {t('keymap.addClipsHint', 'Aggiungi clip al progetto per mapparle qui.')}
                                     </td>
                                 </tr>
                             )}
@@ -343,7 +345,7 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
                 {/* FOOTER */}
                 <div className="ov-foot">
                     <button onClick={onClose} className="btn btn-ghost">
-                        Chiudi Pannello
+                        {t('keymap.closePanel', 'Chiudi Pannello')}
                     </button>
                 </div>
             </div>

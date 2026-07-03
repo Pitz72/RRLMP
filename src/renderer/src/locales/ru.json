@@ -12,14 +12,17 @@
         "latest": "✅ Последняя версия",
         "updateAvailable": "⬇️ Доступно обновление v{{version}}",
         "developedBy": "Разработано Simone Pizzi совместно с Gemini 3.0",
-        "copyright": "© 2026 Runtime Radio"
+        "copyright": "© 2026 Runtime Radio",
+        "comingSoon": "Скоро будет доступно через веб"
     },
     "columns": {
         "assets": "РЕСУРСЫ ЭФИРА",
         "music": "МУЗЫКА ВЫПУСКА",
         "voice": "ГОЛОС / ЗАПИСИ",
         "sfx": "SFX / КАРТВОЛ",
-        "preshow": "PRE-SHOW"
+        "preshow": "PRE-SHOW",
+        "jingle": "ДЖИНГЛЫ",
+        "promo": "ПРОМО"
     },
     "controls": {
         "stopAll": "СТОП ВСЁ",
@@ -41,13 +44,29 @@
         "midiUnavailable": "MIDI недоступен",
         "midiLearnActive": "MIDI Learn — активен (выйти)",
         "micDisarm": "Снять микрофон с готовности",
-        "micArm": "Привести микрофон в готовность (Smart Ducking + Mix Input)"
+        "micArm": "Привести микрофон в готовность (Smart Ducking + Mix Input)",
+        "saveFailed": "Не удалось сохранить: {{err}}",
+        "m3uEmpty": "В плейлисте не найдено аудиофайлов.",
+        "m3uImported": "M3U импортирован — {{count}} треков добавлено в PRE-SHOW",
+        "exportNeedsSave": "Сначала сохраните проект: аудиоархив создаётся рядом с файлом сохранения.",
+        "exportCopied": "скопировано: {{count}}",
+        "exportPruned": "удалено: {{count}}",
+        "exportSynced": "Аудиоархив синхронизирован — {{parts}} в:\n{{path}}\\audio",
+        "exportError": "Ошибка экспорта: {{err}}",
+        "exportIpcError": "Ошибка вызова Export IPC",
+        "exportStarting": "Запуск...",
+        "stopAllTipSuffix": "останавливает всё (аварийный стоп)",
+        "fileMenu": "ФАЙЛ",
+        "onMixBadge": "В миксе",
+        "micVolBadge": "Громк. мик.",
+        "autoSaved": "Автосохранение"
     },
     "modal": {
         "about": {
             "title": "Runtime Live Machine Pro",
             "description": "Профессиональная архитектура аудиовещания",
-            "manual": "Онлайн-руководство"
+            "manual": "Онлайн-руководство",
+            "checkNow": "Проверить обновления сейчас"
         },
         "settings": {
             "title": "Общие настройки",
@@ -183,7 +202,38 @@
             "clearNotes": "Очистить",
             "notesPlaceholder": "Введите здесь script, заметки продакшна, cue...",
             "charCount": "{{count}} символов",
-            "nonEmptyLines": "{{count}} непустых строк"
+            "nonEmptyLines": "{{count}} непустых строк",
+            "outroIncoherent": "Маркер аутро несовместим с обрезкой/длительностью — отключён.",
+            "analysisQueued": "Анализ в очереди — слишком много параллельных операций FFmpeg. Повторите через несколько секунд.",
+            "autoTrimError": "Auto-Trim: ошибка при анализе FFmpeg.",
+            "autoTrimNoSilence": "Auto-Trim: тишина по краям файла не обнаружена.",
+            "autoTrimApplied": "Auto-Trim применён — начало: {{start}}с / обрезка конца: {{end}}с",
+            "silenceAnalysisError": "Ошибка при анализе тишины.",
+            "nameLabel": "Название клипа",
+            "colorLabel": "Цветовая метка",
+            "volumeGain": "Усиление громкости",
+            "globalKeybind": "Глобальная клавиша",
+            "recordKeyPlaceholder": "Кликните и нажмите клавишу...",
+            "behaviorLabel": "Поведение воспроизведения",
+            "behaviorNormal": "Обычный",
+            "behaviorStacco": "Джингл (отбивка)",
+            "loopPlayback": "Воспроизведение по кругу",
+            "autoplayNext": "Автопереход",
+            "nextStop": "Стоп",
+            "nextPlayNext": "Играть следующий",
+            "testTransition": "Тест →",
+            "stopPreview": "Стоп",
+            "smoothFades": "Плавные фейды",
+            "fadeInMs": "Fade In (мс)",
+            "fadeOutMs": "Fade Out (мс)",
+            "manualInputs": "Ручные значения",
+            "autoTrim": "Auto-Trim",
+            "trimStartS": "Обрезка начала (с)",
+            "trimEndS": "Обрезка конца (с)",
+            "introEndS": "Конец интро (с)",
+            "outroStartS": "Начало аутро (с)",
+            "deleteClipBtn": "УДАЛИТЬ КЛИП",
+            "saveChanges": "СОХРАНИТЬ ИЗМЕНЕНИЯ"
         },
         "dialog": {
             "unsaved": "Есть несохранённые изменения. Что вы хотите сделать?",
@@ -261,6 +311,10 @@
             "downloadInstall": "Скачать и установить",
             "download": "Скачать",
             "restartInstall": "Перезапустить и установить"
+        },
+        "exportProgress": {
+            "title": "Идёт экспорт...",
+            "filesCount": "{{current}} / {{total}} файлов"
         }
     },
     "automix": {
@@ -295,11 +349,19 @@
         "dragTracksHint": "Перетащите треки в колонку Music пульта: список появится здесь в том же порядке.",
         "firstTrackStart": "▶ первый трек — стартует по START",
         "confidence": "Confidence {{v}}",
-        "bpmNotDetected": "BPM не обнаружен"
+        "bpmNotDetected": "BPM не обнаружен",
+        "skipInFlight": "переход уже выполняется",
+        "skipInvalidState": "недопустимое состояние (уходящий остановлен, входящий уже в эфире или файл отсутствует)",
+        "skipStartFailed": "не удалось запустить входящий трек"
     },
     "nowPlaying": {
         "inLoop": "В loop",
-        "noTrack": "Нет трека в эфире"
+        "noTrack": "Нет трека в эфире",
+        "onAir": "В ЭФИРЕ",
+        "onAirLabel": "В ЭФИРЕ",
+        "offAir": "НЕ В ЭФИРЕ",
+        "outroIn": "АУТРО ЧЕРЕЗ {{time}}",
+        "upNext": "ДАЛЕЕ"
     },
     "confirm": {
         "newProject": "Новый проект: несохранённые изменения будут потеряны. Продолжить?",
@@ -307,7 +369,8 @@
         "loadProject": "Есть несохранённые изменения. Загрузка нового проекта перезапишет их. Продолжить?",
         "loadProjectOk": "Загрузить всё равно",
         "exportUnsaved": "Есть несохранённые изменения. Рекомендуется сохранить перед экспортом. Продолжить всё равно?",
-        "exportUnsavedOk": "Экспортировать всё равно"
+        "exportUnsavedOk": "Экспортировать всё равно",
+        "defaultOk": "Подтвердить"
     },
     "waveform": {
         "position": "Позиция",
@@ -328,7 +391,14 @@
         "smartCuesDone": "Smart Cues — Intro: {{intro}}с · Outro: {{outro}}с",
         "smartCuesNone": "Smart Cues: значимых cue не обнаружено.",
         "smartCuesError": "Smart Cues: {{err}}",
-        "smartCuesAnalysisErr": "ошибка при анализе FFmpeg"
+        "smartCuesAnalysisErr": "ошибка при анализе FFmpeg",
+        "zoomOut": "Уменьшить масштаб",
+        "zoomIn": "Увеличить масштаб",
+        "statusLabel": "Статус",
+        "btnTrimStart": "Обрезка начала",
+        "btnTrimEnd": "Обрезка конца",
+        "btnSetIntro": "Задать интро",
+        "btnSetOutro": "Задать аутро"
     },
     "grid": {
         "silenceRemovedSongs": "Тишина автоматически удалена из {{count}} песен.",
@@ -337,7 +407,8 @@
         "allColumnsHidden": "Все колонки скрыты",
         "reenableHint": "Включите их снова в Настройки → Общие → «Раскладка эфирного пульта — колонки»",
         "silenceScanPreshow": "Обнаружение тишины… анализируется файлов: {{count}}",
-        "silenceScanMusic": "Обнаружение тишины… анализируется песен: {{count}}"
+        "silenceScanMusic": "Обнаружение тишины… анализируется песен: {{count}}",
+        "dropAudioHere": "Перетащите аудио сюда"
     },
     "recording": {
         "startError": "Ошибка запуска записи: {{error}}",
@@ -345,18 +416,36 @@
         "exportLabel": "ЭКСПОРТ",
         "deleteTempTip": "Удалить временную запись",
         "stopTip": "Остановить запись",
-        "startTip": "Начать запись сессии (Master Mix)"
+        "startTip": "Начать запись сессии (Master Mix)",
+        "converting": "Конвертация...",
+        "recBadge": "REC"
     },
     "card": {
         "missingFile": "ФАЙЛ ОТСУТСТВУЕТ",
-        "missingTitle": "⚠️ {{name}} (файл не найден)"
+        "missingTitle": "⚠️ {{name}} (файл не найден)",
+        "staccoBadge": "ДЖИНГЛ",
+        "loopBadge": "LOOP",
+        "nextBadge": "NEXT",
+        "upNextBadge": "▶ ДАЛЕЕ",
+        "trimmingBadge": "TRIM…",
+        "fadeOutBadge": "FADE OUT",
+        "priorityBadge": "ПРИОРИТЕТ",
+        "bpmTip": "Оценка BPM (автоматический анализ)"
     },
     "column": {
         "rotationActiveTip": "Ротация Jingle&Promo активна",
         "rotationConfigTip": "Настроить ротацию Jingle&Promo",
         "changeColorTip": "Изменить цвет колонки",
         "colorLabel": "Цвет колонки",
-        "resetColor": "↺ Восстановить исходный цвет"
+        "resetColor": "↺ Восстановить исходный цвет",
+        "endBadge": "КОНЕЦ",
+        "type": {
+            "asset": "ASSET",
+            "music": "MUSIC",
+            "voice": "VOICE",
+            "sfx": "SFX",
+            "preshow": "PRESHOW"
+        }
     },
     "fxPad": {
         "restoreDefaultsTip": "Восстановить FX по умолчанию (библиотека CC0, включённая в ПО)",
@@ -367,6 +456,80 @@
         "missingFileTip": "Файл отсутствует: {{label}}",
         "settingsTip": "Настройки клипа",
         "removeTip": "Удалить с pad",
-        "hint": "Перетащите сюда аудиофайлы, чтобы добавить эффекты · клик для воспроизведения/остановки · ESC = глобальный STOP ALL"
+        "hint": "Перетащите сюда аудиофайлы, чтобы добавить эффекты · клик для воспроизведения/остановки · ESC = глобальный STOP ALL",
+        "title": "FX / КАРТВОЛ",
+        "removeConfirm": "Убрать эффект \"{{label}}\" с пэда?",
+        "removeOk": "Убрать",
+        "restoreConfirm": "Добавить на пэд отсутствующие эффекты по умолчанию (библиотека входит в программу)? Существующие FX не затрагиваются.",
+        "restoreOk": "Восстановить",
+        "libUnavailable": "Библиотека FX по умолчанию недоступна: {{err}}"
+    },
+    "app": {
+        "unsavedBeforeOpen": "Есть несохранённые изменения. Что сделать перед открытием нового проекта?",
+        "saveFailed": "Не удалось сохранить: {{err}}",
+        "canceled": "отменено",
+        "invalidLmp": "Недопустимый файл LMP: {{err}}",
+        "unknownStructure": "нераспознанная структура",
+        "cannotOpenFile": "Не удалось открыть файл: {{err}}",
+        "unknownError": "неизвестная ошибка",
+        "lmpReadError": "Ошибка чтения файла LMP.",
+        "deleteSelectedConfirm": "Удалить выбранные клипы ({{count}})?",
+        "deleteLabel": "Удалить",
+        "saveError": "Ошибка сохранения: {{err}}",
+        "openPlayoutLog": "Открыть журнал эфира"
+    },
+    "keymap": {
+        "title": "Клавиши и MIDI-панель",
+        "emergencyStop": "Аварийный стоп (все плееры)",
+        "stopAllMidi": "Stop All (MIDI)",
+        "masterVolumeMidi": "Общая громкость (MIDI CC)",
+        "intro1": "Кликните в поле <1>Keyboard</1> и нажмите клавишу, чтобы назначить её клипу.",
+        "intro2": "Нажмите <1>Learn MIDI</1> и нажмите на физическом контроллере.",
+        "intro3": "Для удаления используйте красный <1>X</1> или <3>Backspace</3>.",
+        "intro4": "Привязки <1>Система</1> фиксированы и не изменяются.",
+        "thTarget": "Цель",
+        "thType": "Тип",
+        "thKeyboard": "Клавиатура",
+        "systemSection": "Глобальные системные действия",
+        "typeSystem": "Система",
+        "typeGlobal": "Глобальный",
+        "typeClip": "Клип",
+        "clickToSet": "Кликните и нажмите...",
+        "listening": "ОЖИДАНИЕ...",
+        "learnMidi": "Learn MIDI",
+        "conflictMsg": "Клавиша \"{{key}}\" уже назначена \"{{name}}\". Перенести на этот клип? Предыдущий клип потеряет привязку.",
+        "conflictOk": "Перенести",
+        "emptyColumn": "В этой колонке нет клипов",
+        "addClipsHint": "Добавьте клипы в проект, чтобы назначить их здесь.",
+        "closePanel": "Закрыть панель"
+    },
+    "midiSim": {
+        "title": "MIDI-симулятор",
+        "subtitle": "Инструмент тестирования · устройство не требуется",
+        "channel": "Канал",
+        "note": "Нота",
+        "value": "Значение",
+        "send": "Отправить сообщение",
+        "lastSent": "Последнее отправленное:",
+        "footer": "Note Off и Note On с velocity 0 отфильтровываются заранее (без срабатывания) — ожидаемое поведение. Чтобы протестировать <1>MIDI Learn</1>: включите режим, выберите клип и отправьте <3>Note On</3>."
+    },
+    "errors": {
+        "unhandledRejection": "Необработанное отклонение промиса",
+        "asyncError": "Асинхронная ошибка: {{msg}}",
+        "zoneError": "Ошибка в {{zone}}",
+        "unknownRender": "Неизвестная ошибка отрисовки.",
+        "retry": "Повторить"
+    },
+    "debug": {
+        "notMeasured": "не измерена",
+        "normOff": "нормал. ВЫКЛ",
+        "stateInspector": "ИНСПЕКТОР СОСТОЯНИЯ",
+        "audioMonitor": "Аудиомонитор",
+        "normalization": "Нормализация",
+        "grNote": "Отрицательный GR = работает; ~0 = мягко/неактивно",
+        "activeClips": "Активные клипы",
+        "logStream": "ПОТОК ЛОГОВ",
+        "copy": "КОПИРОВАТЬ",
+        "clear": "ОЧИСТИТЬ"
     }
 }

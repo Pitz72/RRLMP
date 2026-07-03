@@ -5,6 +5,7 @@ import { AudioProcessor } from './AudioProcessor';
 import { logger } from './logger';
 import { startRemoteControlServer, stopRemoteControlServer, getRemoteControlStatus, updateRemoteMusicState, RemoteCommandName } from './RemoteControlServer';
 import { initUpdateManager, checkForUpdates, downloadUpdate, quitAndInstall } from './updateManager';
+import { setMainLanguage, tMain } from './i18nMain';
 
 // GR-03 Fix: timeout wrapper per IPC handler asincroni che invocano FFmpeg.
 // Evita hang permanenti dell'app se FFmpeg si blocca o il file è illeggibile.
@@ -310,10 +311,10 @@ ipcMain.handle('restore-default-sfx', async () => {
             : join(app.getAppPath(), 'resources', 'default-sfx');
         const manifestPath = join(sourceDir, 'manifest.json');
         if (!fs.existsSync(manifestPath)) {
-            return { success: false, error: 'Libreria FX di default non trovata (manifest assente)' };
+            return { success: false, error: tMain('err.sfxManifestMissing') };
         }
         const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8')) as Array<{ file: string; title?: string }>;
-        if (!Array.isArray(manifest)) return { success: false, error: 'Manifest default-sfx non valido' };
+        if (!Array.isArray(manifest)) return { success: false, error: tMain('err.sfxManifestInvalid') };
         const destDir = join(app.getPath('userData'), 'default-sfx');
         if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
         const sounds: Array<{ title: string; path: string }> = [];
@@ -336,21 +337,27 @@ ipcMain.handle('restore-default-sfx', async () => {
     }
 });
 
+// i18n (2026-07-03) — il renderer notifica la lingua corrente (all'avvio e a
+// ogni cambio da Impostazioni): dialoghi nativi ed errori IPC seguono la lingua.
+ipcMain.on('i18n:set-language', (_event, lang: unknown) => {
+    setMainLanguage(lang);
+});
+
 // Force Close (Called by Renderer when safe)
 ipcMain.on('force-close', () => {
     const wins = BrowserWindow.getAllWindows();
     wins.forEach(w => w.destroy());
 });
 
-// Show Close Dialog (Called by Renderer if Dirty) — stringhe hardcoded (legacy)
+// Show Close Dialog (Called by Renderer if Dirty) — legacy, localizzato via i18nMain
 ipcMain.handle('show-close-dialog', async (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     if (!win) return 2;
     const result = await dialog.showMessageBox(win, {
         type: 'question',
-        buttons: ['Salva', 'Non Salvare', 'Annulla'],
-        title: 'Modifiche non salvate',
-        message: 'Ci sono modifiche non salvate. Cosa vuoi fare?',
+        buttons: [tMain('close.save'), tMain('close.discard'), tMain('close.cancel')],
+        title: tMain('close.title'),
+        message: tMain('close.message'),
         defaultId: 0,
         cancelId: 2
     });
@@ -397,9 +404,9 @@ ipcMain.handle('dialog:save-project', async (event, content: string) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     if (!win) return { success: false };
     const { canceled, filePath } = await dialog.showSaveDialog(win, {
-        title: 'Save Project',
+        title: tMain('dlg.saveProject'),
         defaultPath: 'project.lmp',
-        filters: [{ name: 'RRLMP Project', extensions: ['lmp'] }]
+        filters: [{ name: tMain('dlg.projectFilter'), extensions: ['lmp'] }]
     });
 
     if (canceled || !filePath) return { success: false };
@@ -420,7 +427,7 @@ ipcMain.handle('save-project-direct', async (_event: Electron.IpcMainInvokeEvent
         // senza validazione (a differenza di delete-temp-recording). Accetta solo path .lmp assoluti.
         if (typeof filePath !== 'string' || !isAbsolute(filePath) || extname(filePath).toLowerCase() !== '.lmp') {
             logger.warn(`[Main] save-project-direct rifiutato (path non valido): ${String(filePath)}`);
-            return { success: false, error: 'Path non valido (atteso file .lmp con percorso assoluto)' };
+            return { success: false, error: tMain('err.lmpPathInvalid') };
         }
         writeFileAtomicSync(filePath, content);
         return { success: true, filePath };
@@ -433,8 +440,8 @@ ipcMain.handle('dialog:load-project', async (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     if (!win) return { success: false };
     const { canceled, filePaths } = await dialog.showOpenDialog(win, {
-        title: 'Load Project',
-        filters: [{ name: 'RRLMP Project', extensions: ['lmp'] }],
+        title: tMain('dlg.loadProject'),
+        filters: [{ name: tMain('dlg.projectFilter'), extensions: ['lmp'] }],
         properties: ['openFile']
     });
 
@@ -465,7 +472,7 @@ ipcMain.handle('dialog:load-project', async (event) => {
             // un errore opaco a livello UI. Ora torniamo errore esplicito così il toast di
             // load può mostrare un messaggio comprensibile ("file .lmp non valido o corrotto").
             logger.error('Load failed: invalid JSON', e);
-            return { success: false, error: `File .lmp non valido o corrotto: ${e instanceof Error ? e.message : String(e)}` };
+            return { success: false, error: tMain('err.lmpCorrupt', { msg: e instanceof Error ? e.message : String(e) }) };
         }
     } catch (error) {
         logger.error('Load failed:', error);
@@ -477,8 +484,8 @@ ipcMain.handle('import-m3u', async (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     if (!win) return { success: false };
     const { canceled, filePaths } = await dialog.showOpenDialog(win, {
-        title: 'Importa Playlist M3U',
-        filters: [{ name: 'Playlist M3U', extensions: ['m3u', 'm3u8'] }],
+        title: tMain('dlg.importM3u'),
+        filters: [{ name: tMain('dlg.m3uFilter'), extensions: ['m3u', 'm3u8'] }],
         properties: ['openFile']
     });
     if (canceled || filePaths.length === 0) return { success: false };
@@ -515,13 +522,13 @@ ipcMain.handle('export-project', async (event, projectJsonString: string, lmpPat
     let writeLmpCopy: boolean;
     if (typeof lmpPath === 'string' && lmpPath) {
         if (!isAbsolute(lmpPath) || extname(lmpPath).toLowerCase() !== '.lmp') {
-            return { success: false, error: 'Percorso progetto non valido' };
+            return { success: false, error: tMain('err.invalidProjectPath') };
         }
         exportDir = require('path').dirname(lmpPath);
         writeLmpCopy = false;
     } else {
         const { canceled, filePaths } = await dialog.showOpenDialog(win, {
-            title: 'Select Export Directory',
+            title: tMain('dlg.selectExportDir'),
             properties: ['openDirectory', 'createDirectory']
         });
         if (canceled || filePaths.length === 0) return { success: false };
@@ -539,7 +546,7 @@ ipcMain.handle('export-project', async (event, projectJsonString: string, lmpPat
         // SYNC (audit 2026-05-29): guard sulla struttura — un .lmp leggermente corrotto
         // non deve produrre un TypeError opaco.
         if (!projectData?.project || !Array.isArray(projectData.project.columns)) {
-            return { success: false, error: 'Struttura progetto non valida' };
+            return { success: false, error: tMain('err.invalidProjectStructure') };
         }
         const { columns } = projectData.project;
         let successParams = { copied: 0, skipped: 0, pruned: 0 };
@@ -789,14 +796,14 @@ ipcMain.handle('show-save-dialog-recording', async (event, defaultName: string, 
     const win = BrowserWindow.fromWebContents(event.sender);
     if (!win) return { canceled: true };
     
-    const filters = format === 'wav' 
-        ? [{ name: 'Audio WAV (Lossless)', extensions: ['wav'] }]
-        : [{ name: 'Audio WebM (Opus)', extensions: ['webm'] }];
+    const filters = format === 'wav'
+        ? [{ name: tMain('dlg.wavFilter'), extensions: ['wav'] }]
+        : [{ name: tMain('dlg.webmFilter'), extensions: ['webm'] }];
 
     return await dialog.showSaveDialog(win, {
-        title: 'Seleziona dove salvare la registrazione finale',
+        title: tMain('dlg.saveRecording'),
         defaultPath: defaultName,
-        filters: [...filters, { name: 'Tutti i file', extensions: ['*'] }]
+        filters: [...filters, { name: tMain('dlg.allFiles'), extensions: ['*'] }]
     });
 });
 
@@ -809,11 +816,11 @@ ipcMain.handle('convert-recording', async (event, inputPath: string, outputPath:
     if (typeof inputPath !== 'string' || typeof outputPath !== 'string'
         || !isAbsolute(outputPath) || !ALLOWED_RECORDING_OUTPUT_EXT.has(extname(outputPath).toLowerCase())) {
         logger.warn('[Main] convert-recording rifiutato (path non valido)');
-        return { success: false, error: 'Path di conversione non valido' };
+        return { success: false, error: tMain('err.convInvalidPath') };
     }
     if (!isTempRecordingPath(inputPath)) {
         logger.warn('[Main] convert-recording rifiutato (inputPath non è un temp recording)');
-        return { success: false, error: 'File di input non consentito' };
+        return { success: false, error: tMain('err.convInputNotAllowed') };
     }
 
     try {
@@ -907,11 +914,11 @@ ipcMain.handle('save-playout-log', async (event, csvContent: string, suggestedNa
     const win = BrowserWindow.fromWebContents(event.sender);
     if (!win) return { success: false };
     const { canceled, filePath } = await dialog.showSaveDialog(win, {
-        title: 'Salva Playout Log',
+        title: tMain('dlg.savePlayoutLog'),
         defaultPath: suggestedName,
         filters: [
             { name: 'CSV', extensions: ['csv'] },
-            { name: 'Testo', extensions: ['txt'] }
+            { name: tMain('dlg.textFilter'), extensions: ['txt'] }
         ]
     });
     if (canceled || !filePath) return { success: false };
@@ -973,7 +980,7 @@ ipcMain.handle('load-project-path', async (_event, filePath: string) => {
             // success:true con raw string. Doppio-click su .lmp corrotto da OS produce
             // ora un errore chiaro all'utente.
             logger.error('[Main] load-project-path: invalid JSON', e);
-            return { success: false, error: `File .lmp non valido o corrotto: ${e instanceof Error ? e.message : String(e)}` };
+            return { success: false, error: tMain('err.lmpCorrupt', { msg: e instanceof Error ? e.message : String(e) }) };
         }
     } catch (error) {
         logger.error('[Main] load-project-path failed:', error);

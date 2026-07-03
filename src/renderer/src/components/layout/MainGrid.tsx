@@ -614,7 +614,7 @@ export const MainGrid: React.FC = () => {
                         {col.clips.length === 0 && (
                             <div className="h-32 border-2 border-dashed border-zinc-800 rounded flex flex-col items-center justify-center text-zinc-600 m-2 pointer-events-none">
                                 <Upload size={24} className="mb-2 opacity-50" />
-                                <span className="text-xs">Drop Audio Here</span>
+                                <span className="text-xs">{t('grid.dropAudioHere', 'Trascina qui i file audio')}</span>
 
                             </div>
                         )}

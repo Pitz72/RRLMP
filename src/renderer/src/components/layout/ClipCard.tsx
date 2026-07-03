@@ -146,27 +146,27 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
 
             {/* Visual Tags Overlay (Top Left) */}
             <div className="clip-row clip-badges">
-                {clip.behavior === 'stacco' && <span className="badge b-stacco">STACCO</span>}
-                {clip.isLooping && <span className="badge b-loop">LOOP</span>}
-                {clip.nextAction === 'play_next' && !isNextUp && <span className="badge b-next">NEXT</span>}
-                {isNextUp && <span className="badge b-upnext animate-pulse">▶ UP NEXT</span>}
+                {clip.behavior === 'stacco' && <span className="badge b-stacco">{t('card.staccoBadge', 'STACCO')}</span>}
+                {clip.isLooping && <span className="badge b-loop">{t('card.loopBadge', 'LOOP')}</span>}
+                {clip.nextAction === 'play_next' && !isNextUp && <span className="badge b-next">{t('card.nextBadge', 'NEXT')}</span>}
+                {isNextUp && <span className="badge b-upnext animate-pulse">{t('card.upNextBadge', '▶ UP NEXT')}</span>}
                 {clip.notes && <span className="badge bg-zinc-700 text-zinc-300" title={clip.notes}>📋</span>}
                 {clip.isAnalyzing && (
                     <span className="badge bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center gap-1">
                         <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-ping opacity-75" />
-                        TRIM…
+                        {t('card.trimmingBadge', 'TRIM…')}
                     </span>
                 )}
                 {/* 2026-07-01 — BPM stimato (solo colonna Music, solo visualizzazione: non ancora usato dal mix) */}
                 {clip.type === 'music' && clip.bpm !== undefined && (
-                    <span className="badge bg-sky-500/20 text-sky-300 border border-sky-500/40" title="BPM stimato (analisi automatica)">
+                    <span className="badge bg-sky-500/20 text-sky-300 border border-sky-500/40" title={t('card.bpmTip', 'BPM stimato (analisi automatica)')}>
                         {clip.bpm} BPM
                     </span>
                 )}
                 {isFading && (
                     <span className="badge bg-violet-500/20 text-violet-300 border border-violet-500/40 flex items-center gap-1 animate-pulse">
                         <span className="inline-block w-2 h-2 rounded-full bg-violet-400" />
-                        FADE OUT
+                        {t('card.fadeOutBadge', 'FADE OUT')}
                     </span>
                 )}
             </div>
@@ -197,7 +197,7 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                         </span>
                     )}
                     {clip.duckingRole === 'source' && (
-                        <span className="pri">PRIORITY</span>
+                        <span className="pri">{t('card.priorityBadge', 'PRIORITY')}</span>
                     )}
                 </div>
             </div>

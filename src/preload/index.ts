@@ -64,6 +64,8 @@ if (process.contextIsolated) {
             saveProjectSilent: (content: string, filePath?: string) => ipcRenderer.invoke('save-project-silent', content, filePath),
             saveProjectDirect: (content: string, filePath: string) => ipcRenderer.invoke('save-project-direct', content, filePath),
             showCloseDialog: () => ipcRenderer.invoke('show-close-dialog'),
+            // i18n (2026-07-03) — notifica al main la lingua corrente (dialoghi nativi + errori IPC)
+            setAppLanguage: (lang: string) => ipcRenderer.send('i18n:set-language', lang),
             forceClose: () => ipcRenderer.send('force-close'),
             onCheckCloseIntent: (callback: () => void) => {
                 const subscription = () => callback();

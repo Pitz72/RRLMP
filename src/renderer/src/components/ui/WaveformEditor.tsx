@@ -296,7 +296,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                         }
                     </button>
                     <div>
-                        <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Status</div>
+                        <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">{t('waveform.statusLabel', 'Stato')}</div>
                         <div className="text-xs font-mono text-emerald-400">
                             {isLoaded ? t('waveform.ready', 'PRONTO') : t('waveform.loading', 'CARICAMENTO...')}
                         </div>
@@ -332,7 +332,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                             onClick={zoomOut}
                             disabled={zoom === ZOOM_STEPS[0]}
                             className="w-5 h-5 flex items-center justify-center rounded bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 transition-all"
-                            title="Zoom Out"
+                            title={t('waveform.zoomOut', 'Zoom Out')}
                         >
                             <ZoomOut size={11} className="text-zinc-400" />
                         </button>
@@ -341,7 +341,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                             onClick={zoomIn}
                             disabled={zoom === ZOOM_STEPS[ZOOM_STEPS.length - 1]}
                             className="w-5 h-5 flex items-center justify-center rounded bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 transition-all"
-                            title="Zoom In"
+                            title={t('waveform.zoomIn', 'Zoom In')}
                         >
                             <ZoomIn size={11} className="text-zinc-400" />
                         </button>
@@ -531,7 +531,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                     title={t('waveform.trimStartTip', 'Imposta Trim Start alla posizione corrente')}
                 >
                     <Scissors size={14} className="text-zinc-500 group-hover:text-red-400 mb-1 transition-colors" />
-                    <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">Trim Start</span>
+                    <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">{t('waveform.btnTrimStart', 'Trim Start')}</span>
                 </button>
                 <button
                     onClick={() => onChange({ trimEnd: Math.min(Math.max(0, duration - currentTime), Math.max(0, duration - trimStart - 0.05)) })}
@@ -539,7 +539,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                     title={t('waveform.trimEndTip', 'Imposta Trim End alla posizione corrente')}
                 >
                     <Scissors size={14} className="text-zinc-500 group-hover:text-red-400 mb-1 transition-colors" />
-                    <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">Trim End</span>
+                    <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">{t('waveform.btnTrimEnd', 'Trim End')}</span>
                 </button>
                 <button
                     onClick={() => onChange({ introMarker: currentTime })}
@@ -547,7 +547,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                     title={t('waveform.setIntroTip', 'Imposta Intro alla posizione corrente')}
                 >
                     <Flag size={14} className="text-zinc-500 group-hover:text-cyan-400 mb-1 transition-colors" />
-                    <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">Set Intro</span>
+                    <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">{t('waveform.btnSetIntro', 'Set Intro')}</span>
                 </button>
                 <button
                     onClick={() => onChange({ outroMarker: currentTime })}
@@ -555,7 +555,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                     title={t('waveform.setOutroTip', 'Imposta Outro alla posizione corrente')}
                 >
                     <Flag size={14} className="text-zinc-500 group-hover:text-orange-400 mb-1 transition-colors" />
-                    <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">Set Outro</span>
+                    <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">{t('waveform.btnSetOutro', 'Set Outro')}</span>
                 </button>
             </div>
 

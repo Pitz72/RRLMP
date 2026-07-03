@@ -1,5 +1,6 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ExportProgressModalProps {
     isOpen: boolean;
@@ -9,6 +10,7 @@ interface ExportProgressModalProps {
 }
 
 export const ExportProgressModal: React.FC<ExportProgressModalProps> = ({ isOpen, current, total, filename }) => {
+    const { t } = useTranslation();
     if (!isOpen) return null;
 
     const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
@@ -17,7 +19,7 @@ export const ExportProgressModal: React.FC<ExportProgressModalProps> = ({ isOpen
         <div className="ov" style={{ zIndex: 100 }}>
             <div className="ov-panel anim-in p-6 w-96 flex flex-col items-center gap-4">
                 <Loader2 className="animate-spin text-emerald-500" size={48} />
-                <h3 className="text-xl font-bold text-white">Esportazione in corso...</h3>
+                <h3 className="text-xl font-bold text-white">{t('modal.exportProgress.title', 'Esportazione in corso...')}</h3>
 
                 <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
                     <div
@@ -34,7 +36,7 @@ export const ExportProgressModal: React.FC<ExportProgressModalProps> = ({ isOpen
                         {filename}
                     </div>
                     <div className="text-xs text-zinc-600 mt-1">
-                        {current} / {total} files
+                        {t('modal.exportProgress.filesCount', '{{current}} / {{total}} file', { current, total })}
                     </div>
                 </div>
             </div>

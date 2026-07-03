@@ -39,7 +39,7 @@ export const RecordingButton: React.FC = () => {
             {isConverting && (
                 <div className="flex items-center gap-2 px-3 py-1 rounded border border-sky-500/60 bg-sky-600/20 text-sky-400 shadow-[0_0_10px_rgba(14,165,233,0.2)]">
                     <Loader2 size={12} className="animate-spin" />
-                    <span className="font-mono text-[10px] font-bold tracking-widest uppercase">Converting...</span>
+                    <span className="font-mono text-[10px] font-bold tracking-widest uppercase">{t('recording.converting', 'Conversione...')}</span>
                 </div>
             )}
 
@@ -73,7 +73,7 @@ export const RecordingButton: React.FC = () => {
                     className="flex items-center gap-2 px-3 py-1 rounded border border-red-500/60 bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse transition-all cursor-pointer"
                 >
                     <StopCircle size={12} className="fill-white" />
-                    <span className="font-mono text-xs font-bold tracking-widest uppercase">REC {timeString}</span>
+                    <span className="font-mono text-xs font-bold tracking-widest uppercase">{t('recording.recBadge', 'REC')} {timeString}</span>
                 </button>
             )}
 
@@ -85,7 +85,7 @@ export const RecordingButton: React.FC = () => {
                     className="group flex items-center gap-2 px-3 py-1 rounded border border-zinc-800/60 hover:border-red-500/40 hover:bg-red-950/20 transition-all cursor-pointer"
                 >
                     <Circle size={12} className="text-zinc-500 group-hover:text-red-500 transition-colors fill-zinc-800 group-hover:fill-red-900/40" />
-                    <span className="font-mono text-xs font-bold tracking-widest text-zinc-500 group-hover:text-red-400 uppercase">REC</span>
+                    <span className="font-mono text-xs font-bold tracking-widest text-zinc-500 group-hover:text-red-400 uppercase">{t('recording.recBadge', 'REC')}</span>
                 </button>
             )}
 

@@ -102,7 +102,7 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
         // per evitare che Space/Enter (es. durante il ConfirmDialog) lo ri-attivi.
         (e.currentTarget as HTMLElement).closest('button')?.blur();
         if (!sfxCol) return;
-        if (await confirm(`Rimuovere l'effetto "${label}" dal pad?`, 'Rimuovi', 'Annulla')) {
+        if (await confirm(t('fxPad.removeConfirm', 'Rimuovere l\'effetto "{{label}}" dal pad?', { label }), t('fxPad.removeOk', 'Rimuovi'), t('modal.dialog.cancel', 'Annulla'))) {
             if (activeClips[clipId]) stopClip(clipId);
             removeClip(sfxCol.id, clipId);
         }
@@ -140,12 +140,12 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
         if (!sfxCol) return;
         if (!window.electron?.restoreDefaultSfx) return;
         if (!(await confirm(
-            'Aggiungere al pad gli effetti di default mancanti (libreria inclusa nel software)? Gli FX già presenti non vengono toccati.',
-            'Ripristina', 'Annulla'
+            t('fxPad.restoreConfirm', 'Aggiungere al pad gli effetti di default mancanti (libreria inclusa nel software)? Gli FX già presenti non vengono toccati.'),
+            t('fxPad.restoreOk', 'Ripristina'), t('modal.dialog.cancel', 'Annulla')
         ))) return;
         const res = await window.electron.restoreDefaultSfx();
         if (!res.success || !res.sounds) {
-            toast(`Libreria FX di default non disponibile: ${res.error ?? 'errore sconosciuto'}`, 'error');
+            toast(t('fxPad.libUnavailable', 'Libreria FX di default non disponibile: {{err}}', { err: res.error ?? t('app.unknownError', 'errore sconosciuto') }), 'error');
             return;
         }
         const fresh = useProjectStore.getState();
@@ -184,7 +184,7 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
             <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 shrink-0">
                 <div className="flex items-center gap-2">
                     <Zap size={16} className="text-slate-300" />
-                    <span className="text-sm font-bold tracking-wider text-zinc-100">FX / CARTWALL</span>
+                    <span className="text-sm font-bold tracking-wider text-zinc-100">{t('fxPad.title', 'FX / CARTWALL')}</span>
                     <span className="text-[10px] font-mono text-zinc-500">{clips.length}</span>
                 </div>
                 <div className="flex items-center gap-1.5">

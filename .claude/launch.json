@@ -10,8 +10,8 @@
     {
       "name": "Renderer (Vite, porta preview)",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev:renderer", "--", "--port", "5199"],
-      "port": 5199
+      "runtimeArgs": ["run", "dev:renderer", "--", "--port", "5233"],
+      "port": 5233
     }
   ]
 }

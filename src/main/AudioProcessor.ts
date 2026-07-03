@@ -4,6 +4,7 @@ import * as ffmpeg from 'fluent-ffmpeg';
 import { spawn } from 'child_process';
 import { logger } from './logger';
 import { computeEnergyEnvelope, estimateBpmFromEnvelope, estimateBeatOffsetSec } from './bpmDetection';
+import { tMain } from './i18nMain';
 
 // Fix ESM/CJS interop per questi pacchetti old-school exports
 const ffmpegStatic = require('ffmpeg-static');
@@ -42,7 +43,7 @@ export class AudioProcessor {
   static async extractMetadata(filePath: string) {
     try {
       if (!fs.existsSync(filePath)) {
-        throw new Error('File non trovato');
+        throw new Error(tMain('err.fileNotFound'));
       }
 
       logger.info(`[AudioProcessor] Estrazione metadati per: ${filePath}`);
@@ -288,7 +289,7 @@ export class AudioProcessor {
    * rispetto al corpo del brano. I boundary silence_end/silence_start diventano i cue suggeriti.
    */
   static async detectSmartCues(filePath: string): Promise<{ success: boolean; data?: { introCue: number; outroCue: number }; error?: string }> {
-    if (!fs.existsSync(filePath)) return { success: false, error: 'File non trovato' };
+    if (!fs.existsSync(filePath)) return { success: false, error: tMain('err.fileNotFound') };
 
     const meanLevel = await AudioProcessor._estimateMeanLevel(filePath);
     // Soglia aggressiva: mean - 3dB, clamped tra -25 e -10 dBFS
@@ -350,7 +351,7 @@ export class AudioProcessor {
    * Lettura read-only, nessuna modifica al file.
    */
   static async measureLoudness(filePath: string): Promise<{ success: boolean; data?: { integratedLufs: number }; error?: string }> {
-    if (!fs.existsSync(filePath)) return { success: false, error: 'File non trovato' };
+    if (!fs.existsSync(filePath)) return { success: false, error: tMain('err.fileNotFound') };
 
     return new Promise((resolve) => {
         try {
@@ -386,7 +387,7 @@ export class AudioProcessor {
 
   static async detectSilence(filePath: string, overrideThresholdDb?: number): Promise<any> {
     if (!fs.existsSync(filePath)) {
-        return { success: false, error: 'File non trovato' };
+        return { success: false, error: tMain('err.fileNotFound') };
     }
 
     // Step 1: calcola soglia — override manuale o analisi dinamica del livello medio
@@ -466,7 +467,7 @@ export class AudioProcessor {
                     }
 
                     if (duration > 0 && duration - trimEnd <= trimStart + 0.1) {
-                        return resolve({ success: false, error: 'Il file sembra essere tutto silenzio o il volume è troppo basso.' });
+                        return resolve({ success: false, error: tMain('err.allSilence') });
                     }
 
                     resolve({ success: true, data: { trimStart, trimEnd, thresholdUsed: thresholdDb } });
@@ -496,7 +497,7 @@ export class AudioProcessor {
    * esistenti sono invariati, i chiamanti vecchi continuano a funzionare.
    */
   static async detectBpm(filePath: string): Promise<{ success: boolean; data?: { bpm: number; confidence: number; detected: boolean; beatOffsetSec?: number }; error?: string }> {
-    if (!fs.existsSync(filePath)) return { success: false, error: 'File non trovato' };
+    if (!fs.existsSync(filePath)) return { success: false, error: tMain('err.fileNotFound') };
 
     const SAMPLE_RATE = 11025;
     const WINDOW_MS = 20;
@@ -529,7 +530,7 @@ export class AudioProcessor {
                 try {
                     const pcm = Buffer.concat(chunks);
                     if (pcm.length < SAMPLE_RATE * 2) { // meno di ~1s di audio decodificato
-                        return resolve({ success: false, error: 'Audio insufficiente per la stima BPM' });
+                        return resolve({ success: false, error: tMain('err.bpmInsufficient') });
                     }
                     // Buffer PCM16LE -> Int16Array (rispetta l'allineamento del buffer sottostante)
                     const sampleCount = Math.floor(pcm.length / 2);
