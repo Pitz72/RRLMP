@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Download, X, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { UpdaterStatusPayload } from '../../types';
 import { useEscapeToClose } from '../../hooks/useEscapeToClose';
@@ -20,6 +21,7 @@ interface Props {
 // "Scarica" apre semplicemente la pagina della release nel browser (stesso
 // comportamento manuale del vecchio sistema).
 export const UpdateModal: React.FC<Props> = ({ isOpen, status, currentVersion, onClose, onDownload, onInstall }) => {
+    const { t } = useTranslation();
     const isRelevant = status.type === 'available' || status.type === 'downloading' || status.type === 'ready' || status.type === 'error';
     useEscapeToClose(isOpen && isRelevant, onClose);
 
@@ -41,7 +43,11 @@ export const UpdateModal: React.FC<Props> = ({ isOpen, status, currentVersion, o
                         </div>
                         <div>
                             <h2 className="text-sm font-bold text-white">
-                                {status.type === 'ready' ? 'Aggiornamento pronto' : status.type === 'error' ? 'Errore aggiornamento' : 'Aggiornamento Disponibile'}
+                                {status.type === 'ready'
+                                    ? t('modal.update.titleReady', 'Aggiornamento pronto')
+                                    : status.type === 'error'
+                                        ? t('modal.update.titleError', 'Errore aggiornamento')
+                                        : t('modal.update.titleAvailable', 'Aggiornamento Disponibile')}
                             </h2>
                             {version && <p className="text-[10px] text-emerald-400 font-mono">v{version}</p>}
                         </div>
@@ -75,14 +81,14 @@ export const UpdateModal: React.FC<Props> = ({ isOpen, status, currentVersion, o
                                 <div className="h-full bg-emerald-500 transition-all" style={{ width: `${status.percent}%` }} />
                             </div>
                             <p className="text-[11px] text-zinc-500 flex items-center gap-2">
-                                <Loader2 size={11} className="animate-spin" /> Download in corso… {status.percent}%
+                                <Loader2 size={11} className="animate-spin" /> {t('modal.update.downloading', 'Download in corso… {{v}}%', { v: status.percent })}
                             </p>
                         </div>
                     )}
 
                     {status.type === 'ready' && (
                         <p className="text-[11px] text-zinc-400">
-                            L'aggiornamento è stato scaricato. RRLMP si riavvierà per completare l'installazione.
+                            {t('modal.update.readyHint', "L'aggiornamento è stato scaricato. RRLMP si riavvierà per completare l'installazione.")}
                         </p>
                     )}
 
@@ -96,7 +102,7 @@ export const UpdateModal: React.FC<Props> = ({ isOpen, status, currentVersion, o
                     {status.type === 'available' && !canAutoInstall && (
                         <div className="flex items-center gap-2 text-[10px] text-zinc-500">
                             <AlertCircle size={11} />
-                            <span>Verrà aperto il browser per scaricare l'installer. Dopo il download, chiudi RRLMP e installa il nuovo pacchetto.</span>
+                            <span>{t('modal.update.downloadHint', "Verrà aperto il browser per scaricare l'installer. Dopo il download, chiudi RRLMP e installa il nuovo pacchetto.")}</span>
                         </div>
                     )}
                 </div>
@@ -104,18 +110,18 @@ export const UpdateModal: React.FC<Props> = ({ isOpen, status, currentVersion, o
                 {/* FOOTER */}
                 <div className="ov-foot">
                     <button onClick={onClose} className="btn btn-ghost">
-                        Più tardi
+                        {t('modal.update.later', 'Più tardi')}
                     </button>
                     {status.type === 'available' && (
                         <button onClick={onDownload} className="btn btn-green flex items-center gap-2">
                             <Download size={13} />
-                            {canAutoInstall ? 'Scarica e installa' : 'Scarica'}
+                            {canAutoInstall ? t('modal.update.downloadInstall', 'Scarica e installa') : t('modal.update.download', 'Scarica')}
                         </button>
                     )}
                     {status.type === 'ready' && (
                         <button onClick={onInstall} className="btn btn-green flex items-center gap-2">
                             <CheckCircle2 size={13} />
-                            Riavvia e installa
+                            {t('modal.update.restartInstall', 'Riavvia e installa')}
                         </button>
                     )}
                 </div>

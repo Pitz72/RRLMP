@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAudioStore } from '../../store/useAudioStore';
 import { AudioClip } from '../../types';
 import { useProjectStore } from '../../store/useProjectStore';
@@ -9,6 +10,7 @@ interface ClipCardProps {
 }
 
 export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
+    const { t } = useTranslation();
     // Correct usage: Hooks are called at the top level of this component
     // independent of the list length in parent
     const activeState = useAudioStore((state) => state.activeClips[clip.id]);
@@ -138,7 +140,7 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
             {clip.isMissing && (
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-red-950/70 pointer-events-none">
                     <span className="text-red-400 text-lg leading-none">⚠️</span>
-                    <span className="text-red-300 text-[9px] font-bold tracking-widest mt-0.5">FILE MANCANTE</span>
+                    <span className="text-red-300 text-[9px] font-bold tracking-widest mt-0.5">{t('card.missingFile', 'FILE MANCANTE')}</span>
                 </div>
             )}
 
@@ -176,7 +178,7 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                         className="clip-title"
                         style={clip.isMissing ? { color: '#ef4444' } : undefined}
                     >
-                        {clip.isMissing ? `⚠️ ${clip.name} (File Non Trovato)` : (clip.title || clip.name)}
+                        {clip.isMissing ? t('card.missingTitle', '⚠️ {{name}} (File Non Trovato)', { name: clip.name }) : (clip.title || clip.name)}
                     </span>
                     {/* v0.16.4: artista (solo clip music con tag ID3) */}
                     {clip.type === 'music' && clip.artist && (

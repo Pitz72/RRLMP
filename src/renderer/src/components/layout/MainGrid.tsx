@@ -30,6 +30,7 @@ import { ClipSettingsModal } from '../modals/ClipSettingsModal';
 import { AudioClip, Column } from '../../types';
 import { classifySilenceResult } from '../../utils/silenceDetection';
 import { classifyBpmResult } from '../../utils/bpmDetection';
+import { useTranslation } from 'react-i18next';
 
 // Helper component for Drop Area (Column)
 interface SortableColumnProps {
@@ -78,6 +79,7 @@ const SortableColumn: React.FC<SortableColumnProps> = ({ column, children, onNat
 
 
 export const MainGrid: React.FC = () => {
+    const { t } = useTranslation();
     const { columns, addClipAtIndex, updateClip, removeClip, moveClip, moveSelectedClips, currentFilePath } = useProjectStore();
     const { loadClip, playColumn } = useAudioStore((state) => ({
         loadClip: state.loadClip,
@@ -186,7 +188,7 @@ export const MainGrid: React.FC = () => {
                 processed++;
                 setMusicAnalyzingCount(n => Math.max(0, n - 1));
                 if (processed === unanalyzed.length && optimized > 0) {
-                    toast(`Silenzio rimosso automaticamente da ${optimized} canzon${optimized === 1 ? 'e' : 'i'}.`, 'success');
+                    toast(t('grid.silenceRemovedSongs', 'Silenzio rimosso automaticamente da {{count}} canzoni.', { count: optimized }), 'success');
                 }
             }).catch((err) => {
                 updateClip('col-music', clip.id, { isAnalyzing: false });
@@ -237,7 +239,7 @@ export const MainGrid: React.FC = () => {
                 processed++;
                 setPreshowAnalyzingCount(n => Math.max(0, n - 1));
                 if (processed === unanalyzed.length && optimized > 0) {
-                    toast(`Silenzio rimosso automaticamente da ${optimized} clip PRE-SHOW.`, 'success');
+                    toast(t('grid.silenceRemovedPreshow', 'Silenzio rimosso automaticamente da {{count}} clip PRE-SHOW.', { count: optimized }), 'success');
                 }
             }).catch((err) => {
                 updateClip('col-preshow', clip.id, { isAnalyzing: false });
@@ -559,14 +561,14 @@ export const MainGrid: React.FC = () => {
                 {hiddenAnalyzingCount > 0 && (
                     <div className="absolute top-1 left-1/2 -translate-x-1/2 z-30 px-3 py-1.5 bg-amber-950/80 border border-amber-500/40 rounded text-amber-300 text-[10px] flex items-center gap-2 pointer-events-none">
                         <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
-                        <span>Rilevamento silenzio su colonne nascoste… {hiddenAnalyzingCount} file in analisi</span>
+                        <span>{t('grid.silenceScanHiddenColumns', 'Rilevamento silenzio su colonne nascoste… {{count}} file in analisi', { count: hiddenAnalyzingCount })}</span>
                     </div>
                 )}
                 {/* v1.10.7: tutte le colonne nascoste → board vuota senza spiegazione */}
                 {visibleColumns.length === 0 && (
                     <div className="flex-1 flex flex-col items-center justify-center text-zinc-600 gap-2">
-                        <span className="text-sm font-semibold">Tutte le colonne sono nascoste</span>
-                        <span className="text-xs">Riattivale da Impostazioni → Generali → "Layout regia — colonne"</span>
+                        <span className="text-sm font-semibold">{t('grid.allColumnsHidden', 'Tutte le colonne sono nascoste')}</span>
+                        <span className="text-xs">{t('grid.reenableHint', 'Riattivale da Impostazioni → Generali → "Layout regia — colonne"')}</span>
                     </div>
                 )}
                 {visibleColumns.map((col) => (
@@ -580,13 +582,13 @@ export const MainGrid: React.FC = () => {
                         {col.type === 'preshow' && preshowAnalyzingCount > 0 && (
                             <div className="mx-2 mb-1 px-2 py-1.5 bg-amber-950/60 border border-amber-500/40 rounded text-amber-300 text-[10px] flex items-center gap-2">
                                 <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
-                                <span>Rilevamento silenzio… {preshowAnalyzingCount} file in analisi</span>
+                                <span>{t('grid.silenceScanPreshow', 'Rilevamento silenzio… {{count}} file in analisi', { count: preshowAnalyzingCount })}</span>
                             </div>
                         )}
                         {col.type === 'music' && musicAnalyzingCount > 0 && (
                             <div className="mx-2 mb-1 px-2 py-1.5 bg-red-950/60 border border-red-500/40 rounded text-red-300 text-[10px] flex items-center gap-2">
                                 <span className="inline-block w-2 h-2 rounded-full bg-red-400 animate-pulse shrink-0" />
-                                <span>Rilevamento silenzio… {musicAnalyzingCount} canzon{musicAnalyzingCount === 1 ? 'e' : 'i'} in analisi</span>
+                                <span>{t('grid.silenceScanMusic', 'Rilevamento silenzio… {{count}} canzoni in analisi', { count: musicAnalyzingCount })}</span>
                             </div>
                         )}
                         <SortableContext

@@ -101,7 +101,7 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
                     <button
                         onClick={() => setShowRotation(true)}
                         className={`shrink-0 transition-all hover:scale-110 ${rotationActive ? 'text-violet-300' : 'text-white/40 hover:text-white/80'}`}
-                        title={rotationActive ? 'Rotazione Jingle&Promo attiva' : 'Configura rotazione Jingle&Promo'}
+                        title={rotationActive ? t('column.rotationActiveTip', 'Rotazione Jingle&Promo attiva') : t('column.rotationConfigTip', 'Configura rotazione Jingle&Promo')}
                     >
                         <RefreshCw size={14} className={rotationActive ? 'animate-[spin_4s_linear_infinite]' : ''} />
                     </button>
@@ -113,14 +113,14 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
                         onClick={() => setShowPicker(v => !v)}
                         className="w-4 h-4 rounded-full border-2 border-white/30 hover:border-white/80 hover:scale-125 transition-all shrink-0 shadow-md"
                         style={{ backgroundColor: effectiveColor }}
-                        title="Cambia colore colonna"
+                        title={t('column.changeColorTip', 'Cambia colore colonna')}
                     />
                 )}
 
                 {/* Color Picker Popover */}
                 {showPicker && (
                     <div className="absolute top-7 right-0 z-50 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl p-4 animate-in fade-in zoom-in-95 duration-150" style={{ width: '220px' }}>
-                        <p className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-3">Colore Colonna</p>
+                        <p className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-3">{t('column.colorLabel', 'Colore Colonna')}</p>
                         <div className="grid grid-cols-6 gap-2">
                             {COLUMN_COLORS.map(c => (
                                 <button
@@ -141,7 +141,7 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
                                 onClick={() => { setColumnColor(column.id, column.color); setShowPicker(false); }}
                                 className="mt-3 w-full text-[9px] text-zinc-500 hover:text-zinc-200 transition-colors py-1 border border-zinc-800 hover:border-zinc-600 rounded"
                             >
-                                ↺ Ripristina colore originale
+                                {t('column.resetColor', '↺ Ripristina colore originale')}
                             </button>
                         )}
                     </div>

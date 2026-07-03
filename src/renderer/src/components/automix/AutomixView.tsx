@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useProjectStore } from '../../store/useProjectStore';
 import { useAudioStore } from '../../store/useAudioStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
@@ -40,15 +41,18 @@ const CompatDot: React.FC<{ level: 'green' | 'yellow' | 'red'; label: string }> 
     </span>
 );
 
-const REASON_LABEL: Record<string, string> = {
-    'missing-bpm': 'BPM mancante → crossfade classico',
-    'missing-offset': 'beat non rilevato → crossfade classico',
-    'low-confidence': 'beat incerto → crossfade classico',
-    'rate-cap': 'tempi troppo diversi → crossfade classico',
-    'no-beat-available': 'aggancio non disponibile → crossfade classico',
+// Mappa reason → [chiave i18n, default IT]. Risolta con t() ai punti d'uso
+// (dentro il componente), perché a livello di modulo t non è in scope.
+const REASON_LABEL: Record<string, [string, string]> = {
+    'missing-bpm': ['automix.reason.missingBpm', 'BPM mancante → crossfade classico'],
+    'missing-offset': ['automix.reason.noBeat', 'beat non rilevato → crossfade classico'],
+    'low-confidence': ['automix.reason.lowConfidence', 'beat incerto → crossfade classico'],
+    'rate-cap': ['automix.reason.rateCap', 'tempi troppo diversi → crossfade classico'],
+    'no-beat-available': ['automix.reason.noBeatAvailable', 'aggancio non disponibile → crossfade classico'],
 };
 
 export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => {
+    const { t } = useTranslation();
     const columns = useProjectStore(s => s.columns);
     const activeClips = useAudioStore(s => s.activeClips);
     const fadingClipIds = useAudioStore(s => s.fadingClipIds);
@@ -104,7 +108,7 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
             debugLog(`Automix: AUTO-transizione a fine brano — ${currentClip.name} (-${remaining.toFixed(1)}s) → ${nextClip.name}`, 'event');
             void automixTransition(currentClip.id, nextClip.id).then(result => {
                 if (result.mode === 'skipped') {
-                    toast(`Auto-transizione non eseguita: ${result.reason ?? 'stato non valido'}`, 'warning');
+                    toast(t('automix.autoTransitionSkipped', 'Auto-transizione non eseguita: {{v}}', { v: result.reason ?? t('automix.invalidState', 'stato non valido') }), 'warning');
                 }
             });
         }
@@ -118,8 +122,10 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
     const nextCompat = currentClip && nextClip ? assessCompatibility(currentClip, nextClip) : null;
     const nextCompatLabel = nextCompat
         ? (nextCompat.rate !== undefined
-            ? `mix a tempo (rate ${nextCompat.rate.toFixed(3)})`
-            : REASON_LABEL[nextCompat.reason ?? ''] ?? 'crossfade classico')
+            ? t('automix.mixInTempo', 'mix a tempo (rate {{v}})', { v: nextCompat.rate.toFixed(3) })
+            : (REASON_LABEL[nextCompat.reason ?? '']
+                ? t(REASON_LABEL[nextCompat.reason!][0], REASON_LABEL[nextCompat.reason!][1])
+                : t('automix.classicCrossfade', 'crossfade classico')))
         : '';
 
     const handleStart = () => {
@@ -132,7 +138,7 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
         if (!currentClip || !nextClip) return;
         const result = await automixTransition(currentClip.id, nextClip.id);
         if (result.mode === 'skipped') {
-            toast(`Transizione non eseguita: ${result.reason ?? 'stato non valido'}`, 'warning');
+            toast(t('automix.transitionSkipped', 'Transizione non eseguita: {{v}}', { v: result.reason ?? t('automix.invalidState', 'stato non valido') }), 'warning');
         }
     };
 
@@ -144,18 +150,18 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                     <div className="amx-ico"><Disc3 size={20} /></div>
                     <div>
                         <div className="amx-name">AUTOMIX</div>
-                        <div className="amx-sub">Mix automatico sui BPM · {musicCol?.title ?? 'Music'}</div>
+                        <div className="amx-sub">{t('automix.autoMixOnBpm', 'Mix automatico sui BPM')} · {musicCol?.title ?? 'Music'}</div>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
                     <button
                         onClick={stopAll}
                         className="stop"
-                        title="Ferma tutto (come in board — ESC resta l'Emergency Stop)"
+                        title={t('automix.stopAllTitle', "Ferma tutto (come in board — ESC resta l'Emergency Stop)")}
                     >
                         <Square fill="currentColor" /> STOP ALL
                     </button>
-                    <button onClick={onClose} className="ov-x" title="Torna alla board">
+                    <button onClick={onClose} className="ov-x" title={t('automix.backToBoard', 'Torna alla board')}>
                         <X size={16} />
                     </button>
                 </div>
@@ -165,7 +171,7 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
             <div className="amx-deckrow">
                 {/* IN ONDA (linguaggio .hero) */}
                 <div className={`amx-deck ${currentClip ? 'onair' : ''}`}>
-                    <div className="amx-deck-label">IN ONDA</div>
+                    <div className="amx-deck-label">{t('automix.onAir', 'IN ONDA')}</div>
                     {currentClip ? (
                         <>
                             <div className="amx-deck-title">{currentClip.name}</div>
@@ -179,7 +185,7 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                             </div>
                         </>
                     ) : (
-                        <p className="amx-deck-empty">Niente in onda — premi START per partire dal primo brano.</p>
+                        <p className="amx-deck-empty">{t('automix.nothingOnAir', 'Niente in onda — premi START per partire dal primo brano.')}</p>
                     )}
                 </div>
 
@@ -191,12 +197,12 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                                 onClick={() => void handleTransition()}
                                 disabled={!nextClip || nextClip.isMissing}
                                 className="amx-big"
-                                title={nextClip ? `Mixa verso: ${nextClip.name}` : 'Fine scaletta'}
+                                title={nextClip ? t('automix.mixTowards', 'Mixa verso: {{v}}', { v: nextClip.name }) : t('automix.endOfPlaylist', 'Fine scaletta')}
                             >
                                 <Shuffle size={18} /> TRANSIZIONE
                             </button>
                             <p className="amx-hint">
-                                {nextClip ? (nextClip.isMissing ? 'prossimo file MANCANTE' : nextCompatLabel) : 'fine scaletta'}
+                                {nextClip ? (nextClip.isMissing ? t('automix.nextFileMissing', 'prossimo file MANCANTE') : nextCompatLabel) : t('automix.endOfPlaylistLower', 'fine scaletta')}
                             </p>
                         </>
                     ) : (
@@ -209,8 +215,8 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                         </button>
                     )}
                     {/* AUTO A FINE BRANO (default OFF, attiva solo a vista aperta) — toggle .tgl del tema */}
-                    <label className="tgl" title="Quando il brano sta per finire, la transizione parte da sola (stessa logica del pulsante). Si disattiva chiudendo la vista.">
-                        <span className="tgl-lbl" style={autoMode ? { color: '#4ade80', fontWeight: 700 } : undefined}>Auto a fine brano</span>
+                    <label className="tgl" title={t('automix.autoEndTitle', 'Quando il brano sta per finire, la transizione parte da sola (stessa logica del pulsante). Si disattiva chiudendo la vista.')}>
+                        <span className="tgl-lbl" style={autoMode ? { color: '#4ade80', fontWeight: 700 } : undefined}>{t('automix.autoAtEnd', 'Auto a fine brano')}</span>
                         <div onClick={() => setAutoMode(v => !v)} className={`tgl-track ${autoMode ? 'on' : ''}`}>
                             <div className="tgl-knob" />
                         </div>
@@ -219,7 +225,7 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
 
                 {/* PROSSIMO (linguaggio .hero-next) */}
                 <div className="amx-deck next">
-                    <div className="amx-deck-label">PROSSIMO</div>
+                    <div className="amx-deck-label">{t('automix.next', 'PROSSIMO')}</div>
                     {nextClip ? (
                         <>
                             <div className="amx-deck-title">{nextClip.name}</div>
@@ -234,7 +240,7 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                             )}
                         </>
                     ) : (
-                        <p className="amx-deck-empty">{currentClip ? 'Fine scaletta — nessun brano dopo questo.' : 'Il prossimo brano compare qui a playlist avviata.'}</p>
+                        <p className="amx-deck-empty">{currentClip ? t('automix.endNoTrackAfter', 'Fine scaletta — nessun brano dopo questo.') : t('automix.nextAppearsHere', 'Il prossimo brano compare qui a playlist avviata.')}</p>
                     )}
                 </div>
             </div>
@@ -244,8 +250,8 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                 {clips.length === 0 ? (
                     <div className="amx-empty">
                         <Music2 size={40} />
-                        <p style={{ fontSize: 13 }}>Nessun brano in scaletta.</p>
-                        <p style={{ fontSize: 11 }}>Trascina i brani nella colonna Music della board: l'elenco compare qui nello stesso ordine.</p>
+                        <p style={{ fontSize: 13 }}>{t('automix.noTracksInPlaylist', 'Nessun brano in scaletta.')}</p>
+                        <p style={{ fontSize: 11 }}>{t('automix.dragTracksHint', "Trascina i brani nella colonna Music della board: l'elenco compare qui nello stesso ordine.")}</p>
                     </div>
                 ) : (
                     <div className="amx-list-inner">
@@ -255,9 +261,11 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                             const compat = prev ? assessCompatibility(prev, clip) : null;
                             const compatLabel = compat
                                 ? (compat.rate !== undefined
-                                    ? `mix a tempo (rate ${compat.rate.toFixed(3)})`
-                                    : REASON_LABEL[compat.reason ?? ''] ?? 'crossfade classico')
-                                : 'primo brano';
+                                    ? t('automix.mixInTempo', 'mix a tempo (rate {{v}})', { v: compat.rate.toFixed(3) })
+                                    : (REASON_LABEL[compat.reason ?? '']
+                                        ? t(REASON_LABEL[compat.reason!][0], REASON_LABEL[compat.reason!][1])
+                                        : t('automix.classicCrossfade', 'crossfade classico')))
+                                : t('automix.firstTrack', 'primo brano');
                             return (
                                 <div key={clip.id} className={`amx-row ${isPlaying ? 'live' : ''}`}>
                                     <span className="amx-num">{i + 1}</span>
@@ -265,12 +273,12 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                                         <div className="amx-row-title">{clip.name}</div>
                                         {compat
                                             ? <CompatDot level={compat.level} label={compatLabel} />
-                                            : <div className="amx-compat"><span>▶ primo brano — parte con START</span></div>}
+                                            : <div className="amx-compat"><span>{t('automix.firstTrackStart', '▶ primo brano — parte con START')}</span></div>}
                                     </div>
                                     <span className="amx-time">{formatTime(clip.duration || 0)}</span>
                                     <span
                                         className={`amx-bpm ${clip.bpm ? '' : 'off'}`}
-                                        title={clip.bpm ? `Confidence ${clip.bpmConfidence ?? '—'}` : 'BPM non rilevato'}
+                                        title={clip.bpm ? t('automix.confidence', 'Confidence {{v}}', { v: clip.bpmConfidence ?? '—' }) : t('automix.bpmNotDetected', 'BPM non rilevato')}
                                     >
                                         {clip.bpm ? `${clip.bpm} BPM` : 'NO BPM'}
                                     </span>

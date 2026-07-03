@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, SlidersHorizontal, Repeat } from 'lucide-react';
 import { AudioClip } from '../../types';
 import { useEscapeToClose } from '../../hooks/useEscapeToClose';
@@ -22,6 +23,7 @@ interface FxQuickSettingsModalProps {
  * onSave del pad → _snapshot undo + sync live se la clip è in onda).
  */
 export const FxQuickSettingsModal: React.FC<FxQuickSettingsModalProps> = ({ clip, onClose, onSave, onOpenFull }) => {
+    const { t } = useTranslation();
     const [name, setName] = useState(clip.name);
     const [customColor, setCustomColor] = useState<string | null>(clip.customColor ?? null);
     const [volume, setVolume] = useState(clip.volume ?? 1);
@@ -59,7 +61,7 @@ export const FxQuickSettingsModal: React.FC<FxQuickSettingsModalProps> = ({ clip
                     <button
                         onClick={onClose}
                         className="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
-                        title="Chiudi"
+                        title={t('modal.fxQuick.closeTip', 'Chiudi')}
                     >
                         <X size={15} />
                     </button>
@@ -67,7 +69,7 @@ export const FxQuickSettingsModal: React.FC<FxQuickSettingsModalProps> = ({ clip
 
                 {/* NOME */}
                 <label className="block mb-4">
-                    <span className="sect-h text-zinc-500 block mb-1.5">Nome sul pad</span>
+                    <span className="sect-h text-zinc-500 block mb-1.5">{t('modal.fxQuick.nameLabel', 'Nome sul pad')}</span>
                     <input
                         type="text"
                         value={name}
@@ -79,7 +81,7 @@ export const FxQuickSettingsModal: React.FC<FxQuickSettingsModalProps> = ({ clip
 
                 {/* COLORE PAD */}
                 <div className="mb-4">
-                    <span className="sect-h text-zinc-500 block mb-1.5">Colore del pad</span>
+                    <span className="sect-h text-zinc-500 block mb-1.5">{t('modal.fxQuick.colorLabel', 'Colore del pad')}</span>
                     <div className="grid grid-cols-10 gap-1.5">
                         {COLUMN_COLORS.map((c) => (
                             <button
@@ -96,14 +98,14 @@ export const FxQuickSettingsModal: React.FC<FxQuickSettingsModalProps> = ({ clip
                             onClick={() => setCustomColor(null)}
                             className="mt-2 text-[11px] text-zinc-500 hover:text-zinc-300 underline underline-offset-2"
                         >
-                            Rimuovi colore (pad neutro)
+                            {t('modal.fxQuick.removeColor', 'Rimuovi colore (pad neutro)')}
                         </button>
                     )}
                 </div>
 
                 {/* VOLUME */}
                 <label className="block mb-4">
-                    <span className="sect-h text-zinc-500 block mb-1.5">Volume · {Math.round(volume * 100)}%</span>
+                    <span className="sect-h text-zinc-500 block mb-1.5">{t('modal.fxQuick.volumeLabel', 'Volume · {{v}}%', { v: Math.round(volume * 100) })}</span>
                     <input
                         type="range"
                         min={0}
@@ -123,7 +125,7 @@ export const FxQuickSettingsModal: React.FC<FxQuickSettingsModalProps> = ({ clip
                         className="w-4 h-4 accent-emerald-500"
                     />
                     <Repeat size={13} className="text-zinc-400" />
-                    <span className="text-sm text-zinc-300">Riproduci in loop</span>
+                    <span className="text-sm text-zinc-300">{t('modal.fxQuick.loopLabel', 'Riproduci in loop')}</span>
                 </label>
 
                 {/* FOOTER */}
@@ -131,23 +133,23 @@ export const FxQuickSettingsModal: React.FC<FxQuickSettingsModalProps> = ({ clip
                     <button
                         onClick={() => { onClose(); onOpenFull(clip); }}
                         className="flex items-center gap-1.5 text-[11px] text-zinc-500 hover:text-zinc-200 transition-colors"
-                        title="Trim, marker, fade, keybind e tutte le altre impostazioni"
+                        title={t('modal.fxQuick.fullSettingsTip', 'Trim, marker, fade, keybind e tutte le altre impostazioni')}
                     >
                         <SlidersHorizontal size={12} />
-                        Impostazioni complete…
+                        {t('modal.fxQuick.fullSettings', 'Impostazioni complete…')}
                     </button>
                     <div className="flex items-center gap-2">
                         <button
                             onClick={onClose}
                             className="px-3 py-1.5 rounded-lg text-xs text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 transition-colors"
                         >
-                            Annulla
+                            {t('modal.fxQuick.cancel', 'Annulla')}
                         </button>
                         <button
                             onClick={handleSave}
                             className="px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
                         >
-                            Salva
+                            {t('modal.fxQuick.save', 'Salva')}
                         </button>
                     </div>
                 </div>

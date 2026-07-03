@@ -201,11 +201,11 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
     // v1.11.1: tab Microfono dietro MIC_ARM_ENABLED (vedi utils/featureFlags.ts) —
     // il pannello resta nel JSX ma senza tab non è raggiungibile.
     const tabs: { id: SettingsTab; label: string; icon: string }[] = [
-        { id: 'general',   label: 'Generali',    icon: '⚙️' },
-        { id: 'audio',     label: 'Audio & Mix',  icon: '🎚️' },
-        { id: 'mic',       label: 'Microfono',    icon: '🎙️' },
-        { id: 'recording', label: 'Registrazione', icon: '⏺' },
-        { id: 'chain',     label: 'Master Chain', icon: '⛓️' },
+        { id: 'general',   label: t('modal.settings.tab.general', 'Generali'),     icon: '⚙️' },
+        { id: 'audio',     label: t('modal.settings.tab.audio', 'Audio & Mix'),    icon: '🎚️' },
+        { id: 'mic',       label: t('modal.settings.tab.mic', 'Microfono'),        icon: '🎙️' },
+        { id: 'recording', label: t('modal.settings.tab.recording', 'Registrazione'), icon: '⏺' },
+        { id: 'chain',     label: t('modal.settings.tab.chain', 'Master Chain'),   icon: '⛓️' },
     ].filter(tab => MIC_ARM_ENABLED || tab.id !== 'mic') as { id: SettingsTab; label: string; icon: string }[];
 
     return (
@@ -247,7 +247,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             <div className="space-y-6">
                             <section>
                                 <SectionTitle color="text-violet-400">{t('modal.settings.tab.language')}</SectionTitle>
-                                <p className="text-[10px] text-zinc-600 italic mb-3">Seleziona la lingua dell'interfaccia. La modifica è immediata.</p>
+                                <p className="text-[10px] text-zinc-600 italic mb-3">{t('modal.settings.languageHelp', "Seleziona la lingua dell'interfaccia. La modifica è immediata.")}</p>
                                 <div className="grid grid-cols-2 gap-3">
                                     {LANGUAGES.map((lng) => {
                                         const isActive = i18n.language === lng.code || i18n.language.startsWith(lng.code);
@@ -276,32 +276,32 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             <section className="space-y-3">
                                 <div className="flex items-center justify-between gap-3">
                                     <div>
-                                        <SectionTitle color="text-sky-400">Controllo Remoto (Beta)</SectionTitle>
-                                        <p className="text-[10px] text-zinc-600 mt-0.5 italic">Server locale in rete (LAN) per comandare l'app da un tablet/PC secondario: STOP ALL e play/stop della colonna Music.</p>
+                                        <SectionTitle color="text-sky-400">{t('modal.settings.remoteControlTitle', 'Controllo Remoto (Beta)')}</SectionTitle>
+                                        <p className="text-[10px] text-zinc-600 mt-0.5 italic">{t('modal.settings.remoteControlDesc', "Server locale in rete (LAN) per comandare l'app da un tablet/PC secondario: STOP ALL e play/stop della colonna Music.")}</p>
                                     </div>
                                     <Toggle
                                         enabled={remoteStatus.running}
                                         onToggle={remoteToggleBusy ? () => {} : handleToggleRemoteControl}
-                                        labelOn="Attivo"
-                                        labelOff="Spento"
+                                        labelOn={t('modal.settings.remoteToggleOn', 'Attivo')}
+                                        labelOff={t('modal.settings.remoteToggleOff', 'Spento')}
                                     />
                                 </div>
                                 {remoteStatus.running && (
                                     <div className="card !p-3 space-y-2">
-                                        <p className="text-xs text-zinc-300">PIN: <span className="font-mono text-sky-400 text-sm tracking-widest">{remoteStatus.pin}</span></p>
-                                        <p className="text-xs text-zinc-400">Porta: <span className="font-mono">{remoteStatus.port}</span></p>
+                                        <p className="text-xs text-zinc-300">{t('modal.settings.remotePinLabel', 'PIN')}: <span className="font-mono text-sky-400 text-sm tracking-widest">{remoteStatus.pin}</span></p>
+                                        <p className="text-xs text-zinc-400">{t('modal.settings.remotePortLabel', 'Porta')}: <span className="font-mono">{remoteStatus.port}</span></p>
                                         {remoteStatus.addresses && remoteStatus.addresses.length > 0 && (
                                             <>
-                                                <p className="text-xs text-zinc-400">Indirizzi LAN: <span className="font-mono">{remoteStatus.addresses.join(', ')}</span></p>
+                                                <p className="text-xs text-zinc-400">{t('modal.settings.remoteLanAddresses', 'Indirizzi LAN')}: <span className="font-mono">{remoteStatus.addresses.join(', ')}</span></p>
                                                 <button
                                                     onClick={() => void handleCopyRemoteUrl()}
                                                     className="!w-auto px-3 py-1.5 text-xs"
                                                 >
-                                                    {remoteUrlCopied ? '✓ Copiato' : `Copia link (http://${remoteStatus.addresses[0]}:${remoteStatus.port})`}
+                                                    {remoteUrlCopied ? t('modal.settings.remoteLinkCopied', '✓ Copiato') : t('modal.settings.remoteCopyLink', 'Copia link (http://{{address}}:{{port}})', { address: remoteStatus.addresses[0], port: remoteStatus.port })}
                                                 </button>
                                             </>
                                         )}
-                                        <p className="text-[10px] text-zinc-600 italic">Apri il link nel browser del tablet/PC secondario (stessa rete) e inserisci il PIN; il pulsante "Schermo intero" nella pagina toglie la barra del browser. Utile inviare il link via Telegram/WhatsApp invece di digitarlo a mano. Il server si ferma automaticamente alla chiusura dell'app.</p>
+                                        <p className="text-[10px] text-zinc-600 italic">{t('modal.settings.remoteControlHint', 'Apri il link nel browser del tablet/PC secondario (stessa rete) e inserisci il PIN; il pulsante "Schermo intero" nella pagina toglie la barra del browser. Utile inviare il link via Telegram/WhatsApp invece di digitarlo a mano. Il server si ferma automaticamente alla chiusura dell\'app.')}</p>
                                     </div>
                                 )}
                             </section>
@@ -309,8 +309,8 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
                             {/* LAYOUT REGIA — colonne visibili (Step 4 UI regia, v1.9.8) */}
                             <section className="space-y-3">
-                                <SectionTitle color="text-amber-400">Layout regia — colonne</SectionTitle>
-                                <p className="text-[10px] text-zinc-600 -mt-2 italic">Attiva o disattiva le colonne mostrate nella board, secondo le necessità della trasmissione. Preferenza globale (vale per tutti i progetti). Nascondere una colonna NON elimina le sue clip: restano nel progetto e ricompaiono riattivandola. Gli FX hanno il loro pad dedicato.</p>
+                                <SectionTitle color="text-amber-400">{t('modal.settings.layoutColumnsTitle', 'Layout regia — colonne')}</SectionTitle>
+                                <p className="text-[10px] text-zinc-600 -mt-2 italic">{t('modal.settings.layoutColumnsDesc', 'Attiva o disattiva le colonne mostrate nella board, secondo le necessità della trasmissione. Preferenza globale (vale per tutti i progetti). Nascondere una colonna NON elimina le sue clip: restano nel progetto e ricompaiono riattivandola. Gli FX hanno il loro pad dedicato.')}</p>
                                 <div className="space-y-2">
                                     {columns.filter(c => c.type !== 'sfx').map(col => {
                                         const visible = !hiddenColumnIds.includes(col.id);
@@ -323,8 +323,8 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                                 <Toggle
                                                     enabled={visible}
                                                     onToggle={() => toggleColumnVisibility(col.id)}
-                                                    labelOn="Visibile"
-                                                    labelOff="Nascosta"
+                                                    labelOn={t('modal.settings.columnVisible', 'Visibile')}
+                                                    labelOff={t('modal.settings.columnHidden', 'Nascosta')}
                                                 />
                                             </div>
                                         );
@@ -352,7 +352,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         <option key={d.deviceId} value={d.deviceId}>{d.label}</option>
                                     ))}
                                 </select>
-                                <p className="text-[10px] text-zinc-600 mt-1">Seleziona la scheda audio (es. Rødecaster). L'audio si sposta immediatamente.</p>
+                                <p className="text-[10px] text-zinc-600 mt-1">{t('modal.settings.outputDeviceHelp', "Seleziona la scheda audio (es. Rødecaster). L'audio si sposta immediatamente.")}</p>
                             </section>
 
                             <Divider />
@@ -369,7 +369,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     accent="accent-emerald-500"
                                     onChange={(v) => setDuckingSettings({ factor: v })}
                                 />
-                                <p className="text-[10px] text-zinc-600 -mt-2 italic">Volume musica quando lo speaker parla. 20% è lo standard radiofonico.</p>
+                                <p className="text-[10px] text-zinc-600 -mt-2 italic">{t('modal.settings.duckingReductionHelp', 'Volume musica quando lo speaker parla. 20% è lo standard radiofonico.')}</p>
                                 <LabeledSlider
                                     label={t('modal.settings.duckingSpeed')}
                                     value={duckingDuration} min={0} max={2000} step={50}
@@ -377,7 +377,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     accent="accent-emerald-500"
                                     onChange={(v) => setDuckingSettings({ duration: v })}
                                 />
-                                <p className="text-[10px] text-zinc-600 -mt-2 italic">Più alto = transizione più morbida.</p>
+                                <p className="text-[10px] text-zinc-600 -mt-2 italic">{t('modal.settings.duckingSpeedHelp', 'Più alto = transizione più morbida.')}</p>
                             </section>
 
                             {/* TRANSIZIONI */}
@@ -388,11 +388,11 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     onChange={(e) => setDefaultPreshowTransition(e.target.value as 'crossfade' | 'segue' | 'gapless')}
                                     className="sel"
                                 >
-                                    <option value="crossfade">Crossfade (Sfumatura Incrociata)</option>
-                                    <option value="segue">Segue / Cold Start (Subito Pieno, Prec. Sfuma)</option>
-                                    <option value="gapless">Gapless (Taglio Netto / No Fade)</option>
+                                    <option value="crossfade">{t('modal.settings.transitionCrossfade', 'Crossfade (Sfumatura Incrociata)')}</option>
+                                    <option value="segue">{t('modal.settings.transitionSegue', 'Segue / Cold Start (Subito Pieno, Prec. Sfuma)')}</option>
+                                    <option value="gapless">{t('modal.settings.transitionGapless', 'Gapless (Taglio Netto / No Fade)')}</option>
                                 </select>
-                                <p className="text-[10px] text-zinc-600 -mt-2 italic">Transizione automatica tra clip consecutive con play_next.</p>
+                                <p className="text-[10px] text-zinc-600 -mt-2 italic">{t('modal.settings.transitionHelp', 'Transizione automatica tra clip consecutive con play_next.')}</p>
                                 <LabeledSlider
                                     label={t('modal.settings.crossfadeDuration')}
                                     value={crossfadeDuration} min={200} max={6000} step={100}
@@ -421,32 +421,32 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             {/* SMART MIC — DUCKING */}
                             <section className="space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <SectionTitle color="text-red-400">Smart Mic — Auto-Ducking</SectionTitle>
+                                    <SectionTitle color="text-red-400">{t('modal.settings.smartMicTitle', 'Smart Mic — Auto-Ducking')}</SectionTitle>
                                     <Toggle
                                         enabled={micEnabled}
                                         onToggle={() => setMicSettings({ enabled: !micEnabled })}
-                                        labelOn="Abilitato"
-                                        labelOff="Off"
+                                        labelOn={t('modal.settings.micEnabledOn', 'Abilitato')}
+                                        labelOff={t('modal.settings.micEnabledOff', 'Off')}
                                     />
                                 </div>
-                                <p className="text-[10px] text-zinc-600 italic">Il microfono monitora il parlato e abbassa automaticamente la musica, senza passare da una clip voce.</p>
+                                <p className="text-[10px] text-zinc-600 italic">{t('modal.settings.smartMicDesc', 'Il microfono monitora il parlato e abbassa automaticamente la musica, senza passare da una clip voce.')}</p>
                                 <div className={`space-y-3 transition-opacity ${micEnabled ? '' : 'opacity-40 pointer-events-none'}`}>
                                     <div>
-                                        <span className="text-xs text-zinc-400 block mb-1">Dispositivo di Input</span>
+                                        <span className="text-xs text-zinc-400 block mb-1">{t('modal.settings.micInputDeviceLabel', 'Dispositivo di Input')}</span>
                                         <select
                                             value={micInputDeviceId}
                                             onChange={e => setMicSettings({ inputDeviceId: e.target.value })}
                                             className="sel"
                                         >
-                                            <option value="default">Microfono Predefinito</option>
+                                            <option value="default">{t('modal.settings.micDefaultDevice', 'Microfono Predefinito')}</option>
                                             {inputDevices.map(d => (
                                                 <option key={d.deviceId} value={d.deviceId}>{d.label}</option>
                                             ))}
                                         </select>
-                                        <p className="text-[10px] text-zinc-600 mt-1">Microfono USB, Rødecaster, Zoom LiveTrak, Focusrite ecc. appaiono qui automaticamente.</p>
+                                        <p className="text-[10px] text-zinc-600 mt-1">{t('modal.settings.micInputDeviceHelp', 'Microfono USB, Rødecaster, Zoom LiveTrak, Focusrite ecc. appaiono qui automaticamente.')}</p>
                                     </div>
                                     <LabeledSlider
-                                        label="Soglia Attivazione Noise Gate"
+                                        label={t('modal.settings.micThresholdLabel', 'Soglia Attivazione Noise Gate')}
                                         value={micThresholdDb}
                                         min={-60} max={-10} step={1}
                                         display={`${micThresholdDb} dBFS`}
@@ -454,10 +454,10 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         onChange={v => setMicSettings({ thresholdDb: v })}
                                     />
                                     <p className="text-[10px] text-zinc-600 -mt-2 italic">
-                                        Rilascio a {micThresholdDb - 12} dBFS (isteresi fissa 12 dB). Default: -30 dBFS.
+                                        {t('modal.settings.micThresholdHelp', 'Rilascio a {{v}} dBFS (isteresi fissa 12 dB). Default: -30 dBFS.', { v: micThresholdDb - 12 })}
                                     </p>
                                     <LabeledSlider
-                                        label="Hold attivazione (ms sopra soglia prima del ducking)"
+                                        label={t('modal.settings.micActivationHoldLabel', 'Hold attivazione (ms sopra soglia prima del ducking)')}
                                         value={micActivationHoldMs}
                                         min={10} max={500} step={10}
                                         display={`${micActivationHoldMs} ms`}
@@ -465,7 +465,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         onChange={v => setMicSettings({ activationHoldMs: v })}
                                     />
                                     <LabeledSlider
-                                        label="Hold rilascio (ms sotto soglia prima dello stop ducking)"
+                                        label={t('modal.settings.micReleaseHoldLabel', 'Hold rilascio (ms sotto soglia prima dello stop ducking)')}
                                         value={micReleaseHoldMs}
                                         min={100} max={5000} step={100}
                                         display={`${micReleaseHoldMs} ms`}
@@ -473,7 +473,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         onChange={v => setMicSettings({ releaseHoldMs: v })}
                                     />
                                     <p className="text-[10px] text-zinc-600 -mt-2 italic">
-                                        Con mixer USB (Rødecaster, Zoom LiveTrak ecc.) che applicano loopback dell'audio del PC, alzare la soglia a -20/-15 dBFS o aumentare l'hold di attivazione a 200–500 ms per evitare trigger da bleed involontario.
+                                        {t('modal.settings.micHoldHelp', "Con mixer USB (Rødecaster, Zoom LiveTrak ecc.) che applicano loopback dell'audio del PC, alzare la soglia a -20/-15 dBFS o aumentare l'hold di attivazione a 200–500 ms per evitare trigger da bleed involontario.")}
                                     </p>
                                 </div>
                             </section>
@@ -481,19 +481,19 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             {/* CANALE MIX MICROFONO */}
                             <section className="space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <SectionTitle color="text-red-400">Canale Mix Microfono</SectionTitle>
+                                    <SectionTitle color="text-red-400">{t('modal.settings.micMixTitle', 'Canale Mix Microfono')}</SectionTitle>
                                     <Toggle
                                         enabled={micMixEnabled}
                                         onToggle={() => setMicSettings({ mixEnabled: !micMixEnabled })}
-                                        labelOn="In Mix"
-                                        labelOff="Mute"
+                                        labelOn={t('modal.settings.micMixOn', 'In Mix')}
+                                        labelOff={t('modal.settings.micMixOff', 'Mute')}
                                     />
                                 </div>
-                                <p className="text-[10px] text-zinc-400 italic">Invia la voce dell'operatore direttamente al master bus dell'applicazione.</p>
+                                <p className="text-[10px] text-zinc-400 italic">{t('modal.settings.micMixDesc', "Invia la voce dell'operatore direttamente al master bus dell'applicazione.")}</p>
 
                                 <div className={`space-y-3 transition-opacity ${micMixEnabled ? '' : 'opacity-40 pointer-events-none'}`}>
                                     <LabeledSlider
-                                        label="Volume Microfono"
+                                        label={t('modal.settings.micVolumeLabel', 'Volume Microfono')}
                                         value={micVolume}
                                         min={0} max={1} step={0.01}
                                         display={`${Math.round(micVolume * 100)}%`}
@@ -501,7 +501,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         onChange={v => setMicSettings({ volume: v })}
                                     />
                                     <div className="flex items-center justify-between">
-                                        <span className="text-xs text-zinc-400">Bypass Master Chain</span>
+                                        <span className="text-xs text-zinc-400">{t('modal.settings.micBypassLabel', 'Bypass Master Chain')}</span>
                                         <Toggle
                                             enabled={micBypassProcessing}
                                             onToggle={() => setMicSettings({ bypassProcessing: !micBypassProcessing })}
@@ -509,8 +509,8 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     </div>
                                     <p className="text-[10px] text-zinc-500 italic -mt-1">
                                         {micBypassProcessing
-                                            ? '⚠️ Voce raw all\'uscita (zero latenza, no effetti).'
-                                            : '✨ Voce processata (HPF + Compressor + Limiter).'}
+                                            ? t('modal.settings.micBypassOn', "⚠️ Voce raw all'uscita (zero latenza, no effetti).")
+                                            : t('modal.settings.micBypassOff', '✨ Voce processata (HPF + Compressor + Limiter).')}
                                     </p>
                                 </div>
 
@@ -518,12 +518,12 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 {micFeedbackAcknowledged ? (
                                     <div className="p-2 bg-zinc-800/50 border border-zinc-700 rounded text-[9px] text-zinc-500 flex gap-2 items-center">
                                         <span className="shrink-0">✓</span>
-                                        <span>Rischio feedback: usa cuffie o mixer professionale.</span>
+                                        <span>{t('modal.settings.micFeedbackAck', 'Rischio feedback: usa cuffie o mixer professionale.')}</span>
                                         <button
                                             onClick={() => setMicSettings({ feedbackAcknowledged: false })}
                                             className="ml-auto text-zinc-600 hover:text-zinc-400 underline whitespace-nowrap"
                                         >
-                                            Rileggi avviso
+                                            {t('modal.settings.micFeedbackReread', 'Rileggi avviso')}
                                         </button>
                                     </div>
                                 ) : (
@@ -531,9 +531,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         <div className="flex gap-2">
                                             <span className="shrink-0">⚠️</span>
                                             <span>
-                                                <strong>RISCHIO FEEDBACK:</strong> Se usi le casse, l'audio del mic potrebbe rientrare nel mix creando fischi.
-                                                Usa sempre le <strong>cuffie</strong> se il canale Mix è attivo.
-                                                I mixer professionali (Rødecaster, ecc.) con routing interno non hanno questo rischio.
+                                                <strong>{t('modal.settings.micFeedbackWarnTitle', 'RISCHIO FEEDBACK:')}</strong> {t('modal.settings.micFeedbackWarnPart1', "Se usi le casse, l'audio del mic potrebbe rientrare nel mix creando fischi. Usa sempre le")} <strong>{t('modal.settings.micFeedbackWarnHeadphones', 'cuffie')}</strong> {t('modal.settings.micFeedbackWarnPart2', 'se il canale Mix è attivo. I mixer professionali (Rødecaster, ecc.) con routing interno non hanno questo rischio.')}
                                             </span>
                                         </div>
                                         <label className="flex items-center gap-2 cursor-pointer">
@@ -543,7 +541,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                                 onChange={e => setMicSettings({ feedbackAcknowledged: e.target.checked })}
                                                 className="w-3 h-3 accent-yellow-500"
                                             />
-                                            <span className="text-yellow-300">Ho capito. Uso cuffie o un mixer professionale.</span>
+                                            <span className="text-yellow-300">{t('modal.settings.micFeedbackConfirm', 'Ho capito. Uso cuffie o un mixer professionale.')}</span>
                                         </label>
                                     </div>
                                 )}
@@ -556,41 +554,40 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     {activeTab === 'recording' && (
                         <div className="p-6 space-y-6">
                             <section className="space-y-4">
-                                <SectionTitle color="text-zinc-400">Session Recording</SectionTitle>
+                                <SectionTitle color="text-zinc-400">{t('modal.settings.recordingTitle', 'Session Recording')}</SectionTitle>
                                 <p className="text-[10px] text-zinc-600 italic">
-                                    La registrazione cattura tutto ciò che senti in uscita — inclusi microfono (se armato e in mix) ed effetti master.
-                                    Il formato e la qualità si scelgono al momento dell'esportazione.
+                                    {t('modal.settings.recordingDesc', "La registrazione cattura tutto ciò che senti in uscita — inclusi microfono (se armato e in mix) ed effetti master. Il formato e la qualità si scelgono al momento dell'esportazione.")}
                                 </p>
 
                                 <div className="card space-y-3">
                                     <div className="flex items-center gap-3">
                                         <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                                        <span className="text-xs font-bold text-zinc-300">Tap point: dopo il Limiter</span>
+                                        <span className="text-xs font-bold text-zinc-300">{t('modal.settings.recordingTapPoint', 'Tap point: dopo il Limiter')}</span>
                                     </div>
-                                    <p className="text-[10px] text-zinc-600 italic">Il segnale registrato è fedele all'onda radio: passa per HPF, Compressore e Limiter brickwall.</p>
+                                    <p className="text-[10px] text-zinc-600 italic">{t('modal.settings.recordingTapHint', "Il segnale registrato è fedele all'onda radio: passa per HPF, Compressore e Limiter brickwall.")}</p>
                                     <div className="flex gap-6 mt-2">
                                         <div>
-                                            <span className="text-[9px] text-zinc-600 uppercase font-bold block">Formati disponibili</span>
+                                            <span className="text-[9px] text-zinc-600 uppercase font-bold block">{t('modal.settings.recordingAvailableFormats', 'Formati disponibili')}</span>
                                             <span className="text-xs text-zinc-300 font-mono">WAV · FLAC · MP3 · OGG · WEBM</span>
                                         </div>
                                         <div>
-                                            <span className="text-[9px] text-zinc-600 uppercase font-bold block">Qualità interna</span>
+                                            <span className="text-[9px] text-zinc-600 uppercase font-bold block">{t('modal.settings.recordingInternalQuality', 'Qualità interna')}</span>
                                             <span className="text-xs text-zinc-300 font-mono">Opus 320 kbps</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <span className="text-xs text-zinc-400 block mb-1">Formato predefinito apertura dialog</span>
+                                    <span className="text-xs text-zinc-400 block mb-1">{t('modal.settings.recordingDefaultFormatLabel', 'Formato predefinito apertura dialog')}</span>
                                     <select
                                         value={recordingFormat}
                                         onChange={e => setRecordingSettings({ format: e.target.value as 'webm' | 'wav' })}
                                         className="sel"
                                     >
-                                        <option value="wav">WAV (Lossless)</option>
-                                        <option value="webm">WebM / Opus (Broadcast Quality)</option>
+                                        <option value="wav">{t('modal.settings.recordingFormatWav', 'WAV (Lossless)')}</option>
+                                        <option value="webm">{t('modal.settings.recordingFormatWebm', 'WebM / Opus (Broadcast Quality)')}</option>
                                     </select>
-                                    <p className="text-[10px] text-zinc-600 mt-1 italic">Formato preselezionato all'apertura della finestra di esportazione.</p>
+                                    <p className="text-[10px] text-zinc-600 mt-1 italic">{t('modal.settings.recordingDefaultFormatHelp', "Formato preselezionato all'apertura della finestra di esportazione.")}</p>
                                 </div>
                             </section>
                         </div>
@@ -603,29 +600,29 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             <div className="space-y-3 card !p-3">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <span className="text-xs font-medium text-zinc-300">Omologazione Volume Clip</span>
-                                        <p className="text-[10px] text-zinc-600 mt-0.5 italic">Allinea automaticamente il volume percepito tra le clip (loudness EBU R128), con un guadagno statico — niente compressione, niente pompaggio.</p>
+                                        <span className="text-xs font-medium text-zinc-300">{t('modal.settings.chain.loudnessTitle', 'Omologazione Volume Clip')}</span>
+                                        <p className="text-[10px] text-zinc-600 mt-0.5 italic">{t('modal.settings.chain.loudnessDesc', 'Allinea automaticamente il volume percepito tra le clip (loudness EBU R128), con un guadagno statico — niente compressione, niente pompaggio.')}</p>
                                     </div>
                                     <Toggle enabled={loudnessNormEnabled} onToggle={() => setLoudnessNorm({ enabled: !loudnessNormEnabled })} />
                                 </div>
                                 <LabeledSlider
-                                    label="Target loudness"
+                                    label={t('modal.settings.chain.targetLoudness', 'Target loudness')}
                                     value={loudnessTargetLufs} min={-23} max={-12} step={1}
                                     display={`${loudnessTargetLufs} LUFS`}
                                     accent="accent-emerald-500"
                                     disabled={!loudnessNormEnabled}
                                     onChange={(v) => setLoudnessNorm({ targetLufs: v })}
                                 />
-                                <p className="text-[10px] text-zinc-600 italic">Misurata una volta per clip (in background) e salvata nel progetto. Guadagno limitato a ±9 dB. Default: -16 LUFS.</p>
+                                <p className="text-[10px] text-zinc-600 italic">{t('modal.settings.chain.loudnessHint', 'Misurata una volta per clip (in background) e salvata nel progetto. Guadagno limitato a ±9 dB. Default: -16 LUFS.')}</p>
                             </div>
 
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h3 className="text-[10px] uppercase text-sky-400 font-bold tracking-wider">Master Chain</h3>
-                                    <p className="text-[10px] text-zinc-600 mt-0.5 italic">Pipeline broadcast-grade: HPF → Glue Multibanda → Limiter brickwall sul master bus.</p>
+                                    <p className="text-[10px] text-zinc-600 mt-0.5 italic">{t('modal.settings.chain.pipelineDesc', 'Pipeline broadcast-grade: HPF → Glue Multibanda → Limiter brickwall sul master bus.')}</p>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-xs text-zinc-400">{masterChain.enabled ? 'Attiva' : 'Bypass'}</span>
+                                    <span className="text-xs text-zinc-400">{masterChain.enabled ? t('modal.settings.chain.active', 'Attiva') : t('modal.settings.chain.bypass', 'Bypass')}</span>
                                     <Toggle enabled={masterChain.enabled} onToggle={() => setMasterChain({ enabled: !masterChain.enabled })} />
                                 </div>
                             </div>
@@ -641,37 +638,37 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     <Toggle enabled={masterChain.hpfEnabled} onToggle={() => setMasterChain({ hpfEnabled: !masterChain.hpfEnabled })} />
                                 </div>
                                 <LabeledSlider
-                                    label="Frequenza di taglio"
+                                    label={t('modal.settings.chain.cutoffFreq', 'Frequenza di taglio')}
                                     value={masterChain.hpfFrequency} min={20} max={200} step={5}
                                     display={`${masterChain.hpfFrequency} Hz`}
                                     accent="accent-sky-500"
                                     disabled={!masterChain.hpfEnabled}
                                     onChange={(v) => setMasterChain({ hpfFrequency: v })}
                                 />
-                                <p className="text-[10px] text-zinc-600 italic">Elimina rumble, fruscio basso, DC offset. Default: 30 Hz (preserva il calore dei bassi).</p>
+                                <p className="text-[10px] text-zinc-600 italic">{t('modal.settings.chain.hpfHint', 'Elimina rumble, fruscio basso, DC offset. Default: 30 Hz (preserva il calore dei bassi).')}</p>
                             </div>
 
                             {/* GLUE MULTIBANDA */}
                             <div className={`space-y-3 card !p-3 transition-opacity ${masterChain.enabled ? '' : 'opacity-40 pointer-events-none'}`}>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium text-zinc-300">Glue Multibanda — Calore & Morbidezza</span>
+                                    <span className="text-xs font-medium text-zinc-300">{t('modal.settings.chain.glueTitle', 'Glue Multibanda — Calore & Morbidezza')}</span>
                                     <Toggle enabled={masterChain.compressorEnabled} onToggle={() => setMasterChain({ compressorEnabled: !masterChain.compressorEnabled })} />
                                 </div>
-                                <p className="text-[10px] text-zinc-600 italic">Compressore a 3 bande (basse/medie/alte) con preset gentile tarato: allinea le dinamiche e dà calore senza alzare il volume né indurire il suono. Quando disattivo, il segnale passa pulito (solo HPF + Limiter di sicurezza).</p>
+                                <p className="text-[10px] text-zinc-600 italic">{t('modal.settings.chain.glueDesc', 'Compressore a 3 bande (basse/medie/alte) con preset gentile tarato: allinea le dinamiche e dà calore senza alzare il volume né indurire il suono. Quando disattivo, il segnale passa pulito (solo HPF + Limiter di sicurezza).')}</p>
 
                                 <div className={`transition-opacity ${masterChain.compressorEnabled ? '' : 'opacity-40 pointer-events-none'}`}>
-                                    <span className="text-[10px] uppercase text-zinc-500 tracking-wider">Stile</span>
+                                    <span className="text-[10px] uppercase text-zinc-500 tracking-wider">{t('modal.settings.chain.style', 'Stile')}</span>
                                     <select
                                         value={masterChain.compressorStyle}
                                         onChange={(e) => setMasterChain({ compressorStyle: e.target.value as typeof masterChain.compressorStyle })}
                                         className="sel"
                                     >
-                                        <option value="neutro">Neutro (default, tarato)</option>
-                                        <option value="rock">Rock — denso, punchy</option>
-                                        <option value="jazz">Jazz — trasparente, dinamico</option>
-                                        <option value="elettronico">Elettronico — compatto, tirato</option>
+                                        <option value="neutro">{t('modal.settings.chain.styleNeutral', 'Neutro (default, tarato)')}</option>
+                                        <option value="rock">{t('modal.settings.chain.styleRock', 'Rock — denso, punchy')}</option>
+                                        <option value="jazz">{t('modal.settings.chain.styleJazz', 'Jazz — trasparente, dinamico')}</option>
+                                        <option value="elettronico">{t('modal.settings.chain.styleElectronic', 'Elettronico — compatto, tirato')}</option>
                                     </select>
-                                    <p className="text-[10px] text-zinc-600 mt-1 italic">Solo 'Neutro' è tarato con misura oggettiva (LUFS/LRA). Gli altri stili sono valori di partenza: verificare in regia con ascolto reale.</p>
+                                    <p className="text-[10px] text-zinc-600 mt-1 italic">{t('modal.settings.chain.styleHint', "Solo 'Neutro' è tarato con misura oggettiva (LUFS/LRA). Gli altri stili sono valori di partenza: verificare in regia con ascolto reale.")}</p>
                                 </div>
                             </div>
 
@@ -679,16 +676,16 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             <div className={`space-y-3 card !p-3 transition-opacity ${masterChain.enabled ? '' : 'opacity-40 pointer-events-none'}`}>
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-medium text-zinc-300">Limiter Brickwall</span>
-                                    <span className="text-[10px] text-zinc-600 italic">Sempre attivo se chain abilitata</span>
+                                    <span className="text-[10px] text-zinc-600 italic">{t('modal.settings.chain.limiterAlways', 'Sempre attivo se chain abilitata')}</span>
                                 </div>
                                 <LabeledSlider
-                                    label="Soglia massima"
+                                    label={t('modal.settings.chain.maxThreshold', 'Soglia massima')}
                                     value={masterChain.limiterThreshold} min={-6} max={-0.1} step={0.1}
                                     display={`${masterChain.limiterThreshold.toFixed(1)} dBFS`}
                                     accent="accent-red-500"
                                     onChange={(v) => setMasterChain({ limiterThreshold: v })}
                                 />
-                                <p className="text-[10px] text-zinc-600 italic">Blocco assoluto per protezione trasmittente. 20:1, 2 ms att. Default: -1 dBFS.</p>
+                                <p className="text-[10px] text-zinc-600 italic">{t('modal.settings.chain.limiterHint', 'Blocco assoluto per protezione trasmittente. 20:1, 2 ms att. Default: -1 dBFS.')}</p>
                             </div>
                             </div>
 
@@ -696,7 +693,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 onClick={() => setMasterChain({ ...DEFAULT_MASTER_CHAIN })}
                                 className="text-[10px] text-zinc-600 hover:text-zinc-300 underline transition-colors"
                             >
-                                ↺ Ripristina default Master Chain
+                                ↺ {t('modal.settings.chain.resetDefault', 'Ripristina default Master Chain')}
                             </button>
                         </div>
                     )}

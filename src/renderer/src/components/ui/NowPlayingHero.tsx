@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAudioStore } from '../../store/useAudioStore';
 import { useProjectStore } from '../../store/useProjectStore';
 import { AudioClip } from '../../types';
@@ -21,6 +22,7 @@ const fmt = (s: number): string => {
 const TYPE_PRIORITY = ['music', 'preshow', 'voice', 'asset'];
 
 export const NowPlayingHero: React.FC = () => {
+    const { t } = useTranslation();
     const activeClips = useAudioStore((s) => s.activeClips);
     const columns = useProjectStore((s) => s.columns);
 
@@ -113,7 +115,7 @@ export const NowPlayingHero: React.FC = () => {
                 <span className="hero-label">{clip ? `IN ONDA · ${col?.title ?? ''}` : 'OFF AIR'}</span>
                 <span className="hero-title">{clip ? (clip.title || clip.name) : '—'}</span>
                 <span className="hero-artist">
-                    {clip ? (clip.artist || (loop ? 'In loop' : ' ')) : 'Nessun brano in onda'}
+                    {clip ? (clip.artist || (loop ? t('nowPlaying.inLoop', 'In loop') : ' ')) : t('nowPlaying.noTrack', 'Nessun brano in onda')}
                 </span>
             </div>
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Download, Trash2, Clock, Radio } from 'lucide-react';
 import { useAudioStore } from '../../store/useAudioStore';
 import { PlayoutLogEntry } from '../../types';
@@ -23,6 +24,7 @@ const clipTypeLabel: Record<string, string> = {
 };
 
 export const PlayoutLogModal: React.FC<PlayoutLogModalProps> = ({ onClose }) => {
+    const { t } = useTranslation();
     const { playoutLog, clearPlayoutLog } = useAudioStore();
 
     // v1.4.13 (ESC-01): ESC chiude la modale invece di innescare lo STOP ALL.
@@ -48,9 +50,9 @@ export const PlayoutLogModal: React.FC<PlayoutLogModalProps> = ({ onClose }) => 
         // v1.2.27 (NEW-LI-06): distinguere cancel (silenzioso) da errore (toast)
         const res = await window.electron.savePlayoutLog(csv, suggestedName);
         if (res.success) {
-            toast('Playout log esportato.', 'success');
+            toast(t('modal.playout.exportOk', 'Playout log esportato.'), 'success');
         } else if (res.error) {
-            toast('Errore export: ' + res.error, 'error');
+            toast(t('modal.playout.exportErr', 'Errore export: {{v}}', { v: res.error }), 'error');
         }
         // else: utente ha annullato il dialog — nessun toast
     };
@@ -62,9 +64,13 @@ export const PlayoutLogModal: React.FC<PlayoutLogModalProps> = ({ onClose }) => 
     const handleClear = async () => {
         if (playoutLog.length === 0) return;
         const ok = await confirm(
-            `Svuotare il Playout Log? ${playoutLog.length} element${playoutLog.length === 1 ? 'o' : 'i'} verranno eliminati definitivamente. Esporta il CSV prima, se ti serve la scaletta.`,
-            'Svuota',
-            'Annulla'
+            t(
+                'modal.playout.clearConfirm',
+                'Svuotare il Playout Log? {{n}} element{{suffix}} verranno eliminati definitivamente. Esporta il CSV prima, se ti serve la scaletta.',
+                { n: playoutLog.length, suffix: playoutLog.length === 1 ? 'o' : 'i' }
+            ),
+            t('modal.playout.clearAction', 'Svuota'),
+            t('modal.playout.cancel', 'Annulla')
         );
         if (ok) clearPlayoutLog();
     };
@@ -79,7 +85,7 @@ export const PlayoutLogModal: React.FC<PlayoutLogModalProps> = ({ onClose }) => 
                         <Radio size={16} className="text-cyan-400" />
                         <h2 className="text-sm font-bold text-zinc-100">Playout Log</h2>
                         <span className="text-[10px] text-zinc-500 font-mono bg-zinc-800 px-2 py-0.5 rounded">
-                            {playoutLog.length} elementi
+                            {t('modal.playout.itemsCount', '{{n}} elementi', { n: playoutLog.length })}
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -95,7 +101,7 @@ export const PlayoutLogModal: React.FC<PlayoutLogModalProps> = ({ onClose }) => 
                             disabled={playoutLog.length === 0}
                             className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold bg-red-950/40 hover:bg-red-900/60 border border-red-800/50 text-red-400 rounded transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                         >
-                            <Trash2 size={12} /> Svuota
+                            <Trash2 size={12} /> {t('modal.playout.clearAction', 'Svuota')}
                         </button>
                         <button onClick={onClose} className="p-1.5 hover:bg-zinc-800 rounded transition-all">
                             <X size={16} className="text-zinc-400" />
@@ -108,19 +114,19 @@ export const PlayoutLogModal: React.FC<PlayoutLogModalProps> = ({ onClose }) => 
                     {playoutLog.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-40 gap-3 text-zinc-600">
                             <Clock size={28} />
-                            <span className="text-sm">Nessuna clip suonata in questa sessione</span>
+                            <span className="text-sm">{t('modal.playout.empty', 'Nessuna clip suonata in questa sessione')}</span>
                         </div>
                     ) : (
                         <table className="w-full text-[11px]">
                             <thead className="sticky top-0 bg-zinc-900 border-b border-zinc-800">
                                 <tr className="text-[9px] font-bold uppercase text-zinc-500 tracking-wider">
                                     <th className="px-4 py-2 text-left w-8">#</th>
-                                    <th className="px-4 py-2 text-left">Inizio</th>
-                                    <th className="px-4 py-2 text-left">Fine</th>
-                                    <th className="px-4 py-2 text-right">Durata</th>
-                                    <th className="px-4 py-2 text-left">Nome</th>
-                                    <th className="px-4 py-2 text-left">Artista / Titolo</th>
-                                    <th className="px-4 py-2 text-left">Tipo</th>
+                                    <th className="px-4 py-2 text-left">{t('modal.playout.startCol', 'Inizio')}</th>
+                                    <th className="px-4 py-2 text-left">{t('modal.playout.endCol', 'Fine')}</th>
+                                    <th className="px-4 py-2 text-right">{t('modal.playout.durationCol', 'Durata')}</th>
+                                    <th className="px-4 py-2 text-left">{t('modal.playout.nameCol', 'Nome')}</th>
+                                    <th className="px-4 py-2 text-left">{t('modal.playout.artistTitleCol', 'Artista / Titolo')}</th>
+                                    <th className="px-4 py-2 text-left">{t('modal.playout.typeCol', 'Tipo')}</th>
                                 </tr>
                             </thead>
                             <tbody>

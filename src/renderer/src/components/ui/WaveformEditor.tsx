@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Play, Pause, Scissors, Flag, Music, ZoomIn, ZoomOut, Zap } from 'lucide-react';
 import { toFileUrl } from '../../utils/pathUtils';
 import { toast } from '../../store/useToastStore';
+import { useTranslation } from 'react-i18next';
 
 type DraggingMarker = 'trimStart' | 'trimEnd' | 'intro' | 'outro' | null;
 
@@ -93,6 +94,7 @@ interface WaveformEditorProps {
 export const WaveformEditor: React.FC<WaveformEditorProps> = ({
     path, trimStart, trimEnd, introMarker, outroMarker, onChange
 }) => {
+    const { t } = useTranslation();
     const audioRef    = useRef<HTMLAudioElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -224,16 +226,16 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                 if (res.data.outroCue > 0) updates.outroMarker = res.data.outroCue;
                 if (Object.keys(updates).length > 0) {
                     onChange(updates);
-                    toast(`Smart Cues — Intro: ${res.data.introCue.toFixed(2)}s · Outro: ${res.data.outroCue.toFixed(2)}s`, 'success');
+                    toast(t('waveform.smartCuesDone', 'Smart Cues — Intro: {{intro}}s · Outro: {{outro}}s', { intro: res.data.introCue.toFixed(2), outro: res.data.outroCue.toFixed(2) }), 'success');
                 } else {
-                    toast('Smart Cues: nessun cue significativo rilevato.', 'warning');
+                    toast(t('waveform.smartCuesNone', 'Smart Cues: nessun cue significativo rilevato.'), 'warning');
                 }
             } else {
                 // v1.2.22 (NEW-ME-01): distinguere rate-limit dagli errori reali
                 if (res.error === 'IPC_RATE_LIMITED') {
-                    toast('Smart Cues in coda — troppe operazioni FFmpeg parallele. Riprova tra qualche secondo.', 'warning');
+                    toast(t('waveform.smartCuesBusy', 'Smart Cues in coda — troppe operazioni FFmpeg parallele. Riprova tra qualche secondo.'), 'warning');
                 } else {
-                    toast('Smart Cues: ' + (res.error ?? 'errore durante l\'analisi FFmpeg'), 'error');
+                    toast(t('waveform.smartCuesError', 'Smart Cues: {{err}}', { err: res.error ?? t('waveform.smartCuesAnalysisErr', 'errore durante l\'analisi FFmpeg') }), 'error');
                 }
             }
         } finally {
@@ -296,12 +298,12 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                     <div>
                         <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Status</div>
                         <div className="text-xs font-mono text-emerald-400">
-                            {isLoaded ? 'PRONTO' : 'CARICAMENTO...'}
+                            {isLoaded ? t('waveform.ready', 'PRONTO') : t('waveform.loading', 'CARICAMENTO...')}
                         </div>
                     </div>
                 </div>
                 <div className="text-right">
-                    <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Posizione</div>
+                    <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">{t('waveform.position', 'Posizione')}</div>
                     <div className="text-sm font-mono text-zinc-300">
                         {currentTime.toFixed(2)}s <span className="text-zinc-600">/ {duration.toFixed(2)}s</span>
                     </div>
@@ -323,7 +325,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                         <span className="inline-block w-0.5 h-3 bg-orange-400" /> Outro
                     </span>
                     <span className="ml-auto text-[9px] text-zinc-600 italic normal-case">
-                        Click → Seek &nbsp;·&nbsp; Trascina handle → Sposta marker
+                        {t('waveform.hint', 'Click → Seek · Trascina handle → Sposta marker')}
                     </span>
                     <div className="flex items-center gap-1 ml-3">
                         <button
@@ -369,7 +371,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                             {isAnalyzing ? (
                                 <div className="w-full flex justify-center items-center h-full">
                                     <span className="text-zinc-500 font-mono text-[10px] animate-pulse">
-                                        Analisi waveform (Node.js)...
+                                        {t('waveform.analyzing', 'Analisi waveform (Node.js)...')}
                                     </span>
                                 </div>
                             ) : peaks.length > 0 ? (
@@ -382,7 +384,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                                 ))
                             ) : (
                                 <div className="w-full text-center text-zinc-600 text-[10px]">
-                                    Waveform non disponibile — riproduzione standard
+                                    {t('waveform.unavailable', 'Waveform non disponibile — riproduzione standard')}
                                 </div>
                             )}
                         </div>
@@ -513,11 +515,11 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                 onClick={handleSmartCues}
                 disabled={isDetectingCues || !isLoaded}
                 className="w-full flex items-center justify-center gap-2 p-2 bg-zinc-900 hover:bg-violet-900/40 border border-zinc-800 hover:border-violet-500/60 rounded transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                title="Analizza il brano e suggerisce automaticamente Intro e Outro Cue tramite FFmpeg"
+                title={t('waveform.smartCuesTip', 'Analizza il brano e suggerisce automaticamente Intro e Outro Cue tramite FFmpeg')}
             >
                 <Zap size={13} className={isDetectingCues ? 'text-violet-400 animate-pulse' : 'text-zinc-500'} />
                 <span className="text-[9px] font-bold uppercase text-zinc-500 hover:text-zinc-300 transition-colors">
-                    {isDetectingCues ? 'Analisi Smart Cues...' : 'Smart Cues (Auto)'}
+                    {isDetectingCues ? t('waveform.smartCuesAnalyzing', 'Analisi Smart Cues...') : t('waveform.smartCuesAuto', 'Smart Cues (Auto)')}
                 </span>
             </button>
 
@@ -526,7 +528,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                 <button
                     onClick={() => onChange({ trimStart: Math.max(0, Math.min(currentTime, Math.max(0, duration - trimEnd - 0.05))) })}
                     className="flex flex-col items-center p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-500/50 rounded transition-all group"
-                    title="Imposta Trim Start alla posizione corrente"
+                    title={t('waveform.trimStartTip', 'Imposta Trim Start alla posizione corrente')}
                 >
                     <Scissors size={14} className="text-zinc-500 group-hover:text-red-400 mb-1 transition-colors" />
                     <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">Trim Start</span>
@@ -534,7 +536,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                 <button
                     onClick={() => onChange({ trimEnd: Math.min(Math.max(0, duration - currentTime), Math.max(0, duration - trimStart - 0.05)) })}
                     className="flex flex-col items-center p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-500/50 rounded transition-all group"
-                    title="Imposta Trim End alla posizione corrente"
+                    title={t('waveform.trimEndTip', 'Imposta Trim End alla posizione corrente')}
                 >
                     <Scissors size={14} className="text-zinc-500 group-hover:text-red-400 mb-1 transition-colors" />
                     <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">Trim End</span>
@@ -542,7 +544,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                 <button
                     onClick={() => onChange({ introMarker: currentTime })}
                     className="flex flex-col items-center p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-cyan-500/50 rounded transition-all group"
-                    title="Imposta Intro alla posizione corrente"
+                    title={t('waveform.setIntroTip', 'Imposta Intro alla posizione corrente')}
                 >
                     <Flag size={14} className="text-zinc-500 group-hover:text-cyan-400 mb-1 transition-colors" />
                     <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">Set Intro</span>
@@ -550,7 +552,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
                 <button
                     onClick={() => onChange({ outroMarker: currentTime })}
                     className="flex flex-col items-center p-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-orange-500/50 rounded transition-all group"
-                    title="Imposta Outro alla posizione corrente"
+                    title={t('waveform.setOutroTip', 'Imposta Outro alla posizione corrente')}
                 >
                     <Flag size={14} className="text-zinc-500 group-hover:text-orange-400 mb-1 transition-colors" />
                     <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 uppercase transition-colors">Set Outro</span>
@@ -561,8 +563,7 @@ export const WaveformEditor: React.FC<WaveformEditorProps> = ({
             <div className="bg-emerald-950/10 border border-emerald-900/30 rounded p-3 flex items-center gap-3">
                 <Music size={16} className="text-emerald-500 shrink-0" />
                 <div className="text-[10px] text-emerald-300/70 leading-tight">
-                    <strong>MAIN-SIDE-HEAVY:</strong> Waveform generata da FFmpeg (Node.js) —
-                    Chromium non carica mai il file audio in memoria. Crash prevention attivo.
+                    <strong>MAIN-SIDE-HEAVY:</strong> {t('waveform.engineBanner', 'Waveform generata da FFmpeg (Node.js) — Chromium non carica mai il file audio in memoria. Crash prevention attivo.')}
                 </div>
             </div>
         </div>

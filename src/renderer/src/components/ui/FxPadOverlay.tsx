@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Zap, Upload, Music4, Settings2, ChevronsLeft, ChevronsRight, Sparkles } from 'lucide-react';
 import { useProjectStore } from '../../store/useProjectStore';
 import { useAudioStore } from '../../store/useAudioStore';
@@ -31,6 +32,7 @@ interface FxPadOverlayProps {
  * chiude dal pulsante × o dal toggle nella topbar.
  */
 export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) => {
+    const { t } = useTranslation();
     const columns = useProjectStore((s) => s.columns);
     const addClip = useProjectStore((s) => s.addClip);
     const removeClip = useProjectStore((s) => s.removeClip);
@@ -189,7 +191,7 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                     {/* v1.10.8: ripristino libreria FX di default (CC0) */}
                     <button
                         onClick={handleRestoreDefaults}
-                        title="Ripristina gli FX di default (libreria CC0 inclusa nel software)"
+                        title={t('fxPad.restoreDefaultsTip', 'Ripristina gli FX di default (libreria CC0 inclusa nel software)')}
                         className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 transition-colors"
                     >
                         <Sparkles size={15} />
@@ -200,14 +202,14 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                             e.currentTarget.blur();
                             setFxPadSide(fxPadSide === 'left' ? 'right' : 'left');
                         }}
-                        title={fxPadSide === 'left' ? 'Sposta il pad a destra' : 'Sposta il pad a sinistra'}
+                        title={fxPadSide === 'left' ? t('fxPad.moveRightTip', 'Sposta il pad a destra') : t('fxPad.moveLeftTip', 'Sposta il pad a sinistra')}
                         className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 transition-colors"
                     >
                         {fxPadSide === 'left' ? <ChevronsRight size={16} /> : <ChevronsLeft size={16} />}
                     </button>
                     <button
                         onClick={onClose}
-                        title="Nascondi il pad FX"
+                        title={t('fxPad.hideTip', 'Nascondi il pad FX')}
                         className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 transition-colors"
                     >
                         <X size={16} />
@@ -219,7 +221,7 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
             <div className="p-3 overflow-y-auto min-h-0">
                 {!sfxCol ? (
                     <div className="h-40 flex items-center justify-center text-zinc-600 text-xs">
-                        Nessuna colonna FX nel progetto.
+                        {t('fxPad.noColumn', 'Nessuna colonna FX nel progetto.')}
                     </div>
                 ) : (
                     <div className="grid grid-cols-5 gap-2">
@@ -291,7 +293,7 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                         if (isPlaying) stopClip(clip.id);
                                         else playClip(clip);
                                     }}
-                                    title={disabled ? `File mancante: ${label}` : label}
+                                    title={disabled ? t('fxPad.missingFileTip', 'File mancante: {{label}}', { label }) : label}
                                     className={`group relative h-20 rounded-lg border p-2 text-left flex flex-col justify-between transition-all overflow-hidden ${
                                         disabled
                                             ? 'border-red-800/60 bg-red-950/30 text-red-400/70 cursor-not-allowed'
@@ -328,7 +330,7 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                         role="button"
                                         tabIndex={-1}
                                         onClick={(e) => handleEdit(e, clip)}
-                                        title="Impostazioni clip"
+                                        title={t('fxPad.settingsTip', 'Impostazioni clip')}
                                         className="absolute top-1 right-6 w-4 h-4 rounded flex items-center justify-center bg-black/50 text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-cyan-300 transition-opacity"
                                     >
                                         <Settings2 size={11} />
@@ -338,7 +340,7 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                         role="button"
                                         tabIndex={-1}
                                         onClick={(e) => handleRemove(e, clip.id, label)}
-                                        title="Rimuovi dal pad"
+                                        title={t('fxPad.removeTip', 'Rimuovi dal pad')}
                                         className="absolute top-1 right-1 w-4 h-4 rounded flex items-center justify-center bg-black/50 text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-red-400 transition-opacity"
                                     >
                                         <X size={11} />
@@ -353,7 +355,7 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
             {/* FOOTER — hint */}
             <div className="px-4 py-2 border-t border-zinc-800 shrink-0 flex items-center gap-2 text-[10px] text-zinc-500">
                 <Upload size={11} />
-                <span>Trascina qui i file audio per aggiungere effetti · click per suonare/fermare · ESC = STOP ALL globale</span>
+                <span>{t('fxPad.hint', 'Trascina qui i file audio per aggiungere effetti · click per suonare/fermare · ESC = STOP ALL globale')}</span>
             </div>
         </div>
 

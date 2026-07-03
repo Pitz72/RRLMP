@@ -255,7 +255,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                                 onClick={() => setCustomColor(null)}
                                                 className="w-full text-[10px] text-zinc-500 hover:text-zinc-200 transition-colors py-1 border border-zinc-800 hover:border-zinc-600 rounded"
                                             >
-                                                ↺ Eredita colore dalla colonna
+                                                {t('modal.clip.inheritColor', '↺ Eredita colore dalla colonna')}
                                             </button>
                                         )}
                                     </div>
@@ -388,7 +388,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                                 <button
                                                     onClick={() => previewTransition(clip)}
                                                     className={`flex items-center gap-1.5 px-3 py-1 text-white text-xs rounded font-medium transition-colors ${isPreviewingThisClip ? 'bg-violet-800 cursor-default opacity-60' : 'bg-violet-600 hover:bg-violet-500'}`}
-                                                    title="Riproduce gli ultimi secondi di questa clip — la transizione scatta naturalmente"
+                                                    title={t('modal.clip.previewTip', 'Riproduce gli ultimi secondi di questa clip — la transizione scatta naturalmente')}
                                                     disabled={isPreviewingThisClip}
                                                 >
                                                     <PlayCircle size={13} />
@@ -398,7 +398,7 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                                     <button
                                                         onClick={() => stopPreviewTransition(clip.id)}
                                                         className="flex items-center gap-1.5 px-3 py-1 bg-red-700 hover:bg-red-600 text-white text-xs rounded font-medium transition-colors"
-                                                        title="Ferma l'anteprima"
+                                                        title={t('modal.clip.stopPreviewTip', "Ferma l'anteprima")}
                                                     >
                                                         <StopCircle size={13} />
                                                         Stop
@@ -492,29 +492,29 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                         <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-xs text-zinc-500 uppercase font-bold tracking-wider">Script / Cue Sheet / Note di Regia</p>
-                                    <p className="text-[10px] text-zinc-600 mt-0.5">Testo libero — salvato nel progetto .lmp</p>
+                                    <p className="text-xs text-zinc-500 uppercase font-bold tracking-wider">{t('modal.clip.notesTitle', 'Script / Cue Sheet / Note di Regia')}</p>
+                                    <p className="text-[10px] text-zinc-600 mt-0.5">{t('modal.clip.notesHint', 'Testo libero — salvato nel progetto .lmp')}</p>
                                 </div>
                                 {notes && (
                                     <button
                                         onClick={() => setNotes('')}
                                         className="text-[10px] text-zinc-500 hover:text-red-400 border border-zinc-700 hover:border-red-500/40 rounded px-2 py-1 transition-colors"
                                     >
-                                        Cancella
+                                        {t('modal.clip.clearNotes', 'Cancella')}
                                     </button>
                                 )}
                             </div>
                             <textarea
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
-                                placeholder="Inserisci qui lo script, le note di produzione, i cue..."
+                                placeholder={t('modal.clip.notesPlaceholder', 'Inserisci qui lo script, le note di produzione, i cue...')}
                                 rows={16}
                                 className="sel mono resize-none leading-relaxed custom-scrollbar placeholder:text-zinc-700"
                                 spellCheck={false}
                             />
                             <div className="flex justify-between text-[10px] text-zinc-600">
-                                <span>{notes.length} caratteri</span>
-                                <span>{notes.split('\n').filter(l => l.trim()).length} righe non vuote</span>
+                                <span>{t('modal.clip.charCount', '{{count}} caratteri', { count: notes.length })}</span>
+                                <span>{t('modal.clip.nonEmptyLines', '{{count}} righe non vuote', { count: notes.split('\n').filter(l => l.trim()).length })}</span>
                             </div>
                         </div>
                     )}

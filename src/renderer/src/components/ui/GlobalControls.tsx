@@ -385,7 +385,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
     // v1.10.19: handler dei 6 comandi file, estratti VERBATIM dai vecchi pulsanti
     // della topbar (ora voci del menu a tendina) — zero cambi di logica.
     const handleNewProject = async () => {
-        if (isDirty && !await confirm('Nuovo Progetto: le modifiche non salvate andranno perse. Continuare?', 'Nuovo Progetto', 'Annulla')) return;
+        if (isDirty && !await confirm(t('confirm.newProject', 'Nuovo Progetto: le modifiche non salvate andranno perse. Continuare?'), t('confirm.newProjectOk', 'Nuovo Progetto'), t('modal.dialog.cancel', 'Annulla'))) return;
         stopAll();
         resetProject();
         // v1.10.9: reset → colonna FX vuota → ripopola i default
@@ -437,7 +437,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
     };
 
     const handleLoadProject = async () => {
-        if (isDirty && !await confirm('Hai modifiche non salvate. Caricare un nuovo progetto le sovrascriverà. Continuare?', 'Carica comunque', 'Annulla')) return;
+        if (isDirty && !await confirm(t('confirm.loadProject', 'Hai modifiche non salvate. Caricare un nuovo progetto le sovrascriverà. Continuare?'), t('confirm.loadProjectOk', 'Carica comunque'), t('modal.dialog.cancel', 'Annulla'))) return;
 
         const result = await window.electron.loadProject();
         // PERSIST-04 (v1.3.3): il main ora torna success:false con error
@@ -515,7 +515,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
             toast('Salva prima il progetto: l’archivio audio viene creato accanto al file di salvataggio.', 'error', 6000);
             return;
         }
-        if (isDirty && !await confirm('Ci sono modifiche non salvate. Si consiglia di salvare prima di esportare. Continuare comunque?', 'Esporta comunque', 'Annulla')) return;
+        if (isDirty && !await confirm(t('confirm.exportUnsaved', 'Ci sono modifiche non salvate. Si consiglia di salvare prima di esportare. Continuare comunque?'), t('confirm.exportUnsavedOk', 'Esporta comunque'), t('modal.dialog.cancel', 'Annulla'))) return;
 
         const projectData = {
             version: __APP_VERSION__,
@@ -562,7 +562,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 <Button
                     size="sm"
                     className={`${showFileMenu ? 'bg-zinc-700 text-white border-zinc-600' : 'bg-white/5 text-zinc-300 hover:bg-white/10 border-white/10'} border relative whitespace-nowrap`}
-                    title="Menu file — nuovo/salva/carica/M3U/esporta"
+                    title={t('controls.fileMenuTip', 'Menu file — nuovo/salva/carica/M3U/esporta')}
                     onClick={(e) => {
                         // v1.10.3: blur anti-retrigger (Space/Enter non deve riaprire il menu)
                         e.currentTarget.blur();
@@ -630,7 +630,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 <div className="flex flex-col gap-1">
                     <button
                         onClick={handleArmToggle}
-                        title={isArmed ? 'Disarma microfono' : 'Arma microfono (Smart Ducking + Mix Input)'}
+                        title={isArmed ? t('controls.micDisarm', 'Disarma microfono') : t('controls.micArm', 'Arma microfono (Smart Ducking + Mix Input)')}
                         className={`flex items-center justify-center gap-1.5 px-2.5 py-1 rounded text-[10px] font-bold transition-all ${
                             isArmed
                                 ? isMicActive
@@ -774,7 +774,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                     className={`${fxPadOpen
                         ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
                         : 'bg-white/5 text-zinc-300 hover:bg-white/10 border-white/10'} border relative whitespace-nowrap`}
-                    title="Pad FX (5×5) — mostra/nascondi"
+                    title={t('controls.fxTip', 'Pad FX (5×5) — mostra/nascondi')}
                 >
                     <div className="flex items-center gap-1.5 font-bold text-[11px]">
                         <Grid3x3 size={14} />
@@ -801,7 +801,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                     className={`${automixOpen
                         ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
                         : 'bg-white/5 text-zinc-300 hover:bg-white/10 border-white/10'} border whitespace-nowrap`}
-                    title="Automix — mix automatico sui BPM (colonna Music)"
+                    title={t('controls.automixTip', 'Automix — mix automatico sui BPM (colonna Music)')}
                 >
                     <div className="flex items-center gap-1.5 font-bold text-[11px]">
                         <Disc3 size={14} />
@@ -820,7 +820,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                     <Button
                         size="sm"
                         className={`${showToolsMenu ? 'bg-zinc-700 text-white border-zinc-600' : 'bg-white/5 text-zinc-300 hover:bg-white/10 border-white/10'} border relative whitespace-nowrap`}
-                        title="Strumenti — annulla/ripeti, MIDI, tastiera, impostazioni, info"
+                        title={t('controls.toolsTip', 'Strumenti — annulla/ripeti, MIDI, tastiera, impostazioni, info')}
                         onClick={(e) => {
                             e.currentTarget.blur();
                             setShowToolsMenu(v => !v);
@@ -837,7 +837,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                             </span>
                         )}
                         {!isMidiLearnMode && !midiSupported && (
-                            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-500 pointer-events-none" title="MIDI non disponibile" />
+                            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-500 pointer-events-none" title={t('controls.midiUnavailable', 'MIDI non disponibile')} />
                         )}
                     </Button>
                     {showToolsMenu && (
@@ -847,7 +847,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                                 disabled={!canUndo}
                                 onClick={() => { setShowToolsMenu(false); undo(); }}
                             >
-                                <Undo2 size={15} className="shrink-0" /> Annulla
+                                <Undo2 size={15} className="shrink-0" /> {t('controls.undo', 'Annulla')}
                                 <span className="ml-auto text-[9px] font-mono text-zinc-600">Ctrl+Z</span>
                             </button>
                             <button
@@ -855,7 +855,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                                 disabled={!canRedo}
                                 onClick={() => { setShowToolsMenu(false); redo(); }}
                             >
-                                <Redo2 size={15} className="shrink-0" /> Ripeti
+                                <Redo2 size={15} className="shrink-0" /> {t('controls.redo', 'Ripeti')}
                                 <span className="ml-auto text-[9px] font-mono text-zinc-600">Ctrl+Y</span>
                             </button>
                             <div className="h-px bg-zinc-800 my-1" />
@@ -865,7 +865,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                                 onClick={() => { setShowToolsMenu(false); setIsMidiLearnMode(!isMidiLearnMode); }}
                             >
                                 <span className="shrink-0 font-bold text-[10px] w-[15px]">M</span>
-                                {isMidiLearnMode ? 'MIDI Learn — attivo (esci)' : t('controls.midiLearn')}
+                                {isMidiLearnMode ? t('controls.midiLearnActive', 'MIDI Learn — attivo (esci)') : t('controls.midiLearn')}
                                 <span className="ml-auto text-[9px] font-mono">
                                     {!midiSupported
                                         ? <span className="text-red-400">✕ n/d</span>

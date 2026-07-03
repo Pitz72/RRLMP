@@ -3,6 +3,7 @@ import { FileAudio, FileVideo, XCircle, Loader2 } from 'lucide-react';
 import { useRecordingStore } from '../../store/useRecordingStore';
 import { toast } from '../../store/useToastStore';
 import { useEscapeToClose } from '../../hooks/useEscapeToClose';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
     isOpen: boolean;
@@ -32,6 +33,7 @@ const BITRATE_OPTIONS = [128000, 192000, 256000, 320000];
 const DEPTH_OPTIONS: Array<16 | 24 | 32> = [16, 24, 32];
 
 export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
+    const { t } = useTranslation();
     const { exportRecording, cancelExport, isConverting } = useRecordingStore();
     const [format, setFormat] = useState<ExportFormat>('wav');
     const [bitrate, setBitrate] = useState(320000);
@@ -77,10 +79,10 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
         });
 
         if (result.success) {
-            toast(`Esportazione completata:\n${result.path}`, 'success', 5000);
+            toast(t('modal.export.exportDone', 'Esportazione completata:\n{{path}}', { path: result.path }), 'success', 5000);
             onClose();
         } else if (result.error !== 'Canceled by user') {
-            toast(`Errore esportazione: ${result.error}`, 'error');
+            toast(t('modal.export.exportError', 'Errore esportazione: {{error}}', { error: String(result.error) }), 'error');
         }
     };
 
@@ -94,13 +96,13 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <div className="ov" style={{ zIndex: 50 }}>
                 <div className="ov-panel anim-in w-full max-w-md">
                     <div className="bg-zinc-800 px-5 py-4 border-b border-zinc-700">
-                        <h2 className="text-sm font-bold text-white">Esporta Registrazione</h2>
-                        <p className="text-[10px] text-zinc-500 mt-0.5">Conversione audio in corso…</p>
+                        <h2 className="text-sm font-bold text-white">{t('modal.export.title', 'Esporta Registrazione')}</h2>
+                        <p className="text-[10px] text-zinc-500 mt-0.5">{t('modal.export.converting', 'Conversione audio in corso…')}</p>
                     </div>
                     <div className="p-6 flex flex-col items-center gap-4">
                         <Loader2 size={28} className="text-emerald-400 animate-spin" />
                         <p className="text-sm text-zinc-300 font-medium">
-                            {exportProgress !== null ? `Conversione… ${exportProgress}%` : 'Conversione in corso…'}
+                            {exportProgress !== null ? t('modal.export.progressPct', 'Conversione… {{pct}}%', { pct: exportProgress }) : t('modal.export.convertingShort', 'Conversione in corso…')}
                         </p>
                         {exportProgress !== null && (
                             <div className="w-full bg-zinc-700 rounded-full h-2 overflow-hidden">
@@ -110,7 +112,7 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 />
                             </div>
                         )}
-                        <p className="text-[10px] text-zinc-600">Non chiudere la finestra durante la conversione.</p>
+                        <p className="text-[10px] text-zinc-600">{t('modal.export.doNotClose', 'Non chiudere la finestra durante la conversione.')}</p>
                     </div>
                 </div>
             </div>
@@ -124,8 +126,8 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 {/* HEADER */}
                 <div className="bg-zinc-800 px-5 py-4 border-b border-zinc-700 flex items-center justify-between">
                     <div>
-                        <h2 className="text-sm font-bold text-white">Esporta Registrazione</h2>
-                        <p className="text-[10px] text-zinc-500 mt-0.5">Scegli formato e qualità, poi seleziona dove salvare.</p>
+                        <h2 className="text-sm font-bold text-white">{t('modal.export.title', 'Esporta Registrazione')}</h2>
+                        <p className="text-[10px] text-zinc-500 mt-0.5">{t('modal.export.subtitle', 'Scegli formato e qualità, poi seleziona dove salvare.')}</p>
                     </div>
                     <button onClick={onClose} className="text-zinc-400 hover:text-white w-7 h-7 flex items-center justify-center rounded hover:bg-zinc-700 transition-colors">&times;</button>
                 </div>
@@ -134,7 +136,7 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
                     {/* FORMATO */}
                     <div className="space-y-2">
-                        <span className="text-[10px] uppercase text-zinc-500 font-bold tracking-wider">Formato</span>
+                        <span className="text-[10px] uppercase text-zinc-500 font-bold tracking-wider">{t('modal.export.format', 'Formato')}</span>
                         <div className="grid grid-cols-5 gap-1.5">
                             {FORMAT_OPTIONS.map(opt => (
                                 <button
@@ -147,13 +149,13 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 </button>
                             ))}
                         </div>
-                        <p className="text-[10px] text-zinc-600 italic">{selectedFmt.description}</p>
+                        <p className="text-[10px] text-zinc-600 italic">{t('modal.export.desc.' + selectedFmt.id, selectedFmt.description)}</p>
                     </div>
 
                     {/* BIT DEPTH (WAV / FLAC) */}
                     {selectedFmt.supportsDepth && (
                         <div className="space-y-2">
-                            <span className="text-[10px] uppercase text-zinc-500 font-bold tracking-wider">Profondità di Bit</span>
+                            <span className="text-[10px] uppercase text-zinc-500 font-bold tracking-wider">{t('modal.export.bitDepth', 'Profondità di Bit')}</span>
                             <div className="flex gap-2">
                                 {DEPTH_OPTIONS.map(d => (
                                     <button
@@ -166,9 +168,9 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 ))}
                             </div>
                             <p className="text-[10px] text-zinc-600 italic">
-                                {sampleDepth === 16 ? 'Standard CD — massima compatibilità.'
-                                    : sampleDepth === 24 ? '24-bit — standard broadcast, consigliato.'
-                                    : '32-bit float — per post-produzione professionale (file grandi).'}
+                                {sampleDepth === 16 ? t('modal.export.depthHint16', 'Standard CD — massima compatibilità.')
+                                    : sampleDepth === 24 ? t('modal.export.depthHint24', '24-bit — standard broadcast, consigliato.')
+                                    : t('modal.export.depthHint32', '32-bit float — per post-produzione professionale (file grandi).')}
                             </p>
                         </div>
                     )}
@@ -176,7 +178,7 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     {/* BITRATE (MP3 / OGG / WEBM) */}
                     {selectedFmt.supportsBitrate && (
                         <div className="space-y-2">
-                            <span className="text-[10px] uppercase text-zinc-500 font-bold tracking-wider">Bitrate</span>
+                            <span className="text-[10px] uppercase text-zinc-500 font-bold tracking-wider">{t('modal.export.bitrate', 'Bitrate')}</span>
                             <div className="flex gap-2">
                                 {BITRATE_OPTIONS.map(b => (
                                     <button
@@ -199,14 +201,14 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         className="btn btn-danger flex items-center gap-1.5"
                     >
                         <XCircle size={12} />
-                        Elimina Registrazione
+                        {t('modal.export.deleteRecording', 'Elimina Registrazione')}
                     </button>
                     <button
                         onClick={handleExport}
                         className="btn btn-green flex items-center gap-1.5"
                     >
                         <FileAudio size={12} />
-                        Scegli Destinazione…
+                        {t('modal.export.chooseDestination', 'Scegli Destinazione…')}
                     </button>
                 </div>
             </div>
