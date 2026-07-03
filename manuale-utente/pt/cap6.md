@@ -1,77 +1,91 @@
-# CAP�TULO 6: CONTROLO DE HARDWARE E ROUTING
-
-Um software de realiza��o profissional n�o vive isolado no computador. Deve comunicar com a mesa de mistura do est�dio, com os auscultadores e com os dedos do realizador.
-Neste cap�tulo veremos como configurar a sa�da de �udio e como comandar o software sem tocar no rato.
+# Capítulo 6 — O motor de mistura
 
 ---
 
-## 6.1 Configura��o de �udio (Routing)
+O problema de fundo da regia radiofónica manual é a multiplicação das ações simultâneas: iniciar uma faixa, baixar a música, falar ao microfone, preparar a clip seguinte, ir de olho no relógio. Cada operação a mais é uma oportunidade de erro, num contexto em que o erro é público e imediato.
 
-Por defeito, o RRLMP sai no dispositivo de �udio predefinido do Windows. No entanto, num est�dio (ou com configura��es de podcast avan�adas como o *R�decaster Pro*), precisa de separar os fluxos.
-
-### Selecionar a Sa�da
-1.  Clique no �cone **Engrenagem (Defini��es)** na barra de comandos em cima.
-2.  Abrir-se-� o painel **General Settings**.
-3.  No menu suspenso "Audio Output Device", ver� a lista de todas as placas de �udio ligadas ao seu PC.
-4.  Selecione o dispositivo desejado (ex. *R�decaster Pro Stereo* ou *Focusrite USB*).
-
-### Mudan�a em Direto (Live Switch)
-A mudan�a � instant�nea. Se a m�sica estiver a tocar enquanto muda de dispositivo, o �udio "saltar�" para a nova sa�da sem se interromper.
-
-> **Dica para R�decaster/Misturadores USB**: Se a sua mesa de mistura tiver v�rios canais USB (ex. Main e Sounds/Chat), defina o RRLMP num canal secund�rio (ex. "Sounds") para poder controlar o seu volume com um fader dedicado na mesa f�sica, separando-o dos sons de sistema do Windows.
+O motor de mistura do Runtime Live Machine Pro elimina a maior parte destas ações intermédias, delegando-as no software. Não se trata de automação no sentido de «o software faz as coisas por si sem que se dê conta», mas de automação das regras que o próprio operador definiria se tivesse mãos suficientes para as executar todas.
 
 ---
 
-## 6.2 O Teclado (Hotkeys)
+## 6.1 A hierarquia de áudio
 
-O teclado do computador � o controlador mais r�pido que tem. O RRLMP inclui comandos globais predefinidos e teclas personaliz�veis.
+O sistema de mistura automática assenta numa **hierarquia de prioridade** entre os tipos de clip. A forma mais imediata de a compreender é imaginá-la como uma escala de «direito de palavra».
 
-### Comandos Globais (Teclas F)
-As teclas de fun��o (F1-F5) est�o mapeadas para lan�ar as colunas. T�m uma l�gica "inteligente": procuram o primeiro clip livre.
-*   **F1**: Lan�a a coluna 1 (Assets).
-*   **F2**: Lan�a a coluna 2 (M�sica).
-*   **F3**: Lan�a a coluna 3 (Vozes).
-*   **F4**: Lan�a a coluna 4 (SFX).
-*   **F5**: Lan�a a coluna 5 (Pr�-Show).
-*   **ESC**: **BOT�O DE P�NICO**. Para tudo imediatamente (Stop All).
+**Voz / Gravações — prioridade absoluta.**
+Quando uma clip de voz está em reprodução, mantém-se no seu volume nominal e tudo o resto baixa. Nenhum outro sinal pode sobrepor-se a esta regra.
 
-### Teclas Personalizadas (Custom Binds)
-Quer lan�ar o gen�rico premindo a barra de espa�os ou a letra "Q"?
-1.  Fa�a clique direito no clip -> **Edit**.
-2.  Clique no campo **Trigger Keybind**.
-3.  Prima a tecla desejada no teclado.
-4.  Guarde.
-5.  Aparecer� um crach� (ex. **[Q]**) no cart�o para o lembrar da atribui��o.
+**Músicas do episódio.**
+Cedem espaço à Voz, mas comandam sobre as bases dos Assets. Quando entra uma canção, as bases musicais dos Assets vão a zero (não param: continuam a rodar em silêncio, prontas para o regresso). É a Music Dominance, descrita mais adiante.
 
-> **Seguran�a**: Os comandos de teclado s�o automaticamente desativados se estiver a escrever texto (ex. a renomear um clip), para evitar fazer partir o �udio enquanto digita.
+**Show Assets, Jingle e Promo — as bases de serviço.**
+São baixados pela Voz e silenciados pelas Músicas. Quando um asset é um **Stacco** (separador), porém, é ele a comandar (ver §6.4).
+
+**Efeitos do pad FX.**
+Os efeitos sonoros ficam fora da hierarquia: tocam no seu próprio volume, sobrepõem-se ao que está no ar e não são silenciados. Há uma única cortesia para com a fala: quando uma voz está ativa, os efeitos descem a meio volume (50%) para não a taparem, e depois voltam a subir sozinhos.
+
 
 ---
 
-## 6.3 Controlador MIDI (O Poder F�sico)
+## 6.2 Ducking automático
 
-Esta � a fun��o "Pro" por excel�ncia. Pode ligar teclados musicais, pads (como *Novation Launchpad*) ou controladores de fader (como *Korg nanoKONTROL*) e us�-los para guiar o software.
+O **ducking** é o mecanismo pelo qual um sinal é baixado quando um sinal de prioridade superior entra em reprodução.
 
-### Liga��o
-1.  Ligue o seu controlador USB-MIDI ao computador **antes** de iniciar o Runtime Live Machine Pro.
-2.  Inicie o software. O motor MIDI reconhecer� automaticamente o dispositivo.
+O caso mais comum: uma canção está a tocar em plena dinâmica; lança uma entrevista pré-gravada a partir da coluna Voz. Nesse momento o RLMP leva a canção a cerca de **20% do volume** (uma redução de cerca de 14 dB) com uma dissolvência suave de meio segundo, para que a voz ocupe o espaço sonoro de forma inteligível. Assim que a entrevista termina, a canção volta a subir ao volume original com um fade in igualmente fluido.
 
-### Modo MIDI Learn (Mapeamento F�cil)
-N�o precisa de saber c�digos complicados. O RRLMP aprende observando o que faz.
+O operador não toca em nada. O gesto executado foi um único clique: iniciar a entrevista. A intensidade da redução e a sua rapidez são reguláveis nas Definições (Capítulo 13).
 
-1.  Clique no �cone **MIDI** (Conector DIN) na barra em cima.
-    *   O �cone torna-se **Ciano (Ligado)**.
-    *   Os clips assumem um aspeto tracejado ("Em espera").
-2.  **Para mapear um Clip**:
-    *   Clique com o rato no Clip desejado.
-    *   Prima o bot�o/pad f�sico no seu controlador.
-    *   Aparecer� um crach� (ex. **[M:60]**) no clip. Feito.
-3.  **Para mapear fun��es Globais**:
-    *   Clique no bot�o vermelho **STOP ALL** no ecr� -> Prima um bot�o grande no controlador.
-    *   Clique no cursor **MASTER VOL** no ecr� -> Mova um fader ou um bot�o rotativo no controlador.
-4.  Clique novamente no �cone **MIDI** para sair do modo Learn.
+---
 
-### Tipos de Comandos Suportados
-*   **Note On/Off**: Perfeito para bot�es e pads (Lan�amento de Clip, Stop All).
-*   **Control Change (CC)**: Perfeito para faders e bot�es rotativos. Use-o para controlar o Volume Mestre de modo anal�gico e fluido.
+## 6.3 Music Dominance: gestão inteligente das bases
 
-> **Portabilidade**: Os mapeamentos MIDI dos clips s�o guardados dentro do projeto .lmp. Se levar o projeto para outro PC com o mesmo controlador, funcionar� tudo logo.
+Um erro sonoro clássico é o momento em que uma canção e uma base musical (*bed*) se sobrepõem: dois elementos rítmicos que se chocam, dois kick drum que não coincidem, e o resultado é confuso.
+
+O RLMP gere este cenário com a **Music Dominance**.
+
+**O cenário-tipo.** Uma base está a rodar em loop na coluna Assets, por baixo da voz do apresentador. O apresentador lança uma faixa a partir da coluna Músicas.
+
+**O que o RLMP faz.** Não pára a base, porque pará-la obrigaria depois a reiniciá-la à mão. Leva-a antes silenciosamente a **volume zero**, mantendo-a em reprodução «fantasma»: o ficheiro continua a correr, o loop continua, mas não se ouve nada.
+
+**O resultado sonoro.** Ouve-se apenas a canção. A base desapareceu sem que o operador tenha feito nada.
+
+**O regresso.** Quando a canção termina, a base reemerge com um fade in automático, retomando do ponto em que se encontrava no loop. O fluxo (base → canção → base) acontece sem um único clique adicional.
+
+---
+
+## 6.4 Stacchi: a exceção à regra
+
+O comportamento **Stacco** (separador; configurável nas propriedades de cada clip, ver Capítulo 5) inverte temporariamente a hierarquia: a clip que o tem passa a ser prioritária. Silencia os outros assets da sua coluna e baixa a música, mas não pára nada. A dissolvência aplicada é mais rápida do que a do ducking normal, para uma entrada mais percussiva e nítida.
+
+O uso típico é o *station ID* vocal («Está a ouvir…»): tem de ouvir-se claramente, enquanto a base por baixo continua a rodar. Para um resultado mais cuidado, combine o Stacco com um fade in curto (300–500 ms): a entrada será suave, não brusca.
+
+---
+
+## 6.5 Homologação do volume (loudness)
+
+Clips de proveniência diferente chegam quase sempre com níveis diferentes: um genérico masterizado como deve ser, uma voz telefónica gravada baixinho, uma faixa transferida a um volume só seu. Para evitar constantes ajustes manuais do Gain, o RLMP aplica por predefinição uma **homologação do volume** baseada na norma de loudness EBU R128, com um alvo de **−16 LUFS**.
+
+Na prática, o software avalia a sonoridade percebida de cada clip e aproxima-a de uma referência comum, para que canções, vozes e bases partam já num plano coerente. A função está ativa por predefinição e o valor-alvo é regulável nas Definições → Master Chain.
+
+---
+
+## 6.6 Master Chain: a cadeia de processadores no master bus
+
+![O separador Master Chain na janela de Definições.](../screenshots-pt/impostazioni-master-chain.png)
+
+*Figura 6.1 — A Master Chain: homologação do volume (−16 LUFS), HPF a 30 Hz, multiband glue e limiter brickwall.*
+
+O sinal combinado de todas as clips em reprodução, depois do Master Volume, atravessa uma **cadeia de processadores** no master bus antes de chegar ao dispositivo de saída. A cadeia está ativa por predefinição e foi concebida para um som broadcast-grade sem exigir configuração avançada.
+
+Compreende três andares em série.
+
+**High-Pass Filter (HPF) a 30 Hz.**
+Elimina as frequências sub-bass inúteis que consomem headroom e podem sujar os sistemas de difusão, com um declive suave. A frequência de corte é regulável (20–200 Hz). Quando desativado, o andar torna-se completamente transparente.
+
+**Multiband glue.**
+Não um único compressor, mas três compressores «suaves» que trabalham em paralelo sobre três bandas de frequência (graves, médios, agudos), separadas por um crossover. Cada banda tem limiares e rácios calibrados para «colar» a mistura sem a esmagar, e conter a variância dinâmica entre clips de nível diferente. O estilo é selecionável entre alguns presets (Neutro, Rock, Jazz, Eletrónico); o preset predefinido é Neutro.
+
+**Limiter Brickwall.**
+Limiar a −1 dBFS, com um rácio de limitação elevado e reação rapidíssima. Garante que o sinal nunca ultrapassa o nível máximo permitido, prevenindo a distorção digital (clipping) aconteça o que acontecer a montante.
+
+Toda a cadeia, e cada andar individual, é configurável e desativável nas Definições → Master Chain, onde encontra também um botão para repor os valores predefinidos. Num contexto em que o sinal já é processado por um mixer de hardware ou por uma cadeia externa, pode desativá-la para evitar processamento duplo.

@@ -13,8 +13,10 @@ N_CAP = 14
 IMPORT = '#import "../lib/manuale-template.typ": *\n\n'
 
 def pre_md(md):
-    # ![desc](path) seguito da *Figura N — ...* -> usa la didascalia come caption
-    md = re.sub(r"!\[[^\]]*\]\(([^)]+)\)\s*\n\s*\n\s*\*(Figura[^*]+)\*",
+    # ![desc](path) seguito da una riga in corsivo *…* (didascalia figura, in
+    # qualunque lingua: Figura/Figure/Abbildung/Рисунок/图) -> usa la riga
+    # come caption della figura.
+    md = re.sub(r"!\[[^\]]*\]\(([^)]+)\)\s*\n\s*\n\s*\*([^*\n]+)\*",
                 lambda m: f"![{m.group(2).strip()}]({m.group(1)})", md)
     return md
 
@@ -29,11 +31,28 @@ def match_bracket(s, i):
         i += 1
     return -1
 
+# Etichette dei blockquote nelle 8 lingue -> tipo di box. Le traduzioni sono
+# quelle imposte ai traduttori (una per riquadro), così la mappatura è certa.
+_TIP = {
+    "suggerimento operativo", "prassi consigliata",           # it
+    "operational tip", "recommended practice",                # en
+    "conseil pratique", "bonne pratique",                     # fr
+    "praxis-tipp", "empfohlene vorgehensweise",               # de
+    "consejo práctico", "práctica recomendada",               # es
+    "sugestão prática", "boa prática",                        # pt
+    "практический совет", "рекомендуемая практика",           # ru
+    "操作建议", "推荐做法",                                     # zh
+}
+_WARN = {
+    "attenzione", "warning", "attention", "achtung",
+    "atención", "atenção", "внимание", "警告",
+}
+
 def box_for(label):
-    l = label.lower()
-    if l.startswith("suggeri") or l.startswith("prassi"): return "suggerimento"
-    if l.startswith("attenzion"): return "attenzione"
-    return "nota"
+    l = label.strip().lower()
+    if l in _TIP: return "suggerimento"
+    if l in _WARN: return "attenzione"
+    return "nota"   # Nota / Note / Hinweis / Nota tecnica / Примечание / 注意 …
 
 def quotes_to_boxes(t):
     out, i = [], 0
@@ -64,8 +83,11 @@ def post_typ(t):
         if re.fullmatch(r"<[A-Za-z0-9_\-]+>", s): continue  # anchor dei titoli
         lines.append(ln)
     t = "\n".join(lines)
-    # titolo capitolo: "= Capitolo N --- Titolo" -> "= Titolo" (il template aggiunge "Capitolo N")
-    t = re.sub(r"^=\s*Capitolo\s+\d+\s*(?:---|—|-)\s*(.+)$", r"= \1", t, flags=re.M)
+    # titolo capitolo: "= <Parola-capitolo> N --- Titolo" -> "= Titolo"
+    # (il template ri-aggiunge l'etichetta di capitolo localizzata). Generico su
+    # tutte le lingue: taglia il prefisso fino al primo trattino lungo/em-dash.
+    # Es. "= Chapter 3 --- X", "= Kapitel 3 --- X", "= 第 3 章 --- X".
+    t = re.sub(r"^=\s*\S[^\n]*?\s*(?:---|—|–)\s*(.+)$", r"= \1", t, flags=re.M)
     t = quotes_to_boxes(t)
     # comprime 3+ righe vuote
     t = re.sub(r"\n{3,}", "\n\n", t)

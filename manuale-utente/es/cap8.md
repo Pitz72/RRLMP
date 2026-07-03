@@ -1,64 +1,100 @@
-# CAPÕTULO 8: SOLUCI”N DE PROBLEMAS Y PREGUNTAS FRECUENTES (FAQ)
-
-Incluso en el software m·s estable, pueden ocurrir imprevistos debido al hardware o al sistema operativo. AquÌ encontrar· las soluciones a los problemas m·s comunes.
+# Cap√≠tulo 8 ‚Äî Hardware, teclado y MIDI
 
 ---
 
-## 8.1 Problemas de Audio
-
-### El Temporizador corre y los V˙metros se mueven, pero no escucho nada.
-El software est· reproduciendo el audio correctamente (lo ve en las barras de colores en la parte superior), pero la seÒal no llega a sus altavoces/auriculares.
-1.  **Revise el Volumen Maestro**: Aseg˙rese de que el control deslizante de volumen en la parte superior no estÈ en cero.
-2.  **Verifique la Salida (Enrutamiento)**:
-    *   Haga clic en el icono de **Engranaje** (ConfiguraciÛn).
-    *   Verifique quÈ dispositivo est· seleccionado en "Audio Output Device".
-    *   A veces Windows cambia el ID de los dispositivos USB si se desconectan y se vuelven a conectar. Intente volver a seleccionar su tarjeta de audio (ej. *R¯decaster Pro* o *Auriculares*) de la lista.
-3.  **Mezclador Externo**: Si sale a un mezclador USB, verifique que el fader fÌsico de ese canal no estÈ bajado o en "Mute".
-
-### El audio "crepita" o salta.
-Esto sucede raramente gracias al motor nativo, pero puede suceder si la CPU de la computadora est· bajo estrÈs extremo.
-*   Cierre otras aplicaciones pesadas (ediciÛn de video, juegos).
-*   Si usa una tarjeta de audio profesional, verifique que el *TamaÒo del B˙fer (Buffer Size)* en los controladores de la tarjeta no sea demasiado bajo (recomendado: 256 o 512 muestras).
+Runtime Live Machine Pro est√° dise√±ado para integrarse con el hardware existente en el estudio sin exigir configuraciones elaboradas. Este cap√≠tulo describe c√≥mo dirigir la salida de audio, c√≥mo usar el teclado del ordenador como controlador y c√≥mo conectar dispositivos MIDI f√≠sicos para un control t√°ctil de la regia.
 
 ---
 
-## 8.2 GestiÛn de Archivos y Clips Rojos
+## 8.1 Enrutamiento de audio
 
-### Un Clip se ha vuelto Rojo y ya no suena.
-Una **Tarjeta Roja** indica que el software ya no puede encontrar el archivo de audio en el disco.
-*   **Causa**: Ha movido, renombrado o eliminado el archivo MP3/WAV original. O el archivo estaba en una memoria USB/Disco Externo que ahora est· desconectado.
-*   **SoluciÛn**:
-    1.  Vuelva a conectar el disco externo.
-    2.  Mueva el archivo de nuevo a su ubicaciÛn original.
-    3.  O, arrastre el archivo de nuevo a la cuadrÌcula (creando una nueva tarjeta) y elimine la antigua roja.
+### Seleccionar el dispositivo de salida
 
-> **PrevenciÛn**: Para evitar este problema, use la funciÛn **Export Package** (Cap. 7) que copia todos los archivos en una carpeta segura junto con el proyecto.
+Por defecto, RLMP sale por el dispositivo de audio predeterminado del sistema operativo. En un contexto profesional o semiprofesional, con mixers USB, tarjetas de sonido externas o sistemas multipista, conviene seleccionar expl√≠citamente el destino de la se√±al.
+
+1. Abre los **Ajustes** desde el men√∫ Herramientas.
+2. En la pesta√±a *Audio & Mix*, abre el men√∫ del dispositivo de salida: encontrar√°s la lista de los dispositivos de audio disponibles en el sistema.
+3. Selecciona el dispositivo deseado.
+
+Si el dispositivo elegido se desconecta, RLMP recurre autom√°ticamente al del sistema; la app monitoriza las conexiones y reacciona a la inserci√≥n o la retirada de dispositivos USB.
+
+### Mixers USB y setup multicanal
+
+Los mixers USB como el R√∏decaster Pro, el R√òDECaster Duo o el Focusrite Scarlett suelen exponer varios canales USB al sistema operativo (Main Mix, Sounds/Chat, Monitor, etc.). RLMP aparece como una √∫nica fuente est√©reo; la elecci√≥n del canal USB al que dirigirlo est√° en tus manos.
+
+**Setup recomendado con mixer USB.** Asigna RLMP a un canal secundario del mixer (p. ej. ¬´Sounds¬ª en el R√∏decaster Pro) en lugar del canal principal. As√≠ controlas el volumen de RLMP con un fader f√≠sico dedicado, lo separas de la se√±al del micr√≥fono f√≠sico y aplicas el procesado hardware que quieras solo a ese canal.
+
+### Latencia y buffer
+
+RLMP utiliza las API de audio nativas del sistema operativo. La latencia de salida la determina el buffer del dispositivo de audio, no el software. Con tarjetas de sonido profesionales la latencia es del orden de pocos milisegundos, imperceptible en un contexto de playout.
+
+Si notas artefactos de audio (chasquidos, dropouts), el valor de buffer del dispositivo probablemente sea demasiado bajo. S√∫belo desde el panel de control de la tarjeta de sonido (no desde RLMP, que no gestiona directamente el driver): un buffer de 256 o 512 muestras es el punto de equilibrio ideal entre latencia y estabilidad.
 
 ---
 
-## 8.3 Problemas MIDI
+## 8.2 Control desde el teclado
 
-### Mi controlador MIDI no funciona / no es detectado.
-1.  **Regla de Oro del MIDI**: El controlador debe estar conectado a la computadora **ANTES** de iniciar Runtime Live Machine Pro.
-    *   Si lo conecta con el software abierto, el navegador interno podrÌa no verlo. Cierre y vuelva a abrir RRLMP.
-2.  **Learn Mode**: Verifique que no haya dejado el modo "MIDI Learn" activo (Icono Cian). En este modo, presionar las teclas sirve solo para mapear, no para tocar.
-3.  **Controladores (Drivers)**: Algunos controladores avanzados requieren controladores especÌficos. Verifique que Windows lo reconozca correctamente.
+El teclado del ordenador es el controlador m√°s r√°pido disponible en directo: no exige coordinaci√≥n ojo-mano, funciona a oscuras y est√° siempre al alcance. RLMP prev√© un conjunto de atajos globales y la posibilidad de asignar teclas a cada clip.
+
+### Atajos globales
+
+| Tecla | Acci√≥n |
+|---|---|
+| **Esc** | PARAR TODO ‚Äî detiene todos los clips activos |
+| **Supr / Backspace** | Elimina los clips seleccionados |
+| **Ctrl+Z** | Deshace el √∫ltimo cambio en la escaleta |
+| **Ctrl+Y** (o **Ctrl+Shift+Z**) | Rehace el cambio deshecho |
+| **Ctrl+Shift+D** | Muestra/oculta el Debug Overlay |
+| **Ctrl+Shift+M** | Abre el simulador MIDI (para pruebas sin controlador) |
+
+`Esc` act√∫a como PARAR TODO cuando RLMP es la ventana activa, incluso mientras el cursor est√° en un campo de texto. Ya no es un atajo registrado a nivel de sistema operativo: si la app est√° en segundo plano, trae primero la ventana al frente.
+
+> **Nota.** No existen teclas de funci√≥n (F1‚ÄìF5) preasignadas al lanzamiento de las columnas. Para lanzar r√°pidamente un clip concreto, as√≠gnale una tecla dedicada, como se describe a continuaci√≥n.
+
+### Teclas personalizadas por clip
+
+Adem√°s de los atajos globales, cada clip puede tener una tecla dedicada. La insignia correspondiente aparece en la card.
+
+**Para asignar una tecla:**
+1. Abre los ajustes del clip (clic derecho sobre la card) o la ventana **Keybinds** desde el men√∫ Herramientas.
+2. Haz clic en el campo de la tecla.
+3. Pulsa la tecla deseada.
+
+**Teclas disponibles.** Casi cualquier tecla: letras (A‚ÄìZ), n√∫meros (0‚Äì9), teclado num√©rico, barra espaciadora, teclas de funci√≥n libres. Si la tecla ya est√° asignada a otro clip, el software avisa del conflicto antes de sobrescribir, para que no crees duplicados invisibles.
+
+**Seguridad durante la escritura.** Las teclas personalizadas se desactivan autom√°ticamente cuando est√°s en modo de inserci√≥n de texto (est√°s renombrando un clip o escribiendo una nota). Esto evita lanzamientos accidentales mientras tecleas.
 
 ---
 
-## 8.4 Preguntas Frecuentes (FAQ)
+## 8.3 Controlador MIDI
 
-**P: øPuedo usar RRLMP para automatizar la radio las 24 horas?**
-R: No. RRLMP est· diseÒado para la direcciÛn *En Vivo* (programas atendidos por una persona). No tiene funciones de programaciÛn horaria o rotaciÛn musical autom·tica infinita.
+El MIDI es la opci√≥n profesional para un control f√≠sico, t√°ctil y fiable. RLMP admite los controladores USB-MIDI: teclados, pads (p. ej. Novation Launchpad), controladores de fader (p. ej. Korg nanoKONTROL2), superficies de control h√≠bridas.
 
-**P: øQuÈ formatos de audio son compatibles?**
-R: Soporta nativamente **MP3, WAV, AAC, OGG, FLAC**. Recomendamos usar WAV para m·xima calidad o MP3 320kbps para ahorrar espacio.
+### Conexi√≥n
 
-**P: øEl software funciona en iPad o Android?**
-R: No, Runtime Live Machine Pro es un software de Escritorio profesional para **Windows** y **macOS**. Requiere la potencia de gestiÛn de archivos de una computadora real.
+Conecta el controlador USB al ordenador y arranca RLMP. El software detecta los dispositivos mediante la Web MIDI API del sistema y reconoce en tiempo real la conexi√≥n y la desconexi√≥n de un controlador. La mayor√≠a de los controladores USB-MIDI es *class-compliant* y no requiere driver; para superficies profesionales con driver propietario, instala el driver antes de conectar el dispositivo.
 
-**P: øCÛmo actualizo el software?**
-R: Al inicio, la Welcome Screen le notificar· si hay una nueva versiÛn disponible (indicador Amarillo/Naranja). Visite el sitio oficial para descargar el instalador actualizado. Sus proyectos .lmp guardados ser·n compatibles con las nuevas versiones.
+### MIDI Learn
 
-**P: øDÛnde encuentro los archivos de guardado autom·tico?**
-R: Si est· trabajando en un archivo guardado, la copia de seguridad .bak est· en la misma carpeta que el proyecto. Si estaba trabajando en un proyecto "Sin TÌtulo" y la PC se apagÛ, verifique en la carpeta de datos de aplicaciÛn del sistema (en Windows: %APPDATA%\runtime-live-machine\).
+RLMP no exige conocer la numeraci√≥n de las notas MIDI ni configurar los mensajes a mano. El aprendizaje se realiza mediante el modo **MIDI Learn**, desde el men√∫ Herramientas (o desde la ventana Keybinds).
+
+**Para mapear un clip a una tecla/pad:**
+1. Activa MIDI Learn. Las cards entran en estado de espera.
+2. Selecciona el clip (o la celda del pad FX) que quieras mapear.
+3. Toca la nota, pulsa el pad o la tecla del controlador. La insignia `M` con el n√∫mero de nota aparece en la card.
+
+**Para mapear las funciones globales:**
+- Selecciona **PARAR TODO** y pulsa una tecla del controlador: esa tecla ejecutar√° el Stop All.
+- Selecciona el **Master Volume** y mueve un fader o un potenci√≥metro: ese control gestionar√° el volumen m√°ster de forma continua.
+
+Al terminar, desactiva MIDI Learn para volver al modo operativo.
+
+### Tipos de mensajes admitidos
+
+**Note On** ‚Äî mensajes generados por botones, pads y teclas. Ideales para el lanzamiento de los clips y de las acciones globales; RLMP responde a la pulsaci√≥n de la tecla y reconoce todos los canales MIDI. Los mensajes Note Off se ignoran.
+
+**Control Change (CC)** ‚Äî mensajes generados por faders y potenci√≥metros, con valor continuo de 0 a 127. Ideales para el Master Volume: un fader f√≠sico mapeado en el m√°ster ofrece el control m√°s natural del nivel de salida.
+
+### Portabilidad de los mapeos
+
+Los mapeos MIDI de los **clips** se guardan en el archivo de proyecto `.lmp`: al llevar el proyecto a otro ordenador con el mismo controlador, funcionar√°n sin reconfiguraci√≥n. Los mapeos de las **funciones globales** (Stop All, Master Volume), en cambio, est√°n ligados al ordenador, guardados en las preferencias locales de la aplicaci√≥n, y siguen siendo v√°lidos para todos los proyectos de esa m√°quina.

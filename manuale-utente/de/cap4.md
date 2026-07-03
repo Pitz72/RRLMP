@@ -1,74 +1,109 @@
-# KAPITEL 4: ERWEITERTE CLIP-BEARBEITUNG (EIGENSCHAFTEN)
-
-Jede Audiodatei ist anders: Einige haben lange anfängliche Stille, andere haben eine zu geringe Lautstärke, wieder andere müssen sich endlos wiederholen.
-Um auf das erweiterte Konfigurationsfeld zuzugreifen, machen Sie einen **Rechtsklick** auf einen beliebigen Clip und wählen Sie **"Edit"** (Bearbeiten).
-
-Es öffnet sich ein modales Fenster, das in zwei Hauptbereiche unterteilt ist: **Visual & Basic** (Links) und **Behavior & Timing** (Rechts).
+# Kapitel 4 â€” Der grundlegende Arbeitsablauf: laden und abspielen
 
 ---
 
-## 4.1 Grundeinstellungen (Visuell & Audio)
-
-In diesem Abschnitt steuern Sie das Erscheinungsbild und die Roh-Lautstärke des Clips.
-
-*   **Clip-Name**: Sie können den Clip nach Belieben umbenennen (z. B. von 	rack_01_final.mp3 in ERÖFFNUNGSTHEMA). Dies ändert nur das Etikett in der Software, nicht den ursprünglichen Dateinamen auf der Festplatte.
-*   **Lautstärke (Gain)**: Ein Schieberegler von 0% bis 150%.
-    *   Wenn Sie eine leise Aufnahme haben (z. B. eine WhatsApp-Sprachnachricht), können Sie sie über 100% schieben, um sie an den Rest der Show anzupassen.
-*   **Benutzerdefinierte Farbe**: Standardmäßig erbt der Clip die Farbe seiner Spalte (z. B. Grün für Assets). Hier können Sie eine andere Farbe erzwingen, um ihn hervorzuheben (z. B. einen wichtigen Jingle in der grauen Spalte rot färben).
+Der grundlegende Betriebszyklus von Runtime Live Machine Pro gliedert sich in drei Phasen: die Audiodateien importieren, sie im Raster organisieren, sie wÃ¤hrend der Sendung abspielen. Dieses Kapitel beschreibt jede Phase mit der Genauigkeit, die nÃ¶tig ist, um auch unter Druck sicher zu arbeiten.
 
 ---
 
-## 4.2 Chirurgische Präzision: Cue-Punkte & Trimmen
+## 4.1 Die Audiodateien importieren
 
-Oft sind Audiodateien nicht "sendebereit": Sie haben Sekunden der Stille am Anfang oder zu lange Ausläufe. Anstatt einen externen Audio-Editor zu verwenden, können Sie sie hier korrigieren. Diese Änderungen sind **nicht-destruktiv** (die Originaldatei bleibt intakt).
+RLMP verfÃ¼gt weder Ã¼ber einen internen Browser noch Ã¼ber eine zentrale Bibliothek. Der Import erfolgt per **Drag & Drop** direkt aus dem Dateimanager des Betriebssystems (Explorer unter Windows, Finder unter macOS, Nautilus oder Vergleichbares unter Linux). Alternativ kÃ¶nnen Sie aus dem MenÃ¼ FILE eine **M3U**-Playlist importieren und in eine Clip-Sequenz verwandeln.
 
-### Manuelle Steuerung
-*   **Trim Start (Anfang)**: Legt fest, wie viele Sekunden am Anfang übersprungen werden sollen.
-    *   *Beispiel*: Wenn Sie 2.5 einstellen, startet der Clip beim Drücken von Play sofort ab Sekunde 2.5 und überspringt die anfängliche Stille ("auf Schlag").
-*   **Trim End (Ende)**: Legt fest, wie viele Sekunden am Ende abgeschnitten werden sollen.
-    *   *Beispiel*: Wenn der Song 20 Sekunden unnötigen Schlussapplaus hat, erhöhen Sie diesen Wert, bis die "Neue Dauer" Sie zufriedenstellt.
+### Die Grundgeste
 
-### ?? Der Zauberstab (Smart Trim / Auto-Detect)
-Um die Arbeit zu beschleunigen, enthält RRLMP einen grundlegenden Algorithmus für künstliche Intelligenz.
-1.  Klicken Sie auf die Schaltfläche mit dem **Zauberstab**-Symbol neben den Trim-Steuerelementen.
-2.  Die Software scannt die Datei in Sekundenbruchteilen.
-3.  Erkennt automatisch, wo der eigentliche Ton beginnt und endet (über dem Schwellenwert von -40dB).
-4.  Füllt die Felder *Start* und *End* automatisch für Sie aus.
+1. Ã–ffnen Sie den Ordner auf Ihrem Computer, in dem die Audiodateien liegen.
+2. WÃ¤hlen Sie eine oder mehrere Dateien aus. FÃ¼r die Auswahl mehrerer Dateien: `Ctrl+Klick` fÃ¼r eine unzusammenhÃ¤ngende Auswahl, `Shift+Klick` fÃ¼r eine zusammenhÃ¤ngende Auswahl.
+3. Ziehen Sie die ausgewÃ¤hlten Dateien Ã¼ber eine der Spalten des Rasters und lassen Sie los. Soundeffekte ziehen Sie direkt auf das pad FX (Kapitel 7).
 
-> **Tipp**: Verwenden Sie den Zauberstab immer bei Sprachaufnahmen oder Interviews, um sie sofort zu bereinigen.
+Jede Datei erzeugt eine Karte in der Zielspalte. Wenn Sie mehrere Dateien gleichzeitig ziehen, werden die Karten in der Reihenfolge erstellt, in der die Dateien im Dateimanager erscheinen, von oben nach unten.
 
----
+**EinfÃ¼geanzeige.** WÃ¤hrend des Ziehens lÃ¤uft eine leuchtende blaue Linie entlang der Spalte und zeigt die genaue Position an, an der die Karten eingefÃ¼gt werden. Sie kÃ¶nnen neue Clips oben, unten oder an einer beliebigen Zwischenposition prÃ¤zise einfÃ¼gen.
 
-## 4.3 Verhalten (Behaviors & Logic)
+### UnterstÃ¼tzte Formate
 
-Hier definieren Sie die Intelligenz des Clips: was er tun soll, wenn er startet, und was er tun soll, wenn er endet.
+Die integrierte FFmpeg-Engine garantiert KompatibilitÃ¤t mit einer breiten Palette von Audioformaten:
 
-### Behavior (Überlagerungsmodus)
-*   **Normal (Standard)**: Wenn Sie diesen Clip starten, wird jeder andere Clip, der **in derselben Spalte** spielt, gestoppt. Dies ist das Standardverhalten für Songs (einer schließt den anderen aus).
-*   **Stacco** (Unterbrechung): Wenn Sie diesen Clip starten, stoppt er andere Clips in der Spalte **NICHT**, sondern schaltet sie vorübergehend "stumm" (oder überlagert sie).
-    *   *Typische Verwendung*: Ein Soundeffekt oder ein Sprach-Jingle, den Sie über ein Musikbett in derselben Spalte spielen möchten, ohne das Bett zu unterbrechen.
+| Format | Erweiterung | Anmerkungen |
+|---|---|---|
+| MP3 | `.mp3` | Alle Bitraten |
+| WAV | `.wav` | PCM unkomprimiert, jede Bittiefe |
+| FLAC | `.flac` | Lossless, jede Sample-Rate |
+| AAC / M4A | `.aac`, `.m4a` | Umfasst Dateien aus iTunes/Apple Music |
+| OGG Vorbis | `.ogg` | |
+| Opus | `.opus` | |
+| WMA | `.wma` | Windows Media Audio |
+| WebM / MP4 | `.webm`, `.mp4` | In diesen Containern enthaltene Audiospuren |
 
-### Next Action (Finale Automation)
-Was passiert, wenn der Clip endet?
-*   **Stop**: Der Clip endet und stoppt. (Standardverhalten).
-*   **Loop**: Der Clip startet endlos von vorne. Nützlich für Betten und Hintergründe. Ein **[LOOP]**-Badge erscheint auf der Karte.
-*   **Play Next**: Sobald dieser Clip zu verblassen beginnt (Fade Out), startet die Software automatisch den nächsten Clip in der Spalte.
-    *   *Crossfade*: Der Übergang ist fließend, ohne Stille-Lücken. Ein **[NEXT]**-Badge erscheint auf der Karte.
+**Ein Wort zur Performance.** Das Streaming-Protokoll `media://` sorgt dafÃ¼r, dass die Audiodateien beim Import nicht in den Arbeitsspeicher geladen werden. Eine unkomprimierte WAV-Datei von 2 GB verhÃ¤lt sich genau wie eine MP3 von 5 MB: Das Laden ist augenblicklich und die Auswirkung auf den Systemspeicher vernachlÃ¤ssigbar. Die CPU-Ressourcen werden nur wÃ¤hrend der aktiven Dekodierung beansprucht, also wÃ¤hrend der Wiedergabe.
+
+### Der Pfad der Dateien
+
+RLMP speichert den **absoluten Pfad** der Datei auf der Festplatte, nicht eine Kopie der Datei selbst. Wenn Sie die Originaldatei verschieben, umbenennen oder lÃ¶schen, wird die zugehÃ¶rige Karte rot und ist nicht mehr abspielbar. Um an mehreren Computern zu arbeiten oder portable Archive zu erstellen, nutzen Sie die Funktion **Export Package** aus Kapitel 10.
 
 ---
 
-## 4.4 Fades (Überblendungen)
+## 4.2 Wiedergabe: Clips starten und stoppen
 
-Jede Spalte hat Standardwerte (z. B. Musik blendet in 2 Sekunden ein, Jingles sind trocken), aber hier können Sie diese überschreiben.
+### Einen Clip starten
 
-*   **Fade In (ms)**: Wie lange die Lautstärke benötigt, um das Maximum zu erreichen, wenn Sie Play drücken. (z. B. 2000ms = 2 Sekunden allmählicher Anstieg).
-*   **Fade Out (ms)**: Wie lange es dauert, bis ausgeblendet wird, wenn Sie Stop drücken oder wenn der Clip natürlich endet.
-    *   *Hinweis*: Ein langes Fade Out ist für Songs nützlich. Ein Fade Out bei 0 ist für harte Schnitte obligatorisch.
+Ein **Linksklick** auf die Karte genÃ¼gt, um die Wiedergabe zu starten. Das Feedback ist sofortig: Die Karte leuchtet im GrÃ¼n des aktiven Zustands auf, der Timer wechselt zum Countdown, und die VU meter im Header spiegeln das Ausgangssignal wider.
+
+Wurde dem Clip eine Tastaturtaste zugewiesen (siehe Kapitel 8), funktioniert diese Taste als Alternative zum Klick â€” nÃ¼tzlich, wenn Sie gerade an einem anderen Teil der OberflÃ¤che arbeiten und die Maus nicht bewegen mÃ¶chten.
+
+### Einen Clip stoppen
+
+**Klick auf den aktiven Clip** â€” der Clip tritt in die **Fade-Out**-Phase ein und stoppt innerhalb der in seinen Eigenschaften konfigurierten Zeit (siehe Kapitel 5).
+
+**Taste `Esc`** â€” stoppt alle aktiven Clips augenblicklich. Es ist der Notfallbefehl. Er funktioniert, wenn RLMP das aktive Fenster ist, auch wÃ¤hrend Sie in ein Textfeld schreiben.
+
+**SchaltflÃ¤che STOP ALL** im Header â€” identisch mit `Esc`, per Maus erreichbar.
+
+### Die Ausschlusslogik je Spalte
+
+In den meisten Spalten wendet RLMP die Regel **â€ein Clip auf einmalâ€œ** an: Wenn Sie *Titel A* in der Spalte Musik abspielen und auf *Titel B* in derselben Spalte klicken, stoppt *Titel A* (mit Fade Out) und *Titel B* startet. Sie mÃ¼ssen den laufenden Clip nicht manuell stoppen, bevor Sie einen anderen starten.
+
+Die **Effekte des pad FX** sind die wichtigste Ausnahme: Sie legen sich Ã¼ber alles, auch Ã¼ber andere Effekte, und unterbrechen nicht, was gerade lÃ¤uft. Ein Applaus kann starten, wÃ¤hrend ein Song lÃ¤uft, ohne dessen Wiedergabe zu unterbrechen.
+
+Auch Clips mit dem Verhalten **Stacco** (Trenner, in den Eigenschaften konfigurierbar, siehe Kapitel 5) legen sich Ã¼ber die anderen Clips der Spalte, ohne sie zu stoppen, ganz gleich, wo sie sich befinden.
 
 ---
 
-## 4.5 Zuweisung von Steuerungen (Input)
+## 4.3 Die Playlist organisieren
 
-Am unteren Rand des Panels finden Sie die Referenzen für die externe Steuerung:
-*   **Trigger Keybind**: Klicken Sie hier und drücken Sie eine Taste auf der Tastatur (z. B. "Q"), um sie diesem Clip zuzuweisen.
-*   **MIDI Bind**: Zeigt die zugewiesene MIDI-Note an (z. B. NOTE:60). Um sie zu ändern, verwenden Sie den Modus "MIDI Learn" vom Hauptbildschirm aus (siehe Kap. 6).
+### Clips umsortieren
+
+WÃ¤hrend der Vorbereitung der Show, oder auch wÃ¤hrend sie lÃ¤uft, kÃ¶nnen Sie die Reihenfolge der Clips jederzeit umorganisieren.
+
+**Internes Ziehen.** Klicken Sie auf eine Karte, halten Sie gedrÃ¼ckt und ziehen Sie sie in derselben Spalte nach oben oder unten. Die blaue Hilfslinie zeigt die EinfÃ¼geposition. Der Clip fÃ¼gt sich an der neuen Position ein, ohne laufende Wiedergaben zu unterbrechen.
+
+**Verschieben zwischen Spalten.** Sie kÃ¶nnen einen Clip von einer Spalte in eine andere ziehen. Dabei **erbt der Clip die Regeln der Zielspalte**: eine vorproduzierte Stimme, in die Spalte Musik verschoben, beginnt genau wie ein Musiktitel dem Ducking zu unterliegen.
+
+Clips zwischen Spalten zu verschieben ist ein wirkungsvoller, bewusster Vorgang. Nutzen Sie die Funktion mit Bedacht, besonders wÃ¤hrend der Sendung.
+
+### Mehrfachauswahl und LÃ¶schen
+
+Um mehrere Clips in einem einzigen Vorgang aus dem Raster zu entfernen:
+
+1. `Ctrl+Klick` (Windows/Linux) oder `Cmd+Klick` (macOS) auf jeden zu wÃ¤hlenden Clip. Der Rahmen wird blau.
+2. DrÃ¼cken Sie `Entf` oder `Delete`. Die Software fragt nach, wenn mehr als ein Clip ausgewÃ¤hlt ist.
+
+Das LÃ¶schen aus dem Raster entfernt die Clips aus dem aktuellen Projekt, nicht die Audiodateien von der Festplatte. Wenn Sie sich vertun, macht `Ctrl+Z` den Vorgang rÃ¼ckgÃ¤ngig.
+
+> **Praxis-Tipp.** Ist die Sendung erst gestartet, ist das Leeren der Spalte Pre-Show per Mehrfachauswahl und `Entf` der schnellste Weg, visuellen Platz in der OberflÃ¤che zu schaffen und in den Betriebsmodus Ã¼berzugehen.
+
+---
+
+## 4.4 Struktur-Cues: INTRO und OUTRO
+
+Jeder Clip kann zwei **strukturelle Marker** haben, die im Waveform-Editor konfiguriert werden (Kapitel 5):
+
+- **Intro Marker** â€” der Punkt, an dem die Hauptmelodie des Titels tatsÃ¤chlich einsetzt, nach dem instrumentalen Vorspann. NÃ¼tzlich, um genau zu wissen, wann man Ã¼ber dem Intro zu sprechen beginnen kann.
+- **Outro Marker** â€” der Punkt, an dem das Schluss-Outro des Titels beginnt. Signalisiert den richtigen Moment, um den Ãœbergang zum nÃ¤chsten Titel vorzubereiten.
+
+Wenn sich die Wiedergabe eines Clips diesen Punkten nÃ¤hert, erscheint auf der Karte ein visueller Hinweis:
+
+- **INTRO: âˆ’MM:SS** â€” Countdown bis zum Intro Marker.
+- **OUTRO IN: âˆ’MM:SS** â€” Countdown bis zum Outro Marker, gefolgt von **ğŸš¨ OUTRO**, wenn das Outro begonnen hat.
+
+Diese Hinweise erscheinen nur, wenn die Marker konfiguriert wurden. Auf Clips ohne Marker zeigt die Karte lediglich den Standard-Countdown zum Ende des Titels.

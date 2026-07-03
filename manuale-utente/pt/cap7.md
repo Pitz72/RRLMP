@@ -1,65 +1,67 @@
-# CAPÕTULO 7: GEST√O DE PROJETOS E SEGURAN«A
-
-Configurar um show requer tempo: carregar os clips, ajustar os volumes, definir os trims. Perder este trabalho seria desastroso.
-O Runtime Live Machine Pro utiliza um sistema de salvamento a v·rios nÌveis para garantir que os seus dados estejam sempre seguros.
+# Cap√≠tulo 7 ‚Äî O Pad FX e a vista Automix
 
 ---
 
-## 7.1 O Ficheiro de Projeto (.lmp)
+Duas superf√≠cies de trabalho vivem por cima da grelha, cham√°veis com uma tecla e pensadas para dois momentos opostos da regia: o **pad FX**, para disparar efeitos e separadores a golpe certo sem interromper nada, e a **vista Automix**, para gerir o fluxo musical como faria um DJ. Nenhuma das duas rouba espa√ßo √† grelha: abrem-se quando s√£o precisas e fecham-se com um clique.
 
-Todas as definiÁıes do seu show (posiÁıes dos clips, cores, volumes, mapeamento MIDI, definiÁıes de fade) s„o guardadas num ˙nico ficheiro com a extens„o **.lmp** (Live Machine Project).
-
-> **Importante**: O ficheiro .lmp È um ficheiro de texto (JSON) que contÈm as "instruÁıes" para o software. **N√O contÈm os ficheiros de ·udio fÌsicos**. Memoriza apenas o *caminho* onde se encontram os ficheiros no seu computador (ex. C:\Musica\Intro.mp3).
-
-### Guardar o trabalho
-Na barra de comandos em cima, tem duas opÁıes distintas:
-
-1.  **?? Guardar (Quick Save)**:
-    *   Clique no Ìcone da Disquete.
-    *   Sobrescreve imediatamente o ficheiro .lmp aberto no momento.
-    *   … a aÁ„o a fazer regularmente enquanto trabalha.
-2.  **??? Guardar Como (Save As)**:
-    *   Clique no Ìcone da Disquete com a Caneta.
-    *   Abre sempre uma caixa de di·logo para criar um **novo ficheiro**.
-    *   Use-o para criar versıes diferentes do show (ex. "Podcast_Ep1.lmp", "Podcast_Ep2.lmp").
-
-### ProteÁ„o de Encerramento (AlteraÁıes N„o Guardadas)
-O software monitoriza constantemente as suas aÁıes. Se fez alteraÁıes n„o guardadas (carregou um clip, alterou um volume) e tentar fechar o programa, o RRLMP **bloquear· o encerramento** e mostrar-lhe-· um aviso: *"Existem alteraÁıes n„o guardadas"*.
-Nunca perder· o trabalho por um clique acidental no "X".
 
 ---
 
-## 7.2 Auto-Backup (A Rede de SeguranÁa)
+## 7.1 O pad FX: a jingle machine
 
-Nem sempre nos lembramos de guardar. Por isso, o RRLMP inclui um sistema de **Auto-Backup** invisÌvel que trabalha em segundo plano.
+![O pad FX ¬´jingle machine¬ª aberto por cima da grelha de regia.](../screenshots-pt/pad-fx.png)
 
-*   **FrequÍncia**: A cada **5 minutos**, o software guarda automaticamente uma cÛpia de seguranÁa do estado atual.
-*   **Para onde vai o backup?**
-    *   Se estiver a trabalhar num projeto j· guardado (ex. OMeuShow.lmp), o software cria um ficheiro "sombra" na mesma pasta chamado **OMeuShow.lmp.bak**.
-*   **Como recuper·-lo**:
-    *   Se o PC se desligar subitamente ou o ficheiro principal se corromper, v· ‡ pasta do projeto.
-    *   Procure o ficheiro .bak.
-    *   Renomeie-o retirando o .bak (ou abra-o diretamente com o RRLMP). Ter· recuperado o trabalho atÈ aos ˙ltimos 5 minutos.
+*Figura 7.1 ‚Äî O pad FX: a jingle machine 5√ó5 dos efeitos sonoros, com disparo em sobreposi√ß√£o.*
+
+Os efeitos sonoros n√£o t√™m coluna na grelha. Vivem no **pad FX**, um painel em grelha de c√©lulas (uma *jingle machine*) que se abre a partir do bot√£o **FX** no cabe√ßalho e fica flutuante num canto do ecr√£.
+
+O pad √© um **overlay n√£o bloqueante**: n√£o obscurece o painel e n√£o interceta os cliques dirigidos a outro lado. Pode disparar um efeito e, no mesmo instante, continuar a operar sobre as colunas ou sobre os comandos do cabe√ßalho. Por essa raz√£o, a tecla `Esc` n√£o fecha o pad: continua a ser o comando de STOP ALL, sempre dispon√≠vel. O pad fecha-se pelo seu bot√£o de fecho ou de novo pelo toggle FX.
+
+### Carregar e disparar os efeitos
+
+O pad nasce com uma grelha de 25 c√©lulas (5√ó5) e cresce em linhas √† medida que adiciona mais efeitos. Para o preencher, **arraste os ficheiros de √°udio diretamente para as c√©lulas** do pad, tal como faria com uma coluna da grelha.
+
+Um clique numa c√©lula **dispara o efeito**. Os efeitos do pad s√£o polif√≥nicos e sobrep√µem-se: v√°rias c√©lulas podem tocar em conjunto, por cima de tudo o que est√° no ar, sem o parar. O comportamento de √°udio √© id√™ntico ao de uma clip normal: muda apenas a superf√≠cie de disparo. Um contador junto ao bot√£o FX no cabe√ßalho indica quantos efeitos est√£o a tocar naquele momento.
+
+### Configurar um efeito
+
+Os efeitos configuram-se em dois n√≠veis, pensados para duas necessidades diferentes:
+
+- **Defini√ß√µes r√°pidas** ‚Äî o caso comum para uma jingle machine: nome, cor, volume, loop. Bastam poucos segundos.
+- **Defini√ß√µes completas** ‚Äî a mesma janela das clips da grelha (editor da forma de onda, trim, marcadores, fade, atribui√ß√£o de teclas), acess√≠vel pela op√ß√£o ¬´Defini√ß√µes completas‚Ä¶¬ª dentro das r√°pidas.
+
+### Posi√ß√£o do pad
+
+O pad pode ficar no canto inferior esquerdo ou inferior direito do ecr√£: a prefer√™ncia define-se com as setas no pr√≥prio pad e fica memorizada entre as sess√µes. √Ä direita, cobre a NoteBoard e a √∫ltima coluna; escolha o lado consoante a forma como disp√¥s o seu alinhamento.
+
+> **Nota.** Em modo MIDI Learn, um clique numa c√©lula do pad **seleciona** o efeito para a atribui√ß√£o em vez de o tocar ‚Äî assim n√£o coloca um jingle no ar enquanto est√° a mapear os controlos (ver Cap√≠tulo 8).
 
 ---
 
-## 7.3 Collect & Save (ExportaÁ„o Port·til)
+## 7.2 A vista Automix
 
-Esta È a funÁ„o fundamental para quem trabalha em v·rios computadores ou quer arquivar o show.
-Como o ficheiro .lmp memoriza apenas as *ligaÁıes* aos ficheiros de ·udio, se copiar apenas esse ficheiro para outro PC (ou para uma pen USB), o software deixar· de encontrar a m˙sica (caminhos interrompidos).
+![A vista Automix com o deck da coluna M√∫sica e os pontos de compatibilidade de BPM.](../screenshots-pt/vista-automix.png)
 
-Para mover o show, deve usar a funÁ„o **Export Package**.
+*Figura 7.2 ‚Äî A vista Automix: o deck da coluna M√∫sica, a compatibilidade de BPM e o modo autom√°tico no fim da faixa.*
 
-### Como criar um Pacote Port·til
-1.  Clique no Ìcone **?? Export (Caixa)** na barra em cima.
-2.  O sistema pedir-lhe-· para selecionar uma pasta vazia (ex. na sua pen USB).
-3.  **O processo de CÛpia**:
-    *   O software analisa todo o projeto.
-    *   Cria uma subpasta chamada udio/ no destino.
-    *   **Copia fisicamente** todos os ficheiros MP3/WAV originais para dentro dessa pasta.
-    *   Cria um novo ficheiro project.lmp em que todas as ligaÁıes foram reescritas para apontar para a pasta local udio/.
+A **vista Automix** √© o deck da coluna M√∫sica: um ecr√£ a toda a largura, chamado a partir do bot√£o **MIX** no cabe√ßalho, que apresenta o alinhamento musical como uma consola de DJ. Abre-se por cima do painel mas por baixo do pad FX, para que os efeitos continuem utiliz√°veis mesmo com a Automix aberta. Tal como no pad, o `Esc` n√£o a fecha: continua a ser o comando de emerg√™ncia, e o bot√£o STOP ALL permanece acess√≠vel no cabe√ßalho.
 
-### O Resultado
-Obter· uma pasta contendo tudo o necess·rio. Pode ligar a pen USB a qualquer computador com o Runtime Live Machine Pro instalado, abrir o ficheiro project.lmp e tudo funcionar· perfeitamente, independentemente das letras de unidade ou dos caminhos originais.
+### O deck
 
-> **Uso Recomendado**: Use esta funÁ„o no final da preparaÁ„o de cada show para criar um "Master" para levar para o est˙dio ou para arquivar como backup histÛrico completo.
+Ao centro encontra a faixa **no ar** e, em fila, a **pr√≥xima** faixa da coluna M√∫sica, com o tempo restante. A partir daqui pode fazer arrancar uma faixa e gerir a passagem de uma para a outra com um √∫nico comando: o grande bot√£o de transi√ß√£o aplica o mesmo crossfade que usaria a partir da grelha, mas com o cuidado adicional do engate r√≠tmico.
+
+### Compatibilidade e transi√ß√µes beat-matched
+
+Junto a cada faixa, um **ponto de compatibilidade** com a faixa anterior indica a sua afinidade r√≠tmica:
+
+- **Verde** ‚Äî os dois tempos engatam bem: a transi√ß√£o pode ser beat-matched.
+- **Amarelo** ‚Äî engate poss√≠vel mas com algumas reservas.
+- **Vermelho** ‚Äî tempos demasiado distantes para um engate limpo.
+
+Quando o engate r√≠tmico n√£o √© pratic√°vel (BPM n√£o detetado, beat incerto, tempos demasiado diferentes), o software declara-o e recorre automaticamente a um **crossfade cl√°ssico**, sem surpresas em direto.
+
+### O modo autom√°tico
+
+No fundo da vista existe um interruptor para a **automa√ß√£o no fim da faixa**. Quando est√° ativo, o RLMP faz arrancar sozinho a passagem √† faixa seguinte quando a faixa no ar se aproxima do fim.
+
+Este modo √© uma exce√ß√£o deliberada √† filosofia do software, que por op√ß√£o n√£o automatiza o show. Por isso est√° **desativado por predefini√ß√£o** e funciona **apenas enquanto a vista Automix est√° aberta**: fechar a vista desativa a automa√ß√£o. √â a ferramenta certa para um bloco musical cont√≠nuo, a meia hora de s√≥ m√∫sica antes de voltar √† voz, n√£o para o direto inteiro.

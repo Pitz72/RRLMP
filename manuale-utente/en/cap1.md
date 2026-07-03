@@ -1,62 +1,80 @@
-# CHAPTER 1: INTRODUCTION AND SETUP
-
-Welcome to **Runtime Live Machine Pro (RRLMP)**.
-This chapter will guide you through the first steps: from understanding the software philosophy to the first launch.
-
-## 1.1 What is Runtime Live Machine Pro (RRLMP)
-
-**Runtime Live Machine Pro** is a professional "Pro-grade" audio architecture designed for directing **single live shows**, podcasts, events, and web radios.
-
-Unlike complex 24/7 radio automation software (which plays rotating music for days), RRLMP is a **Performance** tool. It is designed to be "played" in real-time by a director or speaker, offering surgical control over every transition.
-
-### Why choose RRLMP?
-*   **"Single Show" Philosophy**: Each project is an isolated container holding everything needed for that specific episode or event.
-*   **Main-Side-Heavy Architecture**: Uses a Node.js proxy for heavy audio decoding (FFmpeg), ensuring the interface (Renderer) remains fluid and crash-free even with large WAV files.
-*   **Total Safety**: Includes Auto-Backup systems, .lmp file integrity checks, and visual warnings for Intro/Outro cues.
-*   **Physical Control**: Natively supports MIDI controllers (with MIDI Learn) and keyboards for tactile and responsive directing.
+# Chapter 1 — Runtime Live Machine Pro: a philosophy
 
 ---
 
-## 1.2 Installation
+*Author’s note*
 
-### System Requirements
-*   **Windows**: Windows 10 or Windows 11 (64-bit).
-*   **macOS**: macOS 11 (Big Sur) or later (Native Apple Silicon & Intel Support).
-*   **Linux**: AppImage and .deb packages supported (Ubuntu/Debian/Mint).
-*   **RAM**: Minimum 4GB (8GB Recommended).
-*   **Disk Space**: 200MB for the application + space for your audio files.
+Fifteen years of open microphones leave a distinct mark on anyone who has lived through them. I have run podcasts, hosted talk shows, kept a web radio on the air, and for much of that time I did everything alone: the running order, the music, the interviews, the levels, the timing. I know what it feels like to realize, live, that the song is about to end while you are still shaping the thought you want to express. I know what it means to pull down a fader with one hand and find the right clip with the other, while the third hand — the one you don’t have — is supposed to hold the thread of what you are saying.
 
-### Installation on Windows
-1.  Download the `Runtime Live Machine Pro Setup 1.0.0.exe` file from the official website or repository.
-2.  Double-click the executable.
-3.  The automatic installer will copy the files and create a shortcut on the Desktop.
-4.  Once finished, the application will launch automatically.
+Runtime Live Machine Pro grew out of that frustration, and out of a simple conviction: audio production shouldn’t be a job in its own right. It should be transparent. The presenter, the podcaster, the content creator hosting a late-night talk show alone, with no engineer to lean on, needs to concentrate on what they do best: talking, thinking, holding a rapport with the listener. The software takes care of the rest.
 
-> **Security Note**: Since the software is frequently updated, Windows SmartScreen might show a "PC protected by Windows" warning. Click on **"More info"** and then on **"Run anyway"**. The software is safe, signed, and malware-free.
+I built into RLMP the rules a good sound director applies automatically: the hierarchy between audio events, the ducking that kicks in when you speak, the music that stops and resumes at the right moment. Complex rules, hidden beneath an interface that asks for a single gesture: clicking the right clip at the right time.
 
-### Installation on macOS
-1.  Download the `.dmg` file.
-2.  Open the image file and drag the **Runtime Live Machine Pro** icon into the **Applications** folder.
-3.  On first launch, you might need to authorize the application in *System Preferences > Security & Privacy*.
+This software is designed above all for people running small and mid-sized talk radio, for anyone producing podcasts with professional ambition, for anyone streaming live without a technical crew around them. That said, it isn’t exclusive by nature: people working in more structured settings will find tools suited to their needs too. The goal is single-minded: to make the presenter independent of the support roles that aren’t always there, and aren’t always needed.
 
 ---
 
-## 1.3 The Welcome Screen
+Every tool is born from an answer. Runtime Live Machine Pro answers a precise problem: live audio production (radio, podcasts, events, theatre) is a performance activity, not an automation task. It demands instant control, steady nerves and software that won’t betray you at the wrong moment.
 
-On first launch, you will be greeted by the new **Welcome Screen** in a horizontal layout. This is your starting dashboard, designed to get you working in seconds.
+The software installed on your computer is not a 24/7 music scheduler, nor a DAW for post-production, nor a simple player with a queue. It is a **real-time broadcast machine**, built around the idea that every show is a one-off, unrepeatable act that deserves a dedicated container and precise control over every transition.
 
-### Screen Elements
-1.  **New Logo**: The Pro logo (5 VU meter bars with a play triangle) identifies the stable version of the software.
-2.  **Version Status**: Under the logo, you will see the current version number (e.g., `v1.0.0`).
-    *   ? **Green**: You have the latest version available.
-    *   ?? **Yellow/Orange**: An update is available.
-3.  **Language Selector**: In the top right, you find flags (8 supported languages) to instantly change the interface.
-    *   *Languages*: IT, EN, FR, DE, ES, PT, RU, ZH.
-    *   Your choice is stored in the user profile.
+---
 
-### Available Actions
-*   **New Project**: Creates an empty session. All 5 columns (Assets, Music, Voice, SFX, PRE-SHOW) will be ready for file loading.
-*   **Load Project**: Opens an existing `.lmp` file. RRLMP will perform an integrity check: if any audio files are missing, they will be highlighted in red.
-*   **Online Manual**: Opens the updated documentation in your browser.
+## 1.1 Who it was built for
 
-> **First Launch**: RRLMP preferably starts in full screen. Once a project is loaded, you will notice the cyan **PRO** badge in the header, confirming the license and the stability of the audio engine.
+Runtime Live Machine Pro is aimed at two kinds of users who, despite their different contexts, share the same fundamental need.
+
+The **broadcast professional** — the director of a commercial radio station, the engineer of an audio or video live stream, the presenter running their own show — will find in RLMP a system on a par with high-end professional tools, with an operational agility those systems often sacrifice on the altar of complexity.
+
+The **content creator** — the independent podcaster, the web-radio host, the live-event organizer — will find a tool that doesn’t take years of technical training to master, yet makes no compromises on the quality of the result.
+
+Both get an interface that responds to the key instantly, a stable audio engine, and a save system that doesn’t forget.
+
+---
+
+## 1.2 The “Single Show” philosophy
+
+The founding concept of Runtime Live Machine Pro is the **isolated project**. Every show you produce — a podcast episode, a live radio broadcast, a theatre performance — lives in a self-contained `.lmp` file that holds everything: the clip layout, the volumes, the MIDI mappings, the cue points, the production notes. When you load that file, you find the show exactly as you left it.
+
+This approach has concrete consequences. You don’t have to reconfigure the software every time you move from one show to another. You can carry a project to any computer through the Export Package feature and know it will work. You can archive past episodes and reopen them months later without surprises.
+
+The `.lmp` file doesn’t contain the physical audio files: it stores their paths on disk. To move a project between computers, the **Export Package** feature physically copies everything needed into a self-contained folder.
+
+---
+
+## 1.3 The Main-Side-Heavy architecture
+
+Understanding the internal architecture isn’t essential to using the software, but it helps explain why certain problems common to other players don’t occur here.
+
+Runtime Live Machine Pro is built on **Electron**, a platform that cleanly separates the main process (*Main Process*, in Node.js) from the interface rendering process (*Renderer Process*). This separation is used deliberately.
+
+All the heavy operations — audio decoding via FFmpeg, reading files from disk, analysing waveforms, managing backups — are delegated to the Main Process. The Renderer deals solely with the interface: displaying clips, animating the VU meters, responding to clicks. The result is an interface that stays fluid even during intensive operations, and an audio engine that doesn’t compete for resources with the pixels on screen.
+
+The custom `media://` protocol keeps audio files from ever being loaded entirely into RAM: they stream straight from disk to the player. You can handle uncompressed WAV files hours long without the application’s memory footprint changing appreciably.
+
+---
+
+## 1.4 The broadcast grid: a visual grammar
+
+RLMP’s operating interface is organized into vertical columns, each with a precise semantic role. Before you even launch the software, it’s worth fixing this grammar in mind.
+
+Six columns are visible in the main grid. A seventh surface, the **pad FX** (the effects *jingle machine*), lives outside the grid, in a dedicated panel described in Chapter 7.
+
+| Column | Colour | Function |
+|---|---|---|
+| **Show Assets** | Green | Idents, beds, structural backing tracks for the show |
+| **Jingle** | Amber | Recurring identifying jingles and stingers |
+| **Promo** | Cyan | Promos, self-promotion, scheduled announcements |
+| **Episode Songs** | Red | The music playlist |
+| **Voice / Recordings** | Orange | Interviews, voice messages, spoken segments |
+| **Pre-Show** | Purple | Warm-up music before going live, with jingle and promo rotation |
+
+The first three columns (Show Assets, Jingle and Promo) share the same audio nature: they are structural and service elements, treated identically by the mixing engine. The distinction is organizational: keeping idents separate from jingles and promos keeps the running order readable even when it’s crowded.
+
+Each column has distinct audio behaviours — mixing priority, exclusion rules, fade values — detailed in Chapter 6. For now it’s enough to know that a clip’s position in the grid is not decorative: it determines how the software will treat it on air. Columns you don’t need can be hidden from view (Settings → General → Broadcast layout) without losing the clips they contain.
+
+---
+
+## 1.5 Current version and updates
+
+This manual describes version **1.11.5** of Runtime Live Machine Pro. At startup, the software silently checks whether a newer version is available and, if it finds one, opens an update notice, never during a live show. The update system is described in Chapter 12. The `.lmp` project files are compatible with later versions: updating the software doesn’t entail losing or manually migrating existing projects.

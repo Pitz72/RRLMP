@@ -1,64 +1,100 @@
-# CHAPTER 8: TROUBLESHOOTING AND FAQ
-
-Even in the most stable software, unexpected events due to hardware or the operating system can occur. Here you will find solutions to the most common problems.
+# Chapter 8 — Hardware, keyboard and MIDI
 
 ---
 
-## 8.1 Audio Problems
-
-### The Timer runs and the VU Meters move, but I hear nothing.
-The software is playing the audio correctly (you can see it from the colored bars at the top), but the signal is not reaching your speakers/headphones.
-1.  **Check the Master Volume**: Make sure the volume slider at the top is not at zero.
-2.  **Verify the Output (Routing)**:
-    *   Click the **Gear** (Settings) icon.
-    *   Check which device is selected in "Audio Output Device".
-    *   Sometimes Windows changes the ID of USB devices if they are unplugged and replugged. Try reselecting your sound card (e.g., *R�decaster Pro* or *Headphones*) from the list.
-3.  **External Mixer**: If you output to a USB mixer, check that the physical fader for that channel is not lowered or on "Mute".
-
-### The audio "crackles" or skips.
-This rarely happens thanks to the native engine, but it can happen if the computer's CPU is under extreme stress.
-*   Close other heavy applications (video editing, games).
-*   If you use a professional sound card, check that the *Buffer Size* in the card drivers is not too low (recommended: 256 or 512 samples).
+Runtime Live Machine Pro is designed to integrate with the hardware already in the studio without requiring elaborate configurations. This chapter describes how to route the audio output, how to use the computer keyboard as a controller, and how to connect physical MIDI devices for tactile control of the production.
 
 ---
 
-## 8.2 File Management and Red Clips
+## 8.1 Audio routing
 
-### A Clip has turned Red and no longer plays.
-A **Red Card** indicates that the software can no longer find the audio file on the disk.
-*   **Cause**: You moved, renamed, or deleted the original MP3/WAV file. Or the file was on a USB drive/External Disk that is now disconnected.
-*   **Solution**:
-    1.  Reconnect the external disk.
-    2.  Move the file back to its original location.
-    3.  Or, drag the file back into the grid (creating a new card) and delete the old red one.
+### Selecting the output device
 
-> **Prevention**: To avoid this problem, use the **Export Package** function (Chap. 7) which copies all files into a safe folder along with the project.
+By default, RLMP outputs to the operating system’s default audio device. In a professional or semi-professional setting, with USB mixers, external sound cards or multitrack systems, it’s useful to select the signal destination explicitly.
+
+1. Open the **Settings** from the Tools menu.
+2. On the *Audio & Mix* tab, open the output-device menu: you’ll find the list of audio devices available on the system.
+3. Select the device you want.
+
+If the chosen device is unplugged, RLMP falls back automatically to the system default; the app monitors connections and reacts to the insertion or removal of USB devices.
+
+### USB mixers and multichannel setups
+
+USB mixers such as the Rødecaster Pro, the RØDECaster Duo or the Focusrite Scarlett typically expose several USB channels to the operating system (Main Mix, Sounds/Chat, Monitor, and so on). RLMP appears as a single stereo source; the choice of which USB channel to route it to is in your hands.
+
+**Recommended setup with a USB mixer.** Assign RLMP to a secondary channel of the mixer (e.g. “Sounds” on the Rødecaster Pro) rather than to the main channel. This way you control RLMP’s volume with a dedicated physical fader, keep it separate from the physical microphone signal, and apply any hardware processing to that channel only.
+
+### Latency and buffer
+
+RLMP uses the operating system’s native audio APIs. The output latency is determined by the audio device’s buffer, not by the software. With professional sound cards the latency is in the order of a few milliseconds, imperceptible in a playout context.
+
+If you notice audio artefacts (crackles, dropouts), the device’s buffer value is probably too low. Raise it from the sound card’s control panel (not from RLMP, which doesn’t manage the driver directly): a buffer of 256 or 512 samples is the ideal balance between latency and stability.
 
 ---
 
-## 8.3 MIDI Problems
+## 8.2 Keyboard control
 
-### My MIDI controller is not working / is not detected.
-1.  **Golden Rule of MIDI**: The controller must be connected to the computer **BEFORE** starting Runtime Live Machine Pro.
-    *   If you connect it while the software is open, the internal browser might not see it. Close and reopen RRLMP.
-2.  **Learn Mode**: Check that you haven't left "MIDI Learn" mode active (Cyan Icon). In this mode, pressing keys serves only to map, not to play.
-3.  **Drivers**: Some advanced controllers require specific drivers. Verify that Windows recognizes it correctly.
+The computer keyboard is the fastest controller available on air: it works in the dark and is always within reach. RLMP provides a set of global shortcuts and lets you assign keys to individual clips.
+
+### Global shortcuts
+
+| Key | Action |
+|---|---|
+| **Esc** | STOP ALL — stops all active clips |
+| **Delete / Backspace** | Delete the selected clips |
+| **Ctrl+Z** | Undo the last change to the running order |
+| **Ctrl+Y** (or **Ctrl+Shift+Z**) | Redo the undone change |
+| **Ctrl+Shift+D** | Show/hide the Debug Overlay |
+| **Ctrl+Shift+M** | Open the MIDI simulator (for testing without a controller) |
+
+`Esc` acts as STOP ALL when RLMP is the active window, even while the cursor is in a text field. It is no longer a shortcut registered at the operating-system level: if the app is in the background, bring the window to the foreground first.
+
+> **Note.** There are no function keys (F1–F5) pre-assigned to launching columns. To launch a specific clip quickly, assign it a dedicated key, as described below.
+
+### Custom keys per clip
+
+In addition to the global shortcuts, every clip can have a dedicated key. The corresponding badge appears on the card.
+
+**To assign a key:**
+1. Open the clip settings (right-click the card) or the **Keybinds** window from the Tools menu.
+2. Click in the key field.
+3. Press the key you want.
+
+**Available keys.** Almost any key: letters (A–Z), numbers (0–9), numeric keypad, spacebar, unused function keys. If the key is already assigned to another clip, the software reports the conflict before overwriting, so you don’t create invisible duplicates.
+
+**Safety while typing.** Custom keys are disabled automatically when you’re in text-entry mode (renaming a clip or writing a note). This prevents accidental launches while you type.
 
 ---
 
-## 8.4 Frequently Asked Questions (FAQ)
+## 8.3 MIDI controllers
 
-**Q: Can I use RRLMP to automate radio 24/7?**
-A: No. RRLMP is designed for *Live* directing (shows manned by a person). It has no hourly scheduling or infinite automatic music rotation functions.
+MIDI is the professional choice when you want physical, reliable control under your fingers. RLMP supports USB-MIDI controllers: keyboards, pads (e.g. Novation Launchpad), fader controllers (e.g. Korg nanoKONTROL2), hybrid control surfaces.
 
-**Q: Which audio formats are supported?**
-A: It natively supports **MP3, WAV, AAC, OGG, FLAC**. We recommend using WAV for maximum quality or MP3 320kbps to save space.
+### Connecting
 
-**Q: Does the software work on iPad or Android?**
-A: No, Runtime Live Machine Pro is professional Desktop software for **Windows** and **macOS**. It requires the file management power of a real computer.
+Connect the USB controller to the computer and start RLMP. The software detects devices through the system’s Web MIDI API and recognizes the connection and disconnection of a controller in real time. Most USB-MIDI controllers are *class-compliant* and need no driver; for professional surfaces with proprietary drivers, install the driver before connecting the device.
 
-**Q: How do I update the software?**
-A: At startup, the Welcome Screen will notify you if a new version is available (Yellow/Orange indicator). Visit the official website to download the updated installer. Your saved .lmp projects will be compatible with new versions.
+### MIDI Learn
 
-**Q: Where can I find the auto-save files?**
-A: If you are working on a saved file, the .bak backup is in the same folder as the project. If you were working on an "Untitled" project and the PC shut down, check the system application data folder (on Windows: %APPDATA%\runtime-live-machine\).
+RLMP doesn’t require you to know MIDI note numbering or to configure messages by hand. Learning is done through **MIDI Learn** mode, from the Tools menu (or from the Keybinds window).
+
+**To map a clip to a key/pad:**
+1. Enable MIDI Learn. The cards enter a waiting state.
+2. Select the clip (or the pad FX cell) to map.
+3. Play the note, press the pad or the key on the controller. The `M` badge with the note number appears on the card.
+
+**To map the global functions:**
+- Select **STOP ALL** and press a key on the controller: that key will perform the Stop All.
+- Select the **Master Volume** and move a fader or a knob: that control will manage the master volume continuously.
+
+When finished, disable MIDI Learn to return to operating mode.
+
+### Supported message types
+
+**Note On** — messages generated by buttons, pads and keys. Ideal for launching clips and global actions; RLMP responds to the key press and recognizes all MIDI channels. Note Off messages are ignored.
+
+**Control Change (CC)** — messages generated by faders and potentiometers, with a continuous value from 0 to 127. Ideal for the Master Volume: a physical fader mapped to the master offers the most natural control of the output level.
+
+### Portability of the mappings
+
+The MIDI mappings of the **clips** are saved in the `.lmp` project file: carry the project to another computer with the same controller and they will work without reconfiguration. The mappings of the **global functions** (Stop All, Master Volume) are instead tied to the computer, saved in the application’s local preferences, and remain valid for all projects on that machine.

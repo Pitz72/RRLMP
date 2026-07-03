@@ -1,66 +1,140 @@
-# CHAPTER 3: AUDIO MANAGEMENT (BASIC WORKFLOW)
-
-Now that you know the interface, it's time to "load the machine".
-In this chapter, you will learn how to import audio files, control playback, and keep your playlist organized.
+# Chapter 3 — The working interface
 
 ---
 
-## 3.1 Importing (Drag & Drop)
+The Runtime Live Machine Pro interface is built for the most demanding operating context: the live show. Every visual choice answers a functional requirement. The dark theme, the high contrast, the size of the controls: this is ergonomics, not aesthetics for their own sake.
 
-Runtime Live Machine Pro does not use complex "File > Import" menus. It is designed to work directly with your computer's folders.
-
-### How to load files
-1.  Open the folder on your computer (File Explorer on Windows or Finder on Mac) where you keep your audio files.
-2.  Click on the desired file and, holding it, **drag** it into one of the 5 software columns.
-3.  Release the mouse.
-
-The clip will instantly appear as a new Card.
-
-### Import Details
-*   **Multiple Loading**: You can select 10, 20, or 50 files simultaneously from your folder and drag them all together. The software will create a card for each of them in sequence.
-*   **Supported Formats**: Thanks to the native engine, RRLMP supports almost all standard audio formats: **MP3, WAV, AAC (m4a), OGG, FLAC**.
-*   **Performance**: It doesn't matter if you load a 2-second jingle or a 2-hour DJ Set in uncompressed WAV format. Loading is **instant** and does not consume the computer's RAM, thanks to *Direct Disk Streaming* technology.
-
-> **Note**: The software stores the "path" of the file (e.g., C:\Music\Song.mp3). If you move or rename the original file on your computer, RRLMP will no longer be able to find it (the card will turn red/inactive). To avoid this issue if you change PCs, use the "Export Package" function (see Chap. 7).
+When you open a project, the screen divides into two distinct zones: the **Control Bar** at the top, which manages the project and the system, and the **broadcast grid** in the centre, where the actual work happens.
 
 ---
 
-## 3.2 Playback (Play & Stop)
+## 3.1 The Control Bar (Header)
 
-The playback system is optimized to avoid errors on air.
+The header spans the full width of the screen. From left to right, it gathers the software identity, the file commands, the monitoring and transport controls, the tools menu and the session indicators.
 
-### Starting a Clip (Play)
-*   **Left Click**: Click once on a card to start it.
-*   **Feedback**: The card border becomes **Bright Green**, the "Play" icon pulses, and the timer starts counting down.
-*   **Spacebar**: If you assigned a custom key to the clip (see Chap. 6), you can press it to start it without using the mouse.
+### Identity
 
-### Stopping a Clip (Stop / Fade)
-*   **Click on Active Clip**: If you click on a clip that is already playing, it will stop.
-    *   *Standard Behavior*: The clip performs a quick **Fade Out** (fading) instead of cutting off abruptly, for a more professional effect. (Fade times are customizable, see Chap. 4).
-*   **Stop All**: To stop everything immediately (without fades), press the **Spacebar** (if configured), the **ESC** key, or the red **STOP ALL** button at the top.
+**Logo and PRO badge.** On the left, the logo sits beside the wordmark **RLM PRO**, with the word “PRO” rendered in an iridescent gradient running from cyan to green, amber and red. Next to it, in monospaced type, is the installed version (`v1.11.5`). Hover over the logo to reveal the full software name and version number.
 
-### The Column Rule (Exclusion)
-In radio directing, you usually don't want two songs playing simultaneously on top of each other.
-*   **Rule**: If *Song A* is playing in the "SONGS" column and you click on *Song B* (in the same column), *Song A* automatically stops (fading out) and *Song B* starts.
-*   **Exception**: This rule does not apply to the "SFX" column or clips set as "Break" (Stacco), which can play over others.
+### File menu
+
+The **FILE** button opens a menu with the project operations:
+
+- *New Project* — opens an empty session. If there are unsaved changes, the software asks for confirmation.
+- *Save Project* — a quick save to the current `.lmp` file. The entry turns yellow when there are unsaved changes.
+- *Save As…* — always opens the dialog box, for creating progressive versions (e.g. `Ep47_draft.lmp`, `Ep47_final.lmp`).
+- *Load Project* — opens a `.lmp` project from disk.
+- *Import M3U* — imports a playlist in M3U format as a sequence of clips.
+- *Export Self-Contained Archive* — creates a self-contained copy of the project, including the audio files. Described in Chapter 10.
+
+### Monitoring and transport
+
+**Stereo VU meter (L/R).** Two horizontal bars show the real output level after the Master Volume. The colour scale is intuitive: green up to about 85% of the way, then yellow, and finally red near full scale. Persistent red signals clipping: lower the level.
+
+**Master Volume.** The fader controls the software’s overall output volume, from 0 to 100%. It acts as a master fader: brought to zero, no sound comes out, regardless of the state of the individual clips. If you have mapped a MIDI control to the Master Volume, a small badge shows the assignment.
+
+**STOP ALL (red “ALL” button).** Instantly stops every active clip and cancels any fades in progress. It is the system’s emergency command. The `Esc` key does the same when the application is in focus, even while you are typing in a text field.
+
+> **Note.** Unlike previous versions, `Esc` is no longer registered as a system-wide global shortcut: it acts when RLMP is the active window. This choice lets dialog boxes use `Esc` to close without stopping the live show.
+
+**FX.** Opens and closes the pad FX, the effects *jingle machine* (Chapter 7). A small counter shows how many effects are playing at that moment.
+
+**MIX.** Opens and closes the Automix view, the deck dedicated to the Music column (Chapter 7).
+
+### Tools
+
+The **Tools** menu (wrench icon) gathers:
+
+- *Undo* and *Redo* — the running-order edit history (`Ctrl+Z` / `Ctrl+Y`).
+- *MIDI Learn* — enables MIDI learning mode (Chapter 8).
+- *Keybinds* — the window for assigning keys to clips.
+- *Settings* — the software’s global preferences (Chapter 13).
+- *Info* — version, credits and manual update check.
+
+Just below the menu, the *Auto-saved* indicator appears briefly to confirm that the project has been saved automatically.
+
+![The Control Bar with the Tools menu open.](../screenshots-en/barra-controllo.png)
+
+*Figure 3.1 — The Control Bar and the open Tools menu (Undo/Redo, MIDI Learn, Keybinds, General Settings, Info).*
+
+### Session indicators
+
+On the right side of the header sit the **Playout Log** button (the chronological launch log, Chapter 13), the **Recording** button (Chapter 9), the **On Air timer** (which, when live, shows `ON AIR HH:MM:SS` on a red background) and the digital **studio clock** in 24-hour format, synchronized with the system clock.
+
+The header area can also show unobtrusive notifications (**toasts**) about completed operations or system warnings. Unlike blocking dialogs, toasts disappear on their own after a few seconds and don’t interrupt playback.
 
 ---
 
-## 3.3 Playlist Organization
+## 3.2 The six-column grid
 
-During a show, needs change. RRLMP allows you to rearrange the grid on the fly.
+![The six-column broadcast grid with sample clips and their status badges.](../screenshots-en/interfaccia-principale.png)
 
-### Moving Clips (Reordering)
-Loaded the playlist but decide to change the song order?
-*   Click on a clip and, holding it, **drag** it up or down. A guideline will show you where it will land.
-*   **Moving between Columns**: You can drag a clip from one column to another (e.g., from "Pre-Show" to the "Music" column).
-    *   *Warning*: When you move a clip, it **inherits the rules of the new column**. If you move a jingle into the Music column, it will start behaving like a song (it will undergo ducking from voices, etc.).
+*Figure 3.2 — The working interface: the six-column grid with the audio cards.*
 
-### Multiple Selection and Deletion
-To clean up quickly:
-1.  **Single Selection**: Ctrl + Click (Windows) or Cmd + Click (Mac) on a clip selects it (Blue border) without playing it.
-2.  **Multiple Selection**: Hold Ctrl and click on different clips to highlight them all.
-3.  **Deletion**: Press the DEL (or Backspace) key on the keyboard.
-    *   The software will ask for confirmation if you are deleting many clips, to avoid accidental errors.
+The grid is the software’s operational centre: six vertical columns side by side, each with its own colour-coded header and its own audio-behaviour logic. Sound effects have no column in the grid: they live in the pad FX (Chapter 7).
 
-> **Pro Tip**: Use multiple selection to quickly empty the "Pre-Show" column once the actual live broadcast has started, to have a cleaner interface.
+### Column headers
+
+Each header shows the column name and type, and doubles as a status indicator. Under normal conditions it is static and coloured in the column’s characteristic tone. When the playing clip is the last one available in the column, is not looping, and less than **20 seconds** remain until the end, the header goes into a **DEAD AIR** alarm: it pulses, turns amber, shows a warning icon and the **END** badge. It’s the advance notice that gives you time to prepare the next track before silence.
+
+Each column’s colour is customizable: click the coloured dot in the header to open a palette of **30 shades**. The choice is saved in the project file.
+
+The **Pre-Show** column header also carries a **rotation** button: when active, the pre-broadcast queue automatically inserts jingles and promos at regular intervals (Chapter 13).
+
+### The six columns
+
+**Show Assets (Green)**
+The structural elements of the show: idents, backing tracks, beds, institutional stingers. They behave as background elements: they yield space when voices or songs come in, but keep their internal rotation until they are stopped.
+
+**Jingle (Amber)** and **Promo (Cyan)**
+Two columns dedicated, respectively, to identifying jingles and to promos or self-promotion. In audio terms they behave exactly like Show Assets (they belong to the same family), but keeping them separate keeps the running order tidy and readable.
+
+**Episode Songs (Red)**
+The music playlist. Clips in this column take an active part in the automatic mixing: they are lowered when voices play and, in turn, silence the Asset beds when they start playing (Chapter 6). On music clips the software automatically detects the **BPM**, shown with a dedicated badge.
+
+**Voice / Recordings (Orange)**
+Interviews, pre-recorded spoken segments, voice messages. This column has the **highest priority** in the mixing system: when a clip here is playing, all other signals are lowered to a background level.
+
+**Pre-Show (Purple)**
+The pre-broadcast warm-up playlist. It works as a self-contained music queue, with optional rotation of jingles and promos. When the show proper begins, this column is typically emptied or disabled.
+
+---
+
+## 3.3 The audio card (Clip)
+
+Every imported audio file materializes in the grid as a rectangular **card**. The card is the operating unit of the system: you see it, launch it, configure it, move it.
+
+### Anatomy of a card
+
+**Title and artist.** The file name, or the custom name assigned in the properties. The custom title changes only the label inside the software; the original file on disk stays untouched. For music clips, the artist name may appear below the title.
+
+**Timer.** At rest, it shows the clip’s total duration in `MM:SS` format. During playback it switches to a **countdown**, with the negative prefix (e.g. `−01:20`). When less than 15 seconds remain, the timer turns **red**.
+
+**Status badges.** Small labels communicate the configured properties at a glance:
+
+- **STACCO** — the clip is set to overlap the others without stopping them.
+- **LOOP** — the clip will restart from the beginning when playback ends.
+- **NEXT** — when this clip ends, the next one in the column will start automatically.
+- **▶ UP NEXT** — highlights which clip will be next to start in the automatic sequence.
+- **### BPM** — the detected tempo, on music clips.
+- **TRIM…** — silence analysis in progress (Auto-Trim).
+- **FADE OUT** — appears on the outgoing clip during a crossfade or a fade.
+- **📋** — the clip has a note attached in the NoteBoard (Chapter 13).
+
+**Assignments.** If the clip has a keyboard key assigned, the letter appears in a badge in the column’s colour; if it has a MIDI binding, the label `M` appears followed by the note number (e.g. `M60`).
+
+**Structure cues.** If markers are configured, the countdowns `INTRO: −MM:SS` (in cyan) and `OUTRO IN: −MM:SS` (in orange) appear during playback, up to the `🚨 OUTRO` warning when the tail has begun.
+
+**Playback indicator.** When a clip is playing, the card lights up: green border, background with a luminous glow, a pulsing dot and the title highlighted. The progress bar sweeps across the card’s background.
+
+### Interacting with the cards
+
+- **Left click** — starts the clip if it is stopped; stops it (with a fade out) if it is playing.
+- **Ctrl + Click** (Windows/Linux) or **Cmd + Click** (macOS) — selects the clip without starting it. The border turns blue. Useful for multiple selection and bulk deletion.
+- **Delete key** (or *Delete* / *Backspace*) — removes the selected clips from the grid. If more than one clip is selected, the software asks for confirmation.
+- **Right click** — opens the **Clip Settings**: properties, waveform editor, notes (Chapter 5).
+- **Drag & Drop** — drag a card to reorder it within the column or move it to another. A luminous blue indicator shows the insertion point while dragging.
+
+### Cards in an error state
+
+A card marked **MISSING FILE** with a red border signals that the referenced audio file is no longer reachable: it has been moved, renamed, or is on an external disk that is not connected. The clip is not playable until the file returns to its original path. Handling path errors is covered in Chapter 14.

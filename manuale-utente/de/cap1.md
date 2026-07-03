@@ -1,62 +1,80 @@
-# KAPITEL 1: EINFÜHRUNG UND SETUP
-
-Willkommen bei **Runtime Live Machine Pro (RRLMP)**.
-Dieses Kapitel führt Sie durch die ersten Schritte: vom Verständnis der Softwarephilosophie bis zum ersten Start.
-
-## 1.1 Was ist Runtime Live Machine Pro (RRLMP)
-
-**Runtime Live Machine Pro** ist eine professionelle "Pro-Grade" Audio-Architektur, die für die Regie von **einzelnen Live-Shows**, Podcasts, Events und Webradios entwickelt wurde.
-
-Im Gegensatz zu komplexer 24/7-Radioautomationssoftware (die Musik tagelang in Rotation spielt), ist RRLMP ein **Performance**-Tool. Es ist darauf ausgelegt, in Echtzeit von einem Regisseur oder Sprecher "gespielt" zu werden und bietet chirurgische Kontrolle über jeden Übergang.
-
-### Warum RRLMP wählen?
-*   **"Single Show"-Philosophie**: Jedes Projekt ist ein isolierter Container, der alles enthält, was für diese spezifische Episode oder Veranstaltung benötigt wird.
-*   **Main-Side-Heavy Architektur**: Verwendet einen Node.js-Proxy für die schwere Audiodekodierung (FFmpeg), wodurch die Oberfläche (Renderer) auch bei großen WAV-Dateien flüssig und absturzfrei bleibt.
-*   **Totale Sicherheit**: Enthält Auto-Backup-Systeme, Integritätsprüfungen für .lmp-Dateien und visuelle Warnungen für Intro/Outro-Cues.
-*   **Physische Kontrolle**: Unterstützt nativ MIDI-Controller (mit MIDI Learn) und Keyboards für eine taktile und reaktionsschnelle Regie.
+# Kapitel 1 — Runtime Live Machine Pro: eine Philosophie
 
 ---
 
-## 1.2 Installation
+*Vorwort des Autors*
 
-### Systemanforderungen
-*   **Windows**: Windows 10 oder Windows 11 (64-Bit).
-*   **macOS**: macOS 11 (Big Sur) oder neuer (Nativer Apple Silicon & Intel Support).
-*   **Linux**: AppImage und .deb-Pakete unterstützt (Ubuntu/Debian/Mint).
-*   **RAM**: Mindestens 4 GB (8 GB empfohlen).
-*   **Festplattenspeicher**: 200 MB für die Anwendung + Platz für Ihre Audiodateien.
+Fünfzehn Jahre mit offenen Mikrofonen hinterlassen deutliche Spuren bei denen, die sie durchlebt haben. Ich habe Podcasts betreut, Talks moderiert, ein Webradio am Laufen gehalten, und einen Großteil dieser Zeit habe ich alles allein gemacht: die Playlist, die Musik, die Interviews, die Pegel, das Timing. Ich weiß, wie es ist, mitten in der Sendung zu merken, dass der Song gleich zu Ende geht, während man den Gedanken, den man ausdrücken will, noch nicht einmal fertig formuliert hat. Ich weiß, was es heißt, mit der einen Hand den Fader herunterziehen und mit der anderen den richtigen Clip suchen zu müssen, während die dritte Hand — die man nicht hat — den roten Faden des Gesprächs halten sollte.
 
-### Installation unter Windows
-1.  Laden Sie die Datei `Runtime Live Machine Pro Setup 1.0.0.exe` von der offiziellen Website oder dem Repository herunter.
-2.  Doppelklicken Sie auf die ausführbare Datei.
-3.  Das automatische Installationsprogramm kopiert die Dateien und erstellt eine Verknüpfung auf dem Desktop.
-4.  Nach Abschluss startet die Anwendung automatisch.
+Runtime Live Machine Pro ist aus dieser Frustration entstanden und aus einer schlichten Überzeugung: Audio-Regie sollte keine eigenständige Arbeit sein. Sie sollte transparent sein. Der Sprecher, der Podcaster, der Content Creator, der nachts allein einen Talk moderiert — ohne einen Tontechniker an seiner Seite — muss sich auf das konzentrieren können, was er beherrscht: reden, denken, die Verbindung zu den Hörern aufbauen. Um den Rest kümmert sich die Software.
 
-> **Sicherheitshinweis**: Da die Software häufig aktualisiert wird, zeigt Windows SmartScreen möglicherweise eine Warnung "Der Computer wurde durch Windows geschützt" an. Klicken Sie auf **"Weitere Informationen"** und dann auf **"Trotzdem ausführen"**. Die Software ist sicher, signiert und frei von Malware.
+In RLMP stecken die Regeln, die ein guter Tonregisseur automatisch anwendet: die Hierarchie zwischen den Audio-Ereignissen, das Ducking, das einsetzt, wenn man spricht, die Musik, die im richtigen Moment stoppt und wieder einsetzt. Komplexe Regeln, verborgen hinter einer Oberfläche, die nur eine einzige Handlung verlangt: den richtigen Clip zum richtigen Zeitpunkt anzuklicken.
 
-### Installation unter macOS
-1.  Laden Sie die `.dmg`-Datei herunter.
-2.  Öffnen Sie die Image-Datei und ziehen Sie das Symbol von **Runtime Live Machine Pro** in den Ordner **Programme**.
-3.  Beim ersten Start müssen Sie die Anwendung möglicherweise in *Systemeinstellungen > Sicherheit & Datenschutz* autorisieren.
+Diese Software richtet sich vor allem an alle, die kleine und mittlere Talk-Radios betreiben, an alle, die Podcasts mit professionellem Anspruch produzieren, an alle, die einen Live-Stream ohne Technik-Team im Rücken senden. Ausschließlich ist ihr Wesen aber nicht: Wer in stärker strukturierten Umgebungen arbeitet, findet ebenso Werkzeuge, die seinen Anforderungen gerecht werden. Das Ziel bleibt eines: den Sprecher unabhängig zu machen von unterstützenden Rollen, die nicht immer da sind und nicht immer gebraucht werden.
 
 ---
 
-## 1.3 Der Willkommensbildschirm (Welcome Screen)
+Jedes Werkzeug entsteht als Antwort. Runtime Live Machine Pro antwortet auf ein konkretes Problem: Live-Audio-Regie (Radio, Podcast, Events, Theater) ist eine Performance-Tätigkeit, keine Automatisierung. Sie verlangt sofortige Kontrolle, ruhige Nerven und eine Software, die einen im falschen Moment nicht im Stich lässt.
 
-Beim ersten Start werden Sie vom neuen **Welcome Screen** im horizontalen Layout begrüßt. Dies ist Ihr Start-Dashboard, das entwickelt wurde, damit Sie in wenigen Sekunden mit der Arbeit beginnen können.
+Die Software, die auf Ihrem Computer installiert ist, ist kein System zur 24/7-Musikplanung, kein DAW für die Postproduktion und auch kein einfacher Player mit Warteschlange. Sie ist etwas anderes: eine **Echtzeit-Regiemaschine**, gebaut um die Idee, dass jede Show ein einmaliger, unwiederholbarer Akt ist, der einen eigenen Rahmen und eine chirurgisch genaue Kontrolle über jeden Übergang verdient.
 
-### Bildschirmelemente
-1.  **Neues Logo**: Das Pro-Logo (5 VU-Meter-Balken mit Wiedergabe-Dreieck) kennzeichnet die stabile Version der Software.
-2.  **Versionsstatus**: Unter dem Logo sehen Sie die aktuelle Versionsnummer (z. B. `v1.0.0`).
-    *   ✅ **Grün**: Sie haben die neueste Version.
-    *   ⬇️ **Gelb/Orange**: Ein Update ist verfügbar.
-3.  **Sprachauswahl**: Oben rechts finden Sie Flaggen (8 unterstützte Sprachen), um die Oberfläche sofort zu ändern.
-    *   *Sprachen*: IT, EN, FR, DE, ES, PT, RU, ZH.
-    *   Ihre Wahl wird im Benutzerprofil gespeichert.
+---
 
-### Verfügbare Aktionen
-*   **Neues Projekt (New Project)**: Erstellt eine leere Sitzung. Alle 5 Spalten (Assets, Music, Voice, SFX, PRE-SHOW) sind bereit zum Laden von Dateien.
-*   **Projekt laden (Load Project)**: Öffnet eine vorhandene `.lmp`-Datei. RRLMP führt eine Integritätsprüfung durch: Wenn Audiodateien fehlen, werden diese rot markiert.
-*   **Online-Handbuch**: Öffnet die aktualisierte Dokumentation in Ihrem Browser.
+## 1.1 Für wen es gebaut wurde
 
-> **Erster Start**: RRLMP startet vorzugsweise im Vollbildmodus. Sobald ein Projekt geladen ist, bemerken Sie das cyanfarbene **PRO**-Badge in der Kopfzeile, das die Lizenz und die Stabilität der Audio-Engine bestätigt.
+Runtime Live Machine Pro wendet sich an zwei Nutzergruppen, die trotz unterschiedlicher Kontexte dasselbe Grundbedürfnis teilen.
+
+Der **Broadcast-Profi** — der Regisseur eines kommerziellen Radios, der Tontechniker eines Audio- oder Video-Live-Streams, der Sprecher, der seine eigene Show verantwortet — findet in RLMP ein System auf Augenhöhe mit den professionellen Werkzeugen der oberen Klasse, dazu die operative Wendigkeit, die jene Systeme oft auf dem Altar der Komplexität opfern.
+
+Der **Content Creator** — der unabhängige Podcaster, der Moderator eines Webradios, der Veranstalter von Live-Events — findet ein Werkzeug, das keine jahrelange technische Ausbildung erfordert, um es zu beherrschen, das aber bei der Qualität des Ergebnisses keine Kompromisse eingeht.
+
+Beide finden eine Oberfläche, die sofort auf den Tastendruck reagiert, eine stabile Audio-Engine und ein Speichersystem, das nichts vergisst.
+
+---
+
+## 1.2 Die Philosophie „Single Show“
+
+Das Grundkonzept von Runtime Live Machine Pro ist das **isolierte Projekt**. Jede Show, die Sie realisieren — eine Podcast-Folge, eine Radiosendung, eine Theateraufführung —, lebt in einer eigenständigen `.lmp`-Datei, die alles enthält: die Anordnung der Clips, die Lautstärken, die MIDI-Zuordnungen, die Cue-Punkte, die Regie-Notizen. Wenn Sie diese Datei laden, finden Sie die Show genau so vor, wie Sie sie verlassen haben.
+
+Dieser Ansatz hat konkrete Folgen. Sie müssen die Software nicht jedes Mal neu einrichten, wenn Sie von einer Show zur nächsten wechseln. Sie können ein Projekt auf jeden beliebigen Computer mitnehmen — über die Funktion Export Package — und sich darauf verlassen, dass es funktioniert. Sie können vergangene Folgen archivieren und Monate später ohne Überraschungen wieder öffnen.
+
+Die `.lmp`-Datei enthält nicht die physischen Audiodateien: Sie speichert die Pfade auf der Festplatte. Für den Wechsel zwischen Computern kopiert die Funktion **Export Package** alles Notwendige physisch in einen in sich geschlossenen Ordner.
+
+---
+
+## 1.3 Die Architektur Main-Side-Heavy
+
+Die interne Architektur zu verstehen ist für die Nutzung der Software nicht zwingend nötig, hilft aber zu begreifen, warum bestimmte Probleme anderer Player hier nicht auftreten.
+
+Runtime Live Machine Pro baut auf **Electron** auf, einer Plattform, die den Hauptprozess (*Main Process*, in Node.js) klar vom Rendering-Prozess der Oberfläche (*Renderer Process*) trennt. Diese Trennung wird bewusst genutzt.
+
+Alle rechenintensiven Aufgaben — Audio-Dekodierung über FFmpeg, das Lesen der Dateien von der Festplatte, die Analyse der Wellenformen, die Verwaltung der Backups — sind an den Main Process delegiert. Der Renderer kümmert sich ausschließlich um die Oberfläche: die Clips anzeigen, die VU meter animieren, auf Klicks reagieren. Das Ergebnis ist eine Oberfläche, die auch während intensiver Vorgänge flüssig bleibt, und eine Audio-Engine, die nicht mit den Pixeln auf dem Bildschirm um die Ressourcen konkurriert.
+
+Das eigene Protokoll `media://` sorgt dafür, dass die Audiodateien nie vollständig in den Arbeitsspeicher geladen werden: Sie werden direkt von der Festplatte an den Player gestreamt. Sie können stundenlange, unkomprimierte WAV-Dateien verwalten, ohne dass sich der Speicherverbrauch der Anwendung merklich ändert.
+
+---
+
+## 1.4 Das Regie-Raster: eine visuelle Grammatik
+
+Die Arbeitsoberfläche von RLMP ist in senkrechte Spalten gegliedert, jede mit einer eigenen, klaren semantischen Rolle. Noch bevor Sie die Software starten, lohnt es sich, diese Grammatik zu verinnerlichen.
+
+Im Hauptraster sind sechs Spalten sichtbar. Eine siebte Fläche — das **pad FX**, die *jingle machine* der Effekte — lebt außerhalb des Rasters, in einem eigenen Bereich, der in Kapitel 7 beschrieben wird.
+
+| Spalte | Farbe | Funktion |
+|---|---|---|
+| **Show Assets** | Grün | Kennungen, Beds, strukturelle Untermalungen der Show |
+| **Jingle** | Bernstein | Wiederkehrende, identitätsstiftende Jingles und Stacchi (Trenner) |
+| **Promo** | Cyan | Promos, Eigenwerbung, geplante Ansagen |
+| **Episoden-Musik** | Rot | Die Musik-Playlist |
+| **Stimme / Aufnahmen** | Orange | Interviews, Sprachaufnahmen, gesprochene Blöcke |
+| **Pre-Show** | Violett | Wartemusik vor der Sendung, mit Rotation von Jingles und Promos |
+
+Die ersten drei Spalten (Show Assets, Jingle und Promo) teilen dieselbe Audio-Natur: Es sind Struktur- und Service-Elemente, die von der Mixing-Engine gleich behandelt werden. Die Unterscheidung ist organisatorisch: Kennungen von Jingles und Promos zu trennen hält die Playlist auch dann lesbar, wenn sie voll ist.
+
+Jede Spalte hat eigenes Audio-Verhalten — Priorität im Mix, Ausschlussregeln, Fade-Werte —, das in Kapitel 6 im Detail behandelt wird. Für den Moment genügt es zu wissen, dass die Position eines Clips im Raster nicht dekorativ ist: Sie bestimmt, wie die Software ihn während der Sendung behandelt. Spalten, die Sie nicht brauchen, lassen sich aus der Ansicht ausblenden (Einstellungen → Allgemein → Regie-Layout), ohne die darin enthaltenen Clips zu verlieren.
+
+---
+
+## 1.5 Aktuelle Version und Aktualisierungen
+
+Dieses Handbuch beschreibt die Version **1.11.5** von Runtime Live Machine Pro. Beim Start prüft die Software still, ob eine neuere Version verfügbar ist, und öffnet, falls sie eine findet, einen Update-Hinweis — niemals während einer Sendung. Das Update-System wird in Kapitel 12 beschrieben. Die Projektdateien `.lmp` sind mit den nachfolgenden Versionen kompatibel: Ein Update der Software bringt weder Verlust noch manuelle Migration bestehender Projekte mit sich.

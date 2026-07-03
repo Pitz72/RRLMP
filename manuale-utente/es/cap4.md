@@ -1,74 +1,109 @@
-# CAPÕTULO 4: EDICI”N AVANZADA DE CLIPS (PROPIEDADES)
-
-Cada archivo de audio es diferente: algunos tienen largos silencios iniciales, otros tienen un volumen demasiado bajo, y otros necesitan repetirse infinitamente.
-Para acceder al panel de configuraciÛn avanzada, haga **Clic Derecho** en cualquier clip y seleccione **"Edit"** (Editar).
-
-Se abrir· una ventana modal dividida en dos secciones principales: **Visual & Basic** (Izquierda) y **Behavior & Timing** (Derecha).
+# Cap√≠tulo 4 ‚Äî El flujo de trabajo b√°sico: cargar y reproducir
 
 ---
 
-## 4.1 ConfiguraciÛn B·sica (Visual y Audio)
-
-En esta secciÛn controla la apariencia y el volumen bruto del clip.
-
-*   **Nombre del Clip**: Puede renombrar el clip como prefiera (ej. de pista_01_final.mp3 a TEMA DE APERTURA). Esto solo cambia la etiqueta en el software, no el nombre del archivo original en el disco.
-*   **Volumen (Gain)**: Un control deslizante que va del 0% al 150%.
-    *   Si tiene una grabaciÛn baja (ej. un audio de WhatsApp), puede subirlo m·s all· del 100% para alinearlo con el resto del show.
-*   **Color Personalizado**: Por defecto, el clip hereda el color de su columna (ej. Verde para Assets). AquÌ puede forzar un color diferente para resaltarlo (ej. colorear de Rojo un jingle importante en la columna Gris).
+El ciclo operativo fundamental de Runtime Live Machine Pro se articula en tres fases: importar los archivos de audio, organizarlos en la rejilla, reproducirlos durante el directo. Este cap√≠tulo describe cada fase con la precisi√≥n necesaria para trabajar con seguridad incluso bajo presi√≥n.
 
 ---
 
-## 4.2 PrecisiÛn Quir˙rgica: Cue Points & Trim
+## 4.1 Importar los archivos de audio
 
-A menudo los archivos de audio no est·n "listos para el aire": tienen segundos de silencio al principio o colas demasiado largas. En lugar de usar un editor de audio externo, puede arreglarlos aquÌ. Estos cambios son **no destructivos** (el archivo original permanece intacto).
+RLMP no dispone de un explorador interno ni de una biblioteca centralizada. La importaci√≥n se hace mediante **arrastrar y soltar** directo desde el gestor de archivos del sistema operativo (Explorador de archivos en Windows, Finder en macOS, Nautilus o equivalentes en Linux). Como alternativa, desde el men√∫ FILE puedes importar una lista de reproducci√≥n **M3U** y convertirla en una secuencia de clips.
 
-### Controles Manuales
-*   **Trim Start (Inicio)**: Establece cu·ntos segundos saltar al principio.
-    *   *Ejemplo*: Si pone 2.5, cuando presione Play el clip comenzar· instant·neamente desde el segundo 2.5, saltando el silencio inicial ("a golpe").
-*   **Trim End (Fin)**: Establece cu·ntos segundos cortar del final.
-    *   *Ejemplo*: Si la canciÛn tiene 20 segundos de aplausos finales in˙tiles, aumente este valor hasta que la "Nueva DuraciÛn" le satisfaga.
+### El gesto b√°sico
 
-### ?? La Varita M·gica (Smart Trim / DetecciÛn Auto)
-Para acelerar el trabajo, RRLMP incluye un algoritmo de inteligencia artificial b·sico.
-1.  Haga clic en el botÛn con el icono de **Varita M·gica** junto a los controles de Trim.
-2.  El software escanea el archivo en una fracciÛn de segundo.
-3.  Detecta autom·ticamente dÛnde comienza y termina el sonido real (por encima del umbral de -40dB).
-4.  Rellena autom·ticamente los campos *Start* y *End* por usted.
+1. Abre la carpeta de tu ordenador donde est√°n los archivos de audio.
+2. Selecciona uno o varios archivos. Para seleccionar varios: `Ctrl+Clic` para selecci√≥n discontinua, `Shift+Clic` para selecci√≥n continua.
+3. Arrastra los archivos seleccionados sobre una de las columnas de la rejilla y su√©ltalos. Para los efectos de sonido, arr√°stralos directamente al pad FX (Cap√≠tulo 7).
 
-> **Consejo**: Use siempre la Varita M·gica en grabaciones de voz o entrevistas para limpiarlas instant·neamente.
+Cada archivo genera una card en la columna de destino. Si arrastras varios archivos a la vez, las cards se crean en el orden en que los archivos aparecen en el gestor de archivos, de arriba abajo.
 
----
+**Indicador de inserci√≥n.** Durante el arrastre, una l√≠nea azul luminosa recorre la columna indicando la posici√≥n exacta en la que se insertar√°n las cards. Puedes insertar clips nuevos arriba, abajo o en una posici√≥n intermedia con precisi√≥n.
 
-## 4.3 Comportamientos (Behaviors & Logic)
+### Formatos admitidos
 
-AquÌ define la inteligencia del clip: quÈ debe hacer cuando comienza y quÈ debe hacer cuando termina.
+El motor FFmpeg integrado garantiza compatibilidad con una amplia gama de formatos de audio:
 
-### Behavior (Modo de SuperposiciÛn)
-*   **Normal (Por defecto)**: Cuando lanza este clip, cualquier otro clip que estÈ sonando **en la misma columna** se detiene. Es el comportamiento est·ndar para las canciones (una excluye a la otra).
-*   **Stacco** (InterrupciÛn): Cuando lanza este clip, este **NO detiene** los otros clips de la columna, sino que los "silencia" temporalmente (o se superpone).
-    *   *Uso tÌpico*: Un efecto de sonido o un jingle vocal que quiere reproducir sobre una base musical ubicada en la misma columna, sin interrumpir la base.
+| Formato | Extensi√≥n | Notas |
+|---|---|---|
+| MP3 | `.mp3` | Todos los bitrates |
+| WAV | `.wav` | PCM sin comprimir, cualquier profundidad de bits |
+| FLAC | `.flac` | Lossless, cualquier sample rate |
+| AAC / M4A | `.aac`, `.m4a` | Incluye archivos de iTunes/Apple Music |
+| OGG Vorbis | `.ogg` | |
+| Opus | `.opus` | |
+| WMA | `.wma` | Windows Media Audio |
+| WebM / MP4 | `.webm`, `.mp4` | Pistas de audio contenidas en estos contenedores |
 
-### Next Action (AutomatizaciÛn Final)
-øQuÈ sucede cuando el clip termina?
-*   **Stop**: El clip termina y se detiene. (Comportamiento est·ndar).
-*   **Loop**: El clip comienza de nuevo desde el principio infinitamente. ⁄til para bases y fondos. Aparecer· una insignia **[LOOP]** en la tarjeta.
-*   **Play Next**: Tan pronto como este clip comienza a desvanecerse (Fade Out), el software lanza autom·ticamente el siguiente clip en la columna.
-    *   *Crossfade*: La transiciÛn es fluida, sin huecos de silencio. Aparecer· una insignia **[NEXT]** en la tarjeta.
+**Una nota sobre el rendimiento.** El protocolo de streaming `media://` garantiza que los archivos de audio no se carguen en la memoria RAM en el momento de la importaci√≥n. Un archivo WAV sin comprimir de 2 GB se comporta exactamente igual que un MP3 de 5 MB: la carga es instant√°nea y el impacto en la memoria del sistema es insignificante. Los recursos de la CPU solo se emplean durante la decodificaci√≥n activa, es decir, durante la reproducci√≥n.
+
+### La ruta de los archivos
+
+RLMP memoriza la **ruta absoluta** del archivo en el disco, no una copia del archivo en s√≠. Si mueves, renombras o borras el archivo original, la card correspondiente se pondr√° roja y dejar√° de ser reproducible. Para trabajar en varios ordenadores o crear archivos portables, utiliza la funci√≥n **Export Package** descrita en el Cap√≠tulo 10.
 
 ---
 
-## 4.4 Fades (Fundidos)
+## 4.2 Reproducci√≥n: arrancar y detener los clips
 
-Cada columna tiene valores predeterminados (ej. la M˙sica hace fundido en 2 segundos, los Jingles son secos), pero aquÌ puede sobrescribirlos.
+### Arrancar un clip
 
-*   **Fade In (ms)**: Cu·nto tiempo tarda el volumen en llegar al m·ximo cuando presiona Play. (Ej. 2000ms = 2 segundos de subida gradual).
-*   **Fade Out (ms)**: Cu·nto tiempo tarda en desvanecerse cuando presiona Stop o cuando el clip termina naturalmente.
-    *   *Nota*: Un Fade Out largo es ˙til para las canciones. Un Fade Out a 0 es obligatorio para los cortes secos.
+Un **clic izquierdo** sobre la card basta para arrancar la reproducci√≥n. La respuesta es inmediata: la card se enciende en el verde de estado activo, el temporizador pasa a la cuenta atr√°s y los VU meter del encabezado reflejan la se√±al de salida.
+
+Si al clip se le ha asignado una tecla del teclado (v√©ase el Cap√≠tulo 8), esa tecla funciona como alternativa al clic, √∫til cuando est√°s operando en otra parte de la interfaz y no quieres mover el rat√≥n.
+
+### Detener un clip
+
+**Clic en el clip activo** ‚Äî el clip entra en la fase de **fade out** y se detiene en el tiempo configurado en sus propiedades (v√©ase el Cap√≠tulo 5).
+
+**Tecla `Esc`** ‚Äî detiene al instante todos los clips activos. Es el comando de emergencia. Funciona cuando RLMP es la ventana activa, incluso mientras escribes en un campo de texto.
+
+**Bot√≥n PARAR TODO** en el encabezado ‚Äî id√©ntico a `Esc`, accesible con el rat√≥n.
+
+### La l√≥gica de exclusi√≥n por columna
+
+En la mayor√≠a de las columnas, RLMP aplica la regla **¬´un clip a la vez¬ª**: si est√°s reproduciendo el *Tema A* en la columna Canciones y haces clic en el *Tema B* de la misma columna, el *Tema A* se detiene (con fade out) y arranca el *Tema B*. No hace falta detener manualmente el clip en curso antes de arrancar otro.
+
+Los **efectos del pad FX** son la excepci√≥n principal: se superponen a todo, incluidos otros efectos, y no interrumpen lo que est√© sonando. Un aplauso puede arrancar mientras suena una canci√≥n sin interrumpir su reproducci√≥n.
+
+Tambi√©n los clips con el comportamiento **Stacco** (r√°faga; configurable en las propiedades, v√©ase el Cap√≠tulo 5) se superponen sin detener los dem√°s clips de la columna, con independencia de d√≥nde se encuentren.
 
 ---
 
-## 4.5 AsignaciÛn de Controles (Entrada)
+## 4.3 Organizar la escaleta
 
-En la parte inferior del panel encontrar· las referencias para el control externo:
-*   **Trigger Keybind**: Haga clic aquÌ y presione una tecla en el teclado (ej. "Q") para asignarla a este clip.
-*   **MIDI Bind**: Muestra la nota MIDI asignada (ej. NOTE:60). Para modificarla, use el modo "MIDI Learn" desde la pantalla principal (ver Cap. 6).
+### Reordenar los clips
+
+Durante la preparaci√≥n del show, o incluso mientras el show est√° en marcha, puedes reorganizar el orden de los clips en cualquier momento.
+
+**Arrastre interno.** Haz clic en una card, mant√©nla pulsada y arr√°strala hacia arriba o hacia abajo en la misma columna. La gu√≠a azul indica la posici√≥n de inserci√≥n. El clip se inserta en la nueva posici√≥n sin interrumpir las reproducciones en curso.
+
+**Movimiento entre columnas.** Puedes arrastrar un clip de una columna a otra. Cuando lo haces, el clip **hereda las reglas de la columna de destino**: una voz pregrabada movida a la columna Canciones empezar√° a sufrir el ducking exactamente como un tema musical.
+
+Mover clips entre columnas es una operaci√≥n potente e intencionada. Usa la funci√≥n de forma consciente, sobre todo durante el directo.
+
+### Selecci√≥n m√∫ltiple y borrado
+
+Para quitar varios clips de la rejilla en una sola operaci√≥n:
+
+1. `Ctrl+Clic` (Windows/Linux) o `Cmd+Clic` (macOS) sobre cada clip que quieras seleccionar. El borde se vuelve azul.
+2. Pulsa `Supr` o `Delete`. El software pide confirmaci√≥n si el n√∫mero de clips seleccionados es superior a uno.
+
+El borrado desde la rejilla quita los clips del proyecto actual, no los archivos de audio del disco. Si te equivocas, `Ctrl+Z` deshace la operaci√≥n.
+
+> **Consejo pr√°ctico.** Con el directo ya empezado, vaciar la columna Pre-Show con una selecci√≥n m√∫ltiple y `Supr` es la forma m√°s r√°pida de liberar espacio visual en la interfaz y pasar al modo operativo.
+
+---
+
+## 4.4 Cues de estructura: INTRO y OUTRO
+
+Cada clip puede tener dos **marcadores estructurales** configurados en el editor de la forma de onda (Cap√≠tulo 5):
+
+- **Intro Marker** ‚Äî el punto en el que la melod√≠a principal del tema entra realmente, tras la introducci√≥n instrumental. √ötil para saber exactamente cu√°ndo empezar a hablar sobre la intro.
+- **Outro Marker** ‚Äî el punto en el que empieza la cola final del tema. Se√±ala el momento justo para preparar la transici√≥n a la pista siguiente.
+
+Cuando la reproducci√≥n de un clip se acerca a estos puntos, en la card aparece un aviso visual:
+
+- **INTRO: ‚àíMM:SS** ‚Äî cuenta atr√°s hasta el Intro Marker.
+- **OUTRO IN: ‚àíMM:SS** ‚Äî cuenta atr√°s hasta el Outro Marker, seguido de **üö® OUTRO** cuando la cola ha comenzado.
+
+Estos avisos solo se muestran si los marcadores se han configurado. En los clips sin marcadores, la card muestra √∫nicamente la cuenta atr√°s est√°ndar al final del tema.

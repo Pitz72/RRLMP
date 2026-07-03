@@ -1,77 +1,91 @@
-# KAPITEL 6: HARDWARE-STEUERUNG UND ROUTING
-
-Eine professionelle Regie-Software lebt nicht isoliert im Computer. Sie muss mit dem Studio-Mischpult, den Kopfh�rern und den Fingern des Regisseurs kommunizieren.
-In diesem Kapitel sehen wir uns an, wie man den Audioausgang konfiguriert und wie man die Software steuert, ohne die Maus zu ber�hren.
+# Kapitel 6 — Die Mixing-Engine
 
 ---
 
-## 6.1 Audio-Konfiguration (Routing)
+Das Grundproblem der manuellen Radioregie ist die Vervielfachung gleichzeitiger Handlungen: einen Titel starten, die Musik absenken, ins Mikrofon sprechen, den nächsten Clip vorbereiten, die Uhr im Blick behalten. Jede zusätzliche Aktion ist eine Gelegenheit zum Fehler, in einem Kontext, in dem der Fehler öffentlich und sofort ist.
 
-Standardm��ig gibt RRLMP auf dem Standard-Audioger�t von Windows aus. In einem Studio (oder mit fortgeschrittenen Podcast-Setups wie dem *R�decaster Pro*) m�ssen Sie jedoch die Streams trennen.
-
-### Den Ausgang ausw�hlen
-1.  Klicken Sie auf das **Zahnrad (Einstellungen)**-Symbol in der oberen Befehlsleiste.
-2.  Das Bedienfeld **General Settings** �ffnet sich.
-3.  Im Dropdown-Men� "Audio Output Device" sehen Sie die Liste aller an Ihren PC angeschlossenen Soundkarten.
-4.  W�hlen Sie das gew�nschte Ger�t aus (z. B. *R�decaster Pro Stereo* oder *Focusrite USB*).
-
-### Live-Switch (Live-Umschaltung)
-Der Wechsel erfolgt sofort. Wenn Musik spielt, w�hrend Sie das Ger�t wechseln, "springt" das Audio ohne Unterbrechung auf den neuen Ausgang.
-
-> **Tipp f�r R�decaster/USB-Mixer**: Wenn Ihr Mixer mehrere USB-Kan�le hat (z. B. Main und Sounds/Chat), stellen Sie RRLMP auf einen sekund�ren Kanal (z. B. "Sounds"), damit Sie dessen Lautst�rke mit einem speziellen Fader am physischen Mixer steuern k�nnen, getrennt von den Windows-Systemsounds.
+Die Mixing-Engine von Runtime Live Machine Pro beseitigt den Großteil dieser Zwischenhandlungen, indem sie sie an die Software delegiert. Es geht nicht um Automatisierung im Sinne von „die Software macht die Dinge an deiner Stelle, ohne dass du es weißt“, sondern um die Automatisierung der Regeln, die Sie selbst anwenden würden, wenn Sie genug Hände hätten, um sie alle auszuführen.
 
 ---
 
-## 6.2 Die Tastatur (Hotkeys)
+## 6.1 Die Audio-Hierarchie
 
-Die Computertastatur ist der schnellste Controller, den Sie haben. RRLMP enth�lt voreingestellte globale Befehle und anpassbare Tasten.
+Das automatische Mixing-System beruht auf einer **Prioritätshierarchie** zwischen den Clip-Typen. Am einfachsten versteht man sie, wenn man sie sich als Rangfolge des „Rederechts“ vorstellt.
 
-### Globale Befehle (F-Tasten)
-Die Funktionstasten (F1-F5) sind zum Starten der Spalten zugewiesen. Sie haben eine "intelligente" Logik: Sie suchen den ersten freien Clip.
-*   **F1**: Startet Spalte 1 (Assets).
-*   **F2**: Startet Spalte 2 (Musik).
-*   **F3**: Startet Spalte 3 (Stimmen).
-*   **F4**: Startet Spalte 4 (SFX).
-*   **F5**: Startet Spalte 5 (Pre-Show).
-*   **ESC**: **PANIC BUTTON**. Stoppt alles sofort (Stop All).
+**Stimme / Aufnahmen — absolute Priorität.**
+Wenn ein Sprach-Clip läuft, bleibt er auf seiner Nennlautstärke und alles andere wird abgesenkt. Kein anderes Signal kann diese Regel außer Kraft setzen.
 
-### Benutzerdefinierte Tasten (Custom Binds)
-M�chten Sie das Intro durch Dr�cken der Leertaste oder des Buchstabens "Q" starten?
-1.  Rechtsklick auf den Clip -> **Edit**.
-2.  Klicken Sie in das Feld **Trigger Keybind**.
-3.  Dr�cken Sie die gew�nschte Taste auf der Tastatur.
-4.  Speichern.
-5.  Ein Badge (z. B. **[Q]**) erscheint auf der Karte, um Sie an die Zuweisung zu erinnern.
+**Episoden-Musik.**
+Sie räumt der Stimme den Platz, hat aber Vorrang vor den Beds der Assets. Wenn ein Song einsetzt, werden die Musikbetten der Assets auf null gebracht (sie stoppen nicht: Sie laufen still weiter, bereit für die Rückkehr). Das ist die Music Dominance, weiter unten beschrieben.
 
-> **Sicherheit**: Tastaturbefehle werden automatisch deaktiviert, wenn Sie Text schreiben (z. B. beim Umbenennen eines Clips), um zu vermeiden, dass Audio w�hrend des Tippens gestartet wird.
+**Show Assets, Jingle und Promo — die Service-Beds.**
+Sie werden von den Stimmen abgesenkt und von der Musik stummgeschaltet. Ist ein Asset jedoch ein **Stacco** (Trenner), übernimmt es die Führung (siehe §6.4).
+
+**Effekte des pad FX.**
+Die Soundeffekte bleiben außerhalb der Hierarchie: Sie erklingen auf ihrer eigenen Lautstärke, legen sich über das, was on air ist, und werden nicht stummgeschaltet. Es gibt nur eine Höflichkeit gegenüber dem Gesprochenen: Wenn eine Stimme aktiv ist, sinken die Effekte auf halbe Lautstärke (50 %), um sie nicht zu überdecken, und steigen dann von selbst wieder an.
+
 
 ---
 
-## 6.3 MIDI-Controller (Die physische Macht)
+## 6.2 Automatisches Ducking
 
-Dies ist die "Pro"-Funktion schlechthin. Sie k�nnen musikalische Tastaturen, Pads (wie *Novation Launchpad*) oder Fader-Controller (wie *Korg nanoKONTROL*) anschlie�en und sie zur Steuerung der Software verwenden.
+Das **Ducking** ist der Mechanismus, mit dem ein Signal abgesenkt wird, wenn ein höher priorisiertes Signal in die Wiedergabe eintritt.
 
-### Verbindung
-1.  Schlie�en Sie Ihren USB-MIDI-Controller an den Computer an, **bevor** Sie Runtime Live Machine Pro starten.
-2.  Starten Sie die Software. Die MIDI-Engine erkennt das Ger�t automatisch.
+Der häufigste Fall: Ein Song läuft in voller Dynamik; Sie starten ein vorproduziertes Interview aus der Spalte Stimme. In diesem Moment bringt RLMP den Song auf etwa **20 % der Lautstärke** (eine Reduktion von rund 14 dB) mit einer weichen Blende von einer halben Sekunde, sodass die Stimme den Klangraum verständlich einnimmt. Sobald das Interview endet, steigt der Song mit einem ebenso flüssigen Fade In wieder auf die ursprüngliche Lautstärke.
 
-### MIDI-Learn-Modus (Einfache Zuweisung)
-Sie m�ssen keine komplizierten Codes kennen. RRLMP lernt, indem es zusieht, was Sie tun.
+Der Operator berührt nichts. Die ausgeführte Geste war ein einziger Klick: das Interview zu starten. Das Ausmaß der Reduktion und ihre Geschwindigkeit sind in den Einstellungen regelbar (Kapitel 13).
 
-1.  Klicken Sie auf das **MIDI**-Symbol (DIN-Stecker) in der oberen Leiste.
-    *   Das Symbol wird **Cyan (An)**.
-    *   Die Clips nehmen ein gestricheltes Aussehen an ("Wartend").
-2.  **Um einen Clip zuzuweisen**:
-    *   Klicken Sie mit der Maus auf den gew�nschten Clip.
-    *   Dr�cken Sie die physische Taste/das Pad auf Ihrem Controller.
-    *   Ein Badge (z. B. **[M:60]**) erscheint auf dem Clip. Fertig.
-3.  **Um globale Funktionen zuzuweisen**:
-    *   Klicken Sie auf den roten **STOP ALL**-Knopf auf dem Bildschirm -> Dr�cken Sie eine gro�e Taste auf dem Controller.
-    *   Klicken Sie auf den **MASTER VOL**-Schieberegler auf dem Bildschirm -> Bewegen Sie einen Fader oder Drehregler auf dem Controller.
-4.  Klicken Sie erneut auf das **MIDI**-Symbol, um den Learn-Modus zu verlassen.
+---
 
-### Unterst�tzte Befehlstypen
-*   **Note On/Off**: Perfekt f�r Tasten und Pads (Clip-Start, Stop All).
-*   **Control Change (CC)**: Perfekt f�r Fader und Drehregler. Verwenden Sie es, um die Master-Lautst�rke analog und flie�end zu steuern.
+## 6.3 Music Dominance: intelligente Verwaltung der Beds
 
-> **Portabilit�t**: Die MIDI-Zuweisungen der Clips werden im .lmp-Projekt gespeichert. Wenn Sie das Projekt auf einen anderen PC mit demselben Controller �bertragen, funktioniert alles sofort.
+Ein klassischer klanglicher Fehler ist der Moment, in dem sich ein Song und ein Musikbett (*bed*) überlagern: zwei rhythmische Elemente, die aufeinanderprallen, zwei Kick-Drums, die nicht zusammenfallen — das Ergebnis ist wirr.
+
+RLMP handhabt dieses Szenario mit der **Music Dominance**.
+
+**Das typische Szenario.** Ein Bed läuft in loop in der Spalte Assets, unter der Stimme des Moderators. Der Moderator startet einen Titel aus der Spalte Musik.
+
+**Was RLMP tut.** Es stoppt das Bed nicht, denn es zu stoppen würde bedeuten, es danach von Hand neu starten zu müssen. Stattdessen bringt es das Bed still auf **Lautstärke null** und hält es „im Phantom“ in der Wiedergabe: Die Datei läuft weiter, der loop läuft weiter, aber es ist nichts zu hören.
+
+**Das klangliche Ergebnis.** Man hört nur den Song. Das Bed ist verschwunden, ohne dass der Operator etwas getan hat.
+
+**Die Rückkehr.** Wenn der Song endet, taucht das Bed mit einem automatischen Fade In wieder auf und setzt an dem Punkt fort, an dem es sich im loop befand. Der Fluss (Bed → Song → Bed) läuft ohne einen einzigen zusätzlichen Klick ab.
+
+---
+
+## 6.4 Stacchi: die Ausnahme von der Regel
+
+Das Verhalten **Stacco** (Trenner, in den Eigenschaften jedes Clips konfigurierbar, siehe Kapitel 5) kehrt die Hierarchie vorübergehend um: Der Clip, der es trägt, wird zum vorrangigen. Er blendet die anderen Assets seiner Spalte stumm und senkt die Musik ab, stoppt aber nichts. Die angewandte Blende ist schneller als die des gewöhnlichen Ducking, für einen perkussiveren, klareren Einstieg.
+
+Der typische Einsatz ist die gesprochene *Station-ID* („Sie hören…“): Sie muss klar hörbar sein, während das Bed darunter weiterläuft. Für ein gepflegteres Ergebnis kombinieren Sie den Stacco mit einem kurzen Fade In (300–500 ms): Der Einstieg wird weich, nicht abrupt.
+
+---
+
+## 6.5 Lautstärke-Angleichung (loudness)
+
+Clips unterschiedlicher Herkunft kommen fast immer mit unterschiedlichen Pegeln an: eine ordentlich gemasterte Kennung, eine leise aufgenommene Telefonstimme, ein Titel, der zu seiner ganz eigenen Lautstärke heruntergeladen wurde. Um ständige manuelle Gain-Anpassungen zu vermeiden, wendet RLMP standardmäßig eine **Lautstärke-Angleichung** an, die auf dem loudness-Standard EBU R128 basiert, mit einem Ziel von **−16 LUFS**.
+
+In der Praxis bewertet die Software die wahrgenommene Lautheit jedes Clips und nähert sie einer gemeinsamen Referenz an, sodass Songs, Stimmen und Beds bereits auf einer stimmigen Ebene starten. Die Funktion ist standardmäßig aktiv, und der Zielwert ist in den Einstellungen → Master Chain regelbar.
+
+---
+
+## 6.6 Master Chain: die Prozessorkette auf dem Master-Bus
+
+![Der Reiter Master-Kette im Fenster Einstellungen.](../screenshots-de/impostazioni-master-chain.png)
+
+*Abbildung 6.1 — Die Master Chain: Lautstärke-Angleichung (−16 LUFS), HPF bei 30 Hz, multiband glue und Limiter Brickwall.*
+
+Das kombinierte Signal aller laufenden Clips durchläuft nach der Master-Lautstärke eine **Prozessorkette** auf dem Master-Bus, bevor es das Ausgabegerät erreicht. Die Kette ist standardmäßig aktiv und auf einen broadcast-tauglichen Klang ausgelegt, ohne dass eine aufwendige Konfiguration nötig ist.
+
+Sie umfasst drei in Reihe geschaltete Stufen.
+
+**High-Pass Filter (HPF) bei 30 Hz.**
+Beseitigt die unnötigen Sub-Bass-Frequenzen, die Headroom verbrauchen und die Wiedergabesysteme verschmutzen können, mit einer sanften Flankensteilheit. Die Grenzfrequenz ist regelbar (20–200 Hz). Bei Deaktivierung wird die Stufe vollständig transparent.
+
+**Multiband glue.**
+Kein einzelner Kompressor, sondern drei „sanfte“ Kompressoren, die parallel auf drei Frequenzbändern (Bässe, Mitten, Höhen) arbeiten, getrennt durch einen Crossover. Jedes Band hat kalibrierte Schwellen und Verhältnisse, um den Mix zu „verkleben“, ohne ihn zu quetschen, und die dynamische Varianz zwischen Clips unterschiedlichen Pegels einzudämmen. Der Stil ist unter einigen Presets wählbar (Neutral, Rock, Jazz, Elektronisch); das Standard-Preset ist Neutral.
+
+**Limiter Brickwall.**
+Schwelle bei −1 dBFS, mit hohem Limiting-Verhältnis und blitzschneller Reaktion. Er garantiert, dass das Signal nie den maximal zulässigen Pegel überschreitet, und verhindert digitale Verzerrung (Clipping), ganz gleich, was davor geschieht.
+
+Die gesamte Kette, und jede einzelne Stufe, ist konfigurierbar und über die Einstellungen → Master Chain abschaltbar, wo Sie auch eine Schaltfläche finden, um die Standardwerte wiederherzustellen. In einem Kontext, in dem das Signal bereits von einem Hardware-Mixer oder einer externen Kette verarbeitet wird, können Sie sie abschalten, um doppelte Bearbeitungen zu vermeiden.

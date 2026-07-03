@@ -82,7 +82,7 @@ if (import.meta.env.DEV && !w.electron) {
         ...over,
     });
 
-    const DEMO = [
+    const DEMO_IT = [
         { id: 'col-assets', title: 'SHOW ASSETS', type: 'asset', color: '#10B981', isLocked: false, clips: [
             clip({ name: 'SIGLA APERTURA', color: '#10B981', duration: 24, isLooping: true }),
             clip({ name: 'BED SOTTOFONDO', color: '#10B981', duration: 180, isLooping: true }),
@@ -119,9 +119,154 @@ if (import.meta.env.DEV && !w.electron) {
         ] },
     ];
 
-    w.__seedDemo = () => {
+    // Dataset inglese — riferimento globale per gli screenshot di tutti i manuali
+    // tranne l'italiano. Stessa struttura di DEMO_IT: cambiano solo le stringhe.
+    const DEMO_EN = [
+        { id: 'col-assets', title: 'SHOW ASSETS', type: 'asset', color: '#10B981', isLocked: false, clips: [
+            clip({ name: 'OPENING THEME', color: '#10B981', duration: 24, isLooping: true }),
+            clip({ name: 'BACKGROUND BED', color: '#10B981', duration: 180, isLooping: true }),
+            clip({ name: 'STATION STINGER', color: '#10B981', duration: 6, behavior: 'stacco' }),
+        ] },
+        { id: 'col-jingle', title: 'JINGLE', type: 'asset', color: '#F59E0B', isLocked: false, clips: [
+            clip({ name: 'RADIO ID JINGLE', color: '#F59E0B', type: 'asset', duration: 5 }),
+            clip({ name: 'WEEKEND JINGLE', color: '#F59E0B', type: 'asset', duration: 7 }),
+        ] },
+        { id: 'col-promo', title: 'PROMO', type: 'asset', color: '#06B6D4', isLocked: false, clips: [
+            clip({ name: 'LIVE EVENT PROMO', color: '#06B6D4', type: 'asset', duration: 30 }),
+            clip({ name: 'PODCAST PROMO', color: '#06B6D4', type: 'asset', duration: 25 }),
+        ] },
+        { id: 'col-music', title: 'EPISODE SONGS', type: 'music', color: '#EF4444', isLocked: false, clips: [
+            clip({ name: 'Midnight City', artist: 'M83', color: '#EF4444', type: 'music', duration: 244, bpm: 105, keybind: 'Digit1' }),
+            clip({ name: 'Blinding Lights', artist: 'The Weeknd', color: '#EF4444', type: 'music', duration: 200, bpm: 171, keybind: 'Digit2' }),
+            clip({ name: 'Redbone', artist: 'Childish Gambino', color: '#EF4444', type: 'music', duration: 327, bpm: 80, keybind: 'Digit3' }),
+        ] },
+        { id: 'col-voice', title: 'VOICE / PRE-RECORDED', type: 'voice', color: '#F97316', isLocked: false, clips: [
+            clip({ name: 'GUEST INTERVIEW', color: '#F97316', type: 'voice', duration: 420, keybind: 'KeyV', notes: 'Guest questions:\n1) Early radio days\n2) The new album\n3) Tour dates', introMarker: 4, outroMarker: 410 }),
+            clip({ name: 'LISTENER MESSAGE', color: '#F97316', type: 'voice', duration: 38, keybind: 'KeyM' }),
+        ] },
+        { id: 'col-sfx', title: 'SFX / CARTWALL', type: 'sfx', color: '#64748B', isLocked: false, clips: [
+            clip({ name: 'Applause', color: '#64748B', type: 'sfx', duration: 6, keybind: 'KeyA' }),
+            clip({ name: 'Laugh', color: '#64748B', type: 'sfx', duration: 3, keybind: 'KeyR' }),
+            clip({ name: 'Ding', color: '#64748B', type: 'sfx', duration: 1 }),
+            clip({ name: 'Gong', color: '#64748B', type: 'sfx', duration: 4 }),
+            clip({ name: 'Woosh', color: '#64748B', type: 'sfx', duration: 2 }),
+            clip({ name: 'Buzzer', color: '#64748B', type: 'sfx', duration: 2 }),
+        ] },
+        { id: 'col-preshow', title: 'PRE-SHOW', type: 'preshow', color: '#8B5CF6', isLocked: false, clips: [
+            clip({ name: 'Warm-up 01', color: '#8B5CF6', type: 'preshow', duration: 180, nextAction: 'play_next' }),
+            clip({ name: 'Warm-up 02', color: '#8B5CF6', type: 'preshow', duration: 210, nextAction: 'play_next' }),
+        ] },
+    ];
+
+    // Factory per le lingue aggiuntive: stessa struttura di DEMO_IT/DEMO_EN,
+    // cambiano solo le stringhe traducibili. Brani/artisti/BPM/keybind e i nomi
+    // SFX neutri (Ding/Gong/Woosh/Buzzer/Warm-up) restano invariati.
+    const buildDemo = (t: Record<string, string>) => [
+        { id: 'col-assets', title: t.assets, type: 'asset', color: '#10B981', isLocked: false, clips: [
+            clip({ name: t.openingTheme, color: '#10B981', duration: 24, isLooping: true }),
+            clip({ name: t.backgroundBed, color: '#10B981', duration: 180, isLooping: true }),
+            clip({ name: t.stationStinger, color: '#10B981', duration: 6, behavior: 'stacco' }),
+        ] },
+        { id: 'col-jingle', title: t.jingle, type: 'asset', color: '#F59E0B', isLocked: false, clips: [
+            clip({ name: t.radioIdJingle, color: '#F59E0B', type: 'asset', duration: 5 }),
+            clip({ name: t.weekendJingle, color: '#F59E0B', type: 'asset', duration: 7 }),
+        ] },
+        { id: 'col-promo', title: t.promo, type: 'asset', color: '#06B6D4', isLocked: false, clips: [
+            clip({ name: t.liveEventPromo, color: '#06B6D4', type: 'asset', duration: 30 }),
+            clip({ name: t.podcastPromo, color: '#06B6D4', type: 'asset', duration: 25 }),
+        ] },
+        { id: 'col-music', title: t.music, type: 'music', color: '#EF4444', isLocked: false, clips: [
+            clip({ name: 'Midnight City', artist: 'M83', color: '#EF4444', type: 'music', duration: 244, bpm: 105, keybind: 'Digit1' }),
+            clip({ name: 'Blinding Lights', artist: 'The Weeknd', color: '#EF4444', type: 'music', duration: 200, bpm: 171, keybind: 'Digit2' }),
+            clip({ name: 'Redbone', artist: 'Childish Gambino', color: '#EF4444', type: 'music', duration: 327, bpm: 80, keybind: 'Digit3' }),
+        ] },
+        { id: 'col-voice', title: t.voice, type: 'voice', color: '#F97316', isLocked: false, clips: [
+            clip({ name: t.guestInterview, color: '#F97316', type: 'voice', duration: 420, keybind: 'KeyV', notes: t.guestNotes, introMarker: 4, outroMarker: 410 }),
+            clip({ name: t.listenerMessage, color: '#F97316', type: 'voice', duration: 38, keybind: 'KeyM' }),
+        ] },
+        { id: 'col-sfx', title: t.sfx, type: 'sfx', color: '#64748B', isLocked: false, clips: [
+            clip({ name: t.applause, color: '#64748B', type: 'sfx', duration: 6, keybind: 'KeyA' }),
+            clip({ name: t.laugh, color: '#64748B', type: 'sfx', duration: 3, keybind: 'KeyR' }),
+            clip({ name: 'Ding', color: '#64748B', type: 'sfx', duration: 1 }),
+            clip({ name: 'Gong', color: '#64748B', type: 'sfx', duration: 4 }),
+            clip({ name: 'Woosh', color: '#64748B', type: 'sfx', duration: 2 }),
+            clip({ name: 'Buzzer', color: '#64748B', type: 'sfx', duration: 2 }),
+        ] },
+        { id: 'col-preshow', title: t.preshow, type: 'preshow', color: '#8B5CF6', isLocked: false, clips: [
+            clip({ name: 'Warm-up 01', color: '#8B5CF6', type: 'preshow', duration: 180, nextAction: 'play_next' }),
+            clip({ name: 'Warm-up 02', color: '#8B5CF6', type: 'preshow', duration: 210, nextAction: 'play_next' }),
+        ] },
+    ];
+
+    const DEMO_STRINGS: Record<string, Record<string, string>> = {
+        fr: {
+            assets: "ÉLÉMENTS D'ANTENNE", jingle: 'JINGLE', promo: 'PROMO', music: "TITRES DE L'ÉPISODE",
+            voice: 'VOIX / PRÉENREGISTRÉ', sfx: 'SFX / CARTWALL', preshow: 'PRE-SHOW',
+            openingTheme: "GÉNÉRIQUE D'OUVERTURE", backgroundBed: 'TAPIS SONORE', stationStinger: 'STINGER STATION',
+            radioIdJingle: 'JINGLE ID RADIO', weekendJingle: 'JINGLE WEEK-END',
+            liveEventPromo: 'PROMO ÉVÉNEMENT LIVE', podcastPromo: 'PROMO PODCAST',
+            guestInterview: 'INTERVIEW INVITÉ', listenerMessage: 'MESSAGE AUDITEUR',
+            guestNotes: "Questions invité :\n1) Les débuts à la radio\n2) Le nouvel album\n3) Les dates de tournée",
+            applause: 'Applaudissements', laugh: 'Rire',
+        },
+        de: {
+            assets: 'SENDUNGS-ELEMENTE', jingle: 'JINGLE', promo: 'PROMO', music: 'TITEL DER EPISODE',
+            voice: 'STIMME / VORPRODUZIERT', sfx: 'SFX / CARTWALL', preshow: 'PRE-SHOW',
+            openingTheme: 'ERKENNUNGSMELODIE', backgroundBed: 'HINTERGRUND-BED', stationStinger: 'SENDER-STINGER',
+            radioIdJingle: 'RADIO-ID-JINGLE', weekendJingle: 'WOCHENEND-JINGLE',
+            liveEventPromo: 'PROMO LIVE-EVENT', podcastPromo: 'PODCAST-PROMO',
+            guestInterview: 'GAST-INTERVIEW', listenerMessage: 'HÖRERNACHRICHT',
+            guestNotes: 'Fragen an den Gast:\n1) Die Anfänge im Radio\n2) Das neue Album\n3) Die Tourdaten',
+            applause: 'Applaus', laugh: 'Lachen',
+        },
+        es: {
+            assets: 'ELEMENTOS DEL PROGRAMA', jingle: 'JINGLE', promo: 'PROMO', music: 'CANCIONES DEL EPISODIO',
+            voice: 'VOZ / PREGRABADO', sfx: 'SFX / CARTWALL', preshow: 'PRE-SHOW',
+            openingTheme: 'SINTONÍA DE APERTURA', backgroundBed: 'BED DE FONDO', stationStinger: 'STINGER DE EMISORA',
+            radioIdJingle: 'JINGLE ID RADIO', weekendJingle: 'JINGLE FIN DE SEMANA',
+            liveEventPromo: 'PROMO EVENTO EN VIVO', podcastPromo: 'PROMO PODCAST',
+            guestInterview: 'ENTREVISTA INVITADO', listenerMessage: 'MENSAJE DEL OYENTE',
+            guestNotes: 'Preguntas al invitado:\n1) Los inicios en la radio\n2) El nuevo disco\n3) Las fechas de la gira',
+            applause: 'Aplausos', laugh: 'Risa',
+        },
+        pt: {
+            assets: 'ELEMENTOS DO PROGRAMA', jingle: 'JINGLE', promo: 'PROMO', music: 'TEMAS DO EPISÓDIO',
+            voice: 'VOZ / PRÉ-GRAVADO', sfx: 'SFX / CARTWALL', preshow: 'PRE-SHOW',
+            openingTheme: 'GENÉRICO DE ABERTURA', backgroundBed: 'BED DE FUNDO', stationStinger: 'STINGER DA ESTAÇÃO',
+            radioIdJingle: 'JINGLE ID RÁDIO', weekendJingle: 'JINGLE FIM DE SEMANA',
+            liveEventPromo: 'PROMO EVENTO AO VIVO', podcastPromo: 'PROMO PODCAST',
+            guestInterview: 'ENTREVISTA CONVIDADO', listenerMessage: 'MENSAGEM DO OUVINTE',
+            guestNotes: 'Perguntas ao convidado:\n1) Os inícios na rádio\n2) O novo álbum\n3) As datas da digressão',
+            applause: 'Aplausos', laugh: 'Riso',
+        },
+        ru: {
+            assets: 'ЭЛЕМЕНТЫ ЭФИРА', jingle: 'ДЖИНГЛ', promo: 'ПРОМО', music: 'ТРЕКИ ВЫПУСКА',
+            voice: 'ГОЛОС / ЗАПИСЬ', sfx: 'SFX / CARTWALL', preshow: 'PRE-SHOW',
+            openingTheme: 'ЗАСТАВКА ОТКРЫТИЯ', backgroundBed: 'ФОНОВЫЙ БЭД', stationStinger: 'СТАНЦИОННЫЙ СТИНГЕР',
+            radioIdJingle: 'ДЖИНГЛ ID РАДИО', weekendJingle: 'ДЖИНГЛ ВЫХОДНЫХ',
+            liveEventPromo: 'ПРОМО LIVE-СОБЫТИЯ', podcastPromo: 'ПРОМО ПОДКАСТА',
+            guestInterview: 'ИНТЕРВЬЮ С ГОСТЕМ', listenerMessage: 'СООБЩЕНИЕ СЛУШАТЕЛЯ',
+            guestNotes: 'Вопросы гостю:\n1) Начало на радио\n2) Новый альбом\n3) Даты тура',
+            applause: 'Аплодисменты', laugh: 'Смех',
+        },
+        zh: {
+            assets: '节目素材', jingle: 'JINGLE', promo: 'PROMO', music: '本期歌曲',
+            voice: '人声 / 预录', sfx: 'SFX / CARTWALL', preshow: 'PRE-SHOW',
+            openingTheme: '开场主题曲', backgroundBed: '背景垫乐', stationStinger: '电台短音效',
+            radioIdJingle: '电台标识 JINGLE', weekendJingle: '周末 JINGLE',
+            liveEventPromo: '现场活动 PROMO', podcastPromo: '播客 PROMO',
+            guestInterview: '嘉宾访谈', listenerMessage: '听众留言',
+            guestNotes: '嘉宾提问：\n1) 电台生涯的起步\n2) 全新专辑\n3) 巡演日期',
+            applause: '掌声', laugh: '笑声',
+        },
+    };
+
+    w.__seedDemo = (lang?: string) => {
+        const columns = lang === 'en' ? DEMO_EN
+            : lang && DEMO_STRINGS[lang] ? buildDemo(DEMO_STRINGS[lang])
+            : DEMO_IT;
         import('./store/useProjectStore').then((m) => {
-            m.useProjectStore.getState().loadProject({ columns: DEMO as any });
+            m.useProjectStore.getState().loadProject({ columns: columns as any });
         });
     };
 

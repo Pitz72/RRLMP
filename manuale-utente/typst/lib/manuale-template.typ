@@ -2,7 +2,10 @@
 // manuale-template.typ — Identità tipografica del Manuale Utente di
 // Runtime Live Machine Pro. Palette, font, copertina, frontespizio, colophon,
 // impaginazione, titoli e box ricorrenti. Protocollo modulare Typst.
+// Multilingua: le stringhe arrivano da strings.typ (--input lang=<lang>).
 // =============================================================================
+
+#import "strings.typ": T, LANG
 
 // --- PALETTE DI MARCA ---------------------------------------------------------
 #let c = (
@@ -25,17 +28,76 @@
 #let brandGrad = gradient.linear(c.cyan-bright, c.blue, c.purple)
 
 // --- FONT ---------------------------------------------------------------------
-#let font-display = ("Sora", "Inter", "Segoe UI")
-#let font-body    = ("Inter", "Segoe UI")
-#let font-mono    = ("Source Code Pro", "Consolas")
+// Le code CJK (Microsoft YaHei / Noto Sans SC) chiudono la catena di fallback:
+// vengono usate solo per i glifi cinesi dell'edizione zh-cn, trasparenti altrove.
+#let cjk = ("Microsoft YaHei", "Noto Sans SC", "Noto Sans CJK SC", "SimSun")
+#let font-display = ("Sora", "Inter", "Segoe UI", ..cjk)
+#let font-body    = ("Inter", "Segoe UI", ..cjk)
+#let font-mono    = ("Source Code Pro", "Consolas", ..cjk)
 
 #let _capnum = counter("rlmp-capitolo")
 
 // =============================================================================
-// COPERTINA — pagina a vivo (immagine di copertina di marca, A4)
+// COPERTINA — pagina a vivo, disegnata in Typst (testo per lingua da strings.typ)
+// Riproduce l'identità del banner: fondo navy, logo, titolo, pill di versione,
+// slogan, blocco d'edizione localizzato, crediti e onda audio a fondo pagina.
 // =============================================================================
-#let copertina() = page(margin: 0pt, header: none, footer: none)[
-  #image("../assets/copertina.png", width: 100%, height: 100%, fit: "cover")
+#let _wavebar(h, col) = box(width: 4pt, height: h, radius: 1pt, fill: col, baseline: 0pt)
+
+#let _waveform() = {
+  // Onda audio decorativa: 84 barre, gradiente emerald -> amber -> red.
+  let n = 84
+  let hs = (10, 22, 14, 34, 46, 26, 18, 52, 30, 12, 40, 60, 24, 16, 44, 70, 28, 20, 50, 36)
+  set align(bottom)
+  box(width: 100%, height: 46pt)[
+    #place(bottom + center)[
+      #grid(columns: (2pt,) * n, column-gutter: 2pt, align: bottom,
+        ..range(n).map(i => {
+          let h = hs.at(calc.rem(i * 7 + 3, hs.len())) * 1pt + 6pt
+          let t = i / n
+          let col = if t < 0.5 { c.emerald-bright.mix((c.amber-bright, t * 2)) }
+                    else { c.amber-bright.mix((c.red, (t - 0.5) * 2)) }
+          box(width: 2pt, height: h, radius: .8pt, fill: col)
+        }))
+    ]
+  ]
+}
+
+#let copertina() = page(
+  fill: c.navy, margin: 0pt, header: none, footer: none,
+)[
+  // Filo gradiente in cima
+  #place(top)[#box(width: 100%, height: 4pt, fill: brandGrad)]
+  #set text(fill: white)
+  #v(1fr)
+  #align(center)[
+    #image("../assets/logo.png", width: 118pt)
+    #v(9mm)
+    #text(font: font-display, size: 15pt, weight: 700, tracking: 10pt, fill: c.cyan-bright)[RUNTIME]
+    #v(4mm)
+    #text(font: font-display, size: 46pt, weight: 800, tracking: 1pt, fill: white)[LIVE MACHINE]
+    #v(2mm)
+    #text(font: font-display, size: 46pt, weight: 800, tracking: 3pt, fill: brandGrad)[PRO]
+    #v(6mm)
+    #box(stroke: .8pt + c.ink-soft, radius: 20pt, inset: (x: 14pt, y: 6pt))[
+      #text(font: font-mono, size: 11pt, weight: 600, fill: c.emerald-bright)[● ]#text(font: font-mono, size: 11pt, weight: 600, fill: white)[v 1.11.5]
+    ]
+    #v(7mm)
+    #text(font: font-display, size: 15pt, style: "italic", fill: rgb("#9aa7b5"))[On Air. #text(weight: 700, fill: c.emerald-bright)[In Control.]]
+  ]
+  #v(1fr)
+  #align(center)[
+    #box(width: 62%, line(length: 100%, stroke: .6pt + c.ink-soft))
+    #v(6mm)
+    #text(font: font-display, size: 12pt, weight: 700, tracking: 6pt, fill: c.cyan-bright)[#upper(T.manual-title)]
+    #v(3.5mm)
+    #text(font: font-display, size: 12pt, weight: 500, fill: white)[#T.edition-name · #T.version-word 1.11.5 · #T.language-name]
+    #v(6mm)
+    #text(font: font-display, size: 9pt, weight: 600, tracking: 3pt, fill: rgb("#5b6675"))[ECOSYSTEM.RUNTIME · SIMONE PIZZI · 2026]
+  ]
+  #v(10mm)
+  #_waveform()
+  #v(6mm)
 ]
 
 // =============================================================================
@@ -47,7 +109,7 @@
     #align(center)[
       #image("../assets/logo.png", width: 1.7in)
       #v(9mm)
-      #text(font: font-display, size: 10.5pt, weight: 600, tracking: 4pt, fill: c.cyan)[SISTEMA DI REGIA AUDIO IN TEMPO REALE]
+      #text(font: font-display, size: 10.5pt, weight: 600, tracking: 4pt, fill: c.cyan)[#T.tagline]
       #v(6mm)
       #text(font: font-display, size: 34pt, weight: 800, tracking: .5pt, fill: c.ink)[Runtime Live Machine #text(fill: c.blue)[Pro]]
       #v(3mm)
@@ -55,7 +117,7 @@
       #v(5mm)
       #box(width: 46mm, line(length: 100%, stroke: 1.6pt + brandGrad))
       #v(6mm)
-      #text(font: font-display, size: 17pt, weight: 600, fill: c.ink-soft)[Manuale Utente]
+      #text(font: font-display, size: 17pt, weight: 600, fill: c.ink-soft)[#T.manual-title]
       #v(8mm)
       #text(font: font-display, size: 11.5pt, weight: 500, fill: c.ink)[#autore]
     ]
@@ -63,7 +125,7 @@
     #align(center)[
       #text(font: font-display, size: 9.5pt, weight: 600, fill: c.cyan, tracking: .5pt)[#edizione]
       #v(1.5mm)
-      #text(font: font-mono, size: 9pt, fill: c.ink-soft)[Allineato alla versione #versione]
+      #text(font: font-mono, size: 9pt, fill: c.ink-soft)[#T.aligned-to #versione]
     ]
     #v(8mm)
   ]
@@ -81,21 +143,21 @@
       #v(6mm)
       #set par(justify: false, leading: .9em)
       #set text(font: font-body, size: 9.5pt, fill: c.ink-soft)
-      #text(font: font-display, size: 12pt, weight: 600, fill: c.ink)[Runtime Live Machine Pro — Manuale Utente]
+      #text(font: font-display, size: 12pt, weight: 600, fill: c.ink)[Runtime Live Machine Pro — #T.manual-title]
       #v(2.5mm)
-      #text(size: 9pt)[#edizione · allineato alla versione #versione]
+      #text(size: 9pt)[#edizione · #T.aligned-to #versione]
       #v(3mm)
       #box(width: 30mm, line(length: 100%, stroke: 1pt + brandGrad))
       #v(3.5mm)
       #text(fill: c.ink, weight: 600)[© 2026 #produzione / #autore]
       #linebreak()
-      Tutti i diritti riservati.
+      #T.rights
       #v(4.5mm)
-      #block(width: 82%)[Nessuna parte di questo documento può essere riprodotta, distribuita o trasmessa in qualsiasi forma o con qualsiasi mezzo senza il previo consenso scritto dell'autore.]
+      #block(width: 82%)[#T.repro]
       #v(4.5mm)
-      #block(width: 82%)[Runtime Live Machine Pro è un software originale. Tutti i marchi citati appartengono ai rispettivi proprietari.]
+      #block(width: 82%)[#T.trademark]
       #v(4.5mm)
-      #block(width: 82%)[Software ideato e sviluppato da #autore. Produzione #produzione. Composto con #link("https://typst.app")[Typst]; titoli in Sora, testo in Inter, codice in Source Code Pro.]
+      #block(width: 82%)[#T.credits]
     ]
     #v(1fr)
   ]
@@ -118,9 +180,9 @@
   #corpo
 ]
 
-#let nota(corpo)        = _callout("Nota", c.cyan, rgb("#eef7fb"), corpo)
-#let suggerimento(corpo) = _callout("Suggerimento", c.emerald, rgb("#edfaf4"), corpo)
-#let attenzione(corpo)  = _callout("⚠ Attenzione", c.amber, rgb("#fdf6ec"), corpo)
+#let nota(corpo)        = _callout(T.note-label, c.cyan, rgb("#eef7fb"), corpo)
+#let suggerimento(corpo) = _callout(T.tip-label, c.emerald, rgb("#edfaf4"), corpo)
+#let attenzione(corpo)  = _callout(T.warning-label, c.amber, rgb("#fdf6ec"), corpo)
 
 // =============================================================================
 // CONFIGURAZIONE DOCUMENTO
@@ -139,7 +201,7 @@
       if corrente != none {
         set text(font: font-body, size: 8pt, fill: c.muted)
         grid(columns: (1fr, auto),
-          align(left)[Runtime Live Machine Pro · Manuale Utente],
+          align(left)[Runtime Live Machine Pro · #T.manual-title],
           align(right)[#corrente.body])
         v(-0.4em)
         line(length: 100%, stroke: 0.4pt + c.rule)
@@ -154,7 +216,7 @@
     },
   )
 
-  set text(font: font-body, size: 10.5pt, fill: c.ink, lang: "it", hyphenate: true)
+  set text(font: font-body, size: 10.5pt, fill: c.ink, lang: T.typst-lang, hyphenate: true)
   set par(justify: true, leading: 0.72em, spacing: 0.95em, first-line-indent: 0pt)
   set heading(numbering: none)
 
@@ -164,7 +226,7 @@
     _capnum.step()
     block(above: 0pt, below: 0.9em)[
       #context text(font: font-display, size: 11pt, weight: 700, fill: c.cyan, tracking: 2pt)[
-        #upper("Capitolo " + str(_capnum.get().first()))
+        #upper(T.chapter-prefix + str(_capnum.get().first()) + T.chapter-suffix)
       ]
       #v(1mm)
       #text(font: font-display, size: 26pt, weight: 800, fill: c.ink, hyphenate: false)[#it.body]

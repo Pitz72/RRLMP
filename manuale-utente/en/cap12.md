@@ -1,0 +1,49 @@
+# Chapter 12 — Updates
+
+---
+
+Runtime Live Machine Pro updates itself, but never at your expense. Two rules govern everything: no update may interfere with a live show, and no download starts without your consent. This chapter explains how the software checks for new versions, how it installs them, and why it sometimes behaves differently depending on the operating system.
+
+---
+
+## 12.1 The startup check
+
+Shortly after startup (about three seconds), RLMP silently checks whether a newer version exists. The outcome appears on the welcome screen, next to the version number:
+
+- **“Latest Version”** (green) — you are running the most recent version.
+- **“Update Available”** (amber) — a newer version is available. It is a button: click it to open the update window.
+- **“OFFLINE”** — the service could not be reached; try again later. The software works normally.
+
+The check is optional and non-blocking: if you’re offline, RLMP starts and works without any trouble.
+
+---
+
+## 12.2 The update window
+
+When an update is available, the dedicated window shows the current version, the new version and the release notes. From here you decide:
+
+- **Later** — closes the window without doing anything. You can reopen it whenever you like.
+- **Download** — starts downloading the new version. The download **never starts on its own**: it begins only when you press this button. A progress bar shows its progress.
+- **Restart and install** — appears when the download is complete: it restarts the application, applying the update.
+
+---
+
+## 12.3 The “never during a live show” rule
+
+The automatic check may find an update right while you’re on air. In that case, RLMP **does not interrupt you**: the update window waits and opens on its own only when the live show is over (when you stop everything). The priority is always the show in progress.
+
+There is one exception, and it’s intentional: the **Check for updates now** button, in the *Info* panel (Tools menu), is an explicit action of yours and opens the window immediately, even live. If you press it, it’s because you want to.
+
+---
+
+## 12.4 Platform differences
+
+How the update is installed depends on the operating system.
+
+**Windows and Linux (AppImage).**
+The update is fully integrated: you download the new version from the window and the software installs it at the next restart, with no manual steps.
+
+**macOS and Linux (.deb package).**
+On these systems RLMP can’t install the update reliably. Instead of automatic installation, the window notifies you and opens the browser on the download page for the new version: from there you download the package and install it as you would for a fresh install (Chapter 2). Your projects and `.lmp` files stay intact.
+
+> **Note.** In all cases, updating RLMP doesn’t entail losing your projects: the `.lmp` files are compatible across versions and require no manual migration.

@@ -1,63 +1,121 @@
-# CAP�TULO 5: O MOTOR DE MISTURA (O C�REBRO)
-
-O Runtime Live Machine Pro n�o � um simples leitor que toca ficheiros de �udio ao acaso. No seu interior existe um **"C�rebro" de Mistura** sempre ativo.
-O software age como um t�cnico de som virtual invis�vel: escuta o que est� a fazer e ajusta automaticamente os volumes das outras faixas para garantir que o resultado final seja sempre limpo e intelig�vel.
-
-N�o tem de se preocupar em baixar manualmente a m�sica quando come�a uma entrevista: o RRLMP trata disso.
+# Capítulo 5 — Propriedades da clip e Waveform Editor
 
 ---
 
-## 5.1 A Hierarquia de �udio (A Pir�mide)
+Cada ficheiro de áudio tem a sua história antes de chegar à grelha: gravações com segundos de silêncio inicial, faixas com caudas intermináveis, entrevistas com o nível demasiado baixo em relação ao resto do show. Em vez de recorrer a um editor de áudio externo sempre que um ficheiro não está «pronto para emissão», o RLMP disponibiliza um painel de configuração para cada clip e um editor visual da forma de onda com funções de corte e marcação.
 
-Para perceber como funciona, imagine as colunas como uma pir�mide de import�ncia. Quem est� no topo "manda" no volume de quem est� em baixo.
+Todas as alterações feitas através destas ferramentas são **não destrutivas**: o ficheiro original no disco fica inalterado. O RLMP guarda as definições no ficheiro de projeto `.lmp` e aplica-as em tempo real durante a reprodução.
 
-1.  **N�VEL 1 (Chefes Supremos): VOZES / PR�-GRAVADOS** (Coluna Laranja)
-    *   T�m sempre a prioridade absoluta. Ningu�m pode baixar o seu volume. Quando falam, todos os outros se calam.
-2.  **N�VEL 2 (Classe M�dia): M�SICAS DO EPIS�DIO** (Coluna Vermelha)
-    *   S�o baixadas pelas Vozes. Mas mandam nos Assets.
-3.  **N�VEL 3 (Fundo): SHOW ASSETS** (Coluna Verde)
-    *   S�o as bases e os tapetes sonoros. S�o silenciados por quase tudo o resto.
-
-> **Nota Bem**: A coluna **SFX / CARTWALL** (Cinzenta) est� "fora do sistema". Os efeitos sonoros tocam sempre no volume m�ximo e sobrep�em-se a tudo sem influenciar ou ser influenciados pelos outros. Um aplauso deve ouvir-se forte, mesmo sobre uma voz.
+Para abrir as definições de uma clip, faça **clique com o botão direito** na card.
 
 ---
 
-## 5.2 O Ducking Autom�tico (Efeito R�dio)
+## 5.1 Propriedades básicas
 
-Esta � a fun��o mais utilizada em r�dio. O "Ducking" � o abaixamento autom�tico da m�sica quando algu�m fala.
+![A janela de definições da clip, separador Geral.](../screenshots-pt/impostazioni-clip.png)
 
-*   **Como funciona**:
-    1.  Tem uma M�sica ou uma Base em reprodu��o (Volume 100%).
-    2.  Lan�a um clip da coluna **VOZES** (ex. uma entrevista ou um �udio).
-    3.  O software baixa imediata e suavemente a M�sica/Base para um n�vel de fundo (cerca de 20% do volume, ou -14dB).
-    4.  A Voz soa clara sobre a m�sica.
-    5.  Assim que o clip Voz acaba, a m�sica sobe automaticamente para 100%.
+*Figura 5.1 — As definições da clip: Clip Name, Color Label, Volume Gain, Playback Behavior, Next Action e atribuição de teclas.*
 
-*   **Vantagem**: N�o tem de usar o rato para baixar faders enquanto tenta lan�ar a entrevista. � tudo autom�tico.
+### Nome e aparência
 
----
+**Clip Name.** Pode atribuir um nome personalizado à clip, independente do nome do ficheiro original. O nome é mostrado na card, na grelha. Use nomes descritivos e úteis do ponto de vista operacional durante o direto: «GENÉRICO DE ABERTURA» é mais legível do que `generico_rev3_final_def.mp3` quando tem três segundos para encontrar a clip certa.
 
-## 5.3 Domin�ncia Musical (Gest�o Inteligente de Bases)
+**Color Label.** Por predefinição, a clip herda a cor da coluna a que pertence. Aqui pode atribuir uma cor específica para a destacar visualmente. Útil para marcar clips críticas (ex. o genérico de encerramento) ou para diferenciar grupos temáticos dentro da mesma coluna.
 
-Um erro cl�ssico dos realizadores principiantes � fazer tocar uma m�sica *sobre* uma base r�tmica (Bed), criando um caos sonoro (bateria contra bateria). O RRLMP resolve este problema com a **Domin�ncia Musical**.
+### Volume (Gain)
 
-*   **O Cen�rio**:
-    Tem uma Base (Show Asset) em loop sob a voz do locutor. A dada altura lan�a um disco (M�sica).
-*   **O que faz o RRLMP**:
-    Em vez de parar a base (que precisaria pronta depois da m�sica), o software leva-a a **Volume 0 (Mudo)** mas continua a faz�-la rodar "em fantasma".
-*   **O Resultado**:
-    Ouve-se apenas a M�sica. A base desapareceu.
-*   **O Regresso**:
-    Quando a M�sica acaba (ou prime Stop na m�sica), a Base reemerge automaticamente em desvanecimento (Fade In).
+O slider de **Volume Gain** vai de 0% a 150% e atua como um pré-fader na clip específica, antes do Master Volume global.
 
-Isto permite-lhe ter um fluxo cont�nuo "Base -> M�sica -> Base" sem nunca ter de clicar em "Play" na base uma segunda vez.
+O caso de uso mais comum é o alinhamento dos níveis: se tiver uma voz gravada com baixa intensidade (ex. uma mensagem de WhatsApp ou uma gravação telefónica), pode levá-la acima dos 100% para a aproximar do volume das outras faixas. Ao contrário, pode baixar uma clip particularmente «quente» sem tocar no Master Volume.
 
 ---
 
-## 5.4 Exce��es: As "Interrup��es" (Stacchi)
+## 5.2 O editor da forma de onda
 
-O que acontece se quiser tocar um Jingle da r�dio *sobre* a base, sem que a base desapare�a de todo?
-Aqui entra em jogo a defini��o **Behavior: Stacco** (ver Cap. 4).
+![O editor da forma de onda com os handles de trim e os marcadores de estrutura.](../screenshots-pt/waveform-editor.png)
 
-*   Se um clip na coluna Assets estiver definido como "Normal", parar� as outras bases.
-*   Se estiver definido como **"Stacco"**, sobrepor-se-� �s outras bases baixando-as ligeiramente, mas sem as parar. � ideal para os Station ID ("Est�o a ouvir a Runtime Radio...") que devem "cavalgar" a intro de uma faixa ou uma base.
+*Figura 5.2 — O editor da forma de onda: handles de Trim, marcadores de Intro e Outro, Auto-Trim, Smart Cues e dissolvências.*
+
+O editor visual é a função mais poderosa do painel de configuração. Ocupa a zona central do painel e mostra a representação gráfica do áudio de toda a clip.
+
+### Navegação no editor
+
+**Zoom horizontal.** Pode ampliar a vista da forma de onda de 1× (vista completa) até 8×, com passos intermédios (1×, 2×, 3×, 4×, 6×, 8×), através do slider de zoom ou da roda do rato sobre o editor. Com zoom elevado, a vista desliza acompanhando a posição atual.
+
+**Régua adaptativa.** O eixo temporal na parte superior do editor adapta-se automaticamente ao zoom: em vista completa mostra referências esparsas, em zoom máximo densifica-as até aos segundos.
+
+**Playhead.** Durante a reprodução de pré-visualização, um indicador vertical branco corre em tempo real ao longo da forma de onda, mostrando a posição atual. Um clique na forma de onda desloca a reprodução para esse ponto.
+
+### Os quatro handles
+
+No editor existem quatro **handles** arrastáveis, cada um com uma função e uma cor precisas:
+
+**Trim Start (handle vermelho, à esquerda).** Define o ponto de início efetivo da clip. Tudo o que está à esquerda é saltado durante a reprodução. Arraste-o para a direita para eliminar os silêncios ou as partes indesejadas do início.
+
+**Trim End (handle vermelho, à direita).** Define o ponto de fim efetivo. Tudo o que está à direita é ignorado. Arraste-o para a esquerda para encurtar a cauda. Trim Start e Trim End não se podem sobrepor.
+
+**Intro End (marcador ciano).** Assinala o ponto estrutural em que a melodia principal entra na faixa, depois da eventual introdução. Uma vez definido, na card em reprodução surge a contagem decrescente **INTRO: −MM:SS**.
+
+**Outro Start (marcador laranja).** Assinala o ponto em que começa a cauda da faixa, tipicamente o momento para começar a falar e preencher a transição. Na card surge a contagem decrescente **OUTRO IN: −MM:SS**. Se o valor for incoerente com o trim ou com a duração, o software desativa-o e avisa-o.
+
+Além do arrasto, quatro botões *Set* colocam cada handle na posição atual do playhead, para uma marcação em tempo real durante a escuta. Os valores continuam ajustáveis com precisão nos respetivos campos.
+
+### Auto-Trim (varinha mágica)
+
+O botão com o ícone de **varinha mágica** inicia a deteção automática do silêncio via FFmpeg. O limiar não é fixo: o software estima primeiro o nível médio do ficheiro e define o limiar de silêncio cerca de 25 dB abaixo desse nível (dentro de um intervalo de segurança entre −55 e −20 dB; na falta de estimativa, recorre a −40 dB). O Trim Start e o Trim End são assim definidos automaticamente, eliminando silêncios iniciais e caudas mudas sem intervenção manual.
+
+Esta função é particularmente útil para as gravações de voz não tratadas: chamadas telefónicas, mensagens de áudio, entrevistas gravadas em dispositivos móveis. Aplicar o Auto-Trim a toda a coluna Voz antes de um show demora menos de um minuto e melhora a limpeza das transições.
+
+> **Nota técnica.** A análise decorre no Main Process através do FFmpeg, sem carregar o ficheiro em memória no Renderer. Em ficheiros de grandes dimensões, o tempo de análise mantém-se na ordem de poucos segundos.
+
+### Smart Cues (deteção automática dos marcadores)
+
+Ao lado do Auto-Trim, a função **Smart Cues** propõe automaticamente os marcadores de Intro e Outro. Usando um limiar mais agressivo, identifica o ponto em que o áudio atinge a energia plena (Intro) e aquele em que começa a dissolvência final (Outro), posicionando os dois marcadores sem os ter de procurar de ouvido.
+
+### Pré-visualização da transição
+
+Se existir uma clip **seguinte** na mesma coluna, o botão **«Test →»** reproduz os últimos segundos da clip atual e deixa a transição disparar rumo à seguinte, diretamente no editor. Durante a pré-visualização, um botão *Stop* interrompe o teste.
+
+---
+
+## 5.3 Comportamentos e automação
+
+### Playback Behavior (modo de sobreposição)
+
+**Normal** — comportamento predefinido. Quando esta clip é iniciada, interrompe qualquer outra clip em reprodução na mesma coluna (com fade out). É o comportamento correto para canções e bases: uma canção exclui as outras.
+
+**Stacco (separador; Jingle)** — a clip é iniciada sem interromper as outras. Tem prioridade alta: silencia os outros assets da coluna e baixa a música, mas não pára nada. O caso de uso típico é um *station ID* («Está a ouvir…») que tem de «cavalgar» a intro de uma faixa, ou um jingle curto por cima de uma base em loop.
+
+### Next Action (automação no final)
+
+Define o que acontece quando a clip chega ao ponto de Trim End.
+
+**Stop** — comportamento predefinido para Músicas, Voz e Assets. A clip termina e pára.
+
+**Play Next** — quando a clip se aproxima do fim, inicia automaticamente a clip seguinte na coluna com a transição configurada. O badge **NEXT** surge na card. É o comportamento predefinido da coluna Pré-Show e cria, na prática, uma playlist automática: pode configurá-lo em várias clips consecutivas para construir blocos que fluem sem interrupções.
+
+A reprodução em **Loop Playback** é uma opção à parte: quando está ativa, a clip recomeça do início (do Trim Start) sem solução de continuidade, e na card surge o badge **LOOP**. Use-a para bases musicais, ambientes sonoros ou genéricos de fundo que devem rodar até serem parados explicitamente. Os modos de transição — Crossfade, Segue, Gapless — estão descritos no Capítulo 13.
+
+---
+
+## 5.4 Dissolvências (Fade In e Fade Out)
+
+O painel permite definir, para cada clip, a duração das dissolvências de entrada e de saída. Os valores vão de 0 a 60.000 milissegundos (60 segundos) e a curva aplicada é linear.
+
+**Fade In.** O tempo que o volume demora a chegar ao nível máximo a partir do arranque. Um valor de 2000 ms produz uma subida gradual de dois segundos. Use-o nas bases musicais que devem emergir suavemente; mantenha-o a 0 para as vozes e os efeitos que devem ser ouvidos de imediato.
+
+**Fade Out.** O tempo de dissolvência no fecho — quer quando se clica numa clip ativa, quer nas transições. Valores típicos: 2000–3000 ms para as canções, 500–1000 ms para as bases, 0 ms para os separadores secos.
+
+Um fade out a 0 ms produz um fecho imediato («hard cut»). Numa faixa musical em direto pode ser percebido como um erro técnico: avalie com atenção quando é apropriado.
+
+---
+
+## 5.5 Atribuição de controlos
+
+Cada clip pode também ser lançada a partir de uma tecla do teclado ou de um controlador MIDI.
+
+**Global Keybind.** A tecla do teclado atribuída à clip. Pode defini-la no campo dedicado das definições da clip (clique e prima a tecla desejada) ou na janela **Keybinds** acessível pelo menu Ferramentas. O badge correspondente surge na card. Se a tecla já estiver atribuída a outra clip, o software assinala o conflito antes de sobrepor.
+
+**MIDI Bind.** A nota MIDI atribuída (ex. `NOTE:60`). A atribuição faz-se através do modo **MIDI Learn** (ver Capítulo 8), não digitando o número à mão.
+
+Os bindings das clips ficam guardados no ficheiro de projeto: ao levar o projeto para outro computador com o mesmo controlador MIDI, os mapeamentos funcionam sem reconfiguração.

@@ -1,8 +1,9 @@
 #import "lib/manuale-template.typ": *
 
 // Versione del software ed etichetta d'edizione: un solo punto di verità.
+// L'edizione è localizzata (T da strings.typ, ri-esportato dal template).
 #let VERSIONE = "1.11.5"
-#let EDIZIONE = "Seconda Edizione · 2026"
+#let EDIZIONE = T.edition-name + " · 2026"
 
 // Due tirature dalla stessa sorgente:
 //  • digitale (default) — include la copertina a pagina intera;
@@ -10,7 +11,7 @@
 //    (la stampa cartacea sarà lavorata in una sessione dedicata).
 #let per-kdp = "kdp" in sys.inputs
 
-#show: conf.with(titolo: "Manuale Utente", autore: "Simone Pizzi")
+#show: conf.with(titolo: T.manual-title, autore: "Simone Pizzi")
 
 // ---- FRONTE DEL MANUALE -----------------------------------------------------
 #if not per-kdp { copertina() }
@@ -19,7 +20,7 @@
 
 // ---- INDICE -----------------------------------------------------------------
 #page(header: none)[
-  #text(font: font-display, size: 22pt, weight: 800, fill: c.ink)[Indice]
+  #text(font: font-display, size: 22pt, weight: 800, fill: c.ink)[#T.toc-title]
   #v(2mm)
   #box(width: 38mm, line(length: 100%, stroke: 2.5pt + brandGrad))
   #v(6mm)

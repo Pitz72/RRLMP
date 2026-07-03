@@ -7,6 +7,19 @@ const fs = require('fs');
 
 const outDir = process.argv[2] || '.';
 const mode = process.argv[3] || 'clip';
+const LANG = process.env.CAP_LANG || 'it';               // it|en|fr|de|es|pt|ru|zh
+const LANGBTN = {
+    it: 'Italiano', en: 'English', fr: 'Français', de: 'Deutsch',
+    es: 'Español', pt: 'Português', ru: 'Русский', zh: '中文',
+}[LANG] || 'Italiano';
+// Etichette UI lette dal file locale dell'app: unica fonte di verità, così
+// lo screenshot combacia sempre con la lingua selezionata.
+const loc = require(path.join(__dirname, '..', 'src', 'renderer', 'src', 'locales', LANG + '.json'));
+const L = {
+    settings: loc.controls.settings,            // voce menu "Impostazioni Generali"
+    markers: loc.modal.clip.tab.markers,        // scheda "Marker & Trim"
+    chain: loc.modal.settings.tab.chain,        // scheda "Master Chain" (localizzata!)
+};
 const URL = 'http://localhost:5199/';
 const W = 1600, H = 1000;
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -21,11 +34,11 @@ app.whenReady().then(async () => {
     });
     await win.loadURL(URL);
     await sleep(1600);
-    await win.webContents.executeJavaScript(`(()=>{const it=[...document.querySelectorAll('button')].find(b=>(b.textContent||'').includes('Italiano'));if(it)it.click();})()`);
+    await win.webContents.executeJavaScript(`(()=>{const it=[...document.querySelectorAll('button')].find(b=>(b.textContent||'').includes(${JSON.stringify(LANGBTN)}));if(it)it.click();})()`);
     await sleep(400);
     await win.webContents.executeJavaScript(`(()=>{const g=document.querySelector('.btn-green');if(g)g.click();})()`);
     await sleep(400);
-    await win.webContents.executeJavaScript(`(()=>{ if(window.__seedDemo) window.__seedDemo(); })()`);
+    await win.webContents.executeJavaScript(`(()=>{ if(window.__seedDemo) window.__seedDemo(${JSON.stringify(LANG)}); })()`);
     await sleep(1100);
 
     let name = 'extra.png';
@@ -43,7 +56,7 @@ app.whenReady().then(async () => {
         fs.writeFileSync(path.join(outDir, '05-editor-generale.png'), img0.toPNG());
         console.log('  -> 05-editor-generale.png');
         // 05b — scheda Marker & Trim (forma d'onda)
-        await win.webContents.executeJavaScript(`(()=>{const t=[...document.querySelectorAll('button')].find(b=>/Marker\\s*&?\\s*Trim/i.test(b.textContent||''));if(t)t.click();return !!t;})()`);
+        await win.webContents.executeJavaScript(`(()=>{const lbl=${JSON.stringify(L.markers)};const t=[...document.querySelectorAll('button')].find(b=>(b.textContent||'').includes(lbl));if(t)t.click();return !!t;})()`);
         await sleep(1300);
         name = '05b-forma-onda.png';
     } else if (mode === 'settings') {
@@ -51,7 +64,8 @@ app.whenReady().then(async () => {
         await win.webContents.executeJavaScript(`(()=>{const b=[...document.querySelectorAll('button')].find(x=>x.querySelector('svg.lucide-wrench'));if(b){b.click();return 'wrench';}return 'no-wrench';})()`);
         await sleep(400);
         await win.webContents.executeJavaScript(`(()=>{
-            const cands=[...document.querySelectorAll('button,[role=menuitem],a,div,li,span')].filter(b=>/Impostazioni Generali/i.test(b.textContent||''));
+            const lbl=${JSON.stringify(L.settings)};
+            const cands=[...document.querySelectorAll('button,[role=menuitem],a,div,li,span')].filter(b=>(b.textContent||'').includes(lbl));
             const el=cands.sort((a,b)=>(a.textContent||'').length-(b.textContent||'').length)[0];
             if(!el) return 'no-item';
             const t=el.closest('button')||el;
@@ -62,7 +76,7 @@ app.whenReady().then(async () => {
             return 'clicked';
         })()`);
         await sleep(900);
-        await win.webContents.executeJavaScript(`(()=>{const t=[...document.querySelectorAll('button')].find(b=>/Master Chain/i.test(b.textContent||''));if(t)t.click();return !!t;})()`);
+        await win.webContents.executeJavaScript(`(()=>{const lbl=${JSON.stringify(L.chain)};const t=[...document.querySelectorAll('button')].find(b=>(b.textContent||'').includes(lbl));if(t)t.click();return !!t;})()`);
         await sleep(500);
         name = '06-impostazioni-masterchain.png';
     }

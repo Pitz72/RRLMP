@@ -1,66 +1,140 @@
-# CAP�TULO 3: GESTI�N DE AUDIO (FLUJO DE TRABAJO B�SICO)
-
-Ahora que conoce la interfaz, es el momento de "cargar la m�quina".
-En este cap�tulo aprender� c�mo importar archivos de audio, c�mo controlar la reproducci�n y c�mo mantener su lista de reproducci�n ordenada.
+# Capítulo 3 — La interfaz de trabajo
 
 ---
 
-## 3.1 Importaci�n (Drag & Drop)
+La interfaz de Runtime Live Machine Pro está construida para el contexto operativo más exigente: el directo. Cada decisión visual —el tema oscuro, el alto contraste, el tamaño de los controles— responde a un requisito funcional. No es estética por la estética, sino ergonomía.
 
-Runtime Live Machine Pro no utiliza men�s complejos de "Archivo > Importar". Est� dise�ado para trabajar directamente con las carpetas de su computadora.
-
-### C�mo cargar los archivos
-1.  Abra la carpeta de su computadora (Explorador de Archivos en Windows o Finder en Mac) donde guarda sus archivos de audio.
-2.  Haga clic en el archivo deseado y, manteni�ndolo presionado, **arr�strelo** dentro de una de las 5 columnas del software.
-3.  Suelte el mouse.
-
-El clip aparecer� instant�neamente como una nueva Tarjeta.
-
-### Detalles de Importaci�n
-*   **Carga M�ltiple**: Puede seleccionar 10, 20 o 50 archivos simult�neamente desde su carpeta y arrastrarlos todos juntos. El software crear� una tarjeta para cada uno de ellos en secuencia.
-*   **Formatos Soportados**: Gracias al motor nativo, RRLMP soporta casi todos los formatos de audio est�ndar: **MP3, WAV, AAC (m4a), OGG, FLAC**.
-*   **Rendimiento**: No importa si carga un jingle de 2 segundos o un DJ Set de 2 horas en formato WAV no comprimido. La carga es **instant�nea** y no consume la memoria RAM de la computadora, gracias a la tecnolog�a *Direct Disk Streaming*.
-
-> **Nota**: El software memoriza la "ruta" del archivo (ej. C:\Musica\Cancion.mp3). Si mueve o renombra el archivo original en su computadora, RRLMP ya no podr� encontrarlo (la tarjeta se volver� roja/inactiva). Para evitar este problema si cambia de PC, use la funci�n "Export Package" (ver Cap. 7).
+Cuando abres un proyecto, la pantalla se divide en dos zonas distintas: la **Barra de Control** arriba, que gestiona el proyecto y el sistema, y la **Rejilla de Regia** central, donde se desarrolla el trabajo real.
 
 ---
 
-## 3.2 Reproducci�n (Play & Stop)
+## 3.1 La Barra de Control (Header)
 
-El sistema de reproducci�n est� optimizado para evitar errores en vivo.
+El encabezado ocupa todo el ancho de la pantalla. De izquierda a derecha, reúne la identidad del software, los comandos sobre los archivos, la monitorización y los controles de transporte, el menú de herramientas y los indicadores de sesión.
 
-### Iniciar un Clip (Play)
-*   **Clic Izquierdo**: Haga clic una vez en una tarjeta para iniciarla.
-*   **Feedback**: El borde de la tarjeta se vuelve **Verde Brillante**, el icono "Play" pulsa y el temporizador comienza la cuenta regresiva.
-*   **Barra Espaciadora**: Si ha asignado una tecla personalizada al clip (ver Cap. 6), puede presionarla para iniciarlo sin usar el mouse.
+### Identidad
 
-### Detener un Clip (Stop / Fade)
-*   **Clic en Clip Activo**: Si hace clic en un clip que ya est� sonando, este se detendr�.
-    *   *Comportamiento Est�ndar*: El clip realiza un **Fade Out** (fundido) r�pido en lugar de cortarse de golpe, para un efecto m�s profesional. (Los tiempos de fundido son personalizables, ver Cap. 4).
-*   **Stop All**: Para detener todo inmediatamente (sin fundidos), presione la **Barra Espaciadora** (si est� configurada), la tecla **ESC** o el bot�n rojo **STOP ALL** en la parte superior.
+**Logo e insignia PRO.** A la izquierda, el logo acompaña al rótulo **RLM PRO** —la palabra «PRO» se representa con un gradiente iridiscente que pasa del cian al verde, al ámbar, al rojo. Al lado, en caracteres monoespaciados, se indica la versión instalada (`v1.11.5`). Al pasar el ratón sobre el logo aparece el nombre completo del software con el número de versión.
 
-### La Regla de la Columna (Exclusi�n)
-En una direcci�n de radio, generalmente no desea que dos canciones suenen simult�neamente una sobre la otra.
-*   **Regla**: Si en la columna "CANCIONES" est� sonando la *Canci�n A* y hace clic en la *Canci�n B* (en la misma columna), la *Canci�n A* se detiene autom�ticamente (con fundido) y comienza la *Canci�n B*.
-*   **Excepci�n**: Esta regla no se aplica a la columna "SFX" o a los clips configurados como "Interrupci�n" (Stacco), que pueden sonar sobre los otros.
+### Menú Archivo
+
+El botón **FILE** abre un menú con las operaciones sobre los proyectos:
+
+- *Nuevo Proyecto* — abre una sesión vacía. Si hay cambios sin guardar, el software pide confirmación.
+- *Guardar proyecto* — guardado rápido en el archivo `.lmp` actual. La opción se resalta en amarillo cuando hay cambios sin guardar.
+- *Guardar como…* — abre siempre el cuadro de diálogo, para crear versiones progresivas (p. ej. `Ep47_borrador.lmp`, `Ep47_final.lmp`).
+- *Cargar Proyecto* — abre un proyecto `.lmp` del disco.
+- *Importar M3U* — importa una lista de reproducción en formato M3U como secuencia de clips.
+- *Exportar archivo autónomo* — crea una copia autocontenida del proyecto, incluidos los archivos de audio. Descrito en el Capítulo 10.
+
+### Monitorización y transporte
+
+**VU Meter estéreo (L/R).** Dos barras horizontales muestran el nivel de audio real en la salida, después del Master Volume. La escala cromática es intuitiva: verde hasta cerca del 85 % del recorrido, luego amarillo y por último rojo cerca del fondo de escala. El rojo persistente indica clipping: baja el nivel.
+
+**Master Volume.** El fader controla el volumen general de salida del software, de 0 a 100 %. Actúa como un fader máster: llevado a cero, no sale ningún sonido, con independencia del estado de cada clip. Si has mapeado un control MIDI en el Master Volume, una pequeña insignia muestra su asignación.
+
+**PARAR TODO (botón rojo «ALL»).** Detiene al instante todos los clips activos y anula los fades en curso. Es el comando de emergencia del sistema. La tecla `Esc` del teclado ejecuta la misma función cuando la aplicación tiene el foco, incluso mientras escribes en un campo de texto.
+
+> **Nota.** A diferencia de las versiones anteriores, `Esc` ya no está registrada como atajo global del sistema: actúa cuando RLMP es la ventana activa. Esta decisión permite que los cuadros de diálogo usen `Esc` para cerrarse sin detener el directo.
+
+**FX.** Abre y cierra el pad FX, la *jingle machine* de los efectos (Capítulo 7). Un pequeño contador señala cuántos efectos se están reproduciendo en ese momento.
+
+**MIX.** Abre y cierra la vista Automix, el deck dedicado a la columna Música (Capítulo 7).
+
+### Herramientas
+
+El menú **Herramientas** (icono de llave inglesa) reúne:
+
+- *Deshacer* y *Rehacer* — el historial de cambios de la escaleta (`Ctrl+Z` / `Ctrl+Y`).
+- *MIDI Learn* — activa el modo de aprendizaje MIDI (Capítulo 8).
+- *Keybinds* — la ventana de asignación de teclas a los clips.
+- *Ajustes* — las preferencias globales del software (Capítulo 13).
+- *Info* — versión, créditos y control manual de las actualizaciones.
+
+Justo debajo del menú aparece durante unos instantes el indicador *Auto-saved*, que confirma que el proyecto se ha guardado automáticamente.
+
+![La Barra de Control con el menú Herramientas abierto.](../screenshots-es/barra-controllo.png)
+
+*Figura 3.1 — La Barra de Control y el menú Herramientas abierto (Deshacer/Rehacer, MIDI Learn, Keybinds, Ajustes generales, Info).*
+
+### Indicadores de sesión
+
+En el lado derecho del encabezado encuentran su sitio el botón del **Playout Log** (el registro cronológico de los lanzamientos, Capítulo 13), el botón de **Grabación** (Capítulo 9), el **temporizador On Air** (que en directo muestra `ON AIR HH:MM:SS` sobre fondo rojo) y el **reloj de estudio** digital en formato de 24 horas, sincronizado con el reloj del sistema.
+
+En la zona del encabezado pueden aparecer además notificaciones no intrusivas (**toast**) relativas a operaciones completadas o avisos del sistema. A diferencia de los diálogos bloqueantes, los toast desaparecen solos tras unos segundos y no interrumpen la reproducción.
 
 ---
 
-## 3.3 Organizaci�n de la Lista de Reproducci�n
+## 3.2 La rejilla de seis columnas
 
-Durante un show, las necesidades cambian. RRLMP le permite reorganizar la cuadr�cula sobre la marcha.
+![La rejilla de regia de seis columnas con clips de ejemplo y sus indicadores de estado.](../screenshots-es/interfaccia-principale.png)
 
-### Mover los Clips (Reordenar)
-�Ha cargado la lista pero decide cambiar el orden de las canciones?
-*   Haga clic en un clip y, manteni�ndolo presionado, **arr�strelo** hacia arriba o hacia abajo. Una l�nea gu�a le mostrar� d�nde aterrizar�.
-*   **Movimiento entre Columnas**: Puede arrastrar un clip de una columna a otra (ej. del "Pre-Show" a la columna "M�sica").
-    *   *Atenci�n*: Cuando mueve un clip, este **hereda las reglas de la nueva columna**. Si mueve un jingle a la columna M�sica, comenzar� a comportarse como una canci�n (sufrir� ducking por las voces, etc.).
+*Figura 3.2 — La interfaz de trabajo: la rejilla de seis columnas con las cards de audio.*
 
-### Selecci�n M�ltiple y Eliminaci�n
-Para limpiar r�pidamente:
-1.  **Selecci�n �nica**: Ctrl + Clic (Windows) o Cmd + Clic (Mac) en un clip lo selecciona (borde Azul) sin hacerlo sonar.
-2.  **Selecci�n M�ltiple**: Mantenga presionado Ctrl y haga clic en diferentes clips para resaltarlos todos.
-3.  **Eliminaci�n**: Presione la tecla SUPR (o Del / Backspace) en el teclado.
-    *   El software le pedir� confirmaci�n si est� eliminando muchos clips, para evitar errores accidentales.
+La rejilla es el centro operativo del software: seis columnas verticales una junto a otra, cada una con su propio encabezado cromático y su propia lógica de comportamiento de audio. Los efectos de sonido no tienen columna en la rejilla: viven en el pad FX (Capítulo 7).
 
-> **Consejo Pro**: Use la selecci�n m�ltiple para vaciar r�pidamente la columna "Pre-Show" una vez iniciada la transmisi�n en vivo real, para tener una interfaz m�s limpia.
+### Encabezados de columna
+
+Cada encabezado indica el nombre de la columna, su tipología y hace de indicador de estado. En condiciones normales es estático y está coloreado en el tono característico de la columna. Cuando el clip en reproducción es el último disponible de la columna, no está en loop y faltan menos de **20 segundos** para el final, el encabezado entra en alarma **DEAD AIR**: pulsa, vira al ámbar, muestra un icono de aviso y la insignia **END**. Es la antelación que te da tiempo a preparar la pista siguiente antes del silencio.
+
+El color de cada columna es personalizable: haz clic en el punto de color del encabezado para abrir una paleta de **30 tonos**. La elección se guarda en el archivo de proyecto.
+
+En el encabezado de la columna **Pre-Show** aparece además un botón de **rotación**: cuando está activo, la cola previa al directo inserta automáticamente jingles y promos a intervalos regulares (Capítulo 13).
+
+### Las seis columnas
+
+**Show Assets (Verde)**
+Los elementos estructurales del show: sintonías, bases musicales, fondos (*bed*), ráfagas institucionales. Se comportan como elementos de segundo plano: ceden espacio cuando llegan voces o canciones, pero mantienen la rotación interna hasta que se detienen.
+
+**Jingle (Ámbar)** y **Promo (Cian)**
+Dos columnas dedicadas, respectivamente, a los jingles identificativos y a las promos o autopromociones. En el plano del audio se comportan exactamente como los Show Assets (pertenecen a la misma familia), pero mantenerlas separadas conserva la escaleta ordenada y legible.
+
+**Canciones del episodio (Rojo)**
+La lista de reproducción musical. Los clips de esta columna participan activamente en la mezcla automática: se bajan cuando suenan las voces y, a su vez, silencian las bases de los Assets cuando entran en reproducción (Capítulo 6). En los clips musicales el software detecta automáticamente el **BPM**, mostrado con su insignia.
+
+**Voz / Grabaciones (Naranja)**
+Entrevistas, bloques hablados pregrabados, mensajes de voz. Esta columna tiene la **máxima prioridad** en el sistema de mezcla: cuando un clip de aquí está en reproducción, todas las demás señales se bajan a un nivel de fondo.
+
+**Pre-Show (Violeta)**
+La lista de calentamiento previa al directo. Funciona como una cola musical autónoma, con rotación opcional de jingles y promos. Cuando empieza el directo propiamente dicho, esta columna suele vaciarse o desactivarse.
+
+---
+
+## 3.3 La Card de Audio (Clip)
+
+Cada archivo de audio importado se materializa en la rejilla como una **card** rectangular. La card es la unidad operativa del sistema: la ves, la lanzas, la configuras, la mueves.
+
+### Anatomía de una card
+
+**Título y artista.** El nombre del archivo o el nombre personalizado asignado en las propiedades. El título personalizado solo cambia la etiqueta dentro del software; el archivo original en el disco permanece intacto. En los clips musicales, bajo el título puede aparecer el nombre del artista.
+
+**Temporizador.** En reposo, muestra la duración total del clip en formato `MM:SS`. Durante la reproducción pasa a la **cuenta atrás**, con el prefijo negativo (p. ej. `−01:20`). Cuando faltan menos de 15 segundos para el final, el temporizador se pone **rojo**.
+
+**Insignias de estado.** Pequeñas etiquetas comunican de forma inmediata las propiedades configuradas:
+
+- **STACCO** — el clip está configurado para superponerse a los demás sin detenerlos.
+- **LOOP** — el clip volverá a empezar desde el principio al terminar la reproducción.
+- **NEXT** — al terminar este clip arrancará automáticamente el siguiente de la columna.
+- **▶ UP NEXT** — resalta cuál será el próximo clip en arrancar en la secuencia automática.
+- **### BPM** — el tempo detectado, en los clips musicales.
+- **TRIM…** — análisis del silencio en curso (Auto-Trim).
+- **FADE OUT** — aparece en el clip saliente durante un crossfade o un fundido.
+- **📋** — el clip tiene una nota asociada en la NoteBoard (Capítulo 13).
+
+**Asignaciones.** Si el clip tiene una tecla del teclado asignada, la letra aparece en una insignia del color de la columna; si tiene un binding MIDI, aparece la etiqueta `M` seguida del número de nota (p. ej. `M60`).
+
+**Cues de estructura.** Si hay marcadores configurados, durante la reproducción aparecen las cuentas atrás `INTRO: −MM:SS` (en cian) y `OUTRO IN: −MM:SS` (en naranja), hasta el aviso `🚨 OUTRO` cuando la cola ha comenzado.
+
+**Indicador de reproducción.** Cuando un clip está en play, la card se enciende: borde verde, fondo con un halo luminoso, un punto parpadeante y el título resaltado. La barra de avance recorre el fondo de la card.
+
+### Interacción con las cards
+
+- **Clic izquierdo** — arranca el clip si está parado; lo detiene (con fade out) si está en reproducción.
+- **Ctrl + Clic** (Windows/Linux) o **Cmd + Clic** (macOS) — selecciona el clip sin arrancarlo. El borde se vuelve azul. Útil para la selección múltiple y el borrado en bloque.
+- **Tecla Supr** (o *Delete* / *Backspace*) — borra los clips seleccionados de la rejilla. Si hay varios clips seleccionados, el software pide confirmación.
+- **Clic derecho** — abre los **Ajustes del clip**: propiedades, editor de la forma de onda, notas (Capítulo 5).
+- **Arrastrar y soltar** — arrastra una card para reordenarla dentro de la columna o moverla a otra. Un indicador luminoso azul muestra la posición de inserción durante el arrastre.
+
+### Cards en estado de error
+
+Una card con la indicación **ARCHIVO AUSENTE** y el borde rojo señala que el archivo de audio referenciado ya no es accesible: se ha movido, se ha renombrado o está en un disco externo no conectado. El clip no es reproducible hasta que el archivo vuelva a estar disponible en la ruta original. La gestión de los errores de ruta se trata en el Capítulo 14.

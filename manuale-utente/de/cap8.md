@@ -1,64 +1,100 @@
-# KAPITEL 8: FEHLERBEHEBUNG UND HÄUFIG GESTELLTE FRAGEN (FAQ)
-
-Selbst bei der stabilsten Software können unvorhergesehene Ereignisse aufgrund der Hardware oder des Betriebssystems auftreten. Hier finden Sie Lösungen für die häufigsten Probleme.
+# Kapitel 8 â€” Hardware, Tastatur und MIDI
 
 ---
 
-## 8.1 Audio-Probleme
-
-### Der Timer läuft und die VU-Meter bewegen sich, aber ich höre nichts.
-Die Software spielt das Audio korrekt ab (Sie sehen es an den farbigen Balken oben), aber das Signal erreicht Ihre Lautsprecher/Kopfhörer nicht.
-1.  **Master-Lautstärke prüfen**: Stellen Sie sicher, dass der Lautstärkeregler oben nicht auf Null steht.
-2.  **Ausgang überprüfen (Routing)**:
-    *   Klicken Sie auf das **Zahnrad**-Symbol (Einstellungen).
-    *   Überprüfen Sie, welches Gerät unter "Audio Output Device" ausgewählt ist.
-    *   Manchmal ändert Windows die ID von USB-Geräten, wenn sie aus- und wieder eingesteckt werden. Versuchen Sie, Ihre Soundkarte (z. B. *Rødecaster Pro* oder *Kopfhörer*) erneut aus der Liste auszuwählen.
-3.  **Externer Mixer**: Wenn Sie über einen USB-Mixer ausgeben, überprüfen Sie, ob der physische Fader für diesen Kanal nicht heruntergeregelt oder auf "Mute" gestellt ist.
-
-### Das Audio "knistert" oder springt.
-Dies geschieht dank der nativen Engine selten, kann aber vorkommen, wenn die CPU des Computers unter extremer Belastung steht.
-*   Schließen Sie andere schwere Anwendungen (Videobearbeitung, Spiele).
-*   Wenn Sie eine professionelle Soundkarte verwenden, überprüfen Sie, ob die *Puffergröße (Buffer Size)* in den Kartentreibern nicht zu niedrig ist (empfohlen: 256 oder 512 Samples).
+Runtime Live Machine Pro ist darauf ausgelegt, sich ohne aufwendige Konfigurationen in die vorhandene Hardware des Studios einzufÃ¼gen. Dieses Kapitel beschreibt, wie Sie den Audioausgang leiten, wie Sie die Computertastatur als Controller nutzen und wie Sie physische MIDI-GerÃ¤te fÃ¼r eine taktile Steuerung der Regie anschlieÃŸen.
 
 ---
 
-## 8.2 Dateiverwaltung und Rote Clips
+## 8.1 Audio-Routing
 
-### Ein Clip ist rot geworden und spielt nicht mehr.
-Eine **Rote Karte** zeigt an, dass die Software die Audiodatei nicht mehr auf der Festplatte finden kann.
-*   **Ursache**: Sie haben die ursprüngliche MP3/WAV-Datei verschoben, umbenannt oder gelöscht. Oder die Datei befand sich auf einem USB-Stick/einer externen Festplatte, die jetzt getrennt ist.
-*   **Lösung**:
-    1.  Schließen Sie die externe Festplatte wieder an.
-    2.  Verschieben Sie die Datei zurück an ihren ursprünglichen Speicherort.
-    3.  Oder ziehen Sie die Datei erneut in das Raster (wodurch eine neue Karte erstellt wird) und löschen Sie die alte rote.
+### Das AusgabegerÃ¤t wÃ¤hlen
 
-> **Prävention**: Um dieses Problem zu vermeiden, verwenden Sie die Funktion **Export Package** (Kap. 7), die alle Dateien zusammen mit dem Projekt in einen sicheren Ordner kopiert.
+StandardmÃ¤ÃŸig gibt RLMP Ã¼ber das Standard-AudiogerÃ¤t des Betriebssystems aus. In einem professionellen oder semiprofessionellen Umfeld, mit USB-Mixern, externen Soundkarten oder Mehrspursystemen, ist es sinnvoll, das Ziel des Signals ausdrÃ¼cklich zu wÃ¤hlen.
+
+1. Ã–ffnen Sie die **Einstellungen** aus dem MenÃ¼ Werkzeuge.
+2. Ã–ffnen Sie im Reiter *Audio & Mix* das MenÃ¼ des AusgabegerÃ¤ts: Dort finden Sie die Liste der auf dem System verfÃ¼gbaren AudiogerÃ¤te.
+3. WÃ¤hlen Sie das gewÃ¼nschte GerÃ¤t.
+
+Wird das gewÃ¤hlte GerÃ¤t getrennt, greift RLMP automatisch auf das des Systems zurÃ¼ck; die App Ã¼berwacht die Verbindungen und reagiert auf das Ein- oder Ausstecken von USB-GerÃ¤ten.
+
+### USB-Mixer und Mehrkanal-Setup
+
+USB-Mixer wie der RÃ¸decaster Pro, der RÃ˜DECaster Duo oder das Focusrite Scarlett stellen dem Betriebssystem typischerweise mehrere USB-KanÃ¤le bereit (Main Mix, Sounds/Chat, Monitor usw.). RLMP erscheint als eine einzige Stereoquelle; die Wahl des USB-Kanals, auf den es geleitet wird, liegt in Ihrer Hand.
+
+**Empfohlenes Setup mit USB-Mixer.** Weisen Sie RLMP einem sekundÃ¤ren Kanal des Mixers zu (z. B. â€Soundsâ€œ am RÃ¸decaster Pro) statt dem Hauptkanal. So steuern Sie die LautstÃ¤rke von RLMP mit einem eigenen physischen Fader, trennen es vom Signal des physischen Mikrofons und wenden eventuelles Hardware-Processing nur auf diesen Kanal an.
+
+### Latenz und Buffer
+
+RLMP nutzt die nativen Audio-APIs des Betriebssystems. Die Ausgangslatenz wird vom Buffer des AudiogerÃ¤ts bestimmt, nicht von der Software. Mit professionellen Soundkarten liegt die Latenz in der GrÃ¶ÃŸenordnung weniger Millisekunden, in einem Playout-Kontext nicht wahrnehmbar.
+
+Wenn Sie Audio-Artefakte bemerken (Knistern, Dropouts), ist der Buffer-Wert des GerÃ¤ts wahrscheinlich zu niedrig. ErhÃ¶hen Sie ihn im Bedienfeld der Soundkarte (nicht in RLMP, das den Treiber nicht direkt verwaltet): Ein Buffer von 256 oder 512 Samples ist der ideale Ausgleichspunkt zwischen Latenz und StabilitÃ¤t.
 
 ---
 
-## 8.3 MIDI-Probleme
+## 8.2 Tastatursteuerung
 
-### Mein MIDI-Controller funktioniert nicht / wird nicht erkannt.
-1.  **Goldene MIDI-Regel**: Der Controller muss **VOR** dem Start von Runtime Live Machine Pro an den Computer angeschlossen werden.
-    *   Wenn Sie ihn anschließen, während die Software geöffnet ist, sieht der interne Browser ihn möglicherweise nicht. Schließen Sie RRLMP und öffnen Sie es erneut.
-2.  **Learn-Modus**: Überprüfen Sie, ob Sie den Modus "MIDI Learn" nicht aktiv gelassen haben (Cyanfarbenes Symbol). In diesem Modus dient das Drücken von Tasten nur zum Zuweisen, nicht zum Spielen.
-3.  **Treiber**: Einige fortgeschrittene Controller erfordern spezielle Treiber. Überprüfen Sie, ob Windows ihn korrekt erkennt.
+Die Computertastatur ist der schnellste in der Sendung verfÃ¼gbare Controller: Sie erfordert keine Hand-Auge-Koordination, funktioniert im Dunkeln und ist immer griffbereit. RLMP sieht eine Reihe globaler KÃ¼rzel vor sowie die MÃ¶glichkeit, den einzelnen Clips Tasten zuzuweisen.
+
+### Globale KÃ¼rzel
+
+| Taste | Aktion |
+|---|---|
+| **Esc** | STOP ALL â€” stoppt alle aktiven Clips |
+| **Entf / Backspace** | LÃ¶scht die ausgewÃ¤hlten Clips |
+| **Ctrl+Z** | Macht die letzte Ã„nderung der Playlist rÃ¼ckgÃ¤ngig |
+| **Ctrl+Y** (oder **Ctrl+Shift+Z**) | Wiederholt die rÃ¼ckgÃ¤ngig gemachte Ã„nderung |
+| **Ctrl+Shift+D** | Blendet das Debug-Overlay ein/aus |
+| **Ctrl+Shift+M** | Ã–ffnet den MIDI-Simulator (zum Testen ohne Controller) |
+
+`Esc` wirkt als STOP ALL, wenn RLMP das aktive Fenster ist, auch wÃ¤hrend der Cursor in einem Textfeld steht. Es ist kein auf Betriebssystemebene registriertes KÃ¼rzel mehr: Ist die App im Hintergrund, holen Sie das Fenster erst in den Vordergrund.
+
+> **Hinweis.** Es gibt keine Funktionstasten (F1â€“F5), die dem Start der Spalten vorab zugewiesen wÃ¤ren. Um einen bestimmten Clip schnell zu starten, weisen Sie ihm eine eigene Taste zu, wie unten beschrieben.
+
+### Individuelle Tasten je Clip
+
+Ãœber die globalen KÃ¼rzel hinaus kann jeder Clip eine eigene Taste haben. Das zugehÃ¶rige Badge erscheint auf der Karte.
+
+**Um eine Taste zuzuweisen:**
+1. Ã–ffnen Sie die Clip-Einstellungen (Rechtsklick auf die Karte) oder das Fenster **Tastenbelegung** aus dem MenÃ¼ Werkzeuge.
+2. Klicken Sie in das Tastenfeld.
+3. DrÃ¼cken Sie die gewÃ¼nschte Taste.
+
+**VerfÃ¼gbare Tasten.** Nahezu jede Taste: Buchstaben (Aâ€“Z), Zahlen (0â€“9), Ziffernblock, Leertaste, freie Funktionstasten. Ist die Taste bereits einem anderen Clip zugewiesen, meldet die Software den Konflikt, bevor sie Ã¼berschreibt, sodass Sie keine unsichtbaren Dopplungen erzeugen.
+
+**Sicherheit wÃ¤hrend der Eingabe.** Die individuellen Tasten werden automatisch deaktiviert, wenn Sie sich im Texteingabemodus befinden (Sie benennen einen Clip um oder schreiben eine Notiz). Das verhindert versehentliche Starts wÃ¤hrend des Tippens.
 
 ---
 
-## 8.4 Häufig gestellte Fragen (FAQ)
+## 8.3 MIDI-Controller
 
-**F: Kann ich RRLMP verwenden, um das Radio rund um die Uhr zu automatisieren?**
-A: Nein. RRLMP ist für die *Live*-Regie konzipiert (Shows, die von einer Person betreut werden). Es verfügt über keine Funktionen für stündliche Planung oder unendliche automatische Musikrotation.
+MIDI ist die professionelle Wahl fÃ¼r eine physische, taktile und zuverlÃ¤ssige Steuerung. RLMP unterstÃ¼tzt USB-MIDI-Controller: Tastaturen, Pads (z. B. Novation Launchpad), Fader-Controller (z. B. Korg nanoKONTROL2), hybride SteuerungsflÃ¤chen.
 
-**F: Welche Audioformate werden unterstützt?**
-A: Es unterstützt nativ **MP3, WAV, AAC, OGG, FLAC**. Wir empfehlen die Verwendung von WAV für maximale Qualität oder MP3 320kbps, um Platz zu sparen.
+### Anschluss
 
-**F: Funktioniert die Software auf dem iPad oder Android?**
-A: Nein, Runtime Live Machine Pro ist eine professionelle Desktop-Software für **Windows** und **macOS**. Sie erfordert die Dateiverwaltungsleistung eines echten Computers.
+SchlieÃŸen Sie den USB-Controller an den Computer an und starten Sie RLMP. Die Software erkennt die GerÃ¤te Ã¼ber die Web MIDI API des Systems und erkennt in Echtzeit das AnschlieÃŸen und Trennen eines Controllers. Die meisten USB-MIDI-Controller sind *class-compliant* und benÃ¶tigen keine Treiber; fÃ¼r professionelle FlÃ¤chen mit proprietÃ¤ren Treibern installieren Sie den Treiber, bevor Sie das GerÃ¤t anschlieÃŸen.
 
-**F: Wie aktualisiere ich die Software?**
-A: Beim Start benachrichtigt Sie der Welcome Screen, wenn eine neue Version verfügbar ist (Gelb/Oranger Indikator). Besuchen Sie die offizielle Website, um das aktualisierte Installationsprogramm herunterzuladen. Ihre gespeicherten .lmp-Projekte sind mit neuen Versionen kompatibel.
+### MIDI Learn
 
-**F: Wo finde ich die automatischen Speicherdateien?**
-A: Wenn Sie an einer gespeicherten Datei arbeiten, befindet sich das .bak-Backup im selben Ordner wie das Projekt. Wenn Sie an einem "Unbenannten" Projekt gearbeitet haben und der PC heruntergefahren ist, überprüfen Sie den Systemanwendungsdatenordner (unter Windows: %APPDATA%\runtime-live-machine\).
+RLMP verlangt weder, die Nummerierung der MIDI-Noten zu kennen, noch die Nachrichten von Hand zu konfigurieren. Das Lernen erfolgt Ã¼ber den Modus **MIDI Learn**, aus dem MenÃ¼ Werkzeuge (oder aus dem Fenster Tastenbelegung).
+
+**Um einen Clip einer Taste/einem Pad zuzuordnen:**
+1. Aktivieren Sie MIDI Learn. Die Karten gehen in den Wartezustand.
+2. WÃ¤hlen Sie den zuzuordnenden Clip (oder die Zelle des pad FX).
+3. Spielen Sie die Note, drÃ¼cken Sie das Pad oder die Taste am Controller. Das Badge `M` mit der Notennummer erscheint auf der Karte.
+
+**Um die globalen Funktionen zuzuordnen:**
+- WÃ¤hlen Sie **STOP ALL** und drÃ¼cken Sie eine Taste am Controller: Diese Taste fÃ¼hrt dann Stop All aus.
+- WÃ¤hlen Sie die **Master-LautstÃ¤rke** und bewegen Sie einen Fader oder ein Drehrad: Dieses Steuerelement regelt dann die Master-LautstÃ¤rke stufenlos.
+
+Deaktivieren Sie zum Abschluss MIDI Learn, um in den Betriebsmodus zurÃ¼ckzukehren.
+
+### UnterstÃ¼tzte Nachrichtentypen
+
+**Note On** â€” Nachrichten von Tasten, Pads und Klaviaturtasten. Ideal fÃ¼r den Start der Clips und der globalen Aktionen; RLMP reagiert auf den Tastendruck und erkennt alle MIDI-KanÃ¤le. Note-Off-Nachrichten werden ignoriert.
+
+**Control Change (CC)** â€” Nachrichten von Fadern und Potentiometern, mit stufenlosem Wert von 0 bis 127. Ideal fÃ¼r die Master-LautstÃ¤rke: Ein auf den Master gelegter physischer Fader bietet die natÃ¼rlichste Kontrolle Ã¼ber den Ausgangspegel.
+
+### PortabilitÃ¤t der Zuordnungen
+
+Die MIDI-Zuordnungen der **Clips** werden in der Projektdatei `.lmp` gespeichert: Bringen Sie das Projekt auf einen anderen Computer mit demselben Controller, funktionieren sie ohne Neukonfiguration. Die Zuordnungen der **globalen Funktionen** (Stop All, Master-LautstÃ¤rke) sind hingegen an den Computer gebunden, in den lokalen Voreinstellungen der Anwendung gespeichert, und bleiben fÃ¼r alle Projekte auf dieser Maschine gÃ¼ltig.
