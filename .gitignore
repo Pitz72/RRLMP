@@ -119,5 +119,8 @@ dist/
 release/
 .claude/worktrees/
 
+# Gumroad distribution packages (installers, assembled from public release)
+distribuzione/
+
 # Source graphic assets (raw files, not for repo)
 IMPORT/
