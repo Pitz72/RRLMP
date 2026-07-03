@@ -2,21 +2,23 @@
 
 ---
 
-Preparare uno show richiede tempo: selezionare i file, organizzarli nelle colonne, configurare i volumi, impostare i fade, assegnare i tasti. Questo lavoro è un patrimonio operativo che deve sopravvivere a qualsiasi imprevisto — un crash del sistema, uno spostamento di computer, il ritorno a una puntata archiviata mesi prima.
+Preparare uno show richiede tempo: selezionare i file, organizzarli nelle colonne, configurare i volumi, impostare i fade, assegnare i tasti. Questo lavoro è un patrimonio operativo che deve sopravvivere a qualsiasi imprevisto: un crash del sistema, uno spostamento di computer, il ritorno a una puntata archiviata mesi prima.
 
-RLMP affronta la questione della sicurezza dei dati a più livelli, ciascuno progettato per coprire un rischio specifico.
+RLMP affronta la sicurezza dei dati a più livelli, ciascuno progettato per coprire un rischio specifico.
 
 ---
 
 ## 10.1 Il file di progetto (.lmp)
 
-Tutto lo stato di uno show — la disposizione delle clip nelle cinque colonne, i nomi personalizzati, i volumi e i fade, i cue point dell'editor, le note NoteBoard, le mappature MIDI e tastiera, il colore delle colonne — è salvato in un file con estensione **`.lmp`** (Live Machine Project).
+Tutto lo stato di uno show (la disposizione delle clip nelle colonne, i nomi personalizzati, i volumi e i fade, i cue point dell'editor, le note della NoteBoard, le mappature MIDI e tastiera, il colore delle colonne) è salvato in un file con estensione **`.lmp`** (Live Machine Project).
 
-Il formato è JSON: un file di testo strutturato, leggibile da qualsiasi editor di testo, non proprietario. Se un giorno RLMP non dovesse essere disponibile, i dati del progetto rimangono accessibili.
+Il formato è JSON: un file di testo strutturato, leggibile da qualsiasi editor, non proprietario. Se un giorno RLMP non fosse disponibile, i dati del progetto resterebbero accessibili.
 
 **Cosa contiene il file `.lmp`:** tutte le impostazioni sopra elencate, inclusi i percorsi assoluti ai file audio referenziati.
 
 **Cosa non contiene:** i file audio stessi. Il `.lmp` memorizza dove si trovano i file sul disco, non copia il loro contenuto. Un file di progetto è tipicamente nell'ordine dei kilobyte, indipendentemente da quanti o quanto grandi siano i file audio che referenzia.
+
+All'apertura, RLMP convalida il file: ricostruisce eventuali identificativi duplicati, riporta i valori fuori scala entro limiti sani e, se apri un progetto creato con una versione precedente, aggiunge in automatico le colonne introdotte nel frattempo (Jingle, Promo), senza toccare i dati esistenti.
 
 ---
 
@@ -24,78 +26,61 @@ Il formato è JSON: un file di testo strutturato, leggibile da qualsiasi editor 
 
 ### Salva rapido
 
-L'icona **Floppy Disk** nell'header esegue un salvataggio immediato, sovrascrivendo il file `.lmp` aperto. Non compare nessuna finestra di dialogo: il salvataggio è silenzioso e istantaneo. Usalo con frequenza durante la preparazione dello show — ogni modifica significativa (aggiunta di clip, cambio di volume, configurazione dei fade) merita un salvataggio.
+La voce *Salva Progetto* nel menu FILE esegue un salvataggio immediato sul file `.lmp` aperto. Il salvataggio è silenzioso: nessuna finestra di dialogo. La voce si evidenzia in giallo quando ci sono modifiche non salvate, un promemoria visivo a colpo d'occhio. Usala con frequenza durante la preparazione dello show.
 
-La scorciatoia da tastiera **`Ctrl+S`** (Windows/Linux) o **`Cmd+S`** (macOS) esegue lo stesso salvataggio rapido.
+Il salvataggio è **atomico**: il file viene scritto prima in una copia temporanea e poi rinominato al volo. Se il computer si spegne durante la scrittura, il `.lmp` originale non viene mai lasciato a metà.
 
 ### Salva con Nome
 
-L'icona **Floppy con matita** apre sempre la finestra di dialogo di salvataggio, anche se il progetto ha già un nome. Usala per:
+La voce *Salva Come…* apre sempre la finestra di dialogo, anche se il progetto ha già un nome. Usala per:
 
 - Creare versioni progressive dello stesso show (`Ep47_bozza.lmp`, `Ep47_v2.lmp`, `Ep47_finale.lmp`).
-- Salvare una variante del progetto con configurazioni diverse (es. versione con scaletta ridotta per uno show più breve).
+- Salvare una variante con configurazioni diverse.
 - Creare un nuovo file senza sovrascrivere quello corrente.
 
 ### Protezione alla chiusura
 
-RLMP monitora in continuo lo stato delle modifiche. Se provi a chiudere il software — o ad aprire un nuovo progetto — con modifiche non salvate, il software blocca l'operazione e mostra una finestra di conferma: *«Il progetto corrente ha modifiche non salvate. Salvare prima di continuare?»*
-
-Questa protezione vale anche per lo Escape: non è possibile perdere lavoro per un click accidentale sulla X della finestra.
+RLMP monitora in continuo lo stato delle modifiche. Se provi a chiudere il software (o ad aprire un nuovo progetto) con modifiche non salvate, l'operazione viene sospesa e compare una richiesta di conferma con tre scelte: salvare, scartare le modifiche o annullare. Non è possibile perdere lavoro per un click accidentale sulla chiusura della finestra.
 
 ---
 
-## 10.3 Auto-Backup
+## 10.3 Auto-Backup e autosave
 
-Il sistema di backup automatico opera silenziosamente in background, senza interruzioni alla sessione.
+Oltre ai salvataggi che decidi tu, il software mantiene una rete di protezione automatica.
 
-**Frequenza.** Ogni cinque minuti, RLMP salva una copia di sicurezza dello stato corrente del progetto.
+**Copia di sicurezza del progetto.** Ogni volta che un progetto già salvato viene aggiornato in background, RLMP tiene accanto al `.lmp` una copia `.bak` con l'ultimo stato valido.
 
-**Posizione del file di backup.** Il file di backup viene creato nella stessa cartella del progetto aperto, con il nome del file originale e l'estensione aggiuntiva `.bak`:
+**Autosave a rotazione.** In parallelo, RLMP scrive istantanee dello stato corrente in una cartella dedicata dell'applicazione, `autosaves`, con un nome basato su data e ora. Vengono conservate le **dieci istantanee più recenti**: le più vecchie vengono eliminate man mano. Questa rete cattura anche il lavoro su un progetto «senza titolo» mai salvato su disco.
 
-```
-MioShow.lmp
-MioShow.lmp.bak   ← backup automatico
-```
+La cartella `autosaves` si trova nella directory dati dell'applicazione:
 
-**Come recuperare da un backup.** Se il file `.lmp` principale si è corrotto o il computer si è spento improvvisamente:
+- **Windows:** `%APPDATA%\runtime-live-machine-pro\autosaves\`
+- **macOS:** `~/Library/Application Support/runtime-live-machine-pro/autosaves/`
+- **Linux:** `~/.config/runtime-live-machine-pro/autosaves/`
 
-1. Vai nella cartella del progetto.
-2. Rinomina il file `.bak` in `.lmp` (es. `MioShow.lmp.bak` → `MioShow_recuperato.lmp`).
-3. Apri il file rinominato con RLMP.
-
-Il backup rappresenta lo stato del progetto fino agli ultimi cinque minuti prima dell'interruzione.
-
-**Nota su progetti nuovi non salvati.** Se stavi lavorando su un progetto «Senza titolo» che non è mai stato salvato su disco, e il computer si è spento, il backup viene scritto nella cartella dei dati applicativi del sistema:
-
-- **Windows:** `%APPDATA%\runtime-live-machine\backup\`
-- **macOS:** `~/Library/Application Support/runtime-live-machine/backup/`
-- **Linux:** `~/.config/runtime-live-machine/backup/`
+**Come recuperare.** Se il file `.lmp` principale si è corrotto o il computer si è spento improvvisamente, apri la cartella `autosaves`, individua l'istantanea con data e ora più vicine al momento dell'interruzione e caricala da RLMP come un normale file di progetto. In alternativa, rinomina il file `.bak` accanto al progetto in `.lmp` e aprilo.
 
 ---
 
 ## 10.4 Export Package: portabilità completa
 
-Poiché il file `.lmp` contiene solo i percorsi ai file audio — non i file stessi — portare il progetto su un altro computer richiede attenzione: se il computer di destinazione non ha i file audio negli stessi percorsi assoluti, le clip diventano rosse e il progetto non è utilizzabile.
-
-La funzione **Export Package** risolve questo problema in modo definitivo.
+Poiché il file `.lmp` contiene solo i percorsi ai file audio, non i file stessi, portare il progetto su un altro computer richiede attenzione: se la macchina di destinazione non ha i file negli stessi percorsi assoluti, le clip diventano rosse. La funzione **Esporta Archivio** (Export Package), nel menu FILE, risolve il problema alla radice.
 
 ### Come funziona
 
-1. Clicca sull'icona **Export Package** (scatola/archivio) nell'header.
-2. Seleziona una cartella di destinazione vuota — può essere una cartella sul disco locale, su un NAS o direttamente la root di una chiavetta USB.
-3. RLMP esegue le seguenti operazioni in sequenza:
-   - Analizza tutti i percorsi ai file audio presenti nel progetto.
-   - Crea una sottocartella `audio/` nella destinazione.
-   - **Copia fisicamente** ogni file audio referenziato dentro `audio/`.
-   - Scrive un nuovo file `project.lmp` nella cartella radice della destinazione, con tutti i percorsi aggiornati per puntare alla sottocartella `audio/` locale.
+RLMP analizza tutti i percorsi ai file audio del progetto, crea una sottocartella `audio/` e **copia fisicamente** ogni file referenziato al suo interno. I file già presenti e identici non vengono ricopiati; eventuali doppioni di nome vengono rinominati per non sovrascriversi, e i file orfani (non più referenziati) vengono rimossi dalla cartella.
+
+L'operazione ha due modalità:
+
+- **Accanto al progetto** — se esporti verso la cartella dove risiede già il `.lmp`, RLMP sincronizza la sottocartella `audio/` accanto ad esso.
+- **Cartella libera** — se scegli una cartella nuova (una chiavetta USB, un NAS), RLMP vi scrive un `project.lmp` con i percorsi già aggiornati per puntare alla sottocartella `audio/` locale.
 
 ### Il risultato
 
-La cartella di destinazione diventa autocontenuta: contiene tutto il necessario per eseguire lo show su qualsiasi computer con RLMP installato. Puoi consegnare quella cartella a un collega, spostarla su una chiavetta USB, archiviarla su un disco esterno — il progetto funzionerà esattamente come sull'originale, indipendentemente dalla struttura di cartelle del computer di destinazione.
+La cartella di destinazione diventa autocontenuta: contiene tutto il necessario per eseguire lo show su qualsiasi computer con RLMP installato, indipendentemente dalla struttura di cartelle di quella macchina.
 
-> **Prassi consigliata.** Usa Export Package al termine della preparazione di ogni show per creare un «master» da portare in studio o da archiviare. In caso di problemi tecnici all'ultimo momento, avrai sempre una copia completa e portabile pronta.
+> **Prassi consigliata.** Usa Esporta Archivio al termine della preparazione di ogni show per creare un «master» da portare in studio o da archiviare. In caso di problemi tecnici all'ultimo momento, avrai sempre una copia completa e portabile pronta.
 
 ### Controllo di integrità all'apertura
 
-Ogni volta che apri un file `.lmp`, RLMP esegue un **controllo di integrità** automatico: verifica che ciascun file audio referenziato sia raggiungibile nel percorso memorizzato. I file mancanti vengono segnalati immediatamente con il bordo rosso sulla card corrispondente, prima ancora che il progetto diventi operativo. Il resto del progetto — tutte le clip con file raggiungibili — è pienamente funzionale.
-
+Ogni volta che apri un file `.lmp`, RLMP esegue un **controllo di integrità** automatico: verifica che ciascun file audio referenziato sia raggiungibile. I file mancanti vengono segnalati con il bordo rosso e l'etichetta FILE MANCANTE sulla card corrispondente. Il resto del progetto, tutte le clip con file raggiungibili, resta pienamente funzionale.

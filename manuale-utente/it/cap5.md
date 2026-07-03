@@ -6,17 +6,21 @@ Ogni file audio ha una sua storia prima di arrivare in griglia: registrazioni co
 
 Tutte le modifiche apportate tramite questi strumenti sono **non distruttive**: il file originale sul disco rimane invariato. RLMP memorizza le impostazioni nel file di progetto `.lmp` e le applica al volo durante la riproduzione.
 
-Per aprire il pannello di configurazione di una clip, fai **click con il tasto destro** sulla card e seleziona *Edit* dal menu contestuale.
+Per aprire le impostazioni di una clip, fai **click con il tasto destro** sulla card.
 
 ---
 
 ## 5.1 Proprietà di base
 
+![La finestra delle impostazioni della clip, scheda Generale.](../screenshots/impostazioni-clip.png)
+
+*Figura 5.1 — Le impostazioni della clip: nome, etichetta di colore, Volume Gain, comportamento, Next Action e assegnazione dei tasti.*
+
 ### Nome e apparenza
 
 **Nome clip.** Puoi assegnare un nome personalizzato alla clip, indipendente dal nome del file originale. Il nome viene visualizzato sulla card nella griglia. Usa nomi descrittivi e operativamente utili durante la diretta: «SIGLA DI APERTURA» è più leggibile di `sigla_rev3_finale_def.mp3` quando hai tre secondi per trovare la clip giusta.
 
-**Colore personalizzato.** Per impostazione predefinita, la clip eredita il colore della colonna di appartenenza. Qui puoi assegnare un colore specifico per farla risaltare visivamente. Utile per marcare clip critiche (es. la sigla di chiusura in rosso scuro) o per differenziare gruppi tematici all'interno della stessa colonna.
+**Colore personalizzato.** Per impostazione predefinita, la clip eredita il colore della colonna di appartenenza. Qui puoi assegnare un colore specifico per farla risaltare visivamente. Utile per marcare clip critiche (es. la sigla di chiusura) o per differenziare gruppi tematici all'interno della stessa colonna.
 
 ### Volume (Gain)
 
@@ -28,41 +32,49 @@ Il caso d'uso più comune è l'allineamento dei livelli: se hai un vocale regist
 
 ## 5.2 L'editor della forma d'onda
 
+![L'editor della forma d'onda con le maniglie di trim e i marker di struttura.](../screenshots/waveform-editor.png)
+
+*Figura 5.2 — L'editor della forma d'onda: maniglie di Trim, marker di Intro e Outro, Auto-Trim, Smart Cues e dissolvenze.*
+
 L'editor visivo è la funzione più potente del pannello di configurazione. Occupa la zona centrale del pannello e mostra la rappresentazione grafica dell'audio dell'intera clip.
 
 ### Navigazione nell'editor
 
-**Zoom orizzontale.** Puoi ingrandire la vista della forma d'onda da 1× (vista completa) a 8×, tramite lo slider di zoom o la rotella del mouse sopra l'editor. A zoom elevato, la vista scorre seguendo la posizione corrente.
+**Zoom orizzontale.** Puoi ingrandire la vista della forma d'onda da 1× (vista completa) fino a 8×, con passi intermedi (1×, 2×, 3×, 4×, 6×, 8×), tramite lo slider di zoom o la rotella del mouse sopra l'editor. A zoom elevato, la vista scorre seguendo la posizione corrente.
 
-**Ruler adattivo.** L'asse temporale nella parte superiore dell'editor si adatta automaticamente allo zoom: a vista completa mostra i minuti, a zoom 8× mostra i secondi e i centesimi.
+**Ruler adattivo.** L'asse temporale nella parte superiore dell'editor si adatta automaticamente allo zoom: a vista completa mostra riferimenti radi, a zoom massimo li infittisce fino ai secondi.
 
-**Playhead.** Durante la riproduzione di anteprima (vedi oltre), un indicatore verticale scorre in tempo reale lungo la forma d'onda, mostrando la posizione corrente di riproduzione.
+**Playhead.** Durante la riproduzione di anteprima, un indicatore verticale bianco scorre in tempo reale lungo la forma d'onda, mostrando la posizione corrente. Un click sulla forma d'onda sposta la riproduzione in quel punto.
 
 ### Le quattro maniglie
 
-Sull'editor sono presenti quattro **handle** trascinabili, ciascuno con una funzione specifica:
+Sull'editor sono presenti quattro **handle** trascinabili, ciascuno con una funzione e un colore precisi:
 
-**Trim Start (maniglia verde sinistra).** Definisce il punto di inizio effettivo della clip. Tutto ciò che si trova a sinistra di questa maniglia viene saltato durante la riproduzione. Trascina la maniglia verso destra per eliminare i silenzi o le parti indesiderate dall'inizio.
+**Trim Start (maniglia rossa, sinistra).** Definisce il punto di inizio effettivo della clip. Tutto ciò che si trova a sinistra viene saltato durante la riproduzione. Trascinala verso destra per eliminare i silenzi o le parti indesiderate dall'inizio.
 
-**Trim End (maniglia verde destra).** Definisce il punto di fine effettivo della clip. Tutto ciò che si trova a destra di questa maniglia viene ignorato. Trascina verso sinistra per accorciare la coda.
+**Trim End (maniglia rossa, destra).** Definisce il punto di fine effettivo. Tutto ciò che si trova a destra viene ignorato. Trascinala verso sinistra per accorciare la coda. Trim Start e Trim End non possono sovrapporsi.
 
-**Intro Marker (maniglia gialla).** Segna il punto strutturale in cui la melodia principale entra nel brano, dopo l'eventuale introduzione strumentale. Una volta impostato, sulla card in riproduzione comparirà il conto alla rovescia **INTRO: −Xs** che segnala l'avvicinarsi di questo punto.
+**Intro Marker (maniglia ciano).** Segna il punto strutturale in cui la melodia principale entra nel brano, dopo l'eventuale introduzione. Una volta impostato, sulla card in riproduzione comparirà il conto alla rovescia **INTRO: −MM:SS**.
 
-**Outro Marker (maniglia arancione).** Segna il punto in cui inizia la coda del brano — tipicamente il momento in cui il conduttore deve iniziare a parlare per riempire la transizione alla traccia successiva. Sulla card in riproduzione comparirà il conto alla rovescia **OUTRO: −Xs**.
+**Outro Marker (maniglia arancione).** Segna il punto in cui inizia la coda del brano, tipicamente il momento in cui iniziare a parlare per riempire la transizione. Sulla card comparirà il conto alla rovescia **OUTRO IN: −MM:SS**. Se il valore risulta incoerente con il trim o con la durata, il software lo disattiva e ti avvisa.
 
-I valori numerici di ciascuna maniglia sono leggibili e modificabili anche nei campi di testo corrispondenti, per chi preferisce l'inserimento preciso in secondi.
+Oltre al trascinamento, quattro pulsanti *Set* impostano ciascuna maniglia alla posizione corrente del playhead, per una marcatura al volo durante l'ascolto. I valori restano modificabili con precisione nei rispettivi campi.
 
 ### Auto-Trim (Bacchetta magica)
 
-Il pulsante con l'icona della **bacchetta magica** avvia il rilevamento automatico del silenzio tramite FFmpeg. L'algoritmo analizza il file in pochi istanti e individua i punti in cui il segnale audio emerge dalla soglia di silenzio (−40 dB). Il Trim Start e il Trim End vengono impostati automaticamente, eliminando silenzi iniziali e code mute senza alcun intervento manuale.
+Il pulsante con l'icona della **bacchetta magica** avvia il rilevamento automatico del silenzio tramite FFmpeg. La soglia non è fissa: il software stima prima il livello medio del file e imposta la soglia di silenzio circa 25 dB sotto quel livello (entro un intervallo di sicurezza compreso tra −55 e −20 dB; in mancanza di stima, ripiega su −40 dB). Il Trim Start e il Trim End vengono così impostati automaticamente, eliminando silenzi iniziali e code mute senza intervento manuale.
 
-Questa funzione è particolarmente utile per le registrazioni vocali non elaborate: telefonate, messaggi audio, interviste registrate su dispositivi mobili. Applicare l'Auto-Trim a tutta la colonna Voci prima di uno show richiede meno di un minuto e migliora significativamente la pulizia delle transizioni.
+Questa funzione è particolarmente utile per le registrazioni vocali non elaborate: telefonate, messaggi audio, interviste registrate su dispositivi mobili. Applicare l'Auto-Trim all'intera colonna Voci prima di uno show richiede meno di un minuto e migliora la pulizia delle transizioni.
 
-> **Nota tecnica.** L'analisi avviene nel Main Process tramite FFprobe, senza caricare il file in memoria nel Renderer. Su file di grandi dimensioni (ore di registrazione), il tempo di analisi è comunque nell'ordine di pochi secondi.
+> **Nota tecnica.** L'analisi avviene nel Main Process tramite FFmpeg, senza caricare il file in memoria nel Renderer. Su file di grandi dimensioni, il tempo di analisi resta nell'ordine di pochi secondi.
+
+### Smart Cues (rilevamento automatico dei marker)
+
+Accanto all'Auto-Trim, la funzione di **Smart Cues** propone automaticamente i marker di Intro e Outro. Usando una soglia più aggressiva, individua il punto in cui l'audio raggiunge la piena energia (Intro) e quello in cui inizia la dissolvenza finale (Outro), posizionando i due marker senza doverli cercare a orecchio.
 
 ### Anteprima della transizione
 
-Se la clip ha configurato una **Next Action** (vedi sezione 5.3), il pulsante *Preview Transition* nel pannello consente di testare il crossfade o la transizione segue direttamente nell'editor, senza dover tornare alla griglia principale. Un pulsante Stop dedicato interrompe l'anteprima.
+Se esiste una clip **successiva** nella stessa colonna, il pulsante **«Test →»** riproduce gli ultimi secondi della clip corrente e lascia scattare la transizione verso la successiva, direttamente nell'editor. Durante l'anteprima un pulsante *Stop* interrompe la prova.
 
 ---
 
@@ -72,41 +84,38 @@ Se la clip ha configurato una **Next Action** (vedi sezione 5.3), il pulsante *P
 
 **Normal** — comportamento predefinito. Quando questa clip viene avviata, interrompe qualsiasi altra clip in riproduzione nella stessa colonna (con fade out). È il comportamento corretto per canzoni e basi: una canzone esclude le altre.
 
-**Stacco** — la clip viene avviata senza interrompere le altre clip della colonna. Si sovrappone o affianca le altre, abbassandole leggermente se necessario ma senza fermarle. Il caso d'uso tipico è uno *station ID* («Stai ascoltando…») che deve «cavalcare» l'intro di un brano, o un jingle breve che non deve interrompere la base in loop sottostante.
+**Stacco (Jingle)** — la clip viene avviata senza interrompere le altre. Ha priorità alta: silenzia gli altri asset della colonna e abbassa la musica, ma non ferma nulla. Il caso d'uso tipico è uno *station ID* («Stai ascoltando…») che deve «cavalcare» l'intro di un brano, o un jingle breve sopra una base in loop.
 
 ### Next Action (automazione alla fine)
 
 Definisce cosa accade quando la clip raggiunge il punto di Trim End.
 
-**Stop** — comportamento predefinito. La clip termina e si ferma.
+**Stop** — comportamento predefinito per Canzoni, Voci e Assets. La clip termina e si ferma.
 
-**Loop** — la clip ricomincia dall'inizio (dal Trim Start) senza soluzione di continuità. Il badge **[LOOP]** appare sulla card. Usalo per basi musicali, ambienti sonori o sigle di sottofondo che devono girare finché non vengono fermate esplicitamente.
+**Play Next** — quando la clip si avvicina alla fine, avvia automaticamente la clip successiva nella colonna con la transizione configurata. Il badge **NEXT** appare sulla card. È il comportamento predefinito della colonna Pre-Show e crea di fatto una playlist automatica: puoi configurarlo su più clip consecutive per costruire blocchi che scorrono senza interruzioni.
 
-**Play Next** — quando la clip si avvicina alla fine, avvia automaticamente la clip successiva nella colonna con un **crossfade** fluido. Il badge **[NEXT]** appare sulla card. La durata del crossfade è determinata dal valore di fade out della clip uscente e dal fade in della clip entrante (vedi sezione 5.4).
-
-Il comportamento **Play Next** crea di fatto una playlist automatica all'interno della colonna. Puoi configurarlo su più clip consecutive per costruire blocchi musicali o sequenze parlate che scorrono senza interruzioni.
+La riproduzione in **loop** è un'opzione a sé: quando è attiva, la clip ricomincia dall'inizio (dal Trim Start) senza soluzione di continuità, e sulla card compare il badge **LOOP**. Usala per basi musicali, ambienti sonori o sigle di sottofondo che devono girare finché non vengono fermate esplicitamente. Le modalità di transizione — Crossfade, Segue, Gapless — sono descritte nel Capitolo 13.
 
 ---
 
 ## 5.4 Dissolvenze (Fade In e Fade Out)
 
-Ogni colonna ha valori di fade predefiniti che vengono applicati a tutte le clip al suo interno. Il pannello di modifica consente di sovrascrivere queste impostazioni per la singola clip.
+Il pannello consente di impostare, per la singola clip, la durata delle dissolvenze in ingresso e in uscita. I valori vanno da 0 a 60.000 millisecondi (60 secondi) e la curva applicata è lineare.
 
-**Fade In (millisecondi).** Il tempo che il volume impiega ad arrivare al livello massimo dall'avvio. Un valore di 2000 ms produce una salita graduale di due secondi. Usalo sulle basi musicali che devono emergere dolcemente; mantienilo a 0 per le voci e gli effetti sonori che devono essere uditi immediatamente.
+**Fade In.** Il tempo che il volume impiega ad arrivare al livello massimo dall'avvio. Un valore di 2000 ms produce una salita graduale di due secondi. Usalo sulle basi musicali che devono emergere dolcemente; mantienilo a 0 per le voci e gli effetti che devono essere uditi immediatamente.
 
-**Fade Out (millisecondi).** Il tempo di dissolvenza alla chiusura — sia quando si clicca su una clip attiva sia quando la clip raggiunge naturalmente la fine. Valori tipici: 2000–3000 ms per le canzoni, 500–1000 ms per le basi, 0 ms per gli stacchi secchi e gli SFX.
+**Fade Out.** Il tempo di dissolvenza alla chiusura — sia quando si clicca su una clip attiva, sia nelle transizioni. Valori tipici: 2000–3000 ms per le canzoni, 500–1000 ms per le basi, 0 ms per gli stacchi secchi.
 
-Un fade out a 0 ms produce una chiusura immediata («hard cut»). Usarlo su un brano musicale in diretta può essere percepito come un errore tecnico: valuta con attenzione quando è appropriato.
+Un fade out a 0 ms produce una chiusura immediata («hard cut»). Su un brano musicale in diretta può essere percepito come un errore tecnico: valuta con attenzione quando è appropriato.
 
 ---
 
 ## 5.5 Assegnazione controlli
 
-La sezione inferiore del pannello elenca i controlli di input assegnati alla clip.
+Ogni clip può essere lanciata anche da un tasto della tastiera o da un controller MIDI.
 
-**Trigger Keybind.** Il campo mostra il tasto della tastiera assegnato. Per modificarlo, clicca sul campo e premi il nuovo tasto desiderato. I tasti disponibili includono: lettere (A–Z), numeri (0–9), tasti funzione (F1–F12), tastierino numerico. I tasti già utilizzati per comandi globali non possono essere riassegnati alle clip.
+**Trigger Keybind.** Il tasto della tastiera assegnato alla clip. Puoi impostarlo dal campo dedicato nelle impostazioni della clip (clicca e premi il tasto desiderato) oppure dalla finestra **Keybinds** raggiungibile dal menu Strumenti. Il badge corrispondente compare sulla card. Se il tasto è già assegnato a un'altra clip, il software segnala il conflitto prima di sovrascrivere.
 
-**MIDI Bind.** Mostra la nota o il messaggio MIDI assegnato (es. `NOTE:60`, `CC:7`). L'assegnazione avviene tramite la modalità MIDI Learn nella griglia principale, non dal pannello di modifica (vedi Capitolo 8).
+**MIDI Bind.** La nota MIDI assegnata (es. `NOTE:60`). L'assegnazione avviene tramite la modalità **MIDI Learn** (vedi Capitolo 8), non digitando il numero a mano.
 
-I binding sono salvati nel file di progetto: portando il progetto su un altro computer con lo stesso controller MIDI, le mappature funzioneranno senza riconfigurazione.
-
+I binding delle clip sono salvati nel file di progetto: portando il progetto su un altro computer con lo stesso controller MIDI, le mappature funzioneranno senza riconfigurazione.

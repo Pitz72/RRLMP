@@ -2,88 +2,90 @@
 
 ---
 
-Il problema di fondo della regia radiofonica manuale è la moltiplicazione delle azioni simultanee: avviare un brano, abbassare la musica, parlare al microfono, preparare la clip successiva, tenere d'occhio l'orologio. Ogni operazione in più è un'opportunità di errore in un contesto in cui l'errore è pubblico e immediato.
+Il problema di fondo della regia radiofonica manuale è la moltiplicazione delle azioni simultanee: avviare un brano, abbassare la musica, parlare al microfono, preparare la clip successiva, tenere d'occhio l'orologio. Ogni operazione in più è un'opportunità di errore, in un contesto in cui l'errore è pubblico e immediato.
 
-Il motore di mixaggio di Runtime Live Machine Pro elimina la maggior parte di queste azioni intermedie delegandole al software. Non è automazione nel senso di «il software fa le cose al posto tuo senza che tu lo sappia»: è automazione delle regole che tu stesso definiresti se avessi abbastanza mani per eseguirle tutte.
+Il motore di mixaggio di Runtime Live Machine Pro elimina la maggior parte di queste azioni intermedie delegandole al software. Non si tratta di automazione nel senso di «il software fa le cose al posto tuo senza che tu lo sappia», ma di automazione delle regole che tu stesso definiresti se avessi abbastanza mani per eseguirle tutte.
 
 ---
 
 ## 6.1 La gerarchia audio
 
-Il sistema di mixaggio automatico si basa su una **gerarchia di priorità** tra le colonne. Ogni colonna occupa un livello preciso nella scala di importanza, e il software applica questa scala in modo coerente durante l'intera sessione.
+Il sistema di mixaggio automatico si basa su una **gerarchia di priorità** tra i tipi di clip. Il modo più immediato per capirla è immaginarla come una scala di «diritto di parola».
 
-Il modo più immediato per capire questa gerarchia è immaginarla come una scala discendente di «diritto di parola»:
+**Voci / Preregistrazioni — priorità assoluta.**
+Quando una clip voce è in riproduzione, resta al proprio volume nominale e tutto il resto si abbassa. Nessun altro segnale può sovrascrivere questa regola.
 
-**Livello 1 — Voci / Preregistrazioni (Arancione)**
-La priorità assoluta. Quando una clip voce è in riproduzione, tutto il resto si abbassa automaticamente a un livello di sottofondo. Nessun altro segnale nel sistema può sovrascrivere questa regola.
+**Canzoni dell'episodio.**
+Cedono spazio alle Voci, ma comandano sulle basi degli Assets. Quando entra una canzone, le basi musicali degli Assets si azzerano (non si fermano: continuano a girare in silenzio, pronte per il ritorno). È la Music Dominance, descritta più avanti.
 
-**Livello 2 — Canzoni dell'episodio (Rosso)**
-Cedono spazio alle Voci, ma comandano sulle basi degli Assets. Quando entra una canzone, le basi musicali degli Assets si azzerano (non si fermano: continuano a girare in silenzio, pronte per il ritorno).
+**Show Assets, Jingle e Promo — le basi di servizio.**
+Vengono abbassati dalle Voci e silenziati dalle Canzoni. Quando un asset è uno **Stacco**, però, diventa lui a comandare (vedi §6.4).
 
-**Livello 3 — Show Assets (Verde)**
-Le basi di sottofondo. Vengono abbassate sia dalle Voci che dalle Canzoni.
+**Effetti del pad FX.**
+Gli effetti sonori restano fuori dalla gerarchia: suonano al proprio volume, si sovrappongono a ciò che è in onda e non vengono silenziati. C'è una sola cortesia verso il parlato: quando una voce è attiva, gli effetti scendono a metà volume (50%) per non coprirla, poi risalgono da soli.
 
-**Fuori dalla gerarchia — SFX / Cartwall (Grigio)**
-Gli effetti sonori non partecipano al sistema di ducking. Suonano sempre al volume pieno, si sovrappongono a qualsiasi cosa stia succedendo nella griglia senza abbassare né essere abbassati. Questa è una scelta progettuale deliberata: un effetto sonoro che viene ducked da una voce perde metà del suo valore espressivo.
 
 ---
 
 ## 6.2 Ducking automatico
 
-Il **ducking** è il meccanismo con cui un segnale audio viene automaticamente abbassato quando un segnale di priorità superiore entra in riproduzione.
+Il **ducking** è il meccanismo con cui un segnale viene abbassato quando un segnale di priorità superiore entra in riproduzione.
 
-Nella pratica radio, il caso più comune è il seguente: una canzone sta suonando in piena dinamica; il conduttore lancia un'intervista preregistrata dalla colonna Voci. In quel momento, RLMP abbassa la canzone a circa il 20% del volume originale (−14 dB) con una transizione in dissolvenza morbida, lasciando che la voce occupi lo spazio sonoro in modo intellegibile. Appena l'intervista termina, la canzone risale al volume originale con un fade in altrettanto fluido.
+Il caso più comune: una canzone sta suonando in piena dinamica; lanci un'intervista preregistrata dalla colonna Voci. In quel momento RLMP porta la canzone a circa il **20% del volume** (una riduzione di circa 14 dB) con una dissolvenza morbida di mezzo secondo, così che la voce occupi lo spazio sonoro in modo intellegibile. Appena l'intervista termina, la canzone risale al volume originale con un fade in altrettanto fluido.
 
-L'operatore non tocca nulla. Il gesto eseguito è stato un solo click: avviare l'intervista.
-
-### Ducking microfono (Smart Mic)
-
-Il sistema di ducking si estende anche al microfono fisico collegato al computer. Quando la funzione Smart Mic è attiva (vedi Capitolo 7), RLMP monitora in continuo il segnale in ingresso dal microfono: se rileva audio sopra la soglia del noise gate configurabile, applica il ducking esattamente come farebbe una clip della colonna Voci. Il conduttore non deve premere nessun pulsante: parla al microfono e la musica si abbassa da sola.
+L'operatore non tocca nulla. Il gesto eseguito è stato un solo click: avviare l'intervista. L'entità della riduzione e la sua rapidità sono regolabili nelle Impostazioni (Capitolo 13).
 
 ---
 
 ## 6.3 Music Dominance: gestione intelligente delle basi
 
-Un errore sonoro classico nella produzione radio è il momento in cui una canzone e una base musicale (*bed*) si sovrappongono: due elementi ritmici che si scontrano, due kick drum che non coincidono, il risultato è confuso e non professionale.
+Un errore sonoro classico è il momento in cui una canzone e una base musicale (*bed*) si sovrappongono: due elementi ritmici che si scontrano, due kick drum che non coincidono, il risultato è confuso.
 
 RLMP gestisce questo scenario con la **Music Dominance**.
 
-**Lo scenario tipo.** Una base musicale sta girando in loop nella colonna Assets, sotto la voce del conduttore. Il conduttore lancia un brano musicale dalla colonna Canzoni.
+**Lo scenario tipo.** Una base sta girando in loop nella colonna Assets, sotto la voce del conduttore. Il conduttore lancia un brano dalla colonna Canzoni.
 
-**Cosa fa RLMP.** Non ferma la base — fermarla richiederebbe poi di avviarla manualmente al termine della canzone. Invece, la porta silenziosamente a **volume zero**, mantenendola in riproduzione «in fantasma»: il file continua a scorrere, il loop continua, ma non si sente nulla.
+**Cosa fa RLMP.** Non ferma la base, perché fermarla richiederebbe poi di riavviarla a mano. La porta invece silenziosamente a **volume zero**, mantenendola in riproduzione «in fantasma»: il file continua a scorrere, il loop continua, ma non si sente nulla.
 
 **Il risultato sonoro.** Si sente solo la canzone. La base è scomparsa senza che l'operatore abbia fatto nulla.
 
-**Il ritorno.** Quando la canzone termina (o viene fermata), la base riemerge con un fade in automatico, riprendendo dal punto in cui si trovava nel loop. Il flusso risultante — base → canzone → base — avviene senza un singolo click aggiuntivo da parte dell'operatore.
+**Il ritorno.** Quando la canzone termina, la base riemerge con un fade in automatico, riprendendo dal punto in cui si trovava nel loop. Il flusso (base → canzone → base) avviene senza un singolo click aggiuntivo.
 
 ---
 
 ## 6.4 Stacchi: l'eccezione alla regola
 
-Il comportamento **Stacco** (configurabile nelle proprietà di ogni clip, vedi Capitolo 5) consente a una clip di sovrapporsi alle altre senza triggering il sistema di ducking o Music Dominance.
+Il comportamento **Stacco** (configurabile nelle proprietà di ogni clip, vedi Capitolo 5) rovescia temporaneamente la gerarchia: la clip che lo porta diventa prioritaria. Silenzia gli altri asset della sua colonna e abbassa la musica, ma non ferma nulla. La dissolvenza applicata è più rapida di quella del ducking ordinario, per un ingresso più percussivo e netto.
 
-Una clip con comportamento Stacco, avviata nella colonna Assets, non zittisce le altre basi in riproduzione: si affianca a esse, eventualmente abbassandole di qualche dB per fare spazio, ma senza interromperle.
-
-L'uso tipico è lo *station ID* vocale («Stai ascoltando…»): deve sentirsi chiaramente, ma la base sotto deve continuare a girare. Configurando la clip come Stacco, ottieni esattamente questo effetto.
-
-**Combinazione con Fade In.** Per un risultato più curato, abbina il comportamento Stacco a un fade in breve (300–500 ms) sulla clip dello station ID: l'ingresso sarà morbido, non brusco.
+L'uso tipico è lo *station ID* vocale («Stai ascoltando…»): deve sentirsi chiaramente, mentre la base sotto continua a girare. Per un risultato più curato, abbina lo Stacco a un fade in breve (300–500 ms): l'ingresso sarà morbido, non brusco.
 
 ---
 
-## 6.5 Master Chain: la catena di processori sul master bus
+## 6.5 Omologazione del volume (loudness)
 
-Il segnale combinato di tutte le clip in riproduzione, dopo il Master Volume, attraversa una **catena di processori audio** sul bus master prima di raggiungere la periferica di uscita. Questa catena è attiva per impostazione predefinita e progettata per garantire un suono broadcast-grade senza richiedere configurazione avanzata.
+Clip di provenienza diversa arrivano quasi sempre con livelli diversi: una sigla masterizzata a dovere, un vocale telefonico registrato piano, un brano scaricato a un volume tutto suo. Per evitare continui aggiustamenti manuali del Gain, RLMP applica di default un'**omologazione del volume** basata sullo standard di loudness EBU R128, con un obiettivo di **−16 LUFS**.
 
-La catena comprende tre stadi in serie:
+In pratica, il software valuta la sonorità percepita di ciascuna clip e la avvicina a un riferimento comune, così che canzoni, voci e basi partano già su un piano coerente. La funzione è attiva per impostazione predefinita e il valore obiettivo è regolabile nelle Impostazioni → Master Chain.
 
-**High-Pass Filter (HPF) a 80 Hz.**
-Elimina le frequenze sub-bass inutili che consumano headroom e possono causare distorsioni sui sistemi di diffusione. Le voci e gli strumenti non contengono informazioni udibili sotto gli 80 Hz in un contesto broadcast.
+---
 
-**Compressore dinamico.**
-Soglia: −18 dBFS. Rapporto di compressione: 4:1. Attenuazione dei picchi eccessivi e contenimento della varianza dinamica tra clip di livello diverso. Un'intervista telefonica registrata a basso volume e una sigla professionale producono, dopo il compressore, un livello di uscita più omogeneo.
+## 6.6 Master Chain: la catena di processori sul master bus
+
+![La scheda Master Chain nella finestra Impostazioni.](../screenshots/impostazioni-master-chain.png)
+
+*Figura 6.1 — La Master Chain: omologazione del volume (−16 LUFS), HPF a 30 Hz, glue multibanda e limiter brickwall.*
+
+Il segnale combinato di tutte le clip in riproduzione, dopo il Master Volume, attraversa una **catena di processori** sul bus master prima di raggiungere la periferica di uscita. La catena è attiva per impostazione predefinita e progettata per un suono broadcast-grade senza richiedere configurazione avanzata.
+
+Comprende tre stadi in serie.
+
+**High-Pass Filter (HPF) a 30 Hz.**
+Elimina le frequenze sub-bass inutili che consumano headroom e possono sporcare i sistemi di diffusione, con una pendenza morbida. La frequenza di taglio è regolabile (20–200 Hz). Quando disattivato, lo stadio diventa completamente trasparente.
+
+**Glue multibanda.**
+Non un singolo compressore, ma tre compressori «gentili» che lavorano in parallelo su tre bande di frequenza (bassi, medi, alti), separate da un crossover. Ogni banda ha soglie e rapporti calibrati per «incollare» il mix senza schiacciarlo, e contenere la varianza dinamica tra clip di livello diverso. Lo stile è selezionabile tra alcuni preset (Neutro, Rock, Jazz, Elettronico); il preset predefinito è Neutro.
 
 **Limiter a brickwall.**
-Soglia: −1 dBFS. Garantisce che il segnale non superi mai il livello massimo consentito, prevenendo la distorsione digitale (clipping) indipendentemente dai picchi nei segnali sorgente.
+Soglia a −1 dBFS, con rapporto di limitazione elevato e reazione rapidissima. Garantisce che il segnale non superi mai il livello massimo consentito, prevenendo la distorsione digitale (clipping) qualunque cosa accada a monte.
 
-La catena è configurabile e disattivabile dalle impostazioni generali (icona Ingranaggio → *Master Chain*). In un contesto dove il segnale viene già processato da un mixer hardware o da un chain esterno, puoi disattivarla per evitare processazioni doppie.
-
+L'intera catena, e ogni singolo stadio, è configurabile e disattivabile dalle Impostazioni → Master Chain, dove trovi anche un pulsante per ripristinare i valori predefiniti. In un contesto dove il segnale viene già processato da un mixer hardware o da una catena esterna, puoi disattivarla per evitare processazioni doppie.

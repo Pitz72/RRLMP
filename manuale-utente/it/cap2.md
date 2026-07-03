@@ -27,22 +27,24 @@ Non è richiesta una scheda audio dedicata: RLMP funziona con qualsiasi periferi
 
 ## 2.2 Installazione su Windows
 
-1. Scarica il file `Runtime Live Machine Pro Setup 1.2.0.exe` dal sito ufficiale.
+1. Scarica il file `Runtime-Live-Machine-Pro-1.11.5.exe` dal canale di distribuzione ufficiale.
 2. Fai doppio click sull'eseguibile. L'installer NSIS si avvierà e copierà i file nelle directory appropriate.
 3. Al termine, un collegamento verrà creato sul Desktop e nel menu Start.
 4. L'applicazione si avvia automaticamente al completamento dell'installazione.
 
-**Nota su Windows SmartScreen.** Poiché il software viene aggiornato con frequenza, il certificato di firma digitale potrebbe non avere ancora accumulato la «reputazione» sufficiente per la whitelist automatica di SmartScreen. Se compare l'avviso «Il PC è stato protetto da Windows», clicca su *Ulteriori informazioni* e poi su *Esegui comunque*. Il software è privo di malware e il codice sorgente è disponibile pubblicamente.
+**Nota su Windows SmartScreen.** Poiché il software viene aggiornato con frequenza, il certificato di firma digitale potrebbe non avere ancora accumulato la «reputazione» sufficiente per la whitelist automatica di SmartScreen. Se compare l'avviso «Il PC è stato protetto da Windows», clicca su *Ulteriori informazioni* e poi su *Esegui comunque*. Il software è privo di malware; gli installer ufficiali sono pubblicati esclusivamente attraverso i canali di distribuzione dell'autore.
 
 ---
 
 ## 2.3 Installazione su macOS
 
-1. Scarica il file `.dmg` dal sito ufficiale.
+1. Scarica il file `.dmg` dal canale ufficiale.
 2. Apri il file immagine e trascina l'icona di Runtime Live Machine Pro nella cartella *Applicazioni*.
 3. Al primo avvio, macOS potrebbe mostrare un avviso Gatekeeper («App non può essere aperta perché proviene da uno sviluppatore non identificato»). Per procedere, apri *Preferenze di Sistema* → *Sicurezza e Privacy* → *Generali* e clicca su *Apri comunque* accanto al nome dell'applicazione.
 
 Dalla versione macOS 15 (Sequoia) in poi, il percorso è *Impostazioni di Sistema* → *Privacy e sicurezza* → scorri fino alla sezione *Sicurezza*.
+
+> **Nota.** L'applicazione macOS non è firmata con un certificato Apple Developer. Questo influisce anche sul modo in cui vengono gestiti gli aggiornamenti, come spiegato nel Capitolo 12.
 
 ---
 
@@ -59,32 +61,34 @@ Su alcune distribuzioni potrebbe essere necessario installare il pacchetto `liba
 
 ## 2.5 La schermata di benvenuto
 
-Al primo avvio — e a ogni avvio successivo, finché non apri un progetto — RLMP presenta la **Welcome Screen**, il punto di accesso a tutte le operazioni preliminari.
+![La schermata di benvenuto di Runtime Live Machine Pro, con le azioni principali e il selettore di lingua.](../screenshots/schermata-benvenuto.png)
 
-Il layout è orizzontale e comprende tre zone funzionali.
+*Figura 2.1 — La schermata di benvenuto: identità del software, stato dell'aggiornamento, azioni principali e selettore di lingua.*
 
-**Zona sinistra — Identità e stato.**
-Il logo del software (cinque barre di VU meter con il simbolo di play) identifica visivamente la versione Pro. Sotto il logo è riportato il numero di versione installata, accompagnato da un indicatore cromatico di aggiornamento:
+Al primo avvio — e a ogni avvio successivo, finché non apri un progetto — RLMP presenta la **schermata di benvenuto**, il punto di accesso a tutte le operazioni preliminari. Il pannello è diviso in due zone.
 
-- **Verde** — il software è aggiornato all'ultima versione disponibile.
-- **Giallo/Arancione** — è disponibile un aggiornamento. Visita il sito ufficiale per scaricarlo.
+**Zona sinistra — Identità e azioni.**
+Il logo del software (le barre di un VU meter con il simbolo di play) identifica la versione Pro. Sotto il titolo e lo slogan compare il numero di versione installata, accompagnato dallo stato del sistema di aggiornamento:
 
-**Zona centrale — Azioni principali.**
+- **«Aggiornato»** (verde) — stai usando l'ultima versione disponibile.
+- **«Aggiornamento disponibile»** (ambra, lampeggiante) — è un pulsante: cliccalo per aprire la finestra di aggiornamento (Capitolo 12).
+- **«OFFLINE»** (rosso tenue) — non è stato possibile contattare il servizio di aggiornamento; il software funziona ugualmente.
 
-- *Nuovo Progetto* — crea una sessione vuota con le cinque colonne pronte al caricamento.
+Sotto trovi le azioni principali:
+
+- *Nuovo Progetto* — crea una sessione vuota con le colonne pronte al caricamento.
 - *Carica Progetto* — apre un file `.lmp` esistente. Prima di renderlo operativo, RLMP esegue un **controllo di integrità**: verifica che ogni file audio referenziato esista ancora nel percorso memorizzato. I file mancanti vengono immediatamente segnalati con un bordo rosso sulla rispettiva clip.
-- *Manuale* — apre la documentazione nel browser predefinito.
+- *Manuale* — la voce è presente ma al momento disattivata: la documentazione consultabile dall'interno del software arriverà in una prossima versione via web.
 
 **Zona destra — Selettore lingua.**
-RLMP supporta otto lingue dell'interfaccia: Italiano, Inglese, Francese, Tedesco, Spagnolo, Portoghese, Russo e Cinese semplificato. La bandiera corrispondente alla lingua attiva è evidenziata. La selezione viene memorizzata nel profilo utente e persiste tra una sessione e l'altra.
+RLMP supporta otto lingue dell'interfaccia: Inglese, Italiano, Francese, Tedesco, Spagnolo, Portoghese, Russo e Cinese semplificato. La lingua attiva è evidenziata con un bordo ciano e un segno di spunta. La selezione ha effetto immediato e viene memorizzata tra una sessione e l'altra.
 
 ---
 
 ## 2.6 Il primo avvio: cosa aspettarsi
 
-Alla prima apertura di un progetto, noterai nell'header il badge **PRO** in ciano acceso. Non è un elemento decorativo: conferma che il motore audio in background è attivo e operativo, che FFmpeg è stato inizializzato correttamente e che il protocollo di streaming `media://` è in ascolto.
+Alla prima apertura di un progetto, noterai nell'header il logo con il badge **PRO** dal gradiente iridescente. Dietro l'interfaccia, l'apertura del progetto avvia il motore audio in background: FFmpeg viene inizializzato e il protocollo di streaming `media://` si mette in ascolto, pronto a servire i file dal disco senza caricarli in memoria.
 
 Il software si avvia preferibilmente in modalità a tutto schermo. Se la finestra dovesse aprirsi ridimensionata, premi `F11` (Windows/Linux) o `Ctrl+Cmd+F` (macOS) per portarla a schermo intero — condizione ottimale per il lavoro di regia.
 
-Il **Timer On Air** nell'header rimarrà a zero finché non viene lanciata la prima clip della sessione. Da quel momento inizierà a contare il tempo trascorso in diretta: uno strumento di riferimento utile per chi lavora con scalette a tempo fisso.
-
+Il **Timer On Air** nell'header rimarrà a `--:--:--` finché non viene lanciata la prima clip della sessione. Da quel momento inizierà a contare il tempo trascorso in diretta: un riferimento utile per chi lavora con scalette a tempo fisso.

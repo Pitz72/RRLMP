@@ -1,118 +1,49 @@
-# Capitolo 12 — Risoluzione problemi e FAQ
+# Capitolo 12 — Aggiornamenti
 
 ---
 
-Questo capitolo raccoglie i problemi più comuni che possono presentarsi nell'uso quotidiano di Runtime Live Machine Pro, con le rispettive soluzioni. Ogni sezione descrive il sintomo, la causa più probabile e la procedura di risoluzione.
+Runtime Live Machine Pro si aggiorna da solo, ma mai a tuo discapito. Due regole reggono tutto: nessun aggiornamento deve interferire con una diretta, e nessun download parte senza il tuo consenso. Questo capitolo spiega come il software controlla la presenza di nuove versioni, come le installa e perché a volte si comporta in modo diverso a seconda del sistema operativo.
 
 ---
 
-## 12.1 Problemi audio
+## 12.1 Il controllo all'avvio
 
-### Il timer scorre e i VU meter si muovono, ma non si sente nulla
+Poco dopo l'avvio (circa tre secondi), RLMP verifica in modo silenzioso se esiste una versione più recente. L'esito compare nella schermata di benvenuto, accanto al numero di versione:
 
-Il software sta riproducendo correttamente — il segnale è presente nel bus interno — ma non raggiunge la periferica di ascolto.
+- **«Aggiornato»** (verde) — stai usando l'ultima versione.
+- **«Aggiornamento disponibile»** (ambra) — è disponibile una versione più recente. È un pulsante: cliccalo per aprire la finestra di aggiornamento.
+- **«OFFLINE»** — non è stato possibile contattare il servizio; riprova più tardi. Il software funziona normalmente.
 
-**Verifica in ordine:**
-
-1. **Master Volume.** Lo slider nell'header è a zero? Portalo al 100%.
-2. **Periferica di uscita.** Apri le Impostazioni (Ingranaggio) e controlla quale periferica è selezionata in *Audio Output Device*. Windows e macOS possono cambiare l'identificativo delle periferiche USB quando vengono scollegate e ricollegate. Se il nome della periferica non corrisponde a quella fisicamente connessa, selezionala di nuovo dalla lista.
-3. **Mixer esterno.** Se il segnale arriva a un mixer hardware, controlla che il fader del canale corrispondente non sia abbassato o in mute, e che l'uscita del mixer sia collegata ai monitor o alla scheda trasmissione.
-
-### L'audio salta, gracchia o ha interruzioni
-
-In condizioni normali, il motore audio di RLMP è robusto rispetto a questo tipo di artefatti. Se si verificano, la causa è quasi sempre esterna al software.
-
-- **CPU sotto carico estremo.** Chiudi le applicazioni pesanti in esecuzione in contemporanea (montaggio video, rendering 3D, backup intensivi).
-- **Buffer audio troppo basso.** Se usi una scheda audio professionale con driver ASIO (Windows) o Core Audio (macOS), controlla il valore di buffer nel pannello di controllo del driver. Un valore di 256 o 512 campioni è l'equilibrio corretto tra latenza e stabilità; valori inferiori a 128 campioni possono causare dropout su sistemi non ottimizzati.
-- **Disco lento o sotto stress.** RLMP streamma l'audio direttamente dal disco. Un disco meccanico lento, o un SSD quasi pieno, può causare interruzioni su file di grandi dimensioni. Verifica che il disco su cui si trovano i file audio non sia congestionato da altre operazioni di lettura/scrittura simultanee.
-
-### Il livello audio è troppo basso o troppo alto rispetto alle aspettative
-
-- **Gain per clip.** Se una singola clip è troppo bassa o troppo alta rispetto alle altre, regola il Gain nelle sue proprietà (click destro → Edit → slider Volume).
-- **Master Volume.** Se il livello complessivo è scorretto, agisci sullo slider Master Volume nell'header.
-- **Master Chain attiva/disattiva.** Se il compressore del Master Chain sta applicando una compressione forte, potresti percepire un livello generale più compresso del previsto. Considera di ridurre il Gain delle clip più «calde» invece di disabilitare la catena.
+Il controllo è opzionale e non bloccante: se sei offline, RLMP parte e lavora senza problemi.
 
 ---
 
-## 12.2 Clip rosse e file mancanti
+## 12.2 La finestra di aggiornamento
 
-### Una card è diventata rossa e non risponde al click
+Quando un aggiornamento è disponibile, la finestra dedicata mostra la versione corrente, la nuova versione e le note di rilascio. Da qui decidi tu:
 
-Il bordo rosso indica che il file audio referenziato non è raggiungibile al percorso memorizzato nel progetto.
-
-**Cause possibili:**
-
-- Il file è stato spostato o rinominato sul disco.
-- Il file si trovava su un disco esterno o una chiavetta USB che ora è scollegata.
-- Il progetto è stato aperto su un computer diverso dove i percorsi non corrispondono.
-
-**Soluzioni:**
-
-1. **Riconnetti il disco.** Se il file era su un disco esterno, ricollegalo. Al successivo accesso alla griglia, RLMP verificherà nuovamente il percorso.
-2. **Riporta il file nella posizione originale.** Se il file è stato spostato, rimettilo nel percorso originale.
-3. **Sostituisci la clip.** Trascina di nuovo il file corretto nella griglia (nella stessa posizione) e cancella la card rossa. Dovrai riconfigurare le proprietà della nuova clip se erano state personalizzate.
-4. **Usa Export Package in futuro.** La prevenzione più efficace è creare un Export Package prima di spostare o trasferire il progetto (vedi Capitolo 10).
+- **Più tardi** — chiude la finestra senza fare nulla. Potrai riaprirla quando vuoi.
+- **Scarica** — avvia il download della nuova versione. Il download **non parte mai da solo**: comincia solo quando premi questo pulsante. Una barra di avanzamento ne mostra il progresso.
+- **Riavvia e installa** — compare quando il download è completo: riavvia l'applicazione applicando l'aggiornamento.
 
 ---
 
-## 12.3 Problemi MIDI
+## 12.3 La regola «mai durante la diretta»
 
-### Il controller non viene rilevato
+Il controllo automatico può trovare un aggiornamento proprio mentre sei in onda. In quel caso, RLMP **non ti interrompe**: la finestra di aggiornamento resta in attesa e si apre da sola soltanto quando la diretta è finita (quando fermi tutto). La priorità è sempre lo show in corso.
 
-1. **Ordine di connessione.** Il controller deve essere collegato al computer **prima** di avviare RLMP. Il rilevamento MIDI avviene all'inizializzazione del software; se il controller viene collegato dopo l'avvio, chiudi e riapri RLMP.
-2. **Driver.** La maggior parte dei controller USB-MIDI moderni è class-compliant e non richiede driver. Per controller professionali o superfici di controllo avanzate che usano driver proprietari, verifica che il driver sia installato e che il sistema operativo riconosca il dispositivo prima di avviare il software.
-3. **Verifica in modalità Learn.** Attiva la modalità MIDI Learn (icona ciano nell'header): le card assumono l'aspetto tratteggiato d'attesa. Premi un tasto sul controller. Se la card corrispondente riceve la mappatura, il controller è rilevato correttamente.
-
-### Le clip mappate non rispondono ai tasti del controller
-
-**La modalità MIDI Learn è ancora attiva.** Quando l'icona MIDI è ciana, i tasti del controller registrano nuove mappature invece di eseguire le clip. Clicca di nuovo sull'icona per tornare alla modalità operativa (icona grigia).
-
-**La mappatura è andata persa.** Se hai aperto il progetto su un altro computer o hai reinstallato il software, le mappature MIDI sono nel file `.lmp` e dovrebbero essere preservate. Verifica che il progetto sia stato salvato dopo la sessione di MIDI Learn.
+C'è una sola eccezione, ed è voluta: il pulsante **Controlla aggiornamenti ora**, nel pannello *Info* (menu Strumenti), è un'azione esplicita tua e apre subito la finestra, anche in diretta. Se lo premi, è perché lo vuoi.
 
 ---
 
-## 12.4 Problemi di avvio
+## 12.4 Differenze tra le piattaforme
 
-### L'applicazione non si avvia su macOS (avviso Gatekeeper)
+Il modo in cui l'aggiornamento viene installato dipende dal sistema operativo.
 
-Vedi la sezione 2.3 di questo manuale per la procedura di sblocco tramite Preferenze di Sistema → Sicurezza e Privacy.
+**Windows e Linux (AppImage).**
+L'aggiornamento è completamente integrato: scarichi la nuova versione dalla finestra e il software la installa al successivo riavvio, senza passaggi manuali.
 
-### L'applicazione non si avvia su Windows (avviso SmartScreen)
+**macOS e Linux (pacchetto .deb).**
+Su questi sistemi RLMP non può installare l'aggiornamento in modo affidabile. Al posto dell'installazione automatica, la finestra ti avvisa e apre il browser sulla pagina di download della nuova versione: da lì scarichi il pacchetto e lo installi come faresti per una nuova installazione (Capitolo 2). I tuoi progetti e i file `.lmp` restano intatti.
 
-Vedi la sezione 2.2. Clicca su *Ulteriori informazioni* e poi su *Esegui comunque*.
-
-### Il badge PRO non è visibile dopo l'apertura di un progetto
-
-Il badge PRO indica che il motore audio è inizializzato correttamente. La sua assenza può indicare un problema di avvio del Main Process. Chiudi e riapri RLMP. Se il problema persiste, verifica che il percorso di installazione non contenga caratteri speciali (spazi, accenti, simboli) che potrebbero interferire con il caricamento dei componenti FFmpeg.
-
----
-
-## 12.5 Domande frequenti
-
-**RLMP può automatizzare una radio per 24 ore senza presidio?**
-No. RLMP è progettato per la regia live: show presidiati da un operatore. Non dispone di funzioni di schedulazione oraria, rotazione automatica della playlist o selezione intelligente dei brani. Per l'automazione H24 esistono software dedicati (Zara Radio, PlayIt Live, Rivendell). RLMP e quei software non sono concorrenti: rispondono a esigenze diverse.
-
-**Qual è la differenza tra Salva e Salva con Nome?**
-*Salva* sovrascrive il file `.lmp` attualmente aperto, silenziosamente e istantaneamente. *Salva con Nome* apre sempre la finestra di dialogo e crea un nuovo file, senza toccare quello corrente.
-
-**Posso usare RLMP su iPad o su dispositivi mobile?**
-No. RLMP è un'applicazione desktop per Windows, macOS e Linux. Richiede il sistema operativo completo e l'accesso diretto al file system per il caricamento e lo streaming dei file audio.
-
-**I file `.lmp` delle versioni precedenti sono compatibili con la versione 1.2?**
-Sì. Il formato `.lmp` mantiene la compatibilità con le versioni precedenti. Aprendo un progetto creato con una versione precedente, RLMP migra automaticamente le impostazioni al formato corrente. Il file originale non viene modificato finché non esegui un salvataggio.
-
-**Come aggiorno RLMP a una nuova versione?**
-La Welcome Screen indica la disponibilità di una nuova versione tramite l'indicatore cromatico (giallo/arancione). Scarica il nuovo installer dal sito ufficiale ed eseguilo: sovrascrive la versione esistente, preservando tutti i tuoi progetti e file `.lmp`.
-
-**Dove vengono salvati i backup automatici se il progetto non è mai stato salvato?**
-Nella cartella dei dati applicativi:
-- **Windows:** `%APPDATA%\runtime-live-machine\backup\`
-- **macOS:** `~/Library/Application Support/runtime-live-machine/backup/`
-- **Linux:** `~/.config/runtime-live-machine/backup/`
-
-**Posso usare più istanze di RLMP contemporaneamente?**
-Tecnicamente possibile, ma non consigliato. Due istanze che accedono agli stessi file audio e alla stessa periferica audio possono generare conflitti di accesso al file e artefatti nell'output audio. Se hai necessità di gestire show paralleli, usa un mixer hardware esterno e due computer separati.
-
-**Il software funziona offline?**
-Sì, completamente. RLMP non richiede connessione internet per funzionare. La connessione viene usata esclusivamente per il controllo degli aggiornamenti all'avvio (operazione opzionale e non bloccante).
-
+> **Nota.** In tutti i casi, aggiornare RLMP non comporta la perdita dei progetti: i file `.lmp` sono compatibili tra le versioni e non richiedono migrazione manuale.

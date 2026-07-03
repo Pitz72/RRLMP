@@ -32,7 +32,7 @@ FONTS_DIR  = Path("/sessions/tender-gracious-ritchie/fonts")
 # ─── Global metadata ─────────────────────────────────────────────────────────
 
 META = {
-    "version":       "1.2.4",
+    "version":       "1.11.5",
     "production":    "Ecosystem.Runtime",
     "author":        "Simone Pizzi",
     "software":      "Runtime Live Machine Pro",
@@ -45,8 +45,8 @@ LANG_CONFIG = {
     "it": {
         "title":         "Manuale Utente",
         "toc_title":     "Indice",
-        "edition":       "Prima Edizione",
-        "chapters":      [f"cap{i}" for i in range(1, 13)],
+        "edition":       "Seconda Edizione",
+        "chapters":      [f"cap{i}" for i in range(1, 15)],
         "note_label":    "Nota",
         "tip_label":     "Suggerimento",
         "warning_label": "Attenzione",
@@ -796,18 +796,20 @@ def md_to_html(md_text):
 
 TOC_SUMMARIES = {
     "it": {
-        "cap1":  "Filosofia del progetto, target, architettura, cinque colonne",
-        "cap2":  "Requisiti, installazione su Windows/macOS/Linux, welcome screen",
-        "cap3":  "Header, barra di controllo, griglia a 5 colonne, card audio",
+        "cap1":  "Filosofia del progetto, target, architettura, griglia di regia",
+        "cap2":  "Requisiti, installazione su Windows/macOS/Linux, schermata di benvenuto",
+        "cap3":  "Barra di controllo, griglia a sei colonne, card audio",
         "cap4":  "Drag & drop, riproduzione, organizzazione scaletta, cue INTRO/OUTRO",
-        "cap5":  "Waveform editor, trim, marker, fade, next action, keybind",
-        "cap6":  "Gerarchia audio, ducking, music dominance, stacchi, master chain",
-        "cap7":  "Smart mic auto-ducking, mic-in-mix, ARM, configurazione",
+        "cap5":  "Waveform editor, trim, marker, auto-trim, fade, next action, keybind",
+        "cap6":  "Gerarchia audio, ducking, music dominance, stacchi, loudness, master chain",
+        "cap7":  "Pad FX jingle machine, vista Automix, transizioni beat-matched",
         "cap8":  "Routing audio, comandi tastiera, controller MIDI, MIDI learn",
-        "cap9":  "Session recording, formati export, qualità, workflow",
-        "cap10": "File .lmp, salvataggio, auto-backup, export package, integrità",
-        "cap11": "NoteBoard, colori colonne, transizioni, impostazioni, toast",
-        "cap12": "Problemi audio, clip rosse, MIDI, avvio, FAQ",
+        "cap9":  "Registrazione della sessione, formato interno, esportazione, qualità",
+        "cap10": "File .lmp, salvataggio, autosave, export package, integrità",
+        "cap11": "Controllo remoto via browser, PIN, connessione, sicurezza",
+        "cap12": "Auto-updater, controllo all'avvio, mai in diretta, piattaforme",
+        "cap13": "NoteBoard, colori colonne, transizioni, impostazioni, playout log, undo/redo, toast",
+        "cap14": "Problemi audio, clip rosse, MIDI, avvio, FAQ",
     },
     "en": {
         "cap1":  "Philosophy, target users, architecture, five columns",

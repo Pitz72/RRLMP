@@ -1,108 +1,60 @@
-# Capitolo 11 — Funzioni avanzate
+# Capitolo 11 — Controllo Remoto
 
 ---
 
-Questo capitolo raccoglie le funzionalità di RLMP che non appartengono al flusso di lavoro quotidiano di base, ma che — una volta scoperte — entrano stabilmente nella prassi di chi produce show con cura e regolarità. NoteBoard, la gestione cromatica delle colonne e le opzioni di personalizzazione dell'interfaccia sono strumenti per chi vuole costruire un ambiente di regia su misura.
+Non sempre chi conduce sta seduto davanti al computer. A volte il conduttore è dall'altra parte dello studio, dietro un vetro, oppure si muove con un ospite. Il **Controllo Remoto** di Runtime Live Machine Pro consente di comandare i passaggi essenziali dello show da un secondo dispositivo (un tablet, un telefono, un portatile) collegato alla stessa rete locale, usando semplicemente il browser. Non serve installare nulla sul dispositivo remoto.
+
+La funzione è al momento contrassegnata come **Beta**.
 
 ---
 
-## 11.1 NoteBoard: il copione in regia
+## 11.1 Come funziona
 
-La **NoteBoard** è il sistema di note integrate alle clip. Consente di associare a qualsiasi clip un testo scritto — dalle istruzioni operative alle scalette, dagli appunti sui personaggi di un'intervista al testo completo di uno spot — e di farlo comparire automaticamente sullo schermo nel momento in cui quella clip entra in riproduzione.
+Quando lo attivi, RLMP avvia al proprio interno un piccolo **server web locale**. Il dispositivo remoto si connette a questo server aprendo un indirizzo nel browser: da lì compare una pagina di controllo che rispecchia lo stato della colonna Musica e permette di agire su di essa.
 
-### Inserire note in una clip
-
-1. Apri il pannello di configurazione della clip (click destro → *Edit*).
-2. Nella sezione *Note* (NoteBoard), inserisci il testo nel campo di testo libero.
-3. Non c'è limite di lunghezza.
-4. Salva.
-
-### Il pannello NoteBoard in diretta
-
-Quando una clip con note entra in riproduzione, il **pannello NoteBoard** si apre automaticamente nella parte inferiore dello schermo, visualizzando il testo associato. Il pannello rimane visibile per tutta la durata della riproduzione della clip. Quando la clip termina — o viene fermata — il pannello si chiude automaticamente.
-
-Se più clip con note sono in riproduzione simultanea, il pannello mostra le note della clip con priorità più alta nella gerarchia audio (cap. 6).
-
-### Casi d'uso
-
-**Regia parlata.** Il conduttore o il regista associa a ogni sigla o stacco musicale le prime righe del blocco parlato che segue. Quando la sigla parte, il testo compare in basso: prontamente consultabile senza cercare fogli sulla scrivania.
-
-**Contenuto da leggere.** Un jingle pubblicitario o uno spot ha il testo completo nella NoteBoard: appena parte, il testo è davanti agli occhi del lettore.
-
-**Istruzioni operative.** Note tecniche per il regista: «Abbassare il monitor», «Controllare livello cuffie ospite», «Ricordare di avviare la registrazione».
-
-**Interviste e scalette.** Le domande da porre a un ospite possono essere associate alla clip dell'intervista. Il pannello le mostra durante tutta la durata della registrazione.
+Tutto avviene **dentro la rete locale**: il server è raggiungibile dagli apparecchi connessi alla stessa rete Wi-Fi o LAN dello studio, e non passa da internet.
 
 ---
 
-## 11.2 Personalizzazione cromatica delle colonne
+## 11.2 Attivazione
 
-L'interfaccia di RLMP è progettata con colori predefiniti che hanno un significato semantico consolidato (verde per gli Asset, rosso per le Canzoni, ecc.). Tuttavia, ogni colonna è personalizzabile: a ogni versione del progetto puoi assegnare una palette cromatica su misura.
+1. Apri le **Impostazioni** dal menu Strumenti e vai alla scheda *Generali*.
+2. Attiva il toggle **Controllo Remoto (Beta)**.
+3. Compaiono un **PIN a sei cifre**, la **porta** del server e gli **indirizzi di rete** a cui il dispositivo remoto può connettersi.
+4. Il pulsante **Copia link** copia negli appunti l'indirizzo pronto all'uso (nella forma `http://<indirizzo-del-computer>:8787`).
 
-### Come cambiare il colore di una colonna
-
-Clicca con il **tasto destro sull'intestazione** della colonna. Si apre una palette di **30 colori** predefiniti. Clicca sul colore desiderato: la colonna — intestazione, card, indicatori di stato — assume immediatamente il nuovo colore.
-
-La scelta è salvata nel file di progetto. Ogni progetto può avere una propria identità cromatica: puoi usare rosso/arancione per gli show mattutini, blu/viola per i notturni, verde/teal per i talk show.
-
-Le card nella colonna **ereditano dinamicamente** il colore della colonna in tempo reale: una card a riposo appare in una tinta attenuata del colore della colonna; durante la riproduzione, il colore è pieno e luminoso. Questa progressione è coerente su tutti i 30 colori disponibili.
+Il server ascolta sulla porta **8787**. Il PIN viene **rigenerato a ogni avvio** dell'applicazione e non viene memorizzato: chiudere e riaprire RLMP produce un nuovo PIN. Anche il Controllo Remoto stesso riparte sempre spento a ogni avvio, da riattivare quando serve.
 
 ---
 
-## 11.3 Transizioni tra clip
+## 11.3 Connettersi dal dispositivo remoto
 
-RLMP supporta tre modalità di transizione tra clip consecutive nella stessa colonna, configurabili nelle proprietà della clip uscente (sezione *Next Action*):
+1. Sul tablet o sul telefono, apri il browser e digita l'indirizzo mostrato nelle Impostazioni (o incollalo dal link copiato).
+2. Compare una pagina con un tastierino: inserisci il **PIN a sei cifre**.
+3. A PIN corretto, la pagina mostra l'elenco delle clip della colonna **Musica**, con i comandi di riproduzione, e un pulsante **Stop All**. Un pulsante dedicato porta la pagina a tutto schermo, comodo su tablet.
 
-**Crossfade.** La clip uscente sfuma in uscita mentre la clip entrante sale in dissolvenza. Le due si sovrappongono per la durata del fade. La durata del crossfade è determinata dal Fade Out della clip uscente.
-
-**Segue (Gapless).** La clip uscente finisce al suo punto naturale e la clip entrante parte immediatamente, senza sovrapposizione e senza silenzio. Usalo quando vuoi che le clip si susseguano in modo preciso, senza né il taglio secco né la sovrapposizione.
-
-**Hard Cut.** La clip uscente viene troncata (Fade Out = 0 ms) e la clip entrante parte immediatamente. Non è strettamente una «transizione» ma la modalità più rapida per cambiare brano senza effetti.
-
-Tutte e tre le modalità sono testabili nell'editor della forma d'onda tramite il pulsante *Preview Transition*, senza dover tornare alla griglia principale.
+Da qui puoi far partire e fermare i brani della colonna Musica e, se serve, fermare tutto. Lo stato si aggiorna in tempo reale: ciò che parte o si ferma sul computer principale si riflette sulla pagina remota, e viceversa.
 
 ---
 
-## 11.4 La finestra Impostazioni generali
+## 11.4 Cosa si controlla da remoto
 
-Le **Impostazioni generali** (icona Ingranaggio → *General Settings*) raccolgono tutte le preferenze globali del software che non appartengono a un singolo progetto.
+Il Controllo Remoto è deliberatamente essenziale. Da remoto puoi:
 
-### Audio
+- **Avviare** una clip della colonna Musica.
+- **Fermare** una clip della colonna Musica.
+- Eseguire uno **Stop All**.
 
-**Periferica di uscita.** Seleziona la destinazione audio (trattato nel Capitolo 8).
-
-**Master Chain.** Toggle per abilitare/disabilitare l'intera catena HPF + Compressore + Limiter. Quando disabilitata, il segnale passa direttamente al driver audio senza processing aggiuntivo.
-
-### Microfono
-
-**Periferica di ingresso.** Seleziona il microfono per Smart Mic e Mic-in-Mix.
-
-**Soglia noise gate.** Il livello in dBFS sotto cui il software considera il segnale come silenzio.
-
-**Smart Mic Auto-Ducking.** Toggle on/off per il rilevamento automatico della voce.
-
-**Mic-in-Mix.** Toggle on/off per l'instradamento del microfono nel master bus. Slider di volume dedicato.
-
-**Bypass Master Chain per Mic.** Toggle che esclude il processing del Master Chain per il solo segnale del microfono.
-
-### Interfaccia
-
-**Lingua.** Seleziona la lingua dell'interfaccia tra le otto disponibili. La modifica è immediata e non richiede riavvio.
-
-**Avvio a tutto schermo.** Se attivo, RLMP si apre sempre in modalità a schermo intero, indipendentemente dalle dimensioni della finestra all'ultima chiusura.
+Sono le uniche azioni ammesse. Il resto della regia (le altre colonne, il pad FX, l'editor, le impostazioni) resta sul computer principale. È una scelta di sicurezza: il telecomando serve a gestire il flusso musicale a distanza, non a sostituire la postazione di regia.
 
 ---
 
-## 11.5 Sistema di notifiche toast
+## 11.5 Sicurezza e limiti
 
-RLMP non usa finestre di dialogo bloccanti per le comunicazioni di routine. Tutte le notifiche non critiche vengono presentate come **toast**: piccoli banner non intrusivi che compaiono nell'angolo dello schermo, rimangono visibili per alcuni secondi e scompaiono automaticamente senza interrompere la riproduzione.
+- **PIN obbligatorio.** Nessun dispositivo può inviare comandi senza aver superato la verifica del PIN a sei cifre.
+- **Protezione dai tentativi.** I tentativi di inserimento del PIN sono limitati nel tempo: dopo alcuni tentativi falliti ravvicinati, l'accesso da quell'apparecchio viene temporaneamente bloccato.
+- **Comandi su lista bianca.** Il server accetta soltanto i tre comandi previsti (avvia, ferma, Stop All): qualsiasi altra richiesta viene ignorata.
+- **Solo rete locale.** Il server è pensato per la rete dello studio. Se la tua rete Wi-Fi è aperta o condivisa, valuta con attenzione chi può raggiungerla.
+- **Nessuna persistenza.** PIN e stato di attivazione non vengono salvati: a ogni riavvio riparti da una configurazione pulita.
 
-Le notifiche toast vengono usate per:
-- Conferma di salvataggio completato.
-- Completamento dell'Export Package.
-- Rilevamento di un aggiornamento disponibile.
-- Avvisi di file mancanti al caricamento del progetto.
-- Feedback di operazioni MIDI Learn.
-
-Le **finestre di dialogo di conferma** — necessarie quando un'azione è irreversibile, come la cancellazione di clip o la chiusura di un progetto non salvato — sono invece modali e richiedono una risposta, ma sono progettate in modo da non troncare la riproduzione in corso: l'audio continua mentre aspetti di rispondere.
-
+> **Nota.** Trattandosi di una funzione in Beta, l'insieme dei comandi disponibili potrà ampliarsi nelle versioni future. Per ora è tarata sul caso d'uso più frequente: gestire la musica a distanza durante la conduzione.

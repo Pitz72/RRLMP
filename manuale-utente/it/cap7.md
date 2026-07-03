@@ -1,68 +1,67 @@
-# Capitolo 7 — Il microfono in regia
+# Capitolo 7 — Il Pad FX e la vista Automix
 
 ---
 
-Fino alla versione 1.0, Runtime Live Machine Pro gestiva esclusivamente file audio preregistrati. Dalla versione 1.1, il software integra un canale microfono diretto nel flusso di regia, con due funzionalità distinte: il **ducking automatico tramite voce rilevata** (Smart Mic Auto-Ducking) e il **canale microfono nel mix** (Mic-in-Mix Channel).
+Due superfici di lavoro vivono sopra la griglia, richiamabili con un tasto e pensate per due momenti opposti della regia: il **pad FX**, per lanciare effetti e stacchi a colpo sicuro senza interrompere nulla, e la **vista Automix**, per gestire il flusso musicale come farebbe un DJ. Nessuna delle due sottrae spazio alla griglia: si aprono quando servono e si chiudono con un click.
 
-Queste due funzioni rispondono a esigenze diverse e possono essere usate separatamente o in combinazione.
-
----
-
-## 7.1 Smart Mic Auto-Ducking
-
-### Cos'è e quando usarla
-
-Lo Smart Mic Auto-Ducking è una funzione **completamente opt-in**: è disattivata per impostazione predefinita e deve essere abilitata esplicitamente. Non intercetta né registra l'audio del microfono: lo analizza in tempo reale per rilevare la presenza di voce, dopodiché agisce sui livelli del mix esattamente come farebbe una clip della colonna Voci.
-
-Il caso d'uso principale è il conduttore che parla al microfono live: quando il software rileva che sta parlando, abbassa automaticamente la musica in sottofondo senza che il conduttore debba premere nessun pulsante.
-
-### Configurazione
-
-1. Apri le **Impostazioni generali** (icona Ingranaggio nell'header).
-2. Nella sezione *Microfono*, seleziona la periferica di ingresso dal menu a tendina. Vengono elencati tutti i dispositivi audio riconosciuti dal sistema operativo come sorgenti di input: microfono integrato, microfono USB, ingressi di mixer come il Rødecaster Pro.
-3. Regola la **soglia del noise gate** (Threshold). Questo valore determina a quale livello di pressione sonora il software considera la voce come «attiva». Un valore troppo basso causerà ducking falsi positivi (il software reagisce a rumori di fondo); un valore troppo alto potrebbe non rilevare voci a bassa intensità. Il livello consigliato è tra −30 dB e −20 dB, da adattare all'acustica dell'ambiente.
-4. Abilita il toggle *Smart Mic Auto-Ducking*.
-
-### Il pulsante ARM nell'header
-
-Una volta configurata la periferica, il pulsante **ARM** nell'header consente di abilitare e disabilitare rapidamente il monitoraggio senza accedere alle impostazioni. Quando ARM è attivo, il pulsante si illumina e un mini VU meter accanto ad esso mostra in tempo reale il livello del segnale in ingresso — utile per verificare che il microfono stia ricevendo segnale prima di andare in onda.
-
-ARM attivo non significa che il microfono è in uscita: significa che il software sta ascoltando il microfono per il rilevamento della voce. L'audio del microfono nel mix è una funzione separata (vedi sezione 7.2).
-
-### Comportamento del ducking
-
-Quando il noise gate rileva segnale sopra la soglia configurata, il software applica lo stesso ducking che applicherebbe a una clip della colonna Voci: la musica scende a circa il 20% del volume con una transizione in dissolvenza. Quando il segnale torna sotto la soglia (il conduttore smette di parlare), la musica risale gradualmente al volume originale.
-
-I tempi di risposta del gate (attack e release) sono ottimizzati per un comportamento naturale: la discesa è rapida (qualche decina di millisecondi), la risalita è più lenta (circa 1–2 secondi) per evitare che brevi pause nella voce provochino variazioni continue di volume.
 
 ---
 
-## 7.2 Canale Microfono nel Mix (Mic-in-Mix)
+## 7.1 Il pad FX: la jingle machine
 
-Questa funzione indirizza l'audio del microfono fisico direttamente nel **master bus** di RLMP: il segnale del microfono si somma all'output del software e raggiunge la periferica audio di uscita insieme a tutti gli altri suoni in riproduzione.
+![Il pad FX «jingle machine» aperto sopra la griglia di regia.](../screenshots/pad-fx.png)
 
-Il Mic-in-Mix è progettato per setup in cui il conduttore non dispone di un mixer hardware esterno e vuole che la propria voce faccia parte del mix registrato o trasmesso direttamente dall'output di RLMP.
+*Figura 7.1 — Il pad FX: la jingle machine 5×5 degli effetti sonori, con lancio a sovrapposizione.*
 
-### Configurazione
+Gli effetti sonori non hanno una colonna nella griglia. Vivono nel **pad FX**, un pannello a griglia di celle (una *jingle machine*) che si apre dal pulsante **FX** nell'header e resta flottante in un angolo dello schermo.
 
-1. Nelle **Impostazioni generali**, sezione *Microfono*, seleziona la periferica di ingresso (la stessa usata per lo Smart Mic, se entrambe le funzioni sono attive).
-2. Abilita il toggle *Mic-in-Mix*.
-3. Regola lo **slider di volume** del canale microfono per bilanciarlo con gli altri segnali nel mix.
+Il pad è un **overlay non bloccante**: non oscura la board e non intercetta i click diretti altrove. Puoi lanciare un effetto e, nello stesso istante, continuare a operare sulle colonne o sui comandi dell'header. Per questa ragione il tasto `Esc` non chiude il pad: resta il comando di STOP ALL, sempre disponibile. Il pad si chiude dal suo pulsante di chiusura o di nuovo dal toggle FX.
 
-**Avviso feedback.** Quando Mic-in-Mix è attivo, il software monitora il rischio di feedback acustico. Se rileva condizioni potenzialmente pericolose (es. il microfono è nella stessa stanza dei diffusori di uscita), visualizza un avviso di feedback nell'header. Questa funzione è particolarmente utile in contesti di streaming o trasmissione dove l'operatore non usa cuffie.
+### Caricare e lanciare gli effetti
 
-### Bypass della Master Chain
+Il pad nasce con una griglia di 25 celle (5×5) e cresce in righe quando aggiungi altri effetti. Per popolarlo, **trascina i file audio direttamente sulle celle** del pad, esattamente come faresti con una colonna della griglia.
 
-Quando il Mic-in-Mix è attivo, il segnale del microfono può essere configurato per bypassare la Master Chain (HPF, compressore, limiter) ed essere inserito direttamente nel bus di uscita. Questa opzione è presente nelle impostazioni ed è pensata per chi gestisce il processing del microfono esternamente (es. tramite un pre-ampificatore hardware con processori integrati).
+Un click su una cella **lancia l'effetto**. Gli effetti del pad sono polifonici e si sovrappongono: più celle possono suonare insieme, sopra qualsiasi cosa sia in onda, senza fermarla. Il comportamento audio è identico a quello di una clip normale: cambia soltanto la superficie di lancio. Un contatore accanto al pulsante FX nell'header indica quanti effetti stanno suonando in quel momento.
 
-### Differenza tra Smart Mic e Mic-in-Mix
+### Configurare un effetto
 
-| | Smart Mic Auto-Ducking | Mic-in-Mix |
-|---|---|---|
-| **Funzione** | Rileva la voce per applicare il ducking al mix | Porta l'audio del mic nell'output del software |
-| **L'audio del mic è nell'output?** | No | Sì |
-| **Richiede cuffie?** | No (ma consigliato) | Sì (per evitare feedback) |
-| **Uso tipico** | Conduttore che parla live e vuole che la musica si abbassi automaticamente | Podcast o streaming senza mixer hardware |
+Gli effetti si configurano su due livelli, pensati per due esigenze diverse:
 
-Le due funzioni possono essere attive simultaneamente. In questo caso, il software rileva la voce del microfono *e* la include nell'output, applicando il ducking alle altre tracce mentre il microfono è aperto.
+- **Impostazioni rapide** — il caso comune per una jingle machine: nome, colore, volume, loop. Bastano pochi secondi.
+- **Impostazioni complete** — la stessa finestra delle clip di griglia (editor della forma d'onda, trim, marker, fade, assegnazione tasti), raggiungibile dalla voce «Impostazioni complete…» all'interno delle rapide.
 
+### Posizione del pad
+
+Il pad può stare nell'angolo in basso a sinistra o in basso a destra dello schermo: la preferenza si imposta con le frecce sul pad stesso e viene ricordata tra le sessioni. A destra copre la NoteBoard e l'ultima colonna; scegli il lato in base a come hai disposto la tua scaletta.
+
+> **Nota.** In modalità MIDI Learn, un click su una cella del pad **seleziona** l'effetto per l'assegnazione invece di suonarlo — così non mandi in onda un jingle mentre stai mappando i controlli (vedi Capitolo 8).
+
+---
+
+## 7.2 La vista Automix
+
+![La vista Automix con il deck della colonna Musica e i pallini di compatibilità BPM.](../screenshots/vista-automix.png)
+
+*Figura 7.2 — La vista Automix: il deck della colonna Musica, la compatibilità BPM e la modalità automatica a fine brano.*
+
+La **vista Automix** è il deck della colonna Musica: una schermata a tutto campo, richiamata dal pulsante **MIX** nell'header, che presenta la scaletta musicale come una console da DJ. Si apre sopra la board ma sotto il pad FX, così gli effetti restano utilizzabili anche mentre l'Automix è aperto. Come per il pad, `Esc` non la chiude: resta il comando di emergenza, e il pulsante STOP ALL rimane raggiungibile nell'header.
+
+### Il deck
+
+Al centro trovi il brano **in onda** e, in coda, il **prossimo** brano della colonna Musica, con il tempo rimanente. Da qui puoi far partire una traccia e gestire il passaggio da un brano all'altro con un solo comando: il pulsantone di transizione applica lo stesso crossfade che useresti dalla griglia, ma con l'attenzione in più dell'aggancio ritmico.
+
+### Compatibilità e transizioni beat-matched
+
+Accanto a ogni brano, un **pallino di compatibilità** con il brano precedente ne indica l'affinità ritmica:
+
+- **Verde** — i due tempi si agganciano bene: la transizione può essere beat-matched.
+- **Giallo** — aggancio possibile ma con qualche riserva.
+- **Rosso** — tempi troppo distanti per un aggancio pulito.
+
+Quando l'aggancio ritmico non è praticabile (BPM non rilevato, beat incerto, tempi troppo diversi), il software lo dichiara e ripiega automaticamente su un **crossfade classico**, senza sorprese in diretta.
+
+### La modalità automatica
+
+In fondo alla vista c'è un interruttore per l'**automazione a fine brano**. Quando è attivo, RLMP fa partire da solo il passaggio al brano successivo quando la traccia in onda si avvicina alla fine.
+
+Questa modalità è un'eccezione deliberata alla filosofia del software, che per scelta non automatizza lo show. Per questo è **disattivata di default** e funziona **solo mentre la vista Automix è aperta**: chiudere la vista disattiva l'automazione. È lo strumento giusto per un blocco musicale continuo, la mezz'ora di sola musica prima di rientrare in voce, non per l'intera diretta.

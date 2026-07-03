@@ -1,8 +1,8 @@
-# Capitolo 8 — Hardware, routing e controllo
+# Capitolo 8 — Hardware, tastiera e MIDI
 
 ---
 
-Runtime Live Machine Pro è progettato per integrarsi con l'hardware esistente nello studio senza richiedere configurazioni elaborate. Questo capitolo descrive come configurare l'uscita audio, come sfruttare la tastiera del computer come controller e come collegare dispositivi MIDI fisici per un controllo tattile della regia.
+Runtime Live Machine Pro è progettato per integrarsi con l'hardware esistente nello studio senza richiedere configurazioni elaborate. Questo capitolo descrive come indirizzare l'uscita audio, come usare la tastiera del computer come controller e come collegare dispositivi MIDI fisici per un controllo tattile della regia.
 
 ---
 
@@ -10,100 +10,91 @@ Runtime Live Machine Pro è progettato per integrarsi con l'hardware esistente n
 
 ### Selezionare la periferica di uscita
 
-Per impostazione predefinita, RLMP esce sulla periferica audio predefinita del sistema operativo. In un contesto professionale o semiprofessionale — con mixer USB, schede audio esterne o sistemi multitraccia — è necessario selezionare esplicitamente la destinazione del segnale.
+Per impostazione predefinita, RLMP esce sulla periferica audio predefinita del sistema operativo. In un contesto professionale o semiprofessionale, con mixer USB, schede audio esterne o sistemi multitraccia, è utile selezionare esplicitamente la destinazione del segnale.
 
-1. Clicca sull'icona **Ingranaggio** (Impostazioni) nell'header.
-2. Nel menu a tendina *Audio Output Device*, trovi l'elenco completo delle periferiche audio disponibili sul sistema.
+1. Apri le **Impostazioni** dal menu Strumenti.
+2. Nella scheda *Audio & Mix*, apri il menu della periferica di uscita: trovi l'elenco delle periferiche audio disponibili sul sistema.
 3. Seleziona la periferica desiderata.
 
-Il cambio è **istantaneo e non interrompe la riproduzione**: se una clip è in corso mentre cambi l'uscita, l'audio si trasferisce sulla nuova periferica senza interruzioni.
+Se la periferica scelta viene scollegata, RLMP ripiega automaticamente su quella di sistema; l'app monitora le connessioni e reagisce all'inserimento o alla rimozione di dispositivi USB.
 
 ### Mixer USB e setup multicanale
 
-I mixer USB come il Rødecaster Pro, il Rode RODECaster Duo o il Focusrite Scarlett espongono tipicamente più canali USB al sistema operativo (Main Mix, Sounds/Chat, Monitor, ecc.). RLMP appare come una singola sorgente stereo; la scelta del canale USB su cui dirigerlo è interamente nelle tue mani.
+I mixer USB come il Rødecaster Pro, l'RØDECaster Duo o il Focusrite Scarlett espongono tipicamente più canali USB al sistema operativo (Main Mix, Sounds/Chat, Monitor, ecc.). RLMP appare come una singola sorgente stereo; la scelta del canale USB su cui dirigerlo è nelle tue mani.
 
-**Setup consigliato con mixer USB.** Assegna RLMP a un canale secondario del mixer (es. «Sounds» sul Rødecaster Pro) invece che al canale principale. In questo modo puoi controllare il volume di RLMP con un fader fisico dedicato sul mixer, separarlo dal segnale del microfono fisico e applicare eventuale processing hardware solo a quel canale.
+**Setup consigliato con mixer USB.** Assegna RLMP a un canale secondario del mixer (es. «Sounds» sul Rødecaster Pro) invece che al canale principale. In questo modo controlli il volume di RLMP con un fader fisico dedicato, lo separi dal segnale del microfono fisico e applichi eventuale processing hardware solo a quel canale.
 
 ### Latenza e buffer
 
-RLMP utilizza le API audio native del sistema operativo (WASAPI su Windows, Core Audio su macOS, ALSA/PipeWire su Linux). La latenza di uscita è determinata dal buffer della periferica audio, non dal software. Per schede audio professionali con driver ASIO su Windows o Core Audio su macOS, la latenza è nell'ordine di pochi millisecondi e non percepibile in un contesto di playout.
+RLMP utilizza le API audio native del sistema operativo. La latenza di uscita è determinata dal buffer della periferica audio, non dal software. Con schede audio professionali la latenza è nell'ordine di pochi millisecondi, non percepibile in un contesto di playout.
 
-Se noti artefatti audio (crepitii, dropout), il valore di buffer della periferica è probabilmente troppo basso. Aumentalo tramite il pannello di controllo della scheda audio (non tramite RLMP, che non ne gestisce direttamente il driver): un buffer di 256 o 512 campioni è il punto di equilibrio ideale tra latenza e stabilità.
+Se noti artefatti audio (crepitii, dropout), il valore di buffer della periferica è probabilmente troppo basso. Aumentalo dal pannello di controllo della scheda audio (non da RLMP, che non gestisce direttamente il driver): un buffer di 256 o 512 campioni è il punto di equilibrio ideale tra latenza e stabilità.
 
 ---
 
 ## 8.2 Controllo da tastiera
 
-La tastiera del computer è il controller più rapido disponibile in diretta: non richiede coordinazione oculo-manuale, funziona al buio, è sempre disponibile. RLMP include un set di comandi predefiniti e la possibilità di assegnare tasti personalizzati alle singole clip.
+La tastiera del computer è il controller più rapido disponibile in diretta: non richiede coordinazione oculo-manuale, funziona al buio ed è sempre a portata di mano. RLMP prevede un insieme di scorciatoie globali e la possibilità di assegnare tasti alle singole clip.
 
-### Comandi globali (tasti funzione)
-
-I tasti F1–F5 sono mappati per colonna e applicano una logica di ricerca intelligente: avviano la prima clip disponibile nella colonna corrispondente che non sia in riproduzione.
+### Scorciatoie globali
 
 | Tasto | Azione |
 |---|---|
-| **F1** | Lancia la prima clip disponibile — colonna Show Assets |
-| **F2** | Lancia la prima clip disponibile — colonna Canzoni |
-| **F3** | Lancia la prima clip disponibile — colonna Voci |
-| **F4** | Lancia la prima clip disponibile — colonna SFX |
-| **F5** | Lancia la prima clip disponibile — colonna Pre-Show |
-| **Esc** | STOP ALL — ferma tutto istantaneamente |
+| **Esc** | STOP ALL — ferma tutte le clip attive |
+| **Canc / Backspace** | Elimina le clip selezionate |
+| **Ctrl+Z** | Annulla l'ultima modifica alla scaletta |
+| **Ctrl+Y** (o **Ctrl+Shift+Z**) | Ripeti la modifica annullata |
+| **Ctrl+Shift+D** | Mostra/nascondi il Debug Overlay |
+| **Ctrl+Shift+M** | Apri il simulatore MIDI (per test senza controller) |
 
-Il tasto **`Esc`** è registrato come shortcut globale a livello di sistema operativo: funziona anche quando RLMP non è la finestra attiva.
+`Esc` agisce come STOP ALL quando RLMP è la finestra attiva, anche mentre il cursore è in un campo di testo. Non è più una scorciatoia registrata a livello di sistema operativo: se l'app è in background, riporta prima la finestra in primo piano.
+
+> **Nota.** Non esistono tasti funzione (F1–F5) preassegnati al lancio delle colonne. Per lanciare rapidamente una clip specifica, assegnale un tasto dedicato, come descritto qui sotto.
 
 ### Tasti personalizzati per singola clip
 
-Oltre ai comandi globali, ogni clip può avere un tasto dedicato. Il badge corrispondente apparirà sulla card nella griglia.
+Oltre alle scorciatoie globali, ogni clip può avere un tasto dedicato. Il badge corrispondente compare sulla card.
 
 **Per assegnare un tasto:**
-1. Fai click con il tasto destro sulla clip e seleziona *Edit*.
-2. Clicca nel campo *Trigger Keybind*.
+1. Apri le impostazioni della clip (tasto destro sulla card) oppure la finestra **Keybinds** dal menu Strumenti.
+2. Clicca nel campo del tasto.
 3. Premi il tasto desiderato.
-4. Salva.
 
-**Tasti disponibili.** Quasi qualsiasi tasto può essere assegnato: lettere (A–Z), numeri (0–9), tasto numpad (Num0–Num9), tasto spazio, tasti funzione (F6–F12, quelli non già occupati dai comandi globali). I tasti riservati al sistema operativo non sono disponibili.
+**Tasti disponibili.** Quasi qualsiasi tasto: lettere (A–Z), numeri (0–9), tastierino numerico, barra spaziatrice, tasti funzione liberi. Se il tasto è già assegnato a un'altra clip, il software segnala il conflitto prima di sovrascrivere, così non crei doppioni invisibili.
 
-**Sicurezza durante la digitazione.** I tasti personalizzati vengono disabilitati automaticamente quando sei in modalità di inserimento testo (es. stai rinominando una clip o stai scrivendo nelle note). Questo previene lanci accidentali mentre digiti.
+**Sicurezza durante la digitazione.** I tasti personalizzati vengono disabilitati automaticamente quando sei in modalità di inserimento testo (stai rinominando una clip o scrivendo una nota). Questo previene lanci accidentali mentre digiti.
 
 ---
 
 ## 8.3 Controller MIDI
 
-Il MIDI è la scelta professionale per chi vuole un controllo fisico, tattile e affidabile della regia. RLMP supporta qualsiasi controller USB-MIDI: tastiere, pad (es. Novation Launchpad), controller a fader (es. Korg nanoKONTROL2), superfici di controllo ibride.
+Il MIDI è la scelta professionale per un controllo fisico, tattile e affidabile. RLMP supporta i controller USB-MIDI: tastiere, pad (es. Novation Launchpad), controller a fader (es. Korg nanoKONTROL2), superfici di controllo ibride.
 
 ### Collegamento
 
-Collega il controller USB al computer **prima** di avviare RLMP. Il software rileva i controller presenti all'avvio tramite le API MIDI native del sistema operativo. Se colleghi un controller a software già aperto, il rilevamento potrebbe non avvenire automaticamente: chiudi e riapri RLMP.
-
-Non sono richiesti driver specifici per la maggior parte dei controller USB-MIDI class-compliant; per controller avanzati che richiedono driver proprietari (es. alcune superfici di controllo professionali), installa i driver prima di collegare il dispositivo.
+Collega il controller USB al computer e avvia RLMP. Il software rileva i dispositivi tramite la Web MIDI API del sistema e riconosce in tempo reale la connessione e la disconnessione di un controller. La maggior parte dei controller USB-MIDI è *class-compliant* e non richiede driver; per superfici professionali con driver proprietari, installa il driver prima di collegare il dispositivo.
 
 ### MIDI Learn
 
-RLMP non richiede la conoscenza della numerazione delle note MIDI né la configurazione manuale dei messaggi. L'apprendimento avviene tramite la modalità **MIDI Learn**.
-
-**Per attivare la modalità MIDI Learn:**
-1. Clicca sull'icona **MIDI** (connettore DIN) nell'header.
-2. L'icona diventa **ciana** e le card nella griglia assumono un aspetto tratteggiato, indicando che sono in attesa di una mappatura.
+RLMP non richiede di conoscere la numerazione delle note MIDI né di configurare i messaggi a mano. L'apprendimento avviene tramite la modalità **MIDI Learn**, dal menu Strumenti (o dalla finestra Keybinds).
 
 **Per mappare una clip a un tasto/pad:**
-1. In modalità MIDI Learn, clicca con il mouse sulla clip desiderata.
-2. Premi il tasto, il pad o la nota sul controller fisico.
-3. Il badge **[M:XX]** apparirà sulla card con il numero della nota assegnata.
+1. Attiva MIDI Learn. Le card entrano in stato di attesa.
+2. Seleziona la clip (o la cella del pad FX) da mappare.
+3. Suona la nota, premi il pad o il tasto sul controller. Il badge `M` con il numero di nota compare sulla card.
 
-**Per mappare funzioni globali:**
-1. Clicca sul pulsante **STOP ALL** sullo schermo, poi premi un tasto sul controller: da quel momento, quel tasto eseguirà uno Stop All globale.
-2. Clicca sullo slider **Master Volume** nell'header, poi muovi un fader o una manopola rotativa sul controller: da quel momento, quel controllo gestirà il volume master in modo analogico e continuo.
+**Per mappare le funzioni globali:**
+- Seleziona **STOP ALL** e premi un tasto sul controller: quel tasto eseguirà lo Stop All.
+- Seleziona il **Master Volume** e muovi un fader o una manopola: quel controllo gestirà il volume master in modo continuo.
 
-**Per uscire dalla modalità MIDI Learn:**
-Clicca di nuovo sull'icona MIDI (torna grigia). I tasti fisici tornano a eseguire le clip mappate invece di registrare nuove mappature.
+Al termine, disattiva MIDI Learn per tornare alla modalità operativa.
 
-### Tipi di messaggi MIDI supportati
+### Tipi di messaggi supportati
 
-**Note On/Off** — messaggi generati da pulsanti, pad e tasti di una tastiera. Ideali per il lancio e lo stop delle clip. RLMP risponde all'evento Note On (pressione del tasto).
+**Note On** — messaggi generati da pulsanti, pad e tasti. Ideali per il lancio delle clip e delle azioni globali; RLMP risponde alla pressione del tasto e riconosce tutti i canali MIDI. I messaggi Note Off vengono ignorati.
 
-**Control Change (CC)** — messaggi generati da fader motorizzati, potenziometri rotativi e pedali. Trasmettono un valore continuo da 0 a 127. Ideali per il Master Volume: un fader fisico mappato sul Master Volume offre il controllo più naturale e preciso del livello di uscita generale.
+**Control Change (CC)** — messaggi generati da fader e potenziometri, con valore continuo da 0 a 127. Ideali per il Master Volume: un fader fisico mappato sul master offre il controllo più naturale del livello di uscita.
 
 ### Portabilità delle mappature
 
-Le mappature MIDI sono salvate nel file di progetto `.lmp`, non nel software. Se porti il tuo progetto su un altro computer con lo stesso modello di controller collegato, le mappature funzioneranno immediatamente senza riconfigurazione.
-
+Le mappature MIDI delle **clip** sono salvate nel file di progetto `.lmp`: portando il progetto su un altro computer con lo stesso controller, funzioneranno senza riconfigurazione. Le mappature delle **funzioni globali** (Stop All, Master Volume) sono invece legate al computer, salvate nelle preferenze locali dell'applicazione, e restano valide per tutti i progetti su quella macchina.
