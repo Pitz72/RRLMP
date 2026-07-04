@@ -1,8 +1,15 @@
 // Rasterizzatore SVG -> PNG via Electron (offscreen). Uso:
 //   electron manuale-utente/render-svg.js <input.svg> <output.png> [scale]
 // Nessuna dipendenza esterna: usa il Chromium di Electron già in node_modules.
-const { app, BrowserWindow } = require('electron');
-const path = require('path');
+//
+// NOTA: un BrowserWindow (anche offscreen) viene silenziosamente troncato al
+// workArea dello schermo fisico se la dimensione richiesta lo supera (es. un
+// banner 2520x1080 su un monitor 1920x1080 catturava solo 1920x855, tagliando
+// il contenuto a destra/in basso). Per evitarlo si renderizza SEMPRE a una
+// dimensione che sta dentro lo schermo (native scaling via CSS width/height
+// sull'elemento <svg>, che scala il contenuto rispettando il viewBox), poi si
+// fa un resize bitmap del risultato per arrivare alla `scale` richiesta.
+const { app, BrowserWindow, screen } = require('electron');
 const fs = require('fs');
 
 const [inSvg, outPng, scaleArg] = process.argv.slice(2);
@@ -21,18 +28,28 @@ app.disableHardwareAcceleration();
 app.whenReady().then(async () => {
     const svg = fs.readFileSync(inSvg, 'utf8');
     const { w, h } = readSize(svg);
+
+    const work = screen.getPrimaryDisplay().workAreaSize;
+    const MARGIN = 1; // il limite reale e' il workArea stesso, nessun margine extra
+    const renderScale = Math.min(1, (work.width * MARGIN) / w, (work.height * MARGIN) / h);
+    const rw = Math.max(1, Math.round(w * renderScale));
+    const rh = Math.max(1, Math.round(h * renderScale));
+
     const win = new BrowserWindow({
-        width: w, height: h, show: false,
+        width: rw, height: rh, show: false,
         useContentSize: true,
         webPreferences: { offscreen: true, backgroundThrottling: false },
     });
-    win.webContents.setZoomFactor(1);
-    const html = `<!doctype html><html><head><meta charset="utf-8"><style>*{margin:0;padding:0}html,body{width:${w}px;height:${h}px;overflow:hidden;background:transparent}svg{display:block;width:${w}px;height:${h}px}</style></head><body>${svg}</body></html>`;
+    // CSS width/height sull'<svg> (non i suoi attributi width/height, che restano
+    // il viewBox originale) forza lo scaling nativo del contenuto a rw x rh.
+    const html = `<!doctype html><html><head><meta charset="utf-8"><style>*{margin:0;padding:0}html,body{width:${rw}px;height:${rh}px;overflow:hidden;background:transparent}svg{display:block;width:${rw}px;height:${rh}px}</style></head><body>${svg}</body></html>`;
     await win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html));
     await new Promise(r => setTimeout(r, 700));
     const img = await win.webContents.capturePage();
-    const resized = scale !== 1 ? img.resize({ width: Math.round(w * scale), height: Math.round(h * scale) }) : img;
+    const targetW = Math.round(w * scale);
+    const targetH = Math.round(h * scale);
+    const resized = (targetW !== rw || targetH !== rh) ? img.resize({ width: targetW, height: targetH }) : img;
     fs.writeFileSync(outPng, resized.toPNG());
-    console.log('PNG scritto:', outPng, `${Math.round(w*scale)}x${Math.round(h*scale)}`);
+    console.log('PNG scritto:', outPng, `${targetW}x${targetH}`, renderScale < 1 ? `(renderizzato a ${rw}x${rh} per il limite schermo, poi ridimensionato)` : '');
     app.quit();
 }).catch(e => { console.error('ERRORE:', e); app.exit(1); });
