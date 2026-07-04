@@ -70,8 +70,12 @@ export const UpdateModal: React.FC<Props> = ({ isOpen, status, currentVersion, o
                     )}
 
                     {releaseNotes && (
-                        <div className="card !p-3 max-h-32 overflow-y-auto">
-                            <p className="text-[11px] text-zinc-400 leading-relaxed whitespace-pre-line">{releaseNotes}</p>
+                        <div className="card !p-3 max-h-32 overflow-y-auto release-notes-html text-[11px] text-zinc-400 leading-relaxed">
+                            {/* 2026-07-04: releaseNotes arriva già come HTML (feed Atom di electron-updater
+                                su Windows/Linux, `body_html` di GitHub sul fallback macOS/.deb) — va
+                                renderizzato, non mostrato come testo. Contenuto fidato: proviene solo dal
+                                corpo della nostra release pubblicato da .github/workflows/build.yml. */}
+                            <div dangerouslySetInnerHTML={{ __html: releaseNotes }} />
                         </div>
                     )}
 

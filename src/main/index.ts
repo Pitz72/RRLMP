@@ -109,6 +109,14 @@ protocol.registerSchemesAsPrivileged([
 let mainWindowRef: BrowserWindow | null = null;
 // pendingOpenFilePath: il file può arrivare PRIMA che la finestra sia pronta (macOS)
 let pendingOpenFilePath: string | null = null;
+// 2026-07-04: quitAndInstall() dell'auto-updater lancia già l'installer PRIMA di
+// chiamare app.quit() (vedi electron-updater/BaseUpdater.install) — se il nostro
+// handshake 'close' (isDirty → dialog Salva/Non salvare/Annulla) intercetta quella
+// chiusura, l'utente vede l'installer aprirsi mentre RLMP resta aperto con un
+// prompt di salvataggio, dopo aver già scelto esplicitamente "Riavvia e installa".
+// Questo flag salta l'handshake in quel solo caso: la scelta di riavviare è già
+// una conferma esplicita, non serve un secondo prompt.
+let quittingForUpdate = false;
 
 // macOS: app.on('open-file') deve essere registrato PRIMA di app.whenReady()
 // altrimenti l'evento viene perso se il file è aperto mentre l'app non è ancora avviata
@@ -168,6 +176,7 @@ function createWindow(initialFilePath?: string): void {
 
     // CLOSING HANDSHAKE
     mainWindow.on('close', (e) => {
+        if (quittingForUpdate) return; // v1.15.8: lascia chiudere senza handshake, l'installer è già partito
         if (mainWindow.webContents.isDestroyed()) return;
         e.preventDefault(); // ALWAYS prevent default first
         mainWindow.webContents.send('check-close-intent'); // Ask Renderer
@@ -943,6 +952,7 @@ ipcMain.handle('download-update', async () => {
 });
 
 ipcMain.handle('quit-and-install', () => {
+    quittingForUpdate = true;
     quitAndInstall();
     return { success: true };
 });

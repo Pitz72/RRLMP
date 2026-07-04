@@ -117,8 +117,13 @@ async function fallbackCheck(): Promise<void> {
     try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
+        // 2026-07-04: media type html+json aggiunge `body_html` (markdown già
+        // renderizzato da GitHub) — stesso formato HTML che il percorso nativo
+        // riceve dal feed Atom di electron-updater (vedi GitHubProvider), così
+        // la UI (UpdateModal) può trattare le note di rilascio allo stesso modo
+        // su tutte le piattaforme invece di mostrare la sintassi Markdown grezza.
         const res = await fetch(RELEASES_API, {
-            headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'RRLMP-UpdateManager' },
+            headers: { Accept: 'application/vnd.github.html+json', 'User-Agent': 'RRLMP-UpdateManager' },
             signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -126,7 +131,7 @@ async function fallbackCheck(): Promise<void> {
             emit({ type: 'not-available' });
             return;
         }
-        const data = (await res.json()) as { tag_name?: string; body?: string; html_url?: string; assets?: Array<{ name: string; browser_download_url: string }> };
+        const data = (await res.json()) as { tag_name?: string; body?: string; body_html?: string; html_url?: string; assets?: Array<{ name: string; browser_download_url: string }> };
         const remoteVersion = String(data.tag_name || '').replace(/^v/i, '');
         const currentVersion = app.getVersion();
         if (!remoteVersion || compareSemver(remoteVersion, currentVersion) <= 0) {
@@ -141,7 +146,7 @@ async function fallbackCheck(): Promise<void> {
             version: remoteVersion,
             canAutoInstall: false,
             downloadUrl,
-            releaseNotes: data.body || ''
+            releaseNotes: data.body_html || data.body || ''
         });
     } catch (err) {
         logger.warn('[UpdateManager] fallback check fallito:', err);

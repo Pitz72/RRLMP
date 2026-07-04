@@ -285,6 +285,19 @@
 .theme-spectrum .hint { font-size: 11px; color: #5b5b63; font-style: italic; line-height: 1.5; }
 .theme-spectrum .divider { height: 1px; background: #1d1d21; }
 .theme-spectrum .card { background: rgba(0, 0, 0, .35); border: 1px solid #1f1f24; border-radius: 12px; padding: 16px; }
+/* 2026-07-04: note di rilascio dell'auto-updater (UpdateModal) — HTML già renderizzato da GitHub, stile minimo per il tema scuro */
+.theme-spectrum .release-notes-html h1,
+.theme-spectrum .release-notes-html h2,
+.theme-spectrum .release-notes-html h3 { color: #e4e4e7; font-weight: 700; margin: 0 0 6px; font-size: 12px; }
+.theme-spectrum .release-notes-html p { margin: 0 0 8px; }
+.theme-spectrum .release-notes-html ul,
+.theme-spectrum .release-notes-html ol { margin: 0 0 8px; padding-left: 18px; }
+.theme-spectrum .release-notes-html a { color: #22d3ee; text-decoration: underline; }
+.theme-spectrum .release-notes-html table { width: 100%; border-collapse: collapse; margin: 0 0 8px; }
+.theme-spectrum .release-notes-html th,
+.theme-spectrum .release-notes-html td { border: 1px solid #2a2a30; padding: 4px 8px; text-align: left; }
+.theme-spectrum .release-notes-html th { background: rgba(255, 255, 255, .04); color: #a1a1aa; }
+.theme-spectrum .release-notes-html blockquote { border-left: 2px solid #2a2a30; padding-left: 8px; color: #71717a; margin: 0 0 8px; }
 /* select / input testuali e numerici */
 .theme-spectrum .sel { width: 100%; background: #0c0c0e; border: 1px solid #2a2a30; border-radius: 9px; padding: 10px 12px; color: #e4e4e7; font-size: 13px; font-family: var(--font-sans); outline: none; }
 .theme-spectrum select.sel { cursor: pointer; }
