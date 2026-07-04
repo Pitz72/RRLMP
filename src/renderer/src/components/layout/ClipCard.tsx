@@ -159,8 +159,14 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                 )}
                 {/* 2026-07-01 — BPM stimato (solo colonna Music, solo visualizzazione: non ancora usato dal mix) */}
                 {clip.type === 'music' && clip.bpm !== undefined && (
-                    <span className="badge bg-sky-500/20 text-sky-300 border border-sky-500/40" title={t('card.bpmTip', 'BPM stimato (analisi automatica)')}>
+                    <span className="badge bg-[#eaff00] text-black font-bold" title={t('card.bpmTip', 'BPM stimato (analisi automatica)')}>
                         {clip.bpm} BPM
+                    </span>
+                )}
+                {/* 2026-07-04 — Intro: stesso colore del marker/segnalino Intro nel Waveform Editor (#22d3ee, cyan-400) */}
+                {clip.introMarker !== undefined && clip.introMarker > 0 && (
+                    <span className="badge bg-cyan-400/20 text-cyan-400 border border-cyan-400/40" title={t('card.introTip', 'Fine intro (ingresso voce)')}>
+                        I {Math.round(clip.introMarker)}s
                     </span>
                 )}
                 {isFading && (

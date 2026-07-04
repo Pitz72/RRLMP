@@ -1,7 +1,11 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import appLogo from '../../assets/logo.png';
 import { FlagIcon } from '../ui/FlagIcon';
 import { UpdaterStatusPayload } from '../../types';
+import { getManualUrl } from '../../utils/manualLinks';
+import { toast } from '../../store/useToastStore';
+import { QuickGuideModal } from './QuickGuideModal';
 
 interface WelcomeScreenProps {
     onNewProject: () => void;
@@ -24,12 +28,20 @@ const LANGUAGES = [
 
 export const WelcomeScreen = ({ onNewProject, onLoadProject, updaterStatus, onOpenUpdateModal }: WelcomeScreenProps) => {
     const { t, i18n } = useTranslation();
+    const [isQuickGuideOpen, setIsQuickGuideOpen] = useState(false);
 
     const changeLanguage = (lng: string) => {
         i18n.changeLanguage(lng);
     };
 
     const currentLang = i18n.language?.slice(0, 2) || 'en';
+
+    const handleOpenManual = async () => {
+        const result = await window.electron?.openExternal(getManualUrl(currentLang));
+        if (!result?.success) {
+            toast(t('modal.about.openError'), 'error');
+        }
+    };
 
     return (
         <div className="ov" style={{ zIndex: 100 }}>
@@ -88,13 +100,20 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject, updaterStatus, onOp
                         >
                             {t('welcome.loadProject')}
                         </button>
-                        <button
-                            disabled
-                            className="bg-transparent text-zinc-600 font-medium py-2 text-sm cursor-not-allowed flex items-center justify-center gap-2"
-                            title={t('welcome.comingSoon', 'Presto disponibile via Web')}
-                        >
-                            {t('welcome.manual')}
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleOpenManual}
+                                className="flex-1 bg-transparent text-zinc-500 hover:text-zinc-300 font-medium py-2 text-sm transition-colors flex items-center justify-center gap-2"
+                            >
+                                {t('welcome.manual')}
+                            </button>
+                            <button
+                                onClick={() => setIsQuickGuideOpen(true)}
+                                className="flex-1 bg-transparent text-zinc-500 hover:text-zinc-300 font-medium py-2 text-sm transition-colors flex items-center justify-center gap-2"
+                            >
+                                {t('welcome.quickGuide')}
+                            </button>
+                        </div>
                     </div>
 
                     {/* FOOTER / CREDITS */}
@@ -132,6 +151,8 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject, updaterStatus, onOp
                 </div>
 
             </div>
+
+            <QuickGuideModal isOpen={isQuickGuideOpen} onClose={() => setIsQuickGuideOpen(false)} />
         </div>
     );
 };

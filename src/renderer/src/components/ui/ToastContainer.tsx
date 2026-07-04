@@ -60,7 +60,8 @@ export const ToastContainer: React.FC = () => {
                     to   { width: 0%; }
                 }
             `}</style>
-            <div className="fixed bottom-4 right-4 z-[200] flex flex-col gap-2 items-end">
+            {/* 2026-07-04: z-index sopra qualunque modale/overlay (max attuale 300, ConfirmDialog) — il toast deve restare visibile anche sopra i dialog di conferma. */}
+            <div className="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 items-end">
                 {toasts.map(t => <ToastItem key={t.id} toast={t} />)}
             </div>
         </>

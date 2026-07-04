@@ -1,8 +1,12 @@
+import { useState } from 'react';
 import appLogo from '../../assets/logo.png';
-import { X, BookOpen, RefreshCw } from 'lucide-react';
+import { X, BookOpen, FileText, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useEscapeToClose } from '../../hooks/useEscapeToClose';
 import { UpdaterStatusPayload } from '../../types';
+import { getManualUrl } from '../../utils/manualLinks';
+import { toast } from '../../store/useToastStore';
+import { QuickGuideModal } from './QuickGuideModal';
 
 interface AboutModalProps {
     isOpen: boolean;
@@ -14,12 +18,21 @@ interface AboutModalProps {
 }
 
 export const AboutModal = ({ isOpen, onClose, updaterStatus, onOpenUpdateModal, onCheckUpdatesNow }: AboutModalProps) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const [isQuickGuideOpen, setIsQuickGuideOpen] = useState(false);
 
     // v1.4.13 (ESC-01): ESC chiude la modale invece di innescare lo STOP ALL.
     useEscapeToClose(isOpen, onClose);
 
     if (!isOpen) return null;
+
+    const handleOpenManual = async () => {
+        const lang = i18n.language?.slice(0, 2) || 'en';
+        const result = await window.electron?.openExternal(getManualUrl(lang));
+        if (!result?.success) {
+            toast(t('modal.about.openError'), 'error');
+        }
+    };
 
     return (
         <div className="ov" style={{ zIndex: 100 }} onClick={onClose}>
@@ -72,12 +85,20 @@ export const AboutModal = ({ isOpen, onClose, updaterStatus, onOpenUpdateModal, 
                             <span>{t('modal.about.checkNow', 'Controlla aggiornamenti ora')}</span>
                         </button>
                         <button
-                            disabled
-                            className="bg-zinc-800/50 text-zinc-500 border border-zinc-700/50 py-2 rounded flex items-center justify-center gap-2 text-sm cursor-not-allowed opacity-70"
+                            onClick={handleOpenManual}
+                            className="bg-zinc-800/50 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/50 py-2 rounded flex items-center justify-center gap-2 text-sm transition-colors"
                             title={t('welcome.manual')}
                         >
                             <BookOpen size={14} />
                             <span>{t('modal.about.manual')}</span>
+                        </button>
+                        <button
+                            onClick={() => setIsQuickGuideOpen(true)}
+                            className="bg-zinc-800/50 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/50 py-2 rounded flex items-center justify-center gap-2 text-sm transition-colors"
+                            title={t('welcome.quickGuide')}
+                        >
+                            <FileText size={14} />
+                            <span>{t('modal.about.quickGuide')}</span>
                         </button>
                     </div>
 
@@ -86,6 +107,8 @@ export const AboutModal = ({ isOpen, onClose, updaterStatus, onOpenUpdateModal, 
                     </div>
                 </div>
             </div>
+
+            <QuickGuideModal isOpen={isQuickGuideOpen} onClose={() => setIsQuickGuideOpen(false)} />
         </div>
     );
 };

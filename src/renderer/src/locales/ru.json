@@ -6,14 +6,15 @@
         "selectLanguage": "Язык интерфейса",
         "newProject": "Новый проект",
         "loadProject": "Загрузить проект",
-        "manual": "Онлайн-руководство (Скоро)",
+        "manual": "Руководство пользователя",
         "version": "v{{version}}",
         "checking": "Проверка обновлений...",
         "latest": "✅ Последняя версия",
         "updateAvailable": "⬇️ Доступно обновление v{{version}}",
         "developedBy": "Разработано Simone Pizzi совместно с Gemini 3.0",
         "copyright": "© 2026 Runtime Radio",
-        "comingSoon": "Скоро будет доступно через веб"
+        "comingSoon": "Скоро будет доступно через веб",
+        "quickGuide": "Краткое руководство"
     },
     "columns": {
         "assets": "РЕСУРСЫ ЭФИРА",
@@ -65,8 +66,10 @@
         "about": {
             "title": "Runtime Live Machine Pro",
             "description": "Профессиональная архитектура аудиовещания",
-            "manual": "Онлайн-руководство",
-            "checkNow": "Проверить обновления сейчас"
+            "manual": "Руководство пользователя",
+            "checkNow": "Проверить обновления сейчас",
+            "quickGuide": "Краткое руководство",
+            "openError": "Не удалось открыть ссылку."
         },
         "settings": {
             "title": "Общие настройки",
@@ -315,6 +318,9 @@
         "exportProgress": {
             "title": "Идёт экспорт...",
             "filesCount": "{{current}} / {{total}} файлов"
+        },
+        "quickGuide": {
+            "title": "Краткое руководство"
         }
     },
     "automix": {
@@ -430,7 +436,8 @@
         "trimmingBadge": "TRIM…",
         "fadeOutBadge": "FADE OUT",
         "priorityBadge": "ПРИОРИТЕТ",
-        "bpmTip": "Оценка BPM (автоматический анализ)"
+        "bpmTip": "Оценка BPM (автоматический анализ)",
+        "introTip": "Конец интро (вступление вокала)"
     },
     "column": {
         "rotationActiveTip": "Ротация Jingle&Promo активна",

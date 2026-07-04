@@ -6,14 +6,15 @@
         "selectLanguage": "Langue de l'interface",
         "newProject": "Nouveau Projet",
         "loadProject": "Charger un Projet",
-        "manual": "Manuel en ligne (Bientôt disponible)",
+        "manual": "Manuel Utilisateur",
         "version": "v{{version}}",
         "checking": "Vérification des mises à jour...",
         "latest": "✅ Version la plus récente",
         "updateAvailable": "⬇️ Mise à jour disponible v{{version}}",
         "developedBy": "Développé par Simone Pizzi avec Gemini 3.0",
         "copyright": "© 2026 Runtime Radio",
-        "comingSoon": "Bientôt disponible via le Web"
+        "comingSoon": "Bientôt disponible via le Web",
+        "quickGuide": "Guide Rapide"
     },
     "columns": {
         "assets": "ASSETS ÉMISSION",
@@ -65,8 +66,10 @@
         "about": {
             "title": "Runtime Live Machine Pro",
             "description": "Architecture audio broadcast professionnelle",
-            "manual": "Manuel en ligne",
-            "checkNow": "Vérifier les mises à jour maintenant"
+            "manual": "Manuel Utilisateur",
+            "checkNow": "Vérifier les mises à jour maintenant",
+            "quickGuide": "Guide Rapide",
+            "openError": "Impossible d'ouvrir le lien."
         },
         "settings": {
             "title": "Paramètres généraux",
@@ -315,6 +318,9 @@
         "exportProgress": {
             "title": "Exportation en cours...",
             "filesCount": "{{current}} / {{total}} fichiers"
+        },
+        "quickGuide": {
+            "title": "Guide Rapide"
         }
     },
     "automix": {
@@ -430,7 +436,8 @@
         "trimmingBadge": "TRIM…",
         "fadeOutBadge": "FADE OUT",
         "priorityBadge": "PRIORITÉ",
-        "bpmTip": "BPM estimé (analyse automatique)"
+        "bpmTip": "BPM estimé (analyse automatique)",
+        "introTip": "Fin de l'intro (entrée voix)"
     },
     "column": {
         "rotationActiveTip": "Rotation Jingle & Promo active",
