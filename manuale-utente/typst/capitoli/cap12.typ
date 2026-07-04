@@ -1,71 +1,53 @@
 #import "../lib/manuale-template.typ": *
 
-= Aggiornamenti
+= 更新
+<第-12-章-更新>
 
-Runtime Live Machine Pro si aggiorna da solo, ma mai a tuo discapito.
-Due regole reggono tutto: nessun aggiornamento deve interferire con una
-diretta, e nessun download parte senza il tuo consenso. Questo capitolo
-spiega come il software controlla la presenza di nuove versioni, come le
-installa e perché a volte si comporta in modo diverso a seconda del
-sistema operativo.
+Runtime Live Machine Pro
+会自我更新，但不会以牺牲你为代价。两条原则管着一切：更新不得打断直播，下载不会在未经你同意时开始。本章讲软件怎么检查新版本、怎么安装，以及为什么在不同操作系统上表现不一样。
 
-== 12.1 Il controllo all'avvio
-Poco dopo l'avvio (circa tre secondi), RLMP verifica in modo silenzioso
-se esiste una versione più recente. L'esito compare nella schermata di
-benvenuto, accanto al numero di versione:
+== 12.1 启动时的检查
+<启动时的检查>
+启动后不久（约三秒），RLMP
+会静默检查有没有新版本，结果显示在欢迎界面版本号旁边：
 
-- #strong[«Aggiornato»] (verde) --- stai usando l'ultima versione.
-- #strong[«Aggiornamento disponibile»] (ambra) --- è disponibile una
-  versione più recente. È un pulsante: cliccalo per aprire la finestra
-  di aggiornamento.
-- #strong[«OFFLINE»] --- non è stato possibile contattare il servizio;
-  riprova più tardi. Il software funziona normalmente.
+- #strong[「已是最新版本」]（绿色）------当前已是最新版本。
+- #strong[「发现新版本」]（琥珀色）------有更新可用，这是一个按钮，点击打开更新窗口。
+- #strong[「OFFLINE」]------联系不到服务，稍后重试，软件照常运行。
 
-Il controllo è opzionale e non bloccante: se sei offline, RLMP parte e
-lavora senza problemi.
+这个检查是可选的、非阻断的：就算处于离线状态，RLMP
+也能正常启动、正常工作。
 
-== 12.2 La finestra di aggiornamento
-Quando un aggiornamento è disponibile, la finestra dedicata mostra la
-versione corrente, la nuova versione e le note di rilascio. Da qui
-decidi tu:
+== 12.2 更新窗口
+<更新窗口>
+有更新可用时，专门的窗口会显示当前版本、新版本和发行说明，由你决定：
 
-- #strong[Più tardi] --- chiude la finestra senza fare nulla. Potrai
-  riaprirla quando vuoi.
-- #strong[Scarica] --- avvia il download della nuova versione. Il
-  download #strong[non parte mai da solo]: comincia solo quando premi
-  questo pulsante. Una barra di avanzamento ne mostra il progresso.
-- #strong[Riavvia e installa] --- compare quando il download è completo:
-  riavvia l'applicazione applicando l'aggiornamento.
+- #strong[稍后] --- 关闭窗口，什么都不做，随时可以重新打开。
+- #strong[下载] ---
+  开始下载新版本。下载#strong[绝不会自行启动]，只在你按下这个按钮时才开始，进度条显示进展。
+- #strong[重启并安装] --- 下载完成后出现，重启应用并套用更新。
 
-== 12.3 La regola «mai durante la diretta»
-Il controllo automatico può trovare un aggiornamento proprio mentre sei
-in onda. In quel caso, RLMP #strong[non ti interrompe]: la finestra di
-aggiornamento resta in attesa e si apre da sola soltanto quando la
-diretta è finita (quando fermi tutto). La priorità è sempre lo show in
-corso.
+== 12.3 「绝不在直播中」原则
+<绝不在直播中原则>
+自动检查可能恰好在你播出时发现更新。这种情况下 RLMP
+#strong[不会打断你]：更新窗口会一直等着，只在直播结束（你停下全部）之后才自己打开。进行中的节目永远优先。
 
-C'è una sola eccezione, ed è voluta: il pulsante #strong[Controlla
-aggiornamenti ora], nel pannello #emph[Info] (menu Strumenti), è
-un'azione esplicita tua e apre subito la finestra, anche in diretta. Se
-lo premi, è perché lo vuoi.
+唯一的例外是刻意设计的：#emph[信息]面板（工具菜单）里的
+#strong[立即检查更新]
+按钮，是你的主动操作，就算在直播中也会立刻打开窗口------你按了它，就说明你想这么做。
 
-== 12.4 Differenze tra le piattaforme
-Il modo in cui l'aggiornamento viene installato dipende dal sistema
-operativo.
+== 12.4 各平台之间的差异
+<各平台之间的差异>
+更新的安装方式取决于操作系统。
 
-#strong[Windows e Linux (AppImage).] L'aggiornamento è completamente
-integrato: scarichi la nuova versione dalla finestra e il software la
-installa al successivo riavvio, senza passaggi manuali.
+#strong[Windows 与 Linux（AppImage）。]
+更新完全一体化：从窗口下载新版本，软件在下次重启时自动安装，不需要手动步骤。
 
-#strong[macOS e Linux (pacchetto \.deb).] Su questi sistemi RLMP non può
-installare l'aggiornamento in modo affidabile. Al posto
-dell'installazione automatica, la finestra ti avvisa e apre il browser
-sulla pagina di download della nuova versione: da lì scarichi il
-pacchetto e lo installi come faresti per una nuova installazione
-(Capitolo 2). I tuoi progetti e i file `.lmp` restano intatti.
+#strong[macOS 与 Linux（.deb 软件包）。] 这些系统上 RLMP
+无法可靠地自动安装更新。窗口会提示你，并在浏览器里打开新版本的下载页面，你从那里下载软件包，像全新安装一样装上（第
+2 章）。项目和 `.lmp` 文件都不受影响。
 
 #nota[
-In tutti i casi, aggiornare RLMP non comporta la perdita
-dei progetti: i file `.lmp` sono compatibili tra le versioni e non
-richiedono migrazione manuale.
+无论哪种情况，更新 RLMP 都不会导致项目丢失：`.lmp`
+文件在各版本间兼容，不需要手动迁移。
 ]

@@ -2,23 +2,23 @@
 
 ---
 
-Der grundlegende Betriebszyklus von Runtime Live Machine Pro gliedert sich in drei Phasen: die Audiodateien importieren, sie im Raster organisieren, sie während der Sendung abspielen. Dieses Kapitel beschreibt jede Phase mit der Genauigkeit, die nötig ist, um auch unter Druck sicher zu arbeiten.
+Der grundlegende Betriebszyklus von Runtime Live Machine Pro gliedert sich in drei Phasen: Audiodateien importieren, im Raster organisieren, während der Sendung abspielen. Dieses Kapitel beschreibt jede Phase so genau, dass Sie auch unter Druck sicher arbeiten können.
 
 ---
 
 ## 4.1 Die Audiodateien importieren
 
-RLMP verfügt weder über einen internen Browser noch über eine zentrale Bibliothek. Der Import erfolgt per **Drag & Drop** direkt aus dem Dateimanager des Betriebssystems (Explorer unter Windows, Finder unter macOS, Nautilus oder Vergleichbares unter Linux). Alternativ können Sie aus dem Menü FILE eine **M3U**-Playlist importieren und in eine Clip-Sequenz verwandeln.
+RLMP verfügt weder über einen internen Browser noch über eine zentrale Bibliothek. Der Import läuft per **Drag & Drop** direkt aus dem Dateimanager des Betriebssystems (Explorer unter Windows, Finder unter macOS, Nautilus oder Vergleichbares unter Linux). Alternativ importieren Sie über das Menü FILE eine **M3U**-Playlist und verwandeln sie in eine Clip-Sequenz.
 
 ### Die Grundgeste
 
 1. Öffnen Sie den Ordner auf Ihrem Computer, in dem die Audiodateien liegen.
-2. Wählen Sie eine oder mehrere Dateien aus. Für die Auswahl mehrerer Dateien: `Ctrl+Klick` für eine unzusammenhängende Auswahl, `Shift+Klick` für eine zusammenhängende Auswahl.
+2. Wählen Sie eine oder mehrere Dateien aus: `Ctrl+Klick` für eine unzusammenhängende Auswahl, `Shift+Klick` für eine zusammenhängende.
 3. Ziehen Sie die ausgewählten Dateien über eine der Spalten des Rasters und lassen Sie los. Soundeffekte ziehen Sie direkt auf das pad FX (Kapitel 7).
 
-Jede Datei erzeugt eine Karte in der Zielspalte. Wenn Sie mehrere Dateien gleichzeitig ziehen, werden die Karten in der Reihenfolge erstellt, in der die Dateien im Dateimanager erscheinen, von oben nach unten.
+Jede Datei erzeugt eine Karte in der Zielspalte. Ziehen Sie mehrere Dateien gleichzeitig, entstehen die Karten in der Reihenfolge, in der die Dateien im Dateimanager erscheinen, von oben nach unten.
 
-**Einfügeanzeige.** Während des Ziehens läuft eine leuchtende blaue Linie entlang der Spalte und zeigt die genaue Position an, an der die Karten eingefügt werden. Sie können neue Clips oben, unten oder an einer beliebigen Zwischenposition präzise einfügen.
+**Einfügeanzeige.** Während des Ziehens läuft eine leuchtende blaue Linie entlang der Spalte und markiert genau die Position, an der die Karten landen. So lassen sich neue Clips oben, unten oder an jeder beliebigen Zwischenposition präzise einfügen.
 
 ### Unterstützte Formate
 
@@ -35,11 +35,11 @@ Die integrierte FFmpeg-Engine garantiert Kompatibilität mit einer breiten Palet
 | WMA | `.wma` | Windows Media Audio |
 | WebM / MP4 | `.webm`, `.mp4` | In diesen Containern enthaltene Audiospuren |
 
-**Ein Wort zur Performance.** Das Streaming-Protokoll `media://` sorgt dafür, dass die Audiodateien beim Import nicht in den Arbeitsspeicher geladen werden. Eine unkomprimierte WAV-Datei von 2 GB verhält sich genau wie eine MP3 von 5 MB: Das Laden ist augenblicklich und die Auswirkung auf den Systemspeicher vernachlässigbar. Die CPU-Ressourcen werden nur während der aktiven Dekodierung beansprucht, also während der Wiedergabe.
+**Ein Wort zur Performance.** Das Streaming-Protokoll `media://` sorgt dafür, dass Audiodateien beim Import nicht in den Arbeitsspeicher wandern. Eine unkomprimierte WAV-Datei von 2 GB verhält sich genau wie eine MP3 von 5 MB: Das Laden geschieht augenblicklich, die Auswirkung auf den Systemspeicher bleibt vernachlässigbar. CPU-Ressourcen beansprucht nur die aktive Dekodierung, also die Wiedergabe selbst.
 
 ### Der Pfad der Dateien
 
-RLMP speichert den **absoluten Pfad** der Datei auf der Festplatte, nicht eine Kopie der Datei selbst. Wenn Sie die Originaldatei verschieben, umbenennen oder löschen, wird die zugehörige Karte rot und ist nicht mehr abspielbar. Um an mehreren Computern zu arbeiten oder portable Archive zu erstellen, nutzen Sie die Funktion **Export Package** aus Kapitel 10.
+RLMP speichert den **absoluten Pfad** der Datei auf der Festplatte, nicht die Datei selbst als Kopie. Verschieben, benennen Sie um oder löschen Sie die Originaldatei, färbt sich die zugehörige Karte rot und lässt sich nicht mehr abspielen. Für die Arbeit an mehreren Computern oder portable Archive nutzen Sie die Funktion **Export Package** aus Kapitel 10.
 
 ---
 
@@ -47,25 +47,25 @@ RLMP speichert den **absoluten Pfad** der Datei auf der Festplatte, nicht eine K
 
 ### Einen Clip starten
 
-Ein **Linksklick** auf die Karte genügt, um die Wiedergabe zu starten. Das Feedback ist sofortig: Die Karte leuchtet im Grün des aktiven Zustands auf, der Timer wechselt zum Countdown, und die VU meter im Header spiegeln das Ausgangssignal wider.
+Ein **Linksklick** auf die Karte genügt, um die Wiedergabe zu starten. Das Feedback folgt augenblicklich: Die Karte leuchtet im Grün des aktiven Zustands auf, der Timer wechselt zum Countdown, und die VU-Meter im Header spiegeln das Ausgangssignal wider.
 
-Wurde dem Clip eine Tastaturtaste zugewiesen (siehe Kapitel 8), funktioniert diese Taste als Alternative zum Klick – nützlich, wenn Sie gerade an einem anderen Teil der Oberfläche arbeiten und die Maus nicht bewegen möchten.
+Wurde dem Clip eine Tastaturtaste zugewiesen (siehe Kapitel 8), funktioniert sie als Alternative zum Klick – praktisch, wenn Sie gerade an einem anderen Teil der Oberfläche arbeiten und die Maus lieber nicht bewegen möchten.
 
 ### Einen Clip stoppen
 
 **Klick auf den aktiven Clip** – der Clip tritt in die **Fade-Out**-Phase ein und stoppt innerhalb der in seinen Eigenschaften konfigurierten Zeit (siehe Kapitel 5).
 
-**Taste `Esc`** – stoppt alle aktiven Clips augenblicklich. Es ist der Notfallbefehl. Er funktioniert, wenn RLMP das aktive Fenster ist, auch während Sie in ein Textfeld schreiben.
+**Taste `Esc`** – stoppt augenblicklich alle aktiven Clips. Der Notfallbefehl schlechthin: Er funktioniert, sobald RLMP das aktive Fenster ist, auch während Sie gerade in ein Textfeld schreiben.
 
-**Schaltfläche STOP ALL** im Header – identisch mit `Esc`, per Maus erreichbar.
+**Schaltfläche STOP ALL** im Header – identisch mit `Esc`, nur per Maus erreichbar.
 
 ### Die Ausschlusslogik je Spalte
 
-In den meisten Spalten wendet RLMP die Regel **„ein Clip auf einmal“** an: Wenn Sie *Titel A* in der Spalte Musik abspielen und auf *Titel B* in derselben Spalte klicken, stoppt *Titel A* (mit Fade Out) und *Titel B* startet. Sie müssen den laufenden Clip nicht manuell stoppen, bevor Sie einen anderen starten.
+In den meisten Spalten gilt die Regel **„ein Clip auf einmal“**: Spielen Sie *Titel A* in der Spalte Musik ab und klicken auf *Titel B* in derselben Spalte, stoppt *Titel A* (mit Fade Out), und *Titel B* startet. Den laufenden Clip vorher manuell zu stoppen ist nicht nötig.
 
-Die **Effekte des pad FX** sind die wichtigste Ausnahme: Sie legen sich über alles, auch über andere Effekte, und unterbrechen nicht, was gerade läuft. Ein Applaus kann starten, während ein Song läuft, ohne dessen Wiedergabe zu unterbrechen.
+Die wichtigste Ausnahme bilden die **Effekte des pad FX**: Sie legen sich über alles, auch über andere Effekte, ohne zu unterbrechen, was gerade läuft. Ein Applaus kann also starten, während ein Song läuft, ohne dessen Wiedergabe zu stören.
 
-Auch Clips mit dem Verhalten **Stacco** (Trenner, in den Eigenschaften konfigurierbar, siehe Kapitel 5) legen sich über die anderen Clips der Spalte, ohne sie zu stoppen, ganz gleich, wo sie sich befinden.
+Auch Clips mit dem Verhalten **Stacco** (Trenner, konfigurierbar in den Eigenschaften, siehe Kapitel 5) legen sich über die anderen Clips der Spalte, ohne sie zu stoppen – ganz gleich, an welcher Position sie sich befinden.
 
 ---
 
@@ -73,37 +73,37 @@ Auch Clips mit dem Verhalten **Stacco** (Trenner, in den Eigenschaften konfiguri
 
 ### Clips umsortieren
 
-Während der Vorbereitung der Show, oder auch während sie läuft, können Sie die Reihenfolge der Clips jederzeit umorganisieren.
+Egal ob während der Vorbereitung oder mitten in der laufenden Show – die Reihenfolge der Clips lässt sich jederzeit umorganisieren.
 
-**Internes Ziehen.** Klicken Sie auf eine Karte, halten Sie gedrückt und ziehen Sie sie in derselben Spalte nach oben oder unten. Die blaue Hilfslinie zeigt die Einfügeposition. Der Clip fügt sich an der neuen Position ein, ohne laufende Wiedergaben zu unterbrechen.
+**Internes Ziehen.** Klicken Sie auf eine Karte, halten Sie gedrückt und ziehen Sie sie in derselben Spalte nach oben oder unten. Die blaue Hilfslinie zeigt die Einfügeposition. Der Clip setzt sich an der neuen Position fest, ohne laufende Wiedergaben zu unterbrechen.
 
-**Verschieben zwischen Spalten.** Sie können einen Clip von einer Spalte in eine andere ziehen. Dabei **erbt der Clip die Regeln der Zielspalte**: eine vorproduzierte Stimme, in die Spalte Musik verschoben, beginnt genau wie ein Musiktitel dem Ducking zu unterliegen.
+**Verschieben zwischen Spalten.** Ein Clip lässt sich auch von einer Spalte in eine andere ziehen. Dabei **erbt er die Regeln der Zielspalte**: Eine vorproduzierte Stimme, in die Spalte Musik verschoben, unterliegt fortan genau wie ein Musiktitel dem Ducking.
 
-Clips zwischen Spalten zu verschieben ist ein wirkungsvoller, bewusster Vorgang. Nutzen Sie die Funktion mit Bedacht, besonders während der Sendung.
+Clips zwischen Spalten zu verschieben ist ein wirkungsvoller Eingriff. Setzen Sie ihn bewusst ein, besonders während der Sendung.
 
 ### Mehrfachauswahl und Löschen
 
-Um mehrere Clips in einem einzigen Vorgang aus dem Raster zu entfernen:
+So entfernen Sie mehrere Clips in einem einzigen Vorgang aus dem Raster:
 
-1. `Ctrl+Klick` (Windows/Linux) oder `Cmd+Klick` (macOS) auf jeden zu wählenden Clip. Der Rahmen wird blau.
-2. Drücken Sie `Entf` oder `Delete`. Die Software fragt nach, wenn mehr als ein Clip ausgewählt ist.
+1. `Ctrl+Klick` (Windows/Linux) oder `Cmd+Klick` (macOS) auf jeden gewünschten Clip. Der Rahmen wird blau.
+2. Drücken Sie `Entf` oder `Delete`. Bei mehr als einem ausgewählten Clip fragt die Software vorher nach.
 
-Das Löschen aus dem Raster entfernt die Clips aus dem aktuellen Projekt, nicht die Audiodateien von der Festplatte. Wenn Sie sich vertun, macht `Ctrl+Z` den Vorgang rückgängig.
+Das Löschen aus dem Raster entfernt die Clips nur aus dem aktuellen Projekt, nicht die Audiodateien von der Festplatte. Bei einem Versehen macht `Ctrl+Z` den Vorgang rückgängig.
 
-> **Praxis-Tipp.** Ist die Sendung erst gestartet, ist das Leeren der Spalte Pre-Show per Mehrfachauswahl und `Entf` der schnellste Weg, visuellen Platz in der Oberfläche zu schaffen und in den Betriebsmodus überzugehen.
+> **Praxis-Tipp.** Läuft die Sendung bereits, ist das Leeren der Spalte Pre-Show per Mehrfachauswahl und `Entf` der schnellste Weg, um visuellen Platz zu schaffen und in den Betriebsmodus überzugehen.
 
 ---
 
 ## 4.4 Struktur-Cues: INTRO und OUTRO
 
-Jeder Clip kann zwei **strukturelle Marker** haben, die im Waveform-Editor konfiguriert werden (Kapitel 5):
+Jeder Clip kann zwei **strukturelle Marker** tragen, konfigurierbar im Waveform-Editor (Kapitel 5):
 
-- **Intro Marker** – der Punkt, an dem die Hauptmelodie des Titels tatsächlich einsetzt, nach dem instrumentalen Vorspann. Nützlich, um genau zu wissen, wann man über dem Intro zu sprechen beginnen kann.
-- **Outro Marker** – der Punkt, an dem das Schluss-Outro des Titels beginnt. Signalisiert den richtigen Moment, um den Übergang zum nächsten Titel vorzubereiten.
+- **Intro Marker** – der Punkt, an dem nach dem instrumentalen Vorspann die eigentliche Hauptmelodie einsetzt. Nützlich, um genau zu wissen, wann man über dem Intro zu sprechen beginnen darf.
+- **Outro Marker** – der Punkt, an dem das Schluss-Outro beginnt. Er signalisiert den richtigen Moment, um den Übergang zum nächsten Titel vorzubereiten.
 
-Wenn sich die Wiedergabe eines Clips diesen Punkten nähert, erscheint auf der Karte ein visueller Hinweis:
+Nähert sich die Wiedergabe eines Clips diesen Punkten, erscheint auf der Karte ein visueller Hinweis:
 
 - **INTRO: −MM:SS** – Countdown bis zum Intro Marker.
-- **OUTRO IN: −MM:SS** – Countdown bis zum Outro Marker, gefolgt von **🚨 OUTRO**, wenn das Outro begonnen hat.
+- **OUTRO IN: −MM:SS** – Countdown bis zum Outro Marker, gefolgt von **🚨 OUTRO**, sobald das Outro begonnen hat.
 
-Diese Hinweise erscheinen nur, wenn die Marker konfiguriert wurden. Auf Clips ohne Marker zeigt die Karte lediglich den Standard-Countdown zum Ende des Titels.
+Diese Hinweise erscheinen nur bei konfigurierten Markern. Ohne Marker zeigt die Karte lediglich den Standard-Countdown bis zum Ende des Titels.

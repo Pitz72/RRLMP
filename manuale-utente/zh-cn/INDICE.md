@@ -4,7 +4,7 @@
 ---
 
 **第 1 章 — Runtime Live Machine Pro：一种理念**
-RLMP 是什么，为谁而造。「Single Show（单场节目）」理念。Main-Side-Heavy 架构。导播网格：一套可视化的语法。
+RLMP 是什么，为谁而造。「Single Show（单场节目）」理念。Main-Side-Heavy 架构。导播网格的可视化语法。
 
 **第 2 章 — 安装与首次启动**
 系统要求。在 Windows、macOS 与 Linux 上的安装。欢迎界面。首次启动：应当预期什么。

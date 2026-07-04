@@ -2,7 +2,7 @@
 
 ---
 
-Ce chapitre rassemble les problèmes les plus courants dans l'usage quotidien de Runtime Live Machine Pro, avec leurs solutions. Chaque section décrit le symptôme, la cause la plus probable et la procédure de résolution.
+Ce chapitre rassemble les problèmes les plus fréquents dans l'usage quotidien de Runtime Live Machine Pro, avec leurs solutions. Chaque section décrit le symptôme, la cause la plus probable, puis la marche à suivre pour y remédier.
 
 ---
 
@@ -10,7 +10,7 @@ Ce chapitre rassemble les problèmes les plus courants dans l'usage quotidien de
 
 ### Le minuteur défile et les VU meter bougent, mais on n'entend rien
 
-Le logiciel diffuse correctement (le signal est présent dans le bus interne), mais il n'atteint pas le périphérique d'écoute.
+Le logiciel diffuse bien le signal, présent dans le bus interne, mais celui-ci n'atteint jamais le périphérique d'écoute.
 
 **Vérifiez dans l'ordre :**
 
@@ -20,7 +20,7 @@ Le logiciel diffuse correctement (le signal est présent dans le bus interne), m
 
 ### L'audio saute, grésille ou a des interruptions
 
-En conditions normales, le moteur audio est robuste face à ces artefacts. S'ils se produisent, la cause est presque toujours externe au logiciel.
+En temps normal, le moteur audio résiste bien à ce type d'artefact. S'il en survient malgré tout, la cause est presque toujours extérieure au logiciel.
 
 - **CPU sous charge extrême.** Fermez les applications lourdes en parallèle (montage vidéo, rendu, sauvegardes intensives).
 - **Buffer audio trop bas.** Avec une carte son professionnelle, contrôlez la valeur de buffer dans le panneau de contrôle du driver. Une valeur de 256 ou 512 échantillons est le bon équilibre ; sous 128 échantillons, des dropouts peuvent apparaître.
@@ -38,7 +38,7 @@ En conditions normales, le moteur audio est robuste face à ces artefacts. S'ils
 
 ### Une carte est devenue rouge (« FICHIER MANQUANT ») et ne répond pas au clic
 
-La bordure rouge indique que le fichier audio n'est pas accessible au chemin mémorisé dans le projet.
+La bordure rouge signale que le fichier audio est introuvable au chemin enregistré dans le projet.
 
 **Causes possibles :**
 
@@ -59,7 +59,7 @@ La bordure rouge indique que le fichier audio n'est pas accessible au chemin mé
 
 ### Le contrôleur n'est pas détecté
 
-1. **Connexion.** Vérifiez que le contrôleur est branché et reconnu par le système d'exploitation. RLMP détecte la connexion et la déconnexion des périphériques en temps réel ; s'il n'apparaît pas, débranchez et rebranchez le câble USB.
+1. **Connexion.** Vérifiez que le contrôleur est bien branché et reconnu par le système d'exploitation. RLMP détecte en temps réel la connexion et la déconnexion des périphériques ; s'il n'apparaît toujours pas, débranchez puis rebranchez le câble USB.
 2. **Driver.** La plupart des contrôleurs USB-MIDI sont *class-compliant* et ne demandent pas de driver. Pour les surfaces professionnelles à driver propriétaire, vérifiez que le driver est installé.
 3. **Vérification en mode Learn.** Activez MIDI Learn et appuyez sur une touche du contrôleur : si la carte reçoit le mapping, le contrôleur est détecté.
 
@@ -82,20 +82,20 @@ Voir la section 2.2. Cliquez sur *Informations complémentaires* puis sur *Exéc
 
 ### Comportements anormaux au démarrage
 
-Si le logiciel se comporte de façon inattendue à l'ouverture, fermez et rouvrez RLMP. Si le problème persiste, vérifiez que le chemin d'installation ne contient pas de caractères spéciaux susceptibles d'interférer avec le chargement des composants FFmpeg.
+Si le logiciel se comporte de façon inattendue à l'ouverture, fermez-le et rouvrez-le. Si le problème persiste, vérifiez que le chemin d'installation ne contient pas de caractères spéciaux, ils peuvent gêner le chargement des composants FFmpeg.
 
 ---
 
 ## 14.5 Questions fréquentes
 
-**RLMP peut-il automatiser une radio 24 heures sur 24 sans surveillance ?**
-Non. RLMP est conçu pour la régie live : des émissions tenues par un opérateur. Il ne dispose ni de programmation horaire ni de rotation automatique de la playlist. La vue Automix offre une automatisation limitée et volontaire du seul flux musical, active tant que la vue est ouverte (Chapitre 7). Pour l'automatisation 24h/24, il existe des logiciels dédiés (Zara Radio, PlayIt Live, Rivendell) : ils répondent à d'autres besoins.
+**RLMP peut-il automatiser une radio 24 heures sur 24 sans surveillance ?**
+Non. RLMP est pensé pour la régie live, des émissions tenues par un opérateur, et ne propose ni programmation horaire ni rotation automatique de playlist. Seule la vue Automix offre une automatisation limitée et volontaire du flux musical, active tant qu'elle reste ouverte (Chapitre 7). Pour l'automatisation 24h/24, des logiciels dédiés existent déjà (Zara Radio, PlayIt Live, Rivendell) : ils couvrent un besoin différent.
 
 **Quelle est la différence entre Enregistrer et Enregistrer sous ?**
 *Enregistrer le projet* écrase le fichier `.lmp` ouvert, en silence. *Enregistrer sous…* ouvre toujours la boîte de dialogue et crée un nouveau fichier, sans toucher au fichier courant.
 
-**Puis-je utiliser RLMP sur iPad ou sur des appareils mobiles ?**
-Pas comme application principale : RLMP est un logiciel de bureau pour Windows, macOS et Linux. Une tablette ou un téléphone peuvent en revanche faire office de **télécommande** via navigateur, grâce au Contrôle à distance (Chapitre 11).
+**Puis-je utiliser RLMP sur iPad ou sur des appareils mobiles ?**
+Pas comme application principale : RLMP reste un logiciel de bureau, pour Windows, macOS et Linux. Une tablette ou un téléphone peuvent en revanche servir de **télécommande** via navigateur, grâce au Contrôle à distance (Chapitre 11).
 
 **Les fichiers `.lmp` des versions précédentes sont-ils compatibles avec la 1.11.5 ?**
 Oui. À l'ouverture d'un projet créé avec une version précédente, RLMP en met à jour automatiquement la structure, colonnes ajoutées entre-temps comprises, sans modifier le fichier tant que vous n'effectuez pas d'enregistrement.
@@ -106,8 +106,8 @@ Le logiciel vérifie les mises à jour au démarrage et vous avertit. Sous Windo
 **Où sont enregistrées les sauvegardes automatiques ?**
 Dans le dossier `autosaves` du répertoire de données de l'application (`%APPDATA%\runtime-live-machine-pro\autosaves\` sous Windows ; chemins équivalents sous macOS et Linux, Chapitre 10). Les dix instantanés les plus récents sont conservés.
 
-**Le logiciel fonctionne-t-il hors ligne ?**
-Oui, entièrement. RLMP ne demande pas de connexion internet pour fonctionner. Le réseau n'est utilisé que pour la vérification des mises à jour (optionnelle) et pour le Contrôle à distance en réseau local (optionnel).
+**Le logiciel fonctionne-t-il hors ligne ?**
+Oui, entièrement. RLMP n'a besoin d'aucune connexion internet pour tourner. Le réseau ne sert que pour la vérification des mises à jour, optionnelle, et pour le Contrôle à distance en réseau local, optionnel lui aussi.
 
 **Le Contrôle à distance ne se connecte pas. Pourquoi ?**
 Vérifiez que l'appareil distant est sur le **même réseau** que l'ordinateur, que vous avez saisi le **PIN correct** (il change à chaque démarrage) et que vous utilisez l'adresse affichée dans les Paramètres. Rappelez-vous que le Contrôle à distance repart éteint à chaque démarrage de l'application (Chapitre 11).

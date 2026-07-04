@@ -2,42 +2,42 @@
 
 ---
 
-Die Oberfläche von Runtime Live Machine Pro ist für den anspruchsvollsten Betriebskontext gebaut: die Live-Sendung. Jede visuelle Entscheidung – das dunkle Thema, der hohe Kontrast, die Größe der Bedienelemente – erfüllt eine funktionale Anforderung. Es ist keine Ästhetik um der Ästhetik willen, sondern Ergonomie.
+Die Oberfläche von Runtime Live Machine Pro ist für den anspruchsvollsten Betriebskontext gebaut, den es gibt: die Live-Sendung. Jede visuelle Entscheidung – das dunkle Thema, der hohe Kontrast, die Größe der Bedienelemente – folgt einer funktionalen Anforderung. Ästhetik um ihrer selbst willen ist das nicht, sondern Ergonomie.
 
-Wenn Sie ein Projekt öffnen, teilt sich der Bildschirm in zwei klar getrennte Zonen: die **Steuerleiste** oben, die Projekt und System verwaltet, und das zentrale **Regie-Raster**, in dem die eigentliche Arbeit stattfindet.
+Öffnen Sie ein Projekt, teilt sich der Bildschirm in zwei klar getrennte Zonen: oben die **Steuerleiste**, die Projekt und System verwaltet, in der Mitte das **Regie-Raster**, in dem die eigentliche Arbeit stattfindet.
 
 ---
 
 ## 3.1 Die Steuerleiste (Header)
 
-Der Header nimmt die gesamte Bildschirmbreite ein. Von links nach rechts vereint er die Identität der Software, die Datei-Befehle, das Monitoring und die Transportsteuerung, das Werkzeug-Menü und die Session-Anzeigen.
+Der Header nimmt die gesamte Bildschirmbreite ein. Von links nach rechts vereint er die Identität der Software, die Dateibefehle, das Monitoring samt Transportsteuerung, das Werkzeugmenü und die Session-Anzeigen.
 
 ### Identität
 
-**Logo und PRO-Badge.** Links steht das Logo neben dem Schriftzug **RLM PRO** – das Wort „PRO“ ist mit einem schillernden Farbverlauf umgesetzt, der von Cyan über Grün und Bernstein zu Rot wechselt. Daneben steht in Monospace-Schrift die installierte Version (`v1.11.5`). Wenn Sie mit der Maus über das Logo fahren, erscheint der vollständige Name der Software mit der Versionsnummer.
+**Logo und PRO-Badge.** Links steht das Logo neben dem Schriftzug **RLM PRO** – das Wort „PRO“ ist in einem schillernden Farbverlauf gehalten, der von Cyan über Grün und Bernstein bis Rot reicht. Daneben zeigt eine Monospace-Schrift die installierte Version (`v1.11.5`). Fahren Sie mit der Maus über das Logo, erscheint der vollständige Name der Software samt Versionsnummer.
 
 ### Menü Datei
 
-Die Schaltfläche **FILE** öffnet ein Menü mit den Projekt-Operationen:
+Die Schaltfläche **FILE** öffnet ein Menü mit den Projektoperationen:
 
-- *Neues Projekt* – öffnet eine leere Session. Gibt es ungespeicherte Änderungen, fragt die Software nach.
-- *Projekt speichern* – schnelles Speichern in die aktuelle `.lmp`-Datei. Der Eintrag hebt sich gelb hervor, wenn es ungespeicherte Änderungen gibt.
-- *Speichern unter…* – öffnet stets den Dialog, um fortlaufende Versionen zu erstellen (z. B. `Ep47_entwurf.lmp`, `Ep47_final.lmp`).
+- *Neues Projekt* – öffnet eine leere Session. Gibt es ungespeicherte Änderungen, fragt die Software vorher nach.
+- *Projekt speichern* – schnelles Speichern in die aktuelle `.lmp`-Datei. Gibt es ungespeicherte Änderungen, hebt sich der Eintrag gelb hervor.
+- *Speichern unter…* – öffnet stets den Dialog, praktisch für fortlaufende Versionen (z. B. `Ep47_entwurf.lmp`, `Ep47_final.lmp`).
 - *Projekt laden* – öffnet ein `.lmp`-Projekt von der Festplatte.
 - *M3U importieren* – importiert eine Playlist im M3U-Format als Clip-Sequenz.
-- *Eigenständiges Archiv exportieren* – erstellt eine in sich geschlossene Kopie des Projekts, samt Audiodateien. Beschrieben in Kapitel 10.
+- *Eigenständiges Archiv exportieren* – erstellt eine in sich geschlossene Kopie des Projekts samt Audiodateien, beschrieben in Kapitel 10.
 
 ### Monitoring und Transport
 
-**Stereo-VU-Meter (L/R).** Zwei waagerechte Balken zeigen den tatsächlichen Ausgangspegel nach der Master-Lautstärke. Die Farbskala ist intuitiv: grün bis etwa 85 % des Wegs, dann gelb, schließlich rot in der Nähe des Endanschlags. Dauerhaftes Rot signalisiert Clipping: Senken Sie den Pegel.
+**Stereo-VU-Meter (L/R).** Zwei waagerechte Balken zeigen den tatsächlichen Ausgangspegel nach der Master-Lautstärke: grün bis etwa 85 % des Wegs, dann gelb, schließlich rot nahe dem Endanschlag. Dauerhaftes Rot signalisiert Clipping – senken Sie in dem Fall den Pegel.
 
-**Master-Lautstärke.** Der Fader steuert die Gesamt-Ausgangslautstärke der Software, von 0 bis 100 %. Er wirkt wie ein Master-Fader: auf null gestellt, kommt kein Ton heraus, unabhängig vom Zustand der einzelnen Clips. Wenn Sie ein MIDI-Steuerelement auf die Master-Lautstärke gelegt haben, zeigt ein kleines Badge die Zuordnung an.
+**Master-Lautstärke.** Der Fader steuert die Gesamtausgangslautstärke der Software, von 0 bis 100 %. Er wirkt wie ein Master-Fader: Steht er auf null, kommt kein Ton heraus, ganz gleich, was die einzelnen Clips gerade tun. Liegt ein MIDI-Steuerelement auf der Master-Lautstärke, zeigt ein kleines Badge diese Zuordnung an.
 
-**STOP ALL (rote Schaltfläche „ALL“).** Stoppt sofort alle aktiven Clips und setzt laufende Fades zurück. Es ist der Notfallbefehl des Systems. Die Taste `Esc` auf der Tastatur führt dieselbe Funktion aus, wenn die Anwendung im Fokus ist – auch während Sie in ein Textfeld schreiben.
+**STOP ALL (rote Schaltfläche „ALL“).** Stoppt sofort alle aktiven Clips und setzt laufende Fades zurück – der Notfallbefehl des Systems. Die Taste `Esc` erfüllt denselben Zweck, sobald die Anwendung im Fokus steht, auch während Sie gerade in ein Textfeld schreiben.
 
-> **Hinweis.** Anders als in früheren Versionen ist `Esc` nicht mehr als systemweites Kürzel registriert: Es wirkt, wenn RLMP das aktive Fenster ist. Diese Entscheidung erlaubt es Dialogfenstern, `Esc` zum Schließen zu nutzen, ohne die Sendung zu stoppen.
+> **Hinweis.** Anders als in früheren Versionen ist `Esc` nicht mehr als systemweites Kürzel registriert, sondern wirkt nur, solange RLMP das aktive Fenster ist. So können Dialogfenster `Esc` zum Schließen nutzen, ohne dabei die Sendung zu stoppen.
 
-**FX.** Öffnet und schließt das pad FX, die *jingle machine* der Effekte (Kapitel 7). Ein kleiner Zähler zeigt an, wie viele Effekte gerade wiedergegeben werden.
+**FX.** Öffnet und schließt das pad FX, die *jingle machine* der Effekte (Kapitel 7). Ein kleiner Zähler zeigt, wie viele Effekte gerade laufen.
 
 **MIX.** Öffnet und schließt die Automix-Ansicht, das dedizierte Deck der Spalte Musik (Kapitel 7).
 
@@ -51,7 +51,7 @@ Das Menü **Werkzeuge** (Schraubenschlüssel-Symbol) vereint:
 - *Einstellungen* – die globalen Voreinstellungen der Software (Kapitel 13).
 - *Info* – Version, Credits und manuelle Update-Prüfung.
 
-Kurz unter dem Menü erscheint für einen Moment die Anzeige *Auto-saved* als Bestätigung, dass das Projekt automatisch gespeichert wurde.
+Kurz unter dem Menü blinkt für einen Moment die Anzeige *Auto-saved* auf – die Bestätigung, dass das Projekt automatisch gespeichert wurde.
 
 ![Die Steuerleiste mit geöffnetem Menü Werkzeuge.](../screenshots-de/barra-controllo.png)
 
@@ -59,9 +59,9 @@ Kurz unter dem Menü erscheint für einen Moment die Anzeige *Auto-saved* als Be
 
 ### Session-Anzeigen
 
-Auf der rechten Seite des Headers finden die Schaltfläche des **Playout Log** (das chronologische Startprotokoll, Kapitel 13), die **Aufnahme**-Schaltfläche (Kapitel 9), der **On-Air-Timer** (der während der Sendung `ON AIR HH:MM:SS` auf rotem Grund zeigt) und die digitale **Studiouhr** im 24-Stunden-Format ihren Platz, synchronisiert mit der Systemuhr.
+Auf der rechten Seite des Headers finden sich die Schaltfläche des **Playout Log** (das chronologische Startprotokoll, Kapitel 13), die **Aufnahme**-Schaltfläche (Kapitel 9), der **On-Air-Timer** (er zeigt während der Sendung `ON AIR HH:MM:SS` auf rotem Grund) sowie die digitale **Studiouhr** im 24-Stunden-Format, synchronisiert mit der Systemuhr.
 
-Im Bereich des Headers können außerdem unaufdringliche Benachrichtigungen (**Toasts**) zu abgeschlossenen Vorgängen oder Systemhinweisen erscheinen. Anders als blockierende Dialoge verschwinden Toasts nach wenigen Sekunden von selbst und unterbrechen die Wiedergabe nicht.
+Im Header können außerdem unaufdringliche Benachrichtigungen (**Toasts**) zu abgeschlossenen Vorgängen oder Systemhinweisen erscheinen. Anders als blockierende Dialoge verschwinden sie nach wenigen Sekunden von selbst, ohne die Wiedergabe zu unterbrechen.
 
 ---
 
@@ -71,44 +71,44 @@ Im Bereich des Headers können außerdem unaufdringliche Benachrichtigungen (**T
 
 *Abbildung 3.2 – Die Arbeitsoberfläche: das Raster mit sechs Spalten und den Audio-Karten.*
 
-Das Raster ist das Betriebszentrum der Software: sechs nebeneinanderliegende senkrechte Spalten, jede mit einer eigenen farbigen Kopfzeile und einer eigenen Logik des Audio-Verhaltens. Die Soundeffekte haben keine Spalte im Raster: Sie leben im pad FX (Kapitel 7).
+Das Raster ist das Betriebszentrum der Software: sechs nebeneinanderliegende senkrechte Spalten, jede mit eigener farbiger Kopfzeile und eigener Logik im Audio-Verhalten. Die Soundeffekte haben keine Spalte im Raster – sie leben im pad FX (Kapitel 7).
 
 ### Spaltenkopfzeilen
 
-Jede Kopfzeile nennt den Namen der Spalte, ihren Typ und dient als Statusanzeige. Im Normalzustand ist sie statisch und im charakteristischen Ton der Spalte gefärbt. Wenn der laufende Clip der letzte verfügbare der Spalte ist, nicht in loop läuft und weniger als **20 Sekunden** bis zum Ende verbleiben, geht die Kopfzeile in den **DEAD-AIR**-Alarm: Sie pulsiert, wechselt zu Bernstein, zeigt ein Warnsymbol und das Badge **END**. Es ist die Vorwarnung, die Ihnen die Zeit gibt, den nächsten Titel vor der Stille vorzubereiten.
+Jede Kopfzeile nennt Name und Typ der Spalte und dient zugleich als Statusanzeige. Im Normalzustand bleibt sie statisch und trägt den charakteristischen Farbton der Spalte. Ist der laufende Clip der letzte verfügbare der Spalte, läuft er nicht in loop und bleiben weniger als **20 Sekunden** bis zum Ende, schlägt die Kopfzeile in den **DEAD-AIR**-Alarm um: Sie pulsiert, wechselt zu Bernstein und zeigt ein Warnsymbol samt Badge **END**. Diese Vorwarnung verschafft Ihnen die Zeit, den nächsten Titel noch vor der Stille vorzubereiten.
 
-Die Farbe jeder Spalte ist anpassbar: Klicken Sie auf den farbigen Punkt in der Kopfzeile, um eine Palette mit **30 Farbtönen** zu öffnen. Die Auswahl wird in der Projektdatei gespeichert.
+Die Farbe jeder Spalte lässt sich anpassen: Ein Klick auf den farbigen Punkt in der Kopfzeile öffnet eine Palette mit **30 Farbtönen**. Die Auswahl speichert die Software in der Projektdatei.
 
-Auf der Kopfzeile der Spalte **Pre-Show** erscheint zusätzlich eine **Rotations**-Schaltfläche: Wenn sie aktiv ist, fügt die Warteschlange vor der Sendung automatisch Jingles und Promos in regelmäßigen Abständen ein (Kapitel 13).
+Auf der Kopfzeile der Spalte **Pre-Show** sitzt zusätzlich eine **Rotations**-Schaltfläche: Ist sie aktiv, fügt die Warteschlange vor der Sendung automatisch Jingles und Promos in regelmäßigen Abständen ein (Kapitel 13).
 
 ### Die sechs Spalten
 
 **Show Assets (Grün)**
-Die strukturellen Elemente der Show: Kennungen, Musikbetten, Untermalungen (*bed*), institutionelle Stacchi (Trenner). Sie verhalten sich wie Elemente im Hintergrund: Sie räumen den Platz, wenn Stimmen oder Songs hinzukommen, behalten aber ihre interne Rotation, bis sie gestoppt werden.
+Die strukturellen Elemente der Show: Kennungen, Musikbetten, Untermalungen (*bed*), institutionelle Stacchi (Trenner). Sie verhalten sich wie Hintergrundelemente – sie räumen den Platz, sobald Stimmen oder Songs hinzukommen, behalten aber ihre interne Rotation bei, bis man sie stoppt.
 
 **Jingle (Bernstein)** und **Promo (Cyan)**
-Zwei eigene Spalten, jeweils für die identitätsstiftenden Jingles und für Promos oder Eigenwerbung. Auf der Audio-Ebene verhalten sie sich exakt wie die Show Assets (sie gehören zur selben Familie), aber getrennt zu halten hält die Playlist geordnet und lesbar.
+Zwei eigene Spalten, die eine für identitätsstiftende Jingles, die andere für Promos und Eigenwerbung. Audiotechnisch verhalten sie sich genau wie die Show Assets, gehören also zur selben Familie – doch getrennt gehalten bleibt die Playlist geordnet und lesbar.
 
 **Episoden-Musik (Rot)**
-Die Musik-Playlist. Die Clips dieser Spalte nehmen aktiv am automatischen Mix teil: Sie werden abgesenkt, wenn Stimmen erklingen, und senken ihrerseits die Beds der Assets, wenn sie in die Wiedergabe eintreten (Kapitel 6). Auf den Musik-Clips erkennt die Software automatisch die **BPM**, angezeigt mit einem eigenen Badge.
+Die Musik-Playlist. Ihre Clips nehmen aktiv am automatischen Mix teil: Stimmen senken sie ab, und beim Einsetzen senken sie ihrerseits die Beds der Assets (Kapitel 6). Auf Musik-Clips erkennt die Software automatisch den **BPM**-Wert und zeigt ihn über ein eigenes Badge an.
 
 **Stimme / Aufnahmen (Orange)**
-Interviews, vorproduzierte gesprochene Blöcke, Sprachnachrichten. Diese Spalte hat die **höchste Priorität** im Mixing-System: Wenn ein Clip hier läuft, werden alle anderen Signale auf einen Hintergrundpegel abgesenkt.
+Interviews, vorproduzierte gesprochene Blöcke, Sprachnachrichten. Diese Spalte genießt die **höchste Priorität** im Mixing-System: Läuft hier ein Clip, sinken alle anderen Signale auf Hintergrundpegel.
 
 **Pre-Show (Violett)**
-Die Aufwärm-Playlist vor der Sendung. Sie funktioniert wie eine eigenständige Musik-Warteschlange, mit optionaler Rotation von Jingles und Promos. Wenn die eigentliche Sendung beginnt, wird diese Spalte typischerweise geleert oder deaktiviert.
+Die Aufwärm-Playlist vor der Sendung. Sie funktioniert wie eine eigenständige Musik-Warteschlange mit optionaler Rotation von Jingles und Promos. Beginnt die eigentliche Sendung, wird diese Spalte meist geleert oder deaktiviert.
 
 ---
 
 ## 3.3 Die Audio-Karte (Clip)
 
-Jede importierte Audiodatei materialisiert sich im Raster als rechteckige **Karte**. Die Karte ist die operative Einheit des Systems: Sie sehen sie, Sie starten sie, Sie konfigurieren sie, Sie verschieben sie.
+Jede importierte Audiodatei materialisiert sich im Raster als rechteckige **Karte** – die operative Einheit des Systems: Sie sehen sie, starten sie, konfigurieren sie, verschieben sie.
 
 ### Aufbau einer Karte
 
-**Titel und Interpret.** Der Dateiname oder der in den Eigenschaften vergebene individuelle Name. Der individuelle Titel ändert nur das Etikett in der Software; die Originaldatei auf der Festplatte bleibt unangetastet. Bei Musik-Clips kann unter dem Titel der Name des Interpreten erscheinen.
+**Titel und Interpret.** Der Dateiname oder der in den Eigenschaften vergebene individuelle Name. Ein individueller Titel ändert nur das Etikett in der Software; die Originaldatei auf der Festplatte bleibt unangetastet. Bei Musik-Clips kann unter dem Titel der Name des Interpreten erscheinen.
 
-**Timer.** In Ruhe zeigt er die Gesamtdauer des Clips im Format `MM:SS`. Während der Wiedergabe wechselt er zum **Countdown**, mit negativem Vorzeichen (z. B. `−01:20`). Wenn weniger als 15 Sekunden bis zum Ende verbleiben, wird der Timer **rot**.
+**Timer.** In Ruhe zeigt er die Gesamtdauer des Clips im Format `MM:SS`. Während der Wiedergabe springt er auf **Countdown** um, mit negativem Vorzeichen (z. B. `−01:20`). Bleiben weniger als 15 Sekunden bis zum Ende, färbt sich der Timer **rot**.
 
 **Status-Badges.** Kleine Etiketten teilen sofort die konfigurierten Eigenschaften mit:
 
@@ -121,20 +121,20 @@ Jede importierte Audiodatei materialisiert sich im Raster als rechteckige **Kart
 - **FADE OUT** – erscheint auf dem ausgehenden Clip während eines crossfade oder einer Blende.
 - **📋** – der Clip hat eine Notiz in der NoteBoard (Kapitel 13).
 
-**Zuweisungen.** Hat der Clip eine Tastaturtaste zugewiesen, erscheint der Buchstabe in einem Badge in der Farbe der Spalte; hat er ein MIDI-Binding, erscheint das Etikett `M` gefolgt von der Notennummer (z. B. `M60`).
+**Zuweisungen.** Hat der Clip eine Tastaturtaste zugewiesen, erscheint der Buchstabe in einem Badge in der Farbe der Spalte; bei einem MIDI-Binding erscheint stattdessen das Etikett `M`, gefolgt von der Notennummer (z. B. `M60`).
 
-**Struktur-Cues.** Sind die Marker konfiguriert, erscheinen während der Wiedergabe die Countdowns `INTRO: −MM:SS` (in Cyan) und `OUTRO IN: −MM:SS` (in Orange), bis zur Warnung `🚨 OUTRO`, wenn das Outro begonnen hat.
+**Struktur-Cues.** Sind Marker konfiguriert, erscheinen während der Wiedergabe die Countdowns `INTRO: −MM:SS` (in Cyan) und `OUTRO IN: −MM:SS` (in Orange), bis hin zur Warnung `🚨 OUTRO`, sobald das Outro begonnen hat.
 
-**Wiedergabeanzeige.** Wenn ein Clip läuft, leuchtet die Karte auf: grüner Rahmen, Hintergrund mit einem leuchtenden Schein, ein pulsierender Punkt und der hervorgehobene Titel. Der Fortschrittsbalken läuft über den Hintergrund der Karte.
+**Wiedergabeanzeige.** Läuft ein Clip, leuchtet die Karte auf: grüner Rahmen, ein Hintergrund mit leuchtendem Schein, ein pulsierender Punkt und der hervorgehobene Titel. Der Fortschrittsbalken zieht dabei über den Kartenhintergrund.
 
 ### Interaktion mit den Karten
 
-- **Linksklick** – startet den Clip, wenn er steht; stoppt ihn (mit Fade Out), wenn er läuft.
-- **Ctrl + Klick** (Windows/Linux) oder **Cmd + Klick** (macOS) – wählt den Clip aus, ohne ihn zu starten. Der Rahmen wird blau. Nützlich für die Mehrfachauswahl und das Löschen im Block.
-- **Taste Entf** (oder *Delete* / *Backspace*) – löscht die ausgewählten Clips aus dem Raster. Sind mehrere Clips ausgewählt, fragt die Software nach.
+- **Linksklick** – startet den Clip, wenn er steht, und stoppt ihn (mit Fade Out), wenn er läuft.
+- **Ctrl + Klick** (Windows/Linux) oder **Cmd + Klick** (macOS) – wählt den Clip aus, ohne ihn zu starten. Der Rahmen wird blau – nützlich für Mehrfachauswahl und Löschen im Block.
+- **Taste Entf** (oder *Delete* / *Backspace*) – löscht die ausgewählten Clips aus dem Raster. Sind mehrere Clips markiert, fragt die Software vorher nach.
 - **Rechtsklick** – öffnet die **Clip-Einstellungen**: Eigenschaften, Waveform-Editor, Notizen (Kapitel 5).
-- **Drag & Drop** – ziehen Sie eine Karte, um sie innerhalb der Spalte umzusortieren oder in eine andere zu verschieben. Ein leuchtender blauer Indikator zeigt während des Ziehens die Einfügeposition.
+- **Drag & Drop** – eine Karte lässt sich innerhalb der Spalte umsortieren oder in eine andere ziehen. Ein leuchtender blauer Indikator zeigt während des Ziehens die Einfügeposition.
 
 ### Karten im Fehlerzustand
 
-Eine Karte mit dem Hinweis **DATEI FEHLT** und rotem Rahmen zeigt an, dass die referenzierte Audiodatei nicht mehr erreichbar ist: Sie wurde verschoben, umbenannt oder liegt auf einer nicht angeschlossenen externen Festplatte. Der Clip ist nicht abspielbar, bis die Datei wieder am ursprünglichen Pfad verfügbar ist. Der Umgang mit Pfadfehlern wird in Kapitel 14 behandelt.
+Eine Karte mit dem Hinweis **DATEI FEHLT** und rotem Rahmen zeigt: Die referenzierte Audiodatei ist nicht mehr erreichbar – verschoben, umbenannt oder auf einer nicht angeschlossenen externen Festplatte. Der Clip lässt sich erst wieder abspielen, wenn die Datei am ursprünglichen Pfad verfügbar ist. Wie Sie mit Pfadfehlern umgehen, behandelt Kapitel 14.

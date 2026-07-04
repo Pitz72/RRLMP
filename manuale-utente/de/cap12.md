@@ -2,48 +2,48 @@
 
 ---
 
-Runtime Live Machine Pro aktualisiert sich selbst, aber niemals zu Ihrem Nachteil. Zwei Regeln tragen das Ganze: Kein Update darf eine Sendung stören, und kein Download startet ohne Ihre Zustimmung. Dieses Kapitel erklärt, wie die Software das Vorhandensein neuer Versionen prüft, wie sie sie installiert und warum sie sich je nach Betriebssystem manchmal unterschiedlich verhält.
+Runtime Live Machine Pro aktualisiert sich von selbst, aber nie zu Ihrem Nachteil. Zwei Regeln bestimmen den gesamten Ablauf: Ein Update darf niemals eine laufende Sendung stören, und kein Download beginnt ohne Ihre Zustimmung. Dieses Kapitel zeigt, wie die Software nach neuen Versionen sucht, wie sie diese installiert und weshalb sich das Verhalten je nach Betriebssystem unterscheidet.
 
 ---
 
 ## 12.1 Die Prüfung beim Start
 
-Kurz nach dem Start (etwa drei Sekunden) prüft RLMP still, ob eine neuere Version existiert. Das Ergebnis erscheint im Begrüßungsbildschirm, neben der Versionsnummer:
+Wenige Sekunden nach dem Start – etwa drei – prüft RLMP im Hintergrund, ob eine neuere Version vorliegt. Das Ergebnis erscheint auf dem Begrüßungsbildschirm neben der Versionsnummer:
 
-- **„Neueste Version“** (grün) – Sie verwenden die aktuellste Version.
-- **„Update verfügbar“** (Bernstein) – eine neuere Version ist verfügbar. Es ist eine Schaltfläche: Klicken Sie darauf, um das Update-Fenster zu öffnen.
-- **„OFFLINE“** – der Dienst konnte nicht erreicht werden; versuchen Sie es später erneut. Die Software funktioniert normal.
+- **„Neueste Version“** (grün): Sie arbeiten bereits mit der aktuellsten Fassung.
+- **„Update verfügbar“** (Bernstein): Eine neuere Version wartet auf Sie. Ein Klick auf diese Schaltfläche öffnet das Update-Fenster.
+- **„OFFLINE“**: Der Dienst war nicht erreichbar. Versuchen Sie es später erneut – die Software läuft davon unbeeinflusst normal weiter.
 
-Die Prüfung ist optional und nicht blockierend: Wenn Sie offline sind, startet und arbeitet RLMP ohne Probleme.
+Die Prüfung ist optional und blockiert nichts: Sind Sie offline, startet RLMP trotzdem reibungslos.
 
 ---
 
 ## 12.2 Das Update-Fenster
 
-Wenn ein Update verfügbar ist, zeigt das dedizierte Fenster die aktuelle Version, die neue Version und die Release Notes. Von hier aus entscheiden Sie:
+Sobald ein Update vorliegt, zeigt ein eigenes Fenster die aktuelle Version, die neue Version und die Release Notes an. Drei Möglichkeiten stehen zur Wahl:
 
-- **Später** – schließt das Fenster, ohne etwas zu tun. Sie können es jederzeit wieder öffnen.
-- **Herunterladen** – startet den Download der neuen Version. Der Download **startet nie von selbst**: Er beginnt erst, wenn Sie diese Schaltfläche drücken. Ein Fortschrittsbalken zeigt den Verlauf.
-- **Neu starten und installieren** – erscheint, wenn der Download abgeschlossen ist: startet die Anwendung neu und wendet das Update an.
+- **Später**: Schließt das Fenster, ohne etwas zu verändern. Sie können es jederzeit erneut öffnen.
+- **Herunterladen**: Startet den Download der neuen Version. Von selbst passiert hier nichts – erst ein Klick auf diese Schaltfläche setzt den Download in Gang. Ein Fortschrittsbalken zeigt den Verlauf an.
+- **Neu starten und installieren**: Erscheint, sobald der Download abgeschlossen ist, startet die Anwendung neu und wendet das Update an.
 
 ---
 
-## 12.3 Die Regel „niemals während der Sendung“
+## 12.3 Die Regel „nie während der Sendung“
 
-Die automatische Prüfung kann ein Update ausgerechnet dann finden, während Sie on air sind. In diesem Fall **unterbricht RLMP Sie nicht**: Das Update-Fenster wartet und öffnet sich erst dann von selbst, wenn die Sendung beendet ist (wenn Sie alles stoppen). Die Priorität ist immer die laufende Show.
+Es kann vorkommen, dass die automatische Prüfung ausgerechnet dann ein Update findet, wenn Sie on air sind. RLMP unterbricht Sie in diesem Fall **nicht**: Das Update-Fenster wartet und öffnet sich erst von selbst, sobald die Sendung beendet ist – also wenn Sie alles gestoppt haben. Vorrang hat immer die laufende Show.
 
-Es gibt nur eine Ausnahme, und sie ist gewollt: Die Schaltfläche **Auf Updates prüfen**, im Bereich *Info* (Menü Werkzeuge), ist eine ausdrückliche Handlung von Ihnen und öffnet das Fenster sofort, auch während der Sendung. Wenn Sie sie drücken, dann weil Sie es wollen.
+Nur eine Ausnahme ist vorgesehen, und sie ist beabsichtigt: Die Schaltfläche **Auf Updates prüfen** im Bereich *Info* (Menü Werkzeuge) setzt eine bewusste Handlung Ihrerseits voraus und öffnet das Fenster sofort, selbst während der Sendung. Wer sie drückt, tut dies aus eigenem Entschluss.
 
 ---
 
 ## 12.4 Unterschiede zwischen den Plattformen
 
-Die Art, wie das Update installiert wird, hängt vom Betriebssystem ab.
+Wie das Update installiert wird, hängt vom Betriebssystem ab.
 
 **Windows und Linux (AppImage).**
-Das Update ist vollständig integriert: Sie laden die neue Version aus dem Fenster herunter, und die Software installiert sie beim nächsten Neustart, ohne manuelle Schritte.
+Hier ist das Update vollständig integriert: Sie laden die neue Version im Fenster herunter, und beim nächsten Neustart installiert die Software sie ohne weiteres Zutun.
 
 **macOS und Linux (.deb-Paket).**
-Auf diesen Systemen kann RLMP das Update nicht zuverlässig installieren. Statt der automatischen Installation weist Sie das Fenster darauf hin und öffnet den Browser auf der Download-Seite der neuen Version: Von dort laden Sie das Paket herunter und installieren es, wie Sie es bei einer Neuinstallation tun würden (Kapitel 2). Ihre Projekte und die `.lmp`-Dateien bleiben unangetastet.
+Auf diesen Systemen kann RLMP das Update nicht zuverlässig selbst installieren. Anstelle der automatischen Installation weist Sie das Fenster darauf hin und öffnet den Browser auf der Download-Seite der neuen Version. Von dort laden Sie das Paket herunter und installieren es wie bei einer Neuinstallation (Kapitel 2). Ihre Projekte und die `.lmp`-Dateien bleiben davon unberührt.
 
-> **Hinweis.** In allen Fällen bringt ein Update von RLMP keinen Verlust der Projekte mit sich: Die `.lmp`-Dateien sind zwischen den Versionen kompatibel und erfordern keine manuelle Migration.
+> **Hinweis.** In keinem Fall bedeutet ein Update von RLMP einen Verlust Ihrer Projekte: Die `.lmp`-Dateien bleiben zwischen den Versionen kompatibel, eine manuelle Migration ist nicht nötig.

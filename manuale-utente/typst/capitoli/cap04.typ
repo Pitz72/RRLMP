@@ -1,172 +1,143 @@
 #import "../lib/manuale-template.typ": *
 
-= Il workflow base: caricare e riprodurre
+= 基础工作流：加载与播放
+<第-4-章-基础工作流加载与播放>
 
-Il ciclo operativo fondamentale di Runtime Live Machine Pro si articola
-in tre fasi: importare i file audio, organizzarli nella griglia,
-riprodurli durante la diretta. Questo capitolo descrive ciascuna fase
-con la precisione necessaria per lavorare in modo sicuro anche sotto
-pressione.
+Runtime Live Machine Pro
+的基本操作循环分三步：导入音频文件、在网格中整理、在直播中播放。本章会把每一步讲到足够精确，让你在压力下也能放心操作。
 
-== 4.1 Importare i file audio
-RLMP non dispone di un browser interno né di una libreria centralizzata.
-L'importazione avviene tramite #strong[drag & drop] diretto dal file
-manager del sistema operativo (Esplora risorse su Windows, Finder su
-macOS, Nautilus o equivalenti su Linux). In alternativa, dal menu FILE
-puoi importare una playlist #strong[M3U] e trasformarla in una sequenza
-di clip.
+== 4.1 导入音频文件
+<导入音频文件>
+RLMP
+没有内部浏览器，也没有集中式媒体库。导入靠从操作系统文件管理器（Windows
+的资源管理器、macOS 的 Finder、Linux 的 Nautilus
+或同类工具）直接#strong[拖放]。也可以从 FILE 菜单导入 #strong[M3U]
+播放列表，把它转换成一串片段。
 
-=== Il gesto base
-+ Apri la cartella del tuo computer dove si trovano i file audio.
-+ Seleziona uno o più file. Per selezionare più file: `Ctrl+Click` per
-  selezione discontinua, `Shift+Click` per selezione continua.
-+ Trascina i file selezionati sopra una delle colonne della griglia e
-  rilascia. Per gli effetti sonori, trascinali direttamente sul pad FX
-  (Capitolo 7).
+=== 基本动作
+<基本动作>
++ 打开存放音频文件的文件夹。
++ 选择一个或多个文件：`Ctrl+单击`选非连续的多个文件，`Shift+单击`选连续的一段。
++ 把选中的文件拖到网格某一列上方松手。音效则直接拖到 pad FX 上（第 7
+  章）。
 
-Ogni file genera una card nella colonna di destinazione. Se trascini più
-file contemporaneamente, le card vengono create nell'ordine in cui i
-file compaiono nel file manager, dall'alto verso il basso.
+每个文件都在目标列生成一张卡片。同时拖入多个文件时，卡片按文件在文件管理器中从上到下的顺序创建。
 
-#strong[Indicatore di inserimento.] Durante il trascinamento, una linea
-blu luminosa scorre lungo la colonna indicando la posizione esatta in
-cui le card verranno inserite. Puoi inserire nuove clip in cima, in
-fondo o in una posizione intermedia con precisione.
+#strong[插入指示器。]
+拖动时一条发光蓝线会沿列滑动，指示卡片将插入的确切位置，方便你把新片段精确放到顶部、底部或中间任意一处。
 
-=== Formati supportati
-Il motore FFmpeg integrato garantisce compatibilità con un'ampia gamma
-di formati audio:
+=== 支持的格式
+<支持的格式>
+集成的 FFmpeg 引擎兼容大量音频格式：
 
 #figure(
   align(center)[#table(
-    columns: (33.33%, 33.33%, 33.33%),
+    columns: 3,
     align: (auto,auto,auto,),
-    table.header([Formato], [Estensione], [Note],),
+    table.header([格式], [扩展名], [说明],),
     table.hline(),
-    [MP3], [`.mp3`], [Tutti i bitrate],
-    [WAV], [`.wav`], [PCM non compresso, qualsiasi profondità di bit],
-    [FLAC], [`.flac`], [Lossless, qualsiasi sample rate],
-    [AAC / M4A], [`.aac`, `.m4a`], [Include file da iTunes/Apple Music],
+    [MP3], [`.mp3`], [全部 bitrate],
+    [WAV], [`.wav`], [未压缩 PCM，任意位深度],
+    [FLAC], [`.flac`], [Lossless，任意采样率],
+    [AAC / M4A], [`.aac`、`.m4a`], [含来自 iTunes/Apple Music 的文件],
     [OGG Vorbis], [`.ogg`], [],
     [Opus], [`.opus`], [],
     [WMA], [`.wma`], [Windows Media Audio],
-    [WebM / MP4], [`.webm`, `.mp4`], [Tracce audio contenute in questi
-    container],
+    [WebM / MP4], [`.webm`、`.mp4`], [这些容器中包含的音频轨],
   )]
   , kind: table
   )
 
-#strong[Una nota sulle prestazioni.] Il protocollo di streaming
-`media://` garantisce che i file audio non vengano caricati in memoria
-RAM al momento dell'importazione. Un file WAV non compresso da 2 GB si
-comporta esattamente come un MP3 da 5 MB: il caricamento è istantaneo e
-l'impatto sulla memoria di sistema è trascurabile. Le risorse della CPU
-vengono impegnate solo durante la decodifica attiva, cioè durante la
-riproduzione.
+#strong[关于性能。] `media://`
+流式协议保证音频文件导入时不会被载入内存。一个 2 GB 的未压缩 WAV
+文件和一个 5 MB 的 MP3
+表现完全一样：加载瞬间完成，对系统内存的影响可以忽略。CPU
+只在实际解码时------也就是播放期间------才被占用。
 
-=== Il percorso dei file
-RLMP memorizza il #strong[percorso assoluto] del file sul disco, non una
-copia del file stesso. Se sposti, rinomini o cancelli il file originale,
-la card corrispondente diventerà rossa e non sarà più riproducibile. Per
-lavorare su più computer o creare archivi portabili, utilizza la
-funzione #strong[Export Package] descritta nel Capitolo 10.
+=== 文件的路径
+<文件的路径>
+RLMP
+记录的是文件在磁盘上的#strong[绝对路径]，而不是文件本身的副本。移动、重命名或删除原始文件，对应卡片就会变红、无法播放。要在多台电脑上工作或创建便携式存档，用第
+10 章描述的 #strong[Export Package] 功能。
 
-== 4.2 Riproduzione: avviare e fermare le clip
-=== Avviare una clip
-Un #strong[click sinistro] sulla card è sufficiente per avviare la
-riproduzione. Il feedback è immediato: la card si accende nel verde di
-stato attivo, il timer passa al conto alla rovescia e i VU meter
-nell'header riflettono il segnale in uscita.
+== 4.2 播放：启动与停止片段
+<播放启动与停止片段>
+=== 启动片段
+<启动片段>
+在卡片上#strong[左键单击]就开始播放，反馈即时：卡片亮起为活动状态的绿色，计时器转为倒计时，页眉的
+VU meter 反映输出信号。
 
-Se alla clip è stato assegnato un tasto della tastiera (vedi Capitolo
-8), quel tasto funziona come alternativa al click --- utile quando stai
-operando su un'altra parte dell'interfaccia e non vuoi spostare il
-mouse.
+若片段已分配键盘按键（见第 8
+章），那个按键可以代替鼠标点击------手在别处忙、不想挪鼠标时很好用。
 
-=== Fermare una clip
-#strong[Click sulla clip attiva] --- la clip entra nella fase di
-#strong[fade out] e si ferma entro il tempo configurato nelle sue
-proprietà (vedi Capitolo 5).
+=== 停止片段
+<停止片段>
+#strong[点击活动片段] ---
+片段进入#strong[淡出]阶段，按其属性中配置的时间停止（见第 5 章）。
 
-#strong[Tasto `Esc`] --- ferma tutte le clip attive istantaneamente. È
-il comando di emergenza. Funziona quando RLMP è la finestra attiva,
-anche mentre stai scrivendo in un campo di testo.
+#strong[`Esc` 键] --- 瞬时停止所有活动片段，是紧急命令。RLMP
+为活动窗口时就生效，哪怕光标停在文本框里。
 
-#strong[Pulsante STOP ALL] nell'header --- identico a `Esc`, accessibile
-con il mouse.
+#strong[页眉中的 STOP ALL 按钮] --- 效果与 `Esc` 完全相同，用鼠标操作。
 
-=== La logica di esclusione per colonna
-Nella maggior parte delle colonne, RLMP applica la regola #strong[«una
-clip alla volta»]: se stai riproducendo il #emph[Brano A] nella colonna
-Canzoni e clicchi sul #emph[Brano B] nella stessa colonna, il
-#emph[Brano A] si ferma (con fade out) e il #emph[Brano B] parte. Non è
-necessario fermare manualmente la clip in corso prima di avviarne
-un'altra.
+=== 按列的互斥逻辑
+<按列的互斥逻辑>
+多数列里，RLMP
+遵循#strong[「一次一个片段」]的规则：本期歌曲列正播放#emph[曲目
+A]，点击同列的#emph[曲目 B]，#emph[曲目 A]
+就会停止（带淡出）、#emph[曲目 B] 启动。不需要先手动停掉正在播放的片段。
 
-Gli #strong[effetti del pad FX] sono l'eccezione principale: si
-sovrappongono a tutto, inclusi altri effetti, e non interrompono ciò che
-sta suonando. Un applauso può partire mentre una canzone è in corso
-senza interromperne la riproduzione.
+#strong[pad FX
+的效果]是主要例外：它们叠加在一切之上，包括其他效果，不会打断正在播放的内容------一段掌声可以在歌曲进行中响起而不打断歌曲。
 
-Anche le clip con il comportamento #strong[Stacco] (configurabile nelle
-proprietà, vedi Capitolo 5) si sovrappongono senza fermare le altre clip
-della colonna, indipendentemente da dove si trovano.
+设有 #strong[Stacco] 行为的片段（属性中可配置，见第 5
+章）也是叠加播放，不会停止列中的其他片段，无论它们在哪个位置。
 
-== 4.3 Organizzare la scaletta
-=== Riordinare le clip
-Durante la preparazione dello show, o anche mentre lo show è in corso,
-puoi riorganizzare l'ordine delle clip in qualsiasi momento.
+== 4.3 整理播出单
+<整理播出单>
+=== 重排片段
+<重排片段>
+准备节目期间，甚至节目进行中，都可以随时重新排列片段顺序。
 
-#strong[Trascinamento interno.] Clicca su una card, tieni premuto e
-trascinala verso l'alto o verso il basso nella stessa colonna. La linea
-guida blu indica la posizione di inserimento. La clip si inserisce nella
-nuova posizione senza interrompere le riproduzioni in corso.
+#strong[列内拖动。]
+点住一张卡片在同列内上下拖动，蓝色导引线指示插入位置，片段插入新位置时不会打断正在进行的播放。
 
-#strong[Spostamento tra colonne.] Puoi trascinare una clip da una
-colonna all'altra. Quando lo fai, la clip #strong[eredita le regole
-della colonna di destinazione]: una voce preregistrata spostata nella
-colonna Canzoni inizierà a subire il ducking esattamente come un brano
-musicale.
+#strong[跨列移动。]
+片段可以从一列拖到另一列，这时它会#strong[继承目标列的规则]：一段预录人声被移到本期歌曲列后，就会像音乐曲目一样开始承受
+ducking。
 
-Spostare le clip tra colonne è un'operazione potente e intenzionale. Usa
-la funzione in modo consapevole, specialmente durante la diretta.
+跨列移动是个分量不轻的操作，直播期间尤其要谨慎使用。
 
-=== Selezione multipla e cancellazione
-Per rimuovere più clip dalla griglia in una sola operazione:
+=== 多选与删除
+<多选与删除>
+一次性从网格移除多个片段：
 
-+ `Ctrl+Click` (Windows/Linux) o `Cmd+Click` (macOS) su ciascuna clip da
-  selezionare. Il bordo diventa blu.
-+ Premi `Canc` o `Delete`. Il software chiede conferma se il numero di
-  clip selezionate è superiore a una.
++ 对每个要选的片段做 `Ctrl+单击`（Windows/Linux）或
+  `Cmd+单击`（macOS），边框变蓝。
++ 按 `Canc` 或 `Delete`。选中数超过一个时软件会请求确认。
 
-La cancellazione dalla griglia rimuove le clip dal progetto corrente,
-non i file audio dal disco. Se sbagli, `Ctrl+Z` annulla l'operazione.
+从网格删除只是把片段移出当前项目，不会删除磁盘上的音频文件。操作有误，`Ctrl+Z`
+可以撤销。
 
-#suggerimento[
-A diretta iniziata, svuotare la colonna
-Pre-Show con una selezione multipla e `Canc` è il modo più rapido per
-liberare spazio visivo nell'interfaccia e passare alla modalità
-operativa.
+#nota[
+直播开始后，用多选加 `Canc` 清空 Pre-Show
+列，是腾出界面视觉空间、切入操作模式最快的办法。
 ]
 
-== 4.4 Cue di struttura: INTRO e OUTRO
-Ogni clip può avere due #strong[marker strutturali] configurati
-nell'editor della forma d'onda (Capitolo 5):
+== 4.4 结构 cue：INTRO 与 OUTRO
+<结构-cueintro-与-outro>
+每个片段都能在波形编辑器中配置两个#strong[结构标记]（第 5 章）：
 
-- #strong[Intro Marker] --- il punto in cui la melodia principale del
-  brano entra effettivamente, dopo l'introduzione strumentale. Utile per
-  sapere esattamente quando iniziare a parlare sopra l'intro.
-- #strong[Outro Marker] --- il punto in cui inizia la coda finale del
-  brano. Segnala il momento giusto per preparare la transizione alla
-  traccia successiva.
+- #strong[Intro 标记] ---
+  曲目主旋律在乐器前奏之后真正进入的那一点，用来精确把握何时开始在 intro
+  上叠话。
+- #strong[Outro 标记] ---
+  曲目结尾段落开始的那一点，标示准备转下一轨的时机。
 
-Quando la riproduzione di una clip si avvicina a questi punti, sulla
-card compare un avviso visivo:
+播放接近这些点时，卡片上会出现视觉提示：
 
-- #strong[INTRO: −MM:SS] --- conto alla rovescia all'Intro Marker.
-- #strong[OUTRO IN: −MM:SS] --- conto alla rovescia all'Outro Marker,
-  seguito da #strong[🚨 OUTRO] quando la coda è iniziata.
+- #strong[INTRO: −MM:SS] --- 到 Intro 标记的倒计时。
+- #strong[OUTRO IN: −MM:SS] --- 到 Outro 标记的倒计时，outro
+  开始后切换为 #strong[🚨 OUTRO]。
 
-Questi avvisi vengono visualizzati solo se i marker sono stati
-configurati. Sulle clip senza marker, la card mostra soltanto il conto
-alla rovescia standard al termine del brano.
+这些提示只在配置了标记时出现。没有标记的片段，卡片只在曲目结束时显示标准倒计时。

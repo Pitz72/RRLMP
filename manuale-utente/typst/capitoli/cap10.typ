@@ -1,142 +1,107 @@
 #import "../lib/manuale-template.typ": *
 
-= Gestione progetti e sicurezza dei dati
+= 项目管理与数据安全
+<第-10-章-项目管理与数据安全>
 
-Preparare uno show richiede tempo: selezionare i file, organizzarli
-nelle colonne, configurare i volumi, impostare i fade, assegnare i
-tasti. Questo lavoro è un patrimonio operativo che deve sopravvivere a
-qualsiasi imprevisto: un crash del sistema, uno spostamento di computer,
-il ritorno a una puntata archiviata mesi prima.
+准备一场节目很花时间：挑文件、把它们组织进各列、配音量、设淡变、分配按键。这份工作是实打实的操作资产，必须扛得住任何意外------系统崩溃、换电脑、几个月后重新打开一期归档的节目。
 
-RLMP affronta la sicurezza dei dati a più livelli, ciascuno progettato
-per coprire un rischio specifico.
+RLMP 在好几个层面上应对数据安全，每一层都对应一种特定风险。
 
-== 10.1 Il file di progetto (.lmp)
-<il-file-di-progetto-.lmp>
-Tutto lo stato di uno show (la disposizione delle clip nelle colonne, i
-nomi personalizzati, i volumi e i fade, i cue point dell'editor, le note
-della NoteBoard, le mappature MIDI e tastiera, il colore delle colonne)
-è salvato in un file con estensione #strong[`.lmp`] (Live Machine
-Project).
+== 10.1 项目文件（.lmp）
+<项目文件.lmp>
+一场节目的全部状态------片段在各列中的布局、自定义名称、音量与淡变、编辑器的
+cue 点、NoteBoard 备注、MIDI
+与键盘映射、列的颜色------都保存在一个扩展名为 #strong[`.lmp`]（Live
+Machine Project）的文件里。
 
-Il formato è JSON: un file di testo strutturato, leggibile da qualsiasi
-editor, non proprietario. Se un giorno RLMP non fosse disponibile, i
-dati del progetto resterebbero accessibili.
+格式是 JSON：结构化文本文件，任何编辑器都能打开，不是专有格式。哪天 RLMP
+不再可用，项目数据依然能访问。
 
-#strong[Cosa contiene il file `.lmp`:] tutte le impostazioni sopra
-elencate, inclusi i percorsi assoluti ai file audio referenziati.
+#strong[`.lmp` 文件包含什么：]
+上面列出的所有设置，加上指向被引用音频文件的绝对路径。
 
-#strong[Cosa non contiene:] i file audio stessi. Il `.lmp` memorizza
-dove si trovano i file sul disco, non copia il loro contenuto. Un file
-di progetto è tipicamente nell'ordine dei kilobyte, indipendentemente da
-quanti o quanto grandi siano i file audio che referenzia.
+#strong[它不包含什么：] 音频文件本身。`.lmp`
+只记录文件在磁盘上的位置，不复制内容。项目文件通常就几千字节，跟引用的音频文件有多少、多大无关。
 
-All'apertura, RLMP convalida il file: ricostruisce eventuali
-identificativi duplicati, riporta i valori fuori scala entro limiti sani
-e, se apri un progetto creato con una versione precedente, aggiunge in
-automatico le colonne introdotte nel frattempo (Jingle, Promo), senza
-toccare i dati esistenti.
+打开时，RLMP
+会校验文件：重建可能重复的标识符，把越界的数值拉回合理范围。若打开的是更早版本创建的项目，会自动补上其间新增的列（Jingle、Promo），不触动现有数据。
 
-== 10.2 Salvataggio
-=== Salva rapido
-La voce #emph[Salva Progetto] nel menu FILE esegue un salvataggio
-immediato sul file `.lmp` aperto. Il salvataggio è silenzioso: nessuna
-finestra di dialogo. La voce si evidenzia in giallo quando ci sono
-modifiche non salvate, un promemoria visivo a colpo d'occhio. Usala con
-frequenza durante la preparazione dello show.
+== 10.2 保存
+<保存>
+=== 快速保存
+<快速保存>
+FILE 菜单里的 #emph[保存项目] 对打开的 `.lmp`
+文件做一次即时保存。保存是静默的，没有对话框；有未保存更改时该项会以黄色高亮提醒。准备节目期间请多用它。
 
-Il salvataggio è #strong[atomico]: il file viene scritto prima in una
-copia temporanea e poi rinominato al volo. Se il computer si spegne
-durante la scrittura, il `.lmp` originale non viene mai lasciato a metà.
+保存是#strong[原子的]：文件先写入临时副本再即时改名。电脑在写入过程中断电，原始
+`.lmp` 也绝不会留在写到一半的状态。
 
-=== Salva con Nome
-La voce #emph[Salva Come…] apre sempre la finestra di dialogo, anche se
-il progetto ha già un nome. Usala per:
+=== 另存为
+<另存为>
+#emph[另存为…] 始终打开对话框，就算项目已有名称。可以用它：
 
-- Creare versioni progressive dello stesso show (`Ep47_bozza.lmp`,
-  `Ep47_v2.lmp`, `Ep47_finale.lmp`).
-- Salvare una variante con configurazioni diverse.
-- Creare un nuovo file senza sovrascrivere quello corrente.
+- 创建同一场节目的递进版本（`Ep47_bozza.lmp`、`Ep47_v2.lmp`、`Ep47_finale.lmp`）。
+- 保存一个配置不同的变体。
+- 创建新文件而不覆盖当前文件。
 
-=== Protezione alla chiusura
-RLMP monitora in continuo lo stato delle modifiche. Se provi a chiudere
-il software (o ad aprire un nuovo progetto) con modifiche non salvate,
-l'operazione viene sospesa e compare una richiesta di conferma con tre
-scelte: salvare, scartare le modifiche o annullare. Non è possibile
-perdere lavoro per un click accidentale sulla chiusura della finestra.
+=== 关闭保护
+<关闭保护>
+RLMP
+持续监测更改状态。有未保存更改时试图关闭软件（或打开新项目），操作会被暂停，弹出带三个选择的确认：保存、放弃更改、取消。误点关闭窗口不会丢失工作。
 
-== 10.3 Auto-Backup e autosave
-Oltre ai salvataggi che decidi tu, il software mantiene una rete di
-protezione automatica.
+== 10.3 Auto-Backup 与自动保存
+<auto-backup-与自动保存>
+除了你自己决定的保存，软件还维护一张自动保护网。
 
-#strong[Copia di sicurezza del progetto.] Ogni volta che un progetto già
-salvato viene aggiornato in background, RLMP tiene accanto al `.lmp` una
-copia `.bak` con l'ultimo stato valido.
+#strong[项目的安全副本。] 已保存的项目在后台更新时，RLMP 都会在 `.lmp`
+旁留一个含最近有效状态的 `.bak` 副本。
 
-#strong[Autosave a rotazione.] In parallelo, RLMP scrive istantanee
-dello stato corrente in una cartella dedicata dell'applicazione,
-`autosaves`, con un nome basato su data e ora. Vengono conservate le
-#strong[dieci istantanee più recenti]: le più vecchie vengono eliminate
-man mano. Questa rete cattura anche il lavoro su un progetto «senza
-titolo» mai salvato su disco.
+#strong[轮换式自动保存。] 与此同时，RLMP
+会把当前状态的快照写进应用的专用文件夹
+`autosaves`，文件名按日期时间生成。系统保留#strong[最近十个快照]，更旧的逐步删除。这张网也能护住一个从未存盘的「无标题」项目。
 
-La cartella `autosaves` si trova nella directory dati dell'applicazione:
+`autosaves` 文件夹在应用的数据目录里：
 
-- #strong[Windows:] `%APPDATA%\runtime-live-machine-pro\autosaves\`
-- #strong[macOS:]
+- #strong[Windows：] `%APPDATA%\runtime-live-machine-pro\autosaves\`
+- #strong[macOS：]
   `~/Library/Application Support/runtime-live-machine-pro/autosaves/`
-- #strong[Linux:] `~/.config/runtime-live-machine-pro/autosaves/`
+- #strong[Linux：] `~/.config/runtime-live-machine-pro/autosaves/`
 
-#strong[Come recuperare.] Se il file `.lmp` principale si è corrotto o
-il computer si è spento improvvisamente, apri la cartella `autosaves`,
-individua l'istantanea con data e ora più vicine al momento
-dell'interruzione e caricala da RLMP come un normale file di progetto.
-In alternativa, rinomina il file `.bak` accanto al progetto in `.lmp` e
-aprilo.
+#strong[如何恢复。] 主 `.lmp` 文件损坏，或电脑突然断电，打开 `autosaves`
+文件夹，找日期时间最接近中断时刻的那个快照，像打开普通项目文件一样从
+RLMP 加载它。或者，把项目旁的 `.bak` 文件改名为 `.lmp` 再打开。
 
-== 10.4 Export Package: portabilità completa
-<export-package-portabilità-completa>
-Poiché il file `.lmp` contiene solo i percorsi ai file audio, non i file
-stessi, portare il progetto su un altro computer richiede attenzione: se
-la macchina di destinazione non ha i file negli stessi percorsi
-assoluti, le clip diventano rosse. La funzione #strong[Esporta Archivio]
-(Export Package), nel menu FILE, risolve il problema alla radice.
+== 10.4 Export Package：完整的可移植性
+<export-package完整的可移植性>
+`.lmp`
+文件只含指向音频文件的路径，不含文件本身，所以把项目带到另一台电脑要留意：目标机器上若没有相同绝对路径的文件，片段就会变红。FILE
+菜单里的 #strong[导出独立存档]（Export
+Package）功能从根本上解决这个问题。
 
-=== Come funziona
-RLMP analizza tutti i percorsi ai file audio del progetto, crea una
-sottocartella `audio/` e #strong[copia fisicamente] ogni file
-referenziato al suo interno. I file già presenti e identici non vengono
-ricopiati; eventuali doppioni di nome vengono rinominati per non
-sovrascriversi, e i file orfani (non più referenziati) vengono rimossi
-dalla cartella.
+=== 工作方式
+<工作方式>
+RLMP 分析项目中所有音频文件的路径，创建一个 `audio/`
+子文件夹，把每个被引用的文件#strong[物理复制]进去。已存在且相同的文件不会重复复制，名称重复的会被改名以免互相覆盖，不再被引用的孤儿文件则从文件夹中移除。
 
-L'operazione ha due modalità:
+有两种操作模式：
 
-- #strong[Accanto al progetto] --- se esporti verso la cartella dove
-  risiede già il `.lmp`, RLMP sincronizza la sottocartella `audio/`
-  accanto ad esso.
-- #strong[Cartella libera] --- se scegli una cartella nuova (una
-  chiavetta USB, un NAS), RLMP vi scrive un `project.lmp` con i percorsi
-  già aggiornati per puntare alla sottocartella `audio/` locale.
+- #strong[紧挨项目] --- 导出到 `.lmp` 已在的文件夹，RLMP 会在旁边同步出
+  `audio/` 子文件夹。
+- #strong[空白文件夹] --- 选一个新文件夹（U 盘、NAS），RLMP
+  会在里面写一个 `project.lmp`，路径已更新指向本地的 `audio/` 子文件夹。
 
-=== Il risultato
-La cartella di destinazione diventa autocontenuta: contiene tutto il
-necessario per eseguire lo show su qualsiasi computer con RLMP
-installato, indipendentemente dalla struttura di cartelle di quella
-macchina.
+=== 结果
+<结果>
+目标文件夹变得自包含：在任意装了 RLMP
+的电脑上运行这场节目所需的一切都在里面，跟那台机器的文件夹结构没关系。
 
-#suggerimento[
-Usa Esporta Archivio al termine della
-preparazione di ogni show per creare un «master» da portare in studio o
-da archiviare. In caso di problemi tecnici all'ultimo momento, avrai
-sempre una copia completa e portabile pronta.
+#nota[
+每场节目准备完毕时用「导出独立存档」建一个「master」，带进演播室或归档。万一最后一刻出技术问题，手里总有一份完整、可移植的备用副本。
 ]
 
-=== Controllo di integrità all'apertura
-<controllo-di-integrità-allapertura>
-Ogni volta che apri un file `.lmp`, RLMP esegue un #strong[controllo di
-integrità] automatico: verifica che ciascun file audio referenziato sia
-raggiungibile. I file mancanti vengono segnalati con il bordo rosso e
-l'etichetta FILE MANCANTE sulla card corrispondente. Il resto del
-progetto, tutte le clip con file raggiungibili, resta pienamente
-funzionale.
+=== 打开时的完整性检查
+<打开时的完整性检查>
+每次打开 `.lmp` 文件，RLMP
+都会自动做一次#strong[完整性检查]：核对每个被引用的音频文件是否可达。缺失的文件会以红色边框和
+文件缺失
+标签标注在卡片上。项目其余部分------所有文件可达的片段------照常完全可用。

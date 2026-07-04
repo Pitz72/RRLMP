@@ -2,48 +2,48 @@
 
 ---
 
-Runtime Live Machine Pro se actualiza solo, pero nunca en tu contra. Dos reglas rigen todo: ninguna actualización debe interferir con un directo, y ninguna descarga arranca sin tu consentimiento. Este capítulo explica cómo el software comprueba la presencia de nuevas versiones, cómo las instala y por qué a veces se comporta de forma distinta según el sistema operativo.
+Runtime Live Machine Pro se actualiza por su cuenta, pero nunca a tus espaldas. Dos reglas gobiernan el proceso: ninguna actualización interfiere con un directo y ninguna descarga arranca sin que tú lo autorices. Este capítulo explica cómo comprueba el software la existencia de nuevas versiones, cómo las instala y por qué el comportamiento cambia según el sistema operativo.
 
 ---
 
 ## 12.1 El control en el arranque
 
-Poco después del arranque (unos tres segundos), RLMP comprueba de forma silenciosa si existe una versión más reciente. El resultado aparece en la pantalla de bienvenida, junto al número de versión:
+Unos tres segundos después de arrancar, RLMP comprueba en silencio si existe una versión más reciente. El resultado aparece en la pantalla de bienvenida, junto al número de versión:
 
-- **«Versión más reciente»** (verde) — estás usando la última versión.
-- **«Actualización disponible»** (ámbar) — hay disponible una versión más reciente. Es un botón: haz clic para abrir la ventana de actualización.
-- **«OFFLINE»** — no se ha podido contactar con el servicio; inténtalo más tarde. El software funciona con normalidad.
+- **«Versión más reciente»** (verde): estás usando la última versión.
+- **«Actualización disponible»** (ámbar): hay una versión más reciente. Es un botón, así que haz clic para abrir la ventana de actualización.
+- **«OFFLINE»**: no se ha podido contactar con el servicio; prueba más tarde. El software sigue funcionando con normalidad.
 
-El control es opcional y no bloqueante: si estás offline, RLMP arranca y trabaja sin problemas.
+Esta comprobación es opcional y no bloquea nada: si estás offline, RLMP arranca y trabaja sin ningún problema.
 
 ---
 
 ## 12.2 La ventana de actualización
 
-Cuando hay una actualización disponible, la ventana dedicada muestra la versión actual, la nueva versión y las notas de la versión. Desde aquí decides tú:
+Cuando hay una actualización disponible, se abre una ventana dedicada con la versión actual, la nueva versión y las notas de la versión. A partir de ahí, la decisión es tuya:
 
-- **Más tarde** — cierra la ventana sin hacer nada. Podrás reabrirla cuando quieras.
-- **Descargar** — inicia la descarga de la nueva versión. La descarga **nunca arranca sola**: empieza solo cuando pulsas este botón. Una barra de avance muestra el progreso.
-- **Reiniciar e instalar** — aparece cuando la descarga está completa: reinicia la aplicación aplicando la actualización.
+- **Más tarde**: cierra la ventana sin hacer nada. Podrás volver a abrirla cuando quieras.
+- **Descargar**: inicia la descarga de la nueva versión. La descarga **nunca arranca sola**, solo empieza cuando pulsas este botón, y una barra de avance muestra el progreso.
+- **Reiniciar e instalar**: aparece cuando la descarga ha terminado y reinicia la aplicación aplicando la actualización.
 
 ---
 
 ## 12.3 La regla «nunca durante la emisión»
 
-El control automático puede encontrar una actualización justo mientras estás en antena. En ese caso, RLMP **no te interrumpe**: la ventana de actualización queda a la espera y se abre por sí sola solo cuando el directo ha terminado (cuando detienes todo). La prioridad es siempre el show en curso.
+Puede ocurrir que la comprobación automática encuentre una actualización justo mientras estás en antena. En ese caso RLMP **no te interrumpe**: la ventana de actualización espera y solo se abre sola cuando el directo ha terminado, es decir, cuando detienes todo. El show en curso tiene siempre la prioridad.
 
-Hay una sola excepción, y es intencionada: el botón **Comprobar actualizaciones ahora**, en el panel *Info* (menú Herramientas), es una acción explícita tuya y abre de inmediato la ventana, incluso en directo. Si lo pulsas, es porque quieres.
+Existe una única excepción, y es deliberada: el botón **Comprobar actualizaciones ahora**, en el panel *Info* del menú Herramientas, responde a una acción explícita tuya y abre la ventana de inmediato, incluso en directo. Si lo pulsas, es porque así lo has decidido.
 
 ---
 
 ## 12.4 Diferencias entre plataformas
 
-El modo en que se instala la actualización depende del sistema operativo.
+La forma de instalar la actualización varía según el sistema operativo.
 
 **Windows y Linux (AppImage).**
-La actualización está completamente integrada: descargas la nueva versión desde la ventana y el software la instala en el siguiente reinicio, sin pasos manuales.
+Aquí la actualización está completamente integrada: descargas la nueva versión desde la ventana y el software la instala en el siguiente reinicio, sin ningún paso manual.
 
 **macOS y Linux (paquete .deb).**
-En estos sistemas RLMP no puede instalar la actualización de forma fiable. En lugar de la instalación automática, la ventana te avisa y abre el navegador en la página de descarga de la nueva versión: de ahí descargas el paquete y lo instalas como harías con una instalación nueva (Capítulo 2). Tus proyectos y los archivos `.lmp` quedan intactos.
+En estos sistemas RLMP no puede instalar la actualización de forma fiable, así que en lugar de la instalación automática, la ventana te avisa y abre el navegador en la página de descarga de la nueva versión. Desde ahí descargas el paquete y lo instalas como harías con una instalación nueva (Capítulo 2). Tus proyectos y los archivos `.lmp` quedan intactos.
 
-> **Nota.** En todos los casos, actualizar RLMP no implica la pérdida de los proyectos: los archivos `.lmp` son compatibles entre versiones y no requieren migración manual.
+> **Nota.** En todos los casos, actualizar RLMP no supone perder los proyectos: los archivos `.lmp` son compatibles entre versiones y no requieren ninguna migración manual.

@@ -40,7 +40,7 @@ Le serveur local via navigateur. Activation et PIN. Connexion depuis une tablett
 L'auto-updater. Comportement au démarrage et vérification manuelle. La règle « jamais pendant le direct ». Différences entre les plateformes.
 
 **Chapitre 13 — Fonctions avancées**
-NoteBoard : le conducteur en régie. Personnalisation des couleurs de colonne. Transitions : Crossfade, Segue, Gapless. La fenêtre Paramètres généraux. Playout Log. Undo/Redo. Système de notifications toast.
+NoteBoard : le conducteur en régie. Personnalisation des couleurs de colonne. Transitions : Crossfade, Segue, Gapless. La fenêtre Paramètres généraux. Playout Log. Annuler/Répéter. Système de notifications toast.
 
 **Chapitre 14 — Résolution des problèmes et FAQ**
 Problèmes audio : silence, artefacts, niveaux. Clips rouges et fichiers manquants. Problèmes MIDI. Problèmes de démarrage. Questions fréquentes.

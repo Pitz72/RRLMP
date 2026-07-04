@@ -2,7 +2,7 @@
 
 ---
 
-Zwei Arbeitsflächen leben über dem Raster, per Tastendruck abrufbar und für zwei gegensätzliche Momente der Regie gedacht: das **pad FX**, um Effekte und Stacchi (Trenner) treffsicher zu starten, ohne irgendetwas zu unterbrechen, und die **Automix-Ansicht**, um den Musikfluss zu steuern, wie es ein DJ tun würde. Keine der beiden nimmt dem Raster Platz weg: Sie öffnen sich, wenn sie gebraucht werden, und schließen sich mit einem Klick.
+Über dem Raster liegen zwei Arbeitsflächen, per Tastendruck abrufbar, gedacht für zwei gegensätzliche Momente der Regie: das **pad FX**, um Effekte und Stacchi (Trenner) treffsicher zu starten, ohne irgendetwas zu unterbrechen, und die **Automix-Ansicht**, mit der sich der Musikfluss steuern lässt wie von einem DJ. Platz nimmt keine der beiden dem Raster weg – sie öffnen sich bei Bedarf und schließen sich mit einem Klick.
 
 
 ---
@@ -13,28 +13,28 @@ Zwei Arbeitsflächen leben über dem Raster, per Tastendruck abrufbar und für z
 
 *Abbildung 7.1 – Das pad FX: die jingle machine 5×5 der Soundeffekte, mit überlagerndem Start.*
 
-Die Soundeffekte haben keine Spalte im Raster. Sie leben im **pad FX**, einem Panel aus einem Zellenraster (einer *jingle machine*), das sich über die Schaltfläche **FX** im Header öffnet und schwebend in einer Ecke des Bildschirms bleibt.
+Für die Soundeffekte gibt es keine eigene Spalte im Raster. Sie leben im **pad FX**, einem Panel aus einem Zellenraster (einer *jingle machine*), das sich über die Schaltfläche **FX** im Header öffnet und schwebend in einer Bildschirmecke bleibt.
 
-Das Pad ist ein **nicht blockierendes Overlay**: Es verdeckt das Board nicht und fängt Klicks anderswo nicht ab. Sie können einen Effekt starten und im selben Moment weiter an den Spalten oder den Header-Befehlen arbeiten. Aus diesem Grund schließt die Taste `Esc` das Pad nicht: Sie bleibt der STOP-ALL-Befehl, immer verfügbar. Das Pad schließt sich über seine Schließen-Schaltfläche oder erneut über den FX-Umschalter.
+Das Pad ist ein **nicht blockierendes Overlay**: Es verdeckt das Board nicht und fängt anderswo keine Klicks ab. Ein Effekt lässt sich starten, während man im selben Moment an den Spalten oder den Header-Befehlen weiterarbeitet. Deshalb schließt `Esc` das Pad auch nicht – die Taste bleibt der immer verfügbare STOP-ALL-Befehl. Schließen lässt sich das Pad über die eigene Schließen-Schaltfläche oder erneut über den FX-Umschalter.
 
 ### Effekte laden und starten
 
-Das Pad startet mit einem Raster von 25 Zellen (5×5) und wächst um Zeilen, wenn Sie weitere Effekte hinzufügen. Um es zu füllen, **ziehen Sie die Audiodateien direkt auf die Zellen** des Pads, genau wie Sie es mit einer Spalte des Rasters tun würden.
+Das Pad startet mit 25 Zellen (5×5) und wächst um weitere Zeilen, sobald neue Effekte hinzukommen. Zum Befüllen **ziehen Sie die Audiodateien direkt auf die Zellen** des Pads – genauso, wie Sie es mit einer Spalte des Rasters tun würden.
 
-Ein Klick auf eine Zelle **startet den Effekt**. Die Effekte des Pads sind polyphon und überlagern sich: Mehrere Zellen können zusammen erklingen, über allem, was on air ist, ohne es zu stoppen. Das Audio-Verhalten ist identisch mit dem eines normalen Clips: Es ändert sich nur die Startfläche. Ein Zähler neben der Schaltfläche FX im Header zeigt an, wie viele Effekte gerade erklingen.
+Ein Klick auf eine Zelle **startet den Effekt**. Die Effekte des Pads sind polyphon und überlagern sich: Mehrere Zellen können gleichzeitig erklingen, über allem, was gerade on air ist, ohne es zu stoppen. Am Audio-Verhalten ändert sich gegenüber einem normalen Clip nichts, nur die Startfläche ist eine andere. Wie viele Effekte gerade erklingen, zeigt ein Zähler neben der Schaltfläche FX im Header.
 
 ### Einen Effekt konfigurieren
 
-Die Effekte werden auf zwei Ebenen konfiguriert, gedacht für zwei verschiedene Bedürfnisse:
+Konfiguriert werden die Effekte auf zwei Ebenen, für zwei unterschiedliche Bedürfnisse:
 
-- **Schnelleinstellungen** – der übliche Fall für eine jingle machine: Name, Farbe, Lautstärke, loop. Wenige Sekunden genügen.
-- **Vollständige Einstellungen** – dasselbe Fenster wie bei den Raster-Clips (Waveform-Editor, Trim, Marker, Fade, Tastenzuweisung), erreichbar über den Eintrag „Vollständige Einstellungen…“ innerhalb der Schnelleinstellungen.
+- **Schnelleinstellungen** – der übliche Fall für eine Jingle Machine: Name, Farbe, Lautstärke, Loop. Wenige Sekunden genügen.
+- **Vollständige Einstellungen** – dasselbe Fenster wie bei den Raster-Clips (Waveform-Editor, Trim, Marker, Fade, Tastenzuweisung), erreichbar über „Vollständige Einstellungen…“ innerhalb der Schnelleinstellungen.
 
 ### Position des Pads
 
-Das Pad kann in der unteren linken oder unteren rechten Ecke des Bildschirms sitzen: Die Vorliebe wird mit den Pfeilen am Pad selbst eingestellt und über die Sessions hinweg gemerkt. Rechts verdeckt es die NoteBoard und die letzte Spalte; wählen Sie die Seite danach, wie Sie Ihre Playlist angeordnet haben.
+Das Pad sitzt entweder unten links oder unten rechts im Bildschirm; die Vorliebe stellen Sie mit den Pfeilen am Pad selbst ein, und sie bleibt über die Sessions hinweg gespeichert. Rechts verdeckt es die NoteBoard und die letzte Spalte – wählen Sie die Seite danach, wie Ihre Playlist angeordnet ist.
 
-> **Hinweis.** Im Modus MIDI Learn **wählt** ein Klick auf eine Zelle des Pads den Effekt für die Zuweisung aus, statt ihn abzuspielen – so senden Sie keinen Jingle on air, während Sie die Steuerungen zuordnen (siehe Kapitel 8).
+> **Hinweis.** Im Modus MIDI Learn **wählt** ein Klick auf eine Zelle des Pads den Effekt für die Zuweisung aus, statt ihn abzuspielen – so geht kein Jingle versehentlich on air, während Sie die Steuerungen zuordnen (siehe Kapitel 8).
 
 ---
 
@@ -44,24 +44,24 @@ Das Pad kann in der unteren linken oder unteren rechten Ecke des Bildschirms sit
 
 *Abbildung 7.2 – Die Automix-Ansicht: das Deck der Spalte Musik, die BPM-Kompatibilität und der Automatikmodus am Titelende.*
 
-Die **Automix-Ansicht** ist das Deck der Spalte Musik: eine bildschirmfüllende Ansicht, abgerufen über die Schaltfläche **MIX** im Header, die die Musik-Playlist wie eine DJ-Konsole präsentiert. Sie öffnet sich über dem Board, aber unter dem pad FX, sodass die Effekte auch bei geöffnetem Automix nutzbar bleiben. Wie beim Pad schließt `Esc` sie nicht: Es bleibt der Notfallbefehl, und die Schaltfläche STOP ALL bleibt im Header erreichbar.
+Die **Automix-Ansicht** ist das Deck der Spalte Musik: eine bildschirmfüllende Ansicht, abgerufen über die Schaltfläche **MIX** im Header, die die Musik-Playlist wie eine DJ-Konsole präsentiert. Sie öffnet sich über dem Board, aber unter dem pad FX, sodass die Effekte auch bei geöffnetem Automix nutzbar bleiben. Wie beim Pad schließt `Esc` sie nicht – sie bleibt der Notfallbefehl, und STOP ALL bleibt im Header erreichbar.
 
 ### Das Deck
 
-In der Mitte finden Sie den **on air** laufenden Titel und, in der Warteschlange, den **nächsten** Titel der Spalte Musik, mit der verbleibenden Zeit. Von hier aus können Sie eine Spur starten und den Wechsel von einem Titel zum nächsten mit einem einzigen Befehl steuern: Die große Übergangs-Schaltfläche wendet denselben crossfade an, den Sie aus dem Raster nutzen würden, aber mit der zusätzlichen Sorgfalt des rhythmischen Andockens.
+In der Mitte steht der **on air** laufende Titel, in der Warteschlange folgt der **nächste** Titel der Spalte Musik samt verbleibender Zeit. Von hier aus starten Sie eine Spur und steuern den Wechsel von einem Titel zum nächsten mit einem einzigen Befehl: Die große Übergangs-Schaltfläche wendet denselben Crossfade an, den Sie auch aus dem Raster kennen, ergänzt um die zusätzliche Sorgfalt des rhythmischen Andockens.
 
 ### Kompatibilität und beat-matched Übergänge
 
-Neben jedem Titel zeigt ein **Kompatibilitätspunkt** die rhythmische Affinität zum vorherigen Titel an:
+Neben jedem Titel zeigt ein **Kompatibilitätspunkt** die rhythmische Nähe zum vorherigen Titel:
 
-- **Grün** – die beiden Tempi docken gut aneinander an: Der Übergang kann beat-matched sein.
-- **Gelb** – Andocken möglich, aber mit gewissen Vorbehalten.
+- **Grün** – die beiden Tempi docken gut aneinander an, der Übergang kann beat-matched erfolgen.
+- **Gelb** – Andocken möglich, allerdings mit gewissen Vorbehalten.
 - **Rot** – die Tempi liegen zu weit auseinander für ein sauberes Andocken.
 
-Wenn das rhythmische Andocken nicht praktikabel ist (BPM nicht erkannt, Beat unsicher, Tempi zu unterschiedlich), erklärt die Software dies und greift automatisch auf einen **klassischen crossfade** zurück, ohne Überraschungen in der Sendung.
+Ist das rhythmische Andocken nicht praktikabel – BPM nicht erkannt, Beat unsicher, Tempi zu unterschiedlich –, meldet die Software das und greift automatisch auf einen **klassischen Crossfade** zurück, ganz ohne Überraschungen in der Sendung.
 
 ### Der Automatikmodus
 
-Am unteren Rand der Ansicht gibt es einen Schalter für die **Automatik am Titelende**. Wenn er aktiv ist, startet RLMP den Wechsel zum nächsten Titel von selbst, wenn sich die on air laufende Spur dem Ende nähert.
+Am unteren Rand der Ansicht sitzt ein Schalter für die **Automatik am Titelende**. Aktiviert, startet RLMP den Wechsel zum nächsten Titel von selbst, sobald sich die on air laufende Spur dem Ende nähert.
 
-Dieser Modus ist eine bewusste Ausnahme von der Philosophie der Software, die die Show absichtlich nicht automatisiert. Deshalb ist er **standardmäßig deaktiviert** und funktioniert **nur, solange die Automix-Ansicht geöffnet ist**: Das Schließen der Ansicht deaktiviert die Automatik. Es ist das richtige Werkzeug für einen durchgehenden Musikblock, die halbe Stunde reiner Musik, bevor man wieder ans Mikrofon geht – nicht für die gesamte Sendung.
+Dieser Modus bildet eine bewusste Ausnahme von der Philosophie der Software, die die Show grundsätzlich nicht automatisiert. Deshalb ist er **standardmäßig deaktiviert** und funktioniert **nur, solange die Automix-Ansicht geöffnet bleibt** – schließen Sie die Ansicht, deaktiviert sich die Automatik mit. Für einen durchgehenden Musikblock, die halbe Stunde reiner Musik vor der Rückkehr ans Mikrofon, ist er genau richtig – für die gesamte Sendung nicht.

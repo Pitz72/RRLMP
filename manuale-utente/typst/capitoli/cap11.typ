@@ -1,89 +1,69 @@
 #import "../lib/manuale-template.typ": *
 
-= Controllo Remoto
+= 远程控制
+<第-11-章-远程控制>
 
-Non sempre chi conduce sta seduto davanti al computer. A volte il
-conduttore è dall'altra parte dello studio, dietro un vetro, oppure si
-muove con un ospite. Il #strong[Controllo Remoto] di Runtime Live
-Machine Pro consente di comandare i passaggi essenziali dello show da un
-secondo dispositivo (un tablet, un telefono, un portatile) collegato
-alla stessa rete locale, usando semplicemente il browser. Non serve
-installare nulla sul dispositivo remoto.
+主持人不会一直坐在电脑前。有时人在演播室另一头，隔着一块玻璃，或者正跟嘉宾一起走动。Runtime
+Live Machine Pro
+的#strong[远程控制]能让你从接入同一局域网的第二台设备（平板、手机、笔记本），单靠浏览器就指挥节目的几项要害操作。远程设备上什么都不用装。
 
-La funzione è al momento contrassegnata come #strong[Beta].
+这项功能目前标为 #strong[Beta]。
 
-== 11.1 Come funziona
-Quando lo attivi, RLMP avvia al proprio interno un piccolo
-#strong[server web locale]. Il dispositivo remoto si connette a questo
-server aprendo un indirizzo nel browser: da lì compare una pagina di
-controllo che rispecchia lo stato della colonna Musica e permette di
-agire su di essa.
+== 11.1 工作方式
+<工作方式>
+启用后，RLMP 会在内部启动一个小型#strong[本地 Web
+服务器]。远程设备在浏览器里打开一个地址就能连上，随后出现的控制页面会映射本期歌曲列的状态，供你操作。
 
-Tutto avviene #strong[dentro la rete locale]: il server è raggiungibile
-dagli apparecchi connessi alla stessa rete Wi-Fi o LAN dello studio, e
-non passa da internet.
+一切都发生在#strong[局域网内部]：服务器只对接入演播室同一 Wi-Fi 或 LAN
+的设备开放，不经过互联网。
 
-== 11.2 Attivazione
-+ Apri le #strong[Impostazioni] dal menu Strumenti e vai alla scheda
-  #emph[Generali].
-+ Attiva il toggle #strong[Controllo Remoto (Beta)].
-+ Compaiono un #strong[PIN a sei cifre], la #strong[porta] del server e
-  gli #strong[indirizzi di rete] a cui il dispositivo remoto può
-  connettersi.
-+ Il pulsante #strong[Copia link] copia negli appunti l'indirizzo pronto
-  all'uso (nella forma `http://<indirizzo-del-computer>:8787`).
+== 11.2 启用
+<启用>
++ 从工具菜单打开#strong[设置]，前往 #emph[常规] 标签页。
++ 打开 #strong[远程控制（Beta）] 开关。
++ 会出现一个#strong[六位
+  PIN]、服务器#strong[端口]，以及远程设备可连接的#strong[网络地址]。
++ #strong[复制链接]按钮把可直接使用的地址复制到剪贴板（形如
+  `http://<电脑地址>:8787`）。
 
-Il server ascolta sulla porta #strong[8787]. Il PIN viene
-#strong[rigenerato a ogni avvio] dell'applicazione e non viene
-memorizzato: chiudere e riaprire RLMP produce un nuovo PIN. Anche il
-Controllo Remoto stesso riparte sempre spento a ogni avvio, da
-riattivare quando serve.
+服务器监听 #strong[8787] 端口。PIN
+#strong[每次启动时重新生成]且不被存储，关闭再打开 RLMP 会产生新
+PIN。远程控制本身也是每次启动都默认关闭，需要时再启用。
 
-== 11.3 Connettersi dal dispositivo remoto
-+ Sul tablet o sul telefono, apri il browser e digita l'indirizzo
-  mostrato nelle Impostazioni (o incollalo dal link copiato).
-+ Compare una pagina con un tastierino: inserisci il #strong[PIN a sei
-  cifre].
-+ A PIN corretto, la pagina mostra l'elenco delle clip della colonna
-  #strong[Musica], con i comandi di riproduzione, e un pulsante
-  #strong[Stop All]. Un pulsante dedicato porta la pagina a tutto
-  schermo, comodo su tablet.
+== 11.3 从远程设备连接
+<从远程设备连接>
++ 在平板或手机上打开浏览器，输入设置中显示的地址（或粘贴已复制的链接）。
++ 出现一个带小键盘的页面，输入#strong[六位 PIN]。
++ PIN 正确后，页面显示 #strong[本期歌曲]
+  列片段的列表及播放命令，还有一个 #strong[Stop All]
+  按钮。专用按钮可以让页面进入全屏，平板上用着很方便。
 
-Da qui puoi far partire e fermare i brani della colonna Musica e, se
-serve, fermare tutto. Lo stato si aggiorna in tempo reale: ciò che parte
-o si ferma sul computer principale si riflette sulla pagina remota, e
-viceversa.
+从这里能启动和停止本期歌曲列的曲目，需要时也能停下全部。状态实时更新：主电脑上启动或停止的内容会反映到远程页面，反过来也一样。
 
-== 11.4 Cosa si controlla da remoto
-Il Controllo Remoto è deliberatamente essenziale. Da remoto puoi:
+== 11.4 可从远程控制什么
+<可从远程控制什么>
+远程控制刻意做得很简单。远程能做的只有：
 
-- #strong[Avviare] una clip della colonna Musica.
-- #strong[Fermare] una clip della colonna Musica.
-- Eseguire uno #strong[Stop All].
+- #strong[启动]本期歌曲列的一个片段。
+- #strong[停止]本期歌曲列的一个片段。
+- 执行一次 #strong[Stop All]。
 
-Sono le uniche azioni ammesse. Il resto della regia (le altre colonne,
-il pad FX, l'editor, le impostazioni) resta sul computer principale. È
-una scelta di sicurezza: il telecomando serve a gestire il flusso
-musicale a distanza, non a sostituire la postazione di regia.
+仅此而已。导播的其余部分（其他各列、pad
+FX、编辑器、设置）都留在主电脑上------这是出于安全的选择：这个「遥控器」是用来远程管理音乐流的，不是要取代导播工位。
 
-== 11.5 Sicurezza e limiti
-- #strong[PIN obbligatorio.] Nessun dispositivo può inviare comandi
-  senza aver superato la verifica del PIN a sei cifre.
-- #strong[Protezione dai tentativi.] I tentativi di inserimento del PIN
-  sono limitati nel tempo: dopo alcuni tentativi falliti ravvicinati,
-  l'accesso da quell'apparecchio viene temporaneamente bloccato.
-- #strong[Comandi su lista bianca.] Il server accetta soltanto i tre
-  comandi previsti (avvia, ferma, Stop All): qualsiasi altra richiesta
-  viene ignorata.
-- #strong[Solo rete locale.] Il server è pensato per la rete dello
-  studio. Se la tua rete Wi-Fi è aperta o condivisa, valuta con
-  attenzione chi può raggiungerla.
-- #strong[Nessuna persistenza.] PIN e stato di attivazione non vengono
-  salvati: a ogni riavvio riparti da una configurazione pulita.
+== 11.5 安全与限制
+<安全与限制>
+- #strong[PIN 强制。] 任何设备在通过六位 PIN 验证之前都无法发送命令。
+- #strong[尝试防护。] PIN
+  输入受时间限制，短时间内连续多次失败，该设备的访问会被暂时封锁。
+- #strong[命令白名单。] 服务器只接受三条既定命令（启动、停止、Stop
+  All），其他请求一律忽略。
+- #strong[仅限局域网。] 服务器是为演播室网络设计的。若 Wi-Fi
+  是开放或共享的，请想清楚谁能够得到它。
+- #strong[无持久化。] PIN
+  与启用状态都不保存，每次重启都从一份干净的配置开始。
 
 #nota[
-Trattandosi di una funzione in Beta, l'insieme dei
-comandi disponibili potrà ampliarsi nelle versioni future. Per ora è
-tarata sul caso d'uso più frequente: gestire la musica a distanza
-durante la conduzione.
+这是一项 Beta
+功能，可用命令的范围未来版本可能会扩展。目前它只针对最常见的用例做了取舍：主持时远程管理音乐。
 ]

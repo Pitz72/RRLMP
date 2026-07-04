@@ -4,39 +4,39 @@
 
 *Nota del autor*
 
-Quince años de micrófonos abiertos dejan una huella precisa en quien los ha vivido. He gestionado podcasts, he conducido programas de entrevistas, he mantenido en pie una radio en la web, y durante buena parte de ese tiempo lo hice todo solo: la escaleta, la música, las entrevistas, los volúmenes, el timing. Sé lo que significa darse cuenta en directo de que la canción está a punto de terminar mientras aún estás formulando la idea que quieres expresar. Sé lo que es tener que bajar el fader con una mano y encontrar el clip correcto con la otra, mientras la tercera mano —la que no tienes— debería sostenerte el hilo del discurso.
+Quince años de micrófonos abiertos dejan una huella precisa en quien los ha vivido. He llevado podcasts, he presentado programas de entrevistas, he sacado adelante una radio en internet, y durante buena parte de ese tiempo hice todo yo solo: la escaleta, la música, las entrevistas, los volúmenes, el timing. Sé lo que se siente al darte cuenta, en directo, de que la canción está a punto de terminar justo cuando todavía estás pensando qué vas a decir. Sé lo que es bajar el fader con una mano mientras buscas el clip correcto con la otra, con la tercera mano —esa que nadie tiene— reservada para sostener el hilo del discurso.
 
-Runtime Live Machine Pro nace de esa frustración, y de una convicción sencilla: la regia de audio no debería ser un trabajo aparte. Debería ser transparente. El locutor, el podcaster, el creador de contenido que conduce solo un programa de madrugada —sin un técnico de sonido que le haga de apoyo— tiene que poder concentrarse en lo que sabe hacer: hablar, pensar, construir la relación con quien escucha. El software se ocupa del resto.
+Runtime Live Machine Pro nace de esa frustración y de una idea sencilla: la regia de audio no tendría que ser un trabajo aparte, sino algo transparente. El locutor, el podcaster, el creador de contenido que lleva solo un programa de madrugada, sin nadie que le haga de técnico de sonido, necesita poder concentrarse en lo suyo: hablar, pensar, construir la relación con quien escucha. De todo lo demás se encarga el software.
 
-He puesto en RLMP las reglas que un buen regidor de sonido aplica automáticamente: la jerarquía entre los eventos de audio, el ducking que se dispara cuando hablas, la música que se detiene y vuelve en el momento justo. Reglas complejas, ocultas bajo una interfaz que pide un solo gesto: pulsar el clip correcto en el momento correcto.
+En RLMP están las reglas que aplicaría de forma automática un buen técnico de sonido: la jerarquía entre los distintos eventos de audio, el ducking que entra en cuanto hablas, la música que se detiene y vuelve justo en el momento adecuado. Son reglas complejas, pero quedan escondidas bajo una interfaz que solo pide un gesto: pulsar el clip correcto en el momento correcto.
 
-Este software está pensado sobre todo para quien gestiona radios de entrevistas pequeñas y medianas, para quien produce podcasts con ambición profesional, para quien emite un directo en streaming sin un equipo técnico alrededor. Pero su naturaleza no es excluyente: quien trabaja en contextos más estructurados encontrará herramientas adecuadas a sus necesidades. El objetivo es uno solo: hacer al locutor independiente de figuras de apoyo que no siempre están, y no siempre hacen falta.
+Este software se ha pensado, ante todo, para quien lleva radios de entrevistas pequeñas o medianas, para quien produce podcasts con ambición profesional y para quien emite un directo en streaming sin un equipo técnico detrás. Eso no significa que se cierre a otros usos: quien trabaja en contextos más estructurados también encontrará aquí herramientas a la altura de sus necesidades. Al final, la meta es una sola: que el locutor no dependa de un apoyo que no siempre está disponible, y que muchas veces ni siquiera hace falta.
 
 ---
 
-Toda herramienta nace de una respuesta. Runtime Live Machine Pro responde a un problema preciso: la regia de audio en directo (radio, podcast, eventos, teatro) es una actividad de performance, no de automatización. Requiere control instantáneo, nervios templados y un software que no te traicione en el momento equivocado.
+Toda herramienta responde a una necesidad. Runtime Live Machine Pro responde a una muy concreta: la regia de audio en directo (radio, podcast, eventos, teatro) es una disciplina de performance, no de automatización. Exige control instantáneo, nervios templados y un software que no falle justo cuando no debe.
 
-El software que tienes instalado en tu ordenador no es un sistema de programación musical 24 horas, ni una DAW para la posproducción, ni un simple reproductor con cola. Es algo distinto: una **máquina de regia en tiempo real**, construida en torno a la idea de que cada show es un acto único, irrepetible, que merece un contenedor dedicado y un control quirúrgico sobre cada transición.
+El programa que tienes instalado en tu ordenador no es un sistema de programación musical de 24 horas, ni un DAW pensado para la posproducción, ni un simple reproductor con cola de espera. Es otra cosa: una **máquina de regia en tiempo real**, pensada desde la idea de que cada show es un acto único e irrepetible que merece un contenedor propio y un control quirúrgico sobre cada transición.
 
 ---
 
 ## 1.1 Para quién se ha construido
 
-Runtime Live Machine Pro se dirige a dos tipos de usuario que, pese a las diferencias de contexto, comparten la misma necesidad fundamental.
+Runtime Live Machine Pro se dirige a dos perfiles de usuario que, más allá de sus diferencias de contexto, comparten la misma necesidad de fondo.
 
-El **profesional del broadcast** —el regidor de una radio comercial, el técnico de sonido de un directo en streaming de audio o vídeo, el locutor que gestiona su propio programa— encontrará en RLMP un sistema a la altura de las herramientas profesionales de gama alta, con la agilidad operativa que esos sistemas a menudo sacrifican en el altar de la complejidad.
+El **profesional del broadcast** —el regidor de una radio comercial, el técnico de un directo en streaming de audio o vídeo, el locutor que lleva su propio programa— encuentra en RLMP un sistema a la altura de las herramientas profesionales de gama alta, sin la rigidez operativa que esos sistemas suelen arrastrar por su propia complejidad.
 
-El **creador de contenido** —el podcaster independiente, el conductor de una radio en la web, el organizador de eventos en directo— encontrará una herramienta que no exige años de formación técnica para dominarse, pero que no hace concesiones en la calidad del resultado.
+El **creador de contenido** —el podcaster independiente, quien conduce una radio en internet, el organizador de eventos en directo— encuentra una herramienta que no pide años de formación técnica para dominarla, ni por eso renuncia a la calidad del resultado final.
 
-Ambos encontrarán una interfaz que responde a la tecla al instante, un motor de audio estable y un sistema de guardado que no olvida.
+En ambos casos hablamos de una interfaz que responde a la tecla sin retardo, un motor de audio estable y un sistema de guardado en el que se puede confiar.
 
 ---
 
 ## 1.2 La filosofía «Single Show»
 
-El concepto fundacional de Runtime Live Machine Pro es el **proyecto aislado**. Cada show que realizas —un episodio de podcast, un directo de radio, una función de teatro— vive en un archivo `.lmp` autónomo que lo contiene todo: la disposición de los clips, los volúmenes, los mapeos MIDI, los puntos de cue, las notas de regia. Cuando cargas ese archivo, recuperas el show exactamente como lo dejaste.
+El concepto que sostiene todo Runtime Live Machine Pro es el **proyecto aislado**. Cada show que realizas —un episodio de podcast, un directo de radio, una función de teatro— vive en un archivo `.lmp` autónomo que lo contiene todo: la disposición de los clips, los volúmenes, los mapeos MIDI, los puntos de cue, las notas de regia. Al cargar ese archivo, recuperas el show tal y como lo dejaste.
 
-Este planteamiento tiene consecuencias concretas. No tienes que reconfigurar el software cada vez que pasas de un show a otro. Puedes llevar un proyecto a cualquier ordenador —mediante la función Export Package— y saber que funcionará. Puedes archivar los episodios pasados y reabrirlos meses después sin sorpresas.
+De ahí se derivan varias ventajas prácticas. No hace falta reconfigurar el software cada vez que cambias de show. Un proyecto puede llevarse a cualquier ordenador con la función Export Package, con la garantía de que va a funcionar. Y los episodios pasados se pueden archivar y reabrir meses después sin ninguna sorpresa desagradable.
 
 El archivo `.lmp` no contiene los archivos de audio físicos: memoriza sus rutas en el disco. Para el traslado entre ordenadores, la función **Export Package** copia físicamente todo lo necesario en una carpeta autocontenida.
 
@@ -44,21 +44,21 @@ El archivo `.lmp` no contiene los archivos de audio físicos: memoriza sus rutas
 
 ## 1.3 La arquitectura Main-Side-Heavy
 
-Comprender la arquitectura interna no es indispensable para usar el software, pero ayuda a entender por qué ciertos problemas comunes a otros reproductores aquí no se producen.
+No hace falta entender la arquitectura interna para usar el software, pero conocerla ayuda a ver por qué ciertos problemas típicos de otros reproductores aquí simplemente no aparecen.
 
-Runtime Live Machine Pro está construido sobre **Electron**, una plataforma que separa con nitidez el proceso principal (*Main Process*, en Node.js) del proceso de renderizado de la interfaz (*Renderer Process*). Esta separación se aprovecha de forma intencionada.
+Runtime Live Machine Pro está construido sobre **Electron**, una plataforma que mantiene bien separado el proceso principal (*Main Process*, en Node.js) del proceso que renderiza la interfaz (*Renderer Process*). Esa separación no es casual: se explota a propósito.
 
-Todas las operaciones pesadas —decodificación de audio mediante FFmpeg, lectura de los archivos del disco, análisis de las formas de onda, gestión de las copias de seguridad— se delegan al Main Process. El Renderer se ocupa exclusivamente de la interfaz: mostrar los clips, animar los VU meter, responder a los clics. El resultado es una interfaz que sigue fluida incluso durante operaciones intensivas, y un motor de audio que no compite por los recursos con los píxeles de la pantalla.
+Las operaciones más pesadas —decodificación de audio mediante FFmpeg, lectura de archivos del disco, análisis de formas de onda, gestión de las copias de seguridad— quedan delegadas al Main Process. El Renderer se limita a la interfaz: dibuja los clips, anima los VU meter, responde a los clics. Así, la interfaz sigue respondiendo con fluidez incluso durante operaciones intensivas, porque el motor de audio no tiene que competir por recursos con los píxeles de la pantalla.
 
-El protocolo personalizado `media://` garantiza que los archivos de audio nunca se carguen enteros en la memoria RAM: se transmiten en streaming directamente del disco al reproductor. Puedes gestionar archivos WAV sin comprimir de horas de duración sin que el consumo de memoria de la aplicación cambie de forma apreciable.
+Gracias al protocolo personalizado `media://`, los archivos de audio nunca se cargan enteros en la memoria RAM: se transmiten en streaming directamente del disco al reproductor. Por eso puedes trabajar con archivos WAV sin comprimir de varias horas sin que el consumo de memoria de la aplicación se resienta de forma apreciable.
 
 ---
 
 ## 1.4 La rejilla de regia: una gramática visual
 
-La interfaz operativa de RLMP se organiza en columnas verticales, cada una con un papel semántico preciso. Antes incluso de arrancar el software, vale la pena fijar esta gramática.
+La interfaz operativa de RLMP se organiza en columnas verticales, cada una con un papel semántico preciso. Conviene fijar esta gramática visual incluso antes de arrancar el software por primera vez.
 
-En la rejilla principal hay seis columnas visibles. Una séptima superficie —el **pad FX**, la *jingle machine* de los efectos— vive fuera de la rejilla, en un panel dedicado que se describe en el Capítulo 7.
+La rejilla principal muestra seis columnas. Hay una séptima superficie, el **pad FX** —la *jingle machine* de los efectos—, que vive fuera de la rejilla, en un panel propio descrito en el Capítulo 7.
 
 | Columna | Color | Función |
 |---|---|---|
@@ -69,9 +69,9 @@ En la rejilla principal hay seis columnas visibles. Una séptima superficie —e
 | **Voz / Grabaciones** | Naranja | Entrevistas, vocales, bloques hablados |
 | **Pre-Show** | Violeta | Música de espera antes del directo, con rotación de jingles y promos |
 
-Las tres primeras columnas (Show Assets, Jingle y Promo) comparten la misma naturaleza de audio: son elementos de estructura y servicio, tratados del mismo modo por el motor de mezcla. La distinción es organizativa: separar las sintonías de los jingles y de las promos mantiene la escaleta legible incluso cuando está saturada.
+Las tres primeras columnas (Show Assets, Jingle y Promo) comparten la misma naturaleza de audio: son elementos de estructura y de servicio, y el motor de mezcla los trata exactamente igual. La distinción entre ellas es solo organizativa, para mantener la escaleta legible aunque esté cargada de clips: separa las sintonías de los jingles y de las promos.
 
-Cada columna tiene comportamientos de audio distintos —prioridad en la mezcla, reglas de exclusión, valores de fade— que se detallarán en el Capítulo 6. Por ahora basta con saber que la posición de un clip en la rejilla no es decorativa: determina cómo lo tratará el software durante la emisión. Las columnas que no necesitas pueden ocultarse de la vista (Ajustes → Generales → Diseño de regia) sin perder los clips que contienen.
+Cada columna tiene su propio comportamiento de audio —prioridad en la mezcla, reglas de exclusión, valores de fade—, que se explica con detalle en el Capítulo 6. De momento basta con saber que la posición de un clip en la rejilla no es un detalle decorativo, sino lo que determina cómo lo va a tratar el software durante la emisión. Si alguna columna no te hace falta, puedes ocultarla desde Ajustes → Generales → Diseño de regia sin perder los clips que contiene.
 
 ---
 

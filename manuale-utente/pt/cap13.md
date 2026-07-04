@@ -2,51 +2,51 @@
 
 ---
 
-Este capítulo reúne as funcionalidades que não pertencem ao fluxo de trabalho básico mas que, uma vez descobertas, entram de forma estável na prática de quem produz shows com cuidado e regularidade: a NoteBoard, a gestão cromática das colunas, as transições, as definições gerais, o registo dos disparos e o histórico das alterações.
+Este capítulo reúne as funcionalidades que não pertencem ao fluxo de trabalho básico, mas que, uma vez descobertas, passam a fazer parte estável da rotina de quem produz shows com cuidado: a NoteBoard, a gestão cromática das colunas, as transições, as definições gerais, o registo dos disparos e o histórico de alterações.
 
 ---
 
 ## 13.1 NoteBoard: o guião em regia
 
-A **NoteBoard** é o sistema de notas integradas nas clips. Permite associar a qualquer clip um texto escrito (instruções operacionais, alinhamentos, apontamentos sobre uma entrevista, o texto completo de um spot) e fazê-lo surgir automaticamente no ecrã no momento em que essa clip entra em reprodução.
+A **NoteBoard** é o sistema de notas integradas nas clips. Com ela associa-se a qualquer clip um texto escrito, seja uma instrução operacional, um alinhamento, apontamentos sobre uma entrevista ou o texto completo de um spot, que surge automaticamente no ecrã assim que essa clip entra em reprodução.
 
 ### Inserir uma nota
 
 1. Abra as definições da clip (clique direito na card) e vá à secção *Notas*.
-2. Escreva o texto no campo livre. Não há limite de comprimento.
+2. Escreva o texto no campo livre; não há limite de comprimento.
 
-As clips com uma nota mostram o badge 📋 na card.
+As clips com uma nota associada mostram o badge 📋 na card.
 
 ### O painel em direto
 
-Quando uma clip com notas entra em reprodução, o **painel NoteBoard** surge na parte inferior do ecrã com o texto associado, encabeçado pelo nome e pela cor da clip. O painel permanece visível durante toda a reprodução e fecha-se sozinho quando a clip termina. Se várias clips com notas tocarem em conjunto, o painel mostra a de prioridade mais alta.
+Quando uma clip com notas entra em reprodução, surge na parte inferior do ecrã o **painel NoteBoard**, encabeçado pelo nome e pela cor da clip e com o respetivo texto. Fica visível durante toda a reprodução e fecha-se sozinho assim que a clip termina. Caso várias clips com notas toquem em simultâneo, o painel mostra a de prioridade mais alta.
 
 ### Casos de uso
 
-- **Regia falada.** Associe a cada genérico as primeiras linhas do bloco falado que se segue: quando o genérico arranca, o texto já está à frente dos olhos.
-- **Conteúdo a ler.** Um spot publicitário com o texto completo na nota: mal arranca, lê-se.
+- **Regia falada.** Associe a cada genérico as primeiras linhas do bloco falado seguinte, para que o texto já esteja à frente dos olhos assim que o genérico arranca.
+- **Conteúdo a ler.** Um spot publicitário com o texto completo na nota permite lê-lo mal a clip arranque.
 - **Instruções operacionais.** «Baixar o monitor», «Verificar o nível dos auscultadores do convidado», «Iniciar a gravação».
-- **Entrevistas.** As perguntas para o convidado ficam visíveis durante toda a duração da clip.
+- **Entrevistas.** As perguntas para o convidado permanecem visíveis durante toda a duração da clip.
 
 ---
 
 ## 13.2 Personalização cromática das colunas
 
-As cores predefinidas têm um significado consolidado (verde para os Assets, vermelho para as Músicas, e assim por diante), mas cada coluna é personalizável. Clique no **círculo colorido** no cabeçalho da coluna: abre-se uma paleta de **30 cores**. Escolha uma e a coluna (cabeçalho, cards, indicadores) assume imediatamente a nova cor. A escolha fica guardada no ficheiro de projeto.
+As cores predefinidas obedecem a um significado consolidado, verde para os Assets, vermelho para as Músicas e assim sucessivamente, mas cada coluna pode ser personalizada. Basta clicar no **círculo colorido** no cabeçalho da coluna para abrir uma paleta de **30 cores**: ao escolher uma, a coluna inteira (cabeçalho, cards, indicadores) assume de imediato a nova cor, e a escolha fica guardada no ficheiro de projeto.
 
-As cards herdam dinamicamente a cor da coluna: em repouso surgem num tom atenuado, em reprodução na cor plena. Cada projeto pode assim ter a sua própria identidade cromática.
+As cards herdam dinamicamente a cor da coluna: em repouso aparecem num tom atenuado, em reprodução na cor plena. Assim, cada projeto pode ter a sua própria identidade cromática.
 
 ---
 
 ## 13.3 Transições entre clips
 
-Quando uma clip está definida em *Play Next*, a passagem para a clip seguinte da coluna faz-se segundo o modo de transição configurado:
+Quando uma clip está definida em *Play Next*, a passagem para a seguinte na mesma coluna segue o modo de transição configurado:
 
-- **Crossfade.** A clip cessante esbate-se enquanto a entrante sobe, sobrepostas. Duração predefinida: 2 segundos.
-- **Segue.** A clip cessante esbate-se à saída enquanto a seguinte arranca logo em cheio. Duração predefinida da dissolvência: 0,8 segundos.
-- **Gapless (corte seco).** A clip cessante pára de repente e a seguinte arranca de imediato, sem dissolvência.
+- **Crossfade.** A clip cessante esbate-se enquanto a entrante sobe, ficando ambas sobrepostas por 2 segundos (duração predefinida).
+- **Segue.** A clip cessante esbate-se à saída enquanto a seguinte arranca já em cheio; a dissolvência dura 0,8 segundos por predefinição.
+- **Gapless (corte seco).** A clip cessante para de repente e a seguinte arranca de imediato, sem qualquer dissolvência.
 
-Pode definir uma transição ao nível de cada clip ou deixar em **Padrão global**, que aplica a escolha geral definida nas Definições. A coluna Pré-Show usa o crossfade como predefinição. Todos os modos são testáveis sem ir para o ar, através do botão «Test →» no editor (Capítulo 5).
+A transição pode ser definida ao nível de cada clip ou deixada em **Padrão global**, aplicando-se então a escolha geral configurada nas Definições. A coluna Pré-Show usa o crossfade por predefinição. Todos os modos podem ser testados sem ir para o ar, através do botão «Test →» no editor (Capítulo 5).
 
 ---
 
@@ -56,14 +56,14 @@ As **Definições** (menu Ferramentas) reúnem as preferências globais do softw
 
 ### Gerais
 
-- **Idioma.** Selecione o idioma da interface entre os oito disponíveis. A alteração é imediata.
+- **Idioma.** Permite escolher o idioma da interface entre os oito disponíveis, com alteração imediata.
 - **Controlo Remoto (Beta).** Ativa o comando à distância via browser e mostra PIN, porta e endereços (Capítulo 11).
-- **Layout de regia.** Mostra ou oculta individualmente as colunas da grelha. Ocultar uma coluna não elimina as suas clips: permanecem no projeto. É uma preferência global, válida para todos os projetos.
+- **Layout de regia.** Mostra ou oculta individualmente as colunas da grelha. Ocultar uma coluna não elimina as respetivas clips, que permanecem no projeto; trata-se de uma preferência global, válida para todos os projetos.
 
 ### Áudio & Mix
 
 - **Dispositivo de saída.** O destino de áudio (Capítulo 8).
-- **Inteligência de mixagem.** A intensidade do ducking (quanto baixa a música quando fala uma voz, predefinido 20%) e a sua rapidez (predefinido 500 ms).
+- **Inteligência de mixagem.** A intensidade do ducking, ou seja, quanto a música baixa quando uma voz fala (predefinido 20%), e a rapidez com que o faz (predefinido 500 ms).
 - **Transições.** O modo de transição predefinido e as durações de crossfade e segue.
 
 ### Gravação
@@ -72,25 +72,25 @@ Resumo do ponto de captura (depois do limiter) e escolha do formato predefinido 
 
 ### Master Chain
 
-- **Homologação do volume.** Ativa/desativa a normalização de loudness e define o seu alvo (predefinido −16 LUFS).
-- **Master Chain.** Ativa ou faz bypass de toda a cadeia, e regula os andares individuais: frequência do HPF, estilo do multiband glue, limiar do limiter. Um botão repõe os valores predefinidos (Capítulo 6).
+- **Homologação do volume.** Ativa ou desativa a normalização de loudness e define o respetivo alvo (predefinido −16 LUFS).
+- **Master Chain.** Ativa ou faz bypass de toda a cadeia e regula os andares individuais: frequência do HPF, estilo do multiband glue, limiar do limiter. Um botão repõe os valores predefinidos (Capítulo 6).
 
 ---
 
 ## 13.5 Playout Log
 
-O **Playout Log** (ícone no cabeçalho) é o registo cronológico dos disparos: guarda o rasto do que foi para o ar e quando, até aos últimos milhares de eventos. É útil para reconstruir um alinhamento a posteriori, verificar o que foi transmitido ou compilar um resumo do direto.
+O **Playout Log** (ícone no cabeçalho) regista cronologicamente os disparos: guarda o rasto do que foi para o ar e quando, até aos últimos milhares de eventos. Serve para reconstruir um alinhamento a posteriori, verificar o que foi transmitido ou compilar um resumo do direto.
 
 ---
 
 ## 13.6 Anular e Repetir
 
-As alterações ao alinhamento (adições, movimentações, eliminações) são reversíveis. `Ctrl+Z` anula a última operação, `Ctrl+Y` (ou `Ctrl+Shift+Z`) repete-a, com um histórico profundo de várias dezenas de passos. As mesmas opções estão disponíveis no menu Ferramentas. É a rede de segurança para as operações feitas à pressa durante a preparação.
+As alterações ao alinhamento, adições, movimentações ou eliminações, são todas reversíveis. `Ctrl+Z` anula a última operação e `Ctrl+Y` (ou `Ctrl+Shift+Z`) repete-a, com um histórico que chega a várias dezenas de passos. As mesmas opções estão disponíveis no menu Ferramentas: é a rede de segurança para as operações feitas à pressa durante a preparação.
 
 ---
 
 ## 13.7 Sistema de notificações toast
 
-O RLMP não usa janelas bloqueantes para as comunicações de rotina. As notificações não críticas surgem como **toast**: pequenos banners não intrusivos num canto do ecrã, que permanecem alguns segundos e desaparecem sozinhos sem interromper a reprodução. São usados para confirmar uma gravação, o fim de uma exportação, uma operação de MIDI Learn ou para avisar de ficheiros em falta.
+O RLMP evita janelas bloqueantes para as comunicações de rotina. As notificações não críticas surgem como **toast**: pequenos banners discretos num canto do ecrã, que permanecem alguns segundos e desaparecem sozinhos sem interromper a reprodução. Servem para confirmar uma gravação, assinalar o fim de uma exportação, uma operação de MIDI Learn ou avisar de ficheiros em falta.
 
-As **janelas de confirmação**, necessárias quando uma ação é irreversível (a eliminação de clips, o fecho de um projeto não guardado), são por sua vez modais e exigem uma resposta, mas foram concebidas para não cortar a reprodução em curso: o áudio continua enquanto decide.
+Já as **janelas de confirmação**, necessárias quando uma ação é irreversível, como a eliminação de clips ou o fecho de um projeto não guardado, são modais e exigem resposta. Ainda assim, foram concebidas para não cortar a reprodução em curso: o áudio continua enquanto decide.

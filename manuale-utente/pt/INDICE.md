@@ -10,7 +10,7 @@ O que é o RLMP e para quem foi construído. A filosofia «Single Show». A arqu
 Requisitos de sistema. Instalação em Windows, macOS e Linux. O ecrã de boas-vindas. O primeiro arranque: o que esperar.
 
 **Capítulo 3 — A interface de trabalho**
-A Barra de Controlo: logótipo, temporizador On Air, relógio de estúdio, Master Volume, VU meter, STOP ALL, menus Ficheiro e Ferramentas. A grelha de seis colunas: cabeçalhos, aviso DEAD AIR, personalização cromática. A Card de Áudio: anatomia, badges de estado, interação.
+A Barra de Controlo: logótipo, temporizador On Air, relógio de estúdio, Master Volume, VU meter, STOP ALL, menus Ficheiro e Ferramentas. A grelha de seis colunas: cabeçalhos, aviso DEAD AIR, personalização cromática. A Card de Áudio: anatomia, estados e badges, interação.
 
 **Capítulo 4 — O workflow base: carregar e reproduzir**
 Importação por drag & drop. Formatos suportados. Reprodução e paragem. A lógica de exclusão por coluna. Organizar o alinhamento: reordenação e seleção múltipla. Cues de estrutura: Intro e Outro.
@@ -34,7 +34,7 @@ Iniciar a gravação. O que é gravado. O formato interno. Exportação: WAV, FL
 O ficheiro de projeto `.lmp`. Guardar rápido e Guardar Como. Proteção ao fechar. Auto-Backup e autosave. Export Package. Verificação de integridade.
 
 **Capítulo 11 — Controlo Remoto**
-O servidor local via browser. Ativação e PIN. Ligação a partir de tablet ou telemóvel. O que se controla remotamente. Segurança e limites.
+O servidor local via browser. Ativação e PIN. Ligação a partir de tablet ou telemóvel. O que pode ser controlado à distância. Segurança e limites.
 
 **Capítulo 12 — Atualizações**
 O auto-updater. Comportamento no arranque e verificação manual. A regra «nunca durante a emissão». Diferenças entre plataformas.

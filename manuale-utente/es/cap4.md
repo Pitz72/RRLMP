@@ -2,13 +2,13 @@
 
 ---
 
-El ciclo operativo fundamental de Runtime Live Machine Pro se articula en tres fases: importar los archivos de audio, organizarlos en la rejilla, reproducirlos durante el directo. Este capítulo describe cada fase con la precisión necesaria para trabajar con seguridad incluso bajo presión.
+El ciclo de trabajo de Runtime Live Machine Pro tiene tres fases: importar los archivos de audio, organizarlos en la rejilla y reproducirlos durante el directo. Este capítulo describe cada una con el detalle necesario para que puedas trabajar con seguridad incluso bajo presión.
 
 ---
 
 ## 4.1 Importar los archivos de audio
 
-RLMP no dispone de un explorador interno ni de una biblioteca centralizada. La importación se hace mediante **arrastrar y soltar** directo desde el gestor de archivos del sistema operativo (Explorador de archivos en Windows, Finder en macOS, Nautilus o equivalentes en Linux). Como alternativa, desde el menú FILE puedes importar una lista de reproducción **M3U** y convertirla en una secuencia de clips.
+RLMP no tiene explorador interno ni biblioteca centralizada. La importación se hace con **arrastrar y soltar** directamente desde el gestor de archivos del sistema operativo (Explorador de archivos en Windows, Finder en macOS, Nautilus o equivalente en Linux). Si lo prefieres, desde el menú FILE puedes importar una lista de reproducción **M3U** y convertirla en una secuencia de clips.
 
 ### El gesto básico
 
@@ -16,9 +16,9 @@ RLMP no dispone de un explorador interno ni de una biblioteca centralizada. La i
 2. Selecciona uno o varios archivos. Para seleccionar varios: `Ctrl+Clic` para selección discontinua, `Shift+Clic` para selección continua.
 3. Arrastra los archivos seleccionados sobre una de las columnas de la rejilla y suéltalos. Para los efectos de sonido, arrástralos directamente al pad FX (Capítulo 7).
 
-Cada archivo genera una card en la columna de destino. Si arrastras varios archivos a la vez, las cards se crean en el orden en que los archivos aparecen en el gestor de archivos, de arriba abajo.
+Cada archivo genera una card en la columna de destino. Si arrastras varios archivos a la vez, las cards se crean siguiendo el orden en que aparecen en el gestor de archivos, de arriba abajo.
 
-**Indicador de inserción.** Durante el arrastre, una línea azul luminosa recorre la columna indicando la posición exacta en la que se insertarán las cards. Puedes insertar clips nuevos arriba, abajo o en una posición intermedia con precisión.
+**Indicador de inserción.** Mientras arrastras, una línea azul luminosa recorre la columna señalando la posición exacta donde se insertarán las cards. Así puedes colocar los clips nuevos arriba, abajo o justo en medio, con total precisión.
 
 ### Formatos admitidos
 
@@ -35,11 +35,11 @@ El motor FFmpeg integrado garantiza compatibilidad con una amplia gama de format
 | WMA | `.wma` | Windows Media Audio |
 | WebM / MP4 | `.webm`, `.mp4` | Pistas de audio contenidas en estos contenedores |
 
-**Una nota sobre el rendimiento.** El protocolo de streaming `media://` garantiza que los archivos de audio no se carguen en la memoria RAM en el momento de la importación. Un archivo WAV sin comprimir de 2 GB se comporta exactamente igual que un MP3 de 5 MB: la carga es instantánea y el impacto en la memoria del sistema es insignificante. Los recursos de la CPU solo se emplean durante la decodificación activa, es decir, durante la reproducción.
+**Una nota sobre el rendimiento.** Gracias al protocolo de streaming `media://`, los archivos de audio no se cargan en la memoria RAM al importarlos. Un WAV sin comprimir de 2 GB se comporta igual que un MP3 de 5 MB: la carga es instantánea y el impacto en la memoria del sistema, insignificante. La CPU solo entra en juego durante la decodificación activa, es decir, mientras el clip suena.
 
 ### La ruta de los archivos
 
-RLMP memoriza la **ruta absoluta** del archivo en el disco, no una copia del archivo en sí. Si mueves, renombras o borras el archivo original, la card correspondiente se pondrá roja y dejará de ser reproducible. Para trabajar en varios ordenadores o crear archivos portables, utiliza la función **Export Package** descrita en el Capítulo 10.
+RLMP memoriza la **ruta absoluta** del archivo en el disco, no una copia del archivo. Si mueves, renombras o borras el original, la card correspondiente se pondrá roja y dejará de reproducirse. Para trabajar en varios ordenadores o crear versiones portables del proyecto, usa la función **Export Package**, descrita en el Capítulo 10.
 
 ---
 
@@ -47,25 +47,25 @@ RLMP memoriza la **ruta absoluta** del archivo en el disco, no una copia del arc
 
 ### Arrancar un clip
 
-Un **clic izquierdo** sobre la card basta para arrancar la reproducción. La respuesta es inmediata: la card se enciende en el verde de estado activo, el temporizador pasa a la cuenta atrás y los VU meter del encabezado reflejan la señal de salida.
+Basta un **clic izquierdo** sobre la card para arrancar la reproducción. La respuesta es inmediata: la card se enciende con el verde de estado activo, el temporizador pasa a cuenta atrás y los VU meter del encabezado reflejan la señal de salida.
 
-Si al clip se le ha asignado una tecla del teclado (véase el Capítulo 8), esa tecla funciona como alternativa al clic, útil cuando estás operando en otra parte de la interfaz y no quieres mover el ratón.
+Si al clip se le ha asignado una tecla (véase el Capítulo 8), esa tecla sirve como alternativa al clic, algo útil cuando estás operando en otra parte de la interfaz y prefieres no mover el ratón.
 
 ### Detener un clip
 
-**Clic en el clip activo** — el clip entra en la fase de **fade out** y se detiene en el tiempo configurado en sus propiedades (véase el Capítulo 5).
+**Clic en el clip activo** — entra en fase de **fade out** y se detiene según el tiempo configurado en sus propiedades (véase el Capítulo 5).
 
-**Tecla `Esc`** — detiene al instante todos los clips activos. Es el comando de emergencia. Funciona cuando RLMP es la ventana activa, incluso mientras escribes en un campo de texto.
+**Tecla `Esc`** — detiene al instante todos los clips activos. Es el comando de emergencia, y funciona siempre que RLMP sea la ventana activa, incluso mientras estás escribiendo en un campo de texto.
 
-**Botón PARAR TODO** en el encabezado — idéntico a `Esc`, accesible con el ratón.
+**Botón PARAR TODO** del encabezado — hace lo mismo que `Esc`, pero con el ratón.
 
 ### La lógica de exclusión por columna
 
-En la mayoría de las columnas, RLMP aplica la regla **«un clip a la vez»**: si estás reproduciendo el *Tema A* en la columna Canciones y haces clic en el *Tema B* de la misma columna, el *Tema A* se detiene (con fade out) y arranca el *Tema B*. No hace falta detener manualmente el clip en curso antes de arrancar otro.
+En la mayoría de las columnas, RLMP aplica la regla de **«un clip a la vez»**: si tienes sonando el *Tema A* en la columna Canciones y haces clic en el *Tema B* de esa misma columna, el *Tema A* se detiene con fade out y arranca el *Tema B*. No necesitas parar manualmente el clip en curso antes de lanzar otro.
 
-Los **efectos del pad FX** son la excepción principal: se superponen a todo, incluidos otros efectos, y no interrumpen lo que esté sonando. Un aplauso puede arrancar mientras suena una canción sin interrumpir su reproducción.
+La excepción principal son los **efectos del pad FX**: se superponen a todo, incluidos otros efectos, sin interrumpir nada de lo que ya esté sonando. Un aplauso puede arrancar en mitad de una canción sin cortarla.
 
-También los clips con el comportamiento **Stacco** (ráfaga; configurable en las propiedades, véase el Capítulo 5) se superponen sin detener los demás clips de la columna, con independencia de dónde se encuentren.
+Lo mismo ocurre con los clips que tienen el comportamiento **Stacco** (ráfaga, configurable en las propiedades; véase el Capítulo 5): se superponen sin detener el resto de clips de la columna, sea cual sea su posición.
 
 ---
 
@@ -73,37 +73,37 @@ También los clips con el comportamiento **Stacco** (ráfaga; configurable en la
 
 ### Reordenar los clips
 
-Durante la preparación del show, o incluso mientras el show está en marcha, puedes reorganizar el orden de los clips en cualquier momento.
+Puedes reorganizar el orden de los clips en cualquier momento, tanto mientras preparas el show como con el show ya en marcha.
 
-**Arrastre interno.** Haz clic en una card, manténla pulsada y arrástrala hacia arriba o hacia abajo en la misma columna. La guía azul indica la posición de inserción. El clip se inserta en la nueva posición sin interrumpir las reproducciones en curso.
+**Arrastre interno.** Haz clic en una card, mantenla pulsada y arrástrala hacia arriba o hacia abajo dentro de la misma columna. Una guía azul marca la posición de inserción, y el clip se coloca en su nuevo sitio sin interrumpir lo que esté sonando.
 
-**Movimiento entre columnas.** Puedes arrastrar un clip de una columna a otra. Cuando lo haces, el clip **hereda las reglas de la columna de destino**: una voz pregrabada movida a la columna Canciones empezará a sufrir el ducking exactamente como un tema musical.
+**Movimiento entre columnas.** También puedes arrastrar un clip de una columna a otra. Al hacerlo, el clip **hereda las reglas de la columna de destino**: si mueves una voz pregrabada a la columna Canciones, empezará a sufrir el ducking igual que cualquier tema musical.
 
-Mover clips entre columnas es una operación potente e intencionada. Usa la función de forma consciente, sobre todo durante el directo.
+Mover clips entre columnas cambia su comportamiento de audio, así que conviene hacerlo con cabeza, sobre todo durante el directo.
 
 ### Selección múltiple y borrado
 
 Para quitar varios clips de la rejilla en una sola operación:
 
-1. `Ctrl+Clic` (Windows/Linux) o `Cmd+Clic` (macOS) sobre cada clip que quieras seleccionar. El borde se vuelve azul.
-2. Pulsa `Supr` o `Delete`. El software pide confirmación si el número de clips seleccionados es superior a uno.
+1. Haz `Ctrl+Clic` (Windows/Linux) o `Cmd+Clic` (macOS) sobre cada clip que quieras seleccionar. El borde se vuelve azul.
+2. Pulsa `Supr` o `Delete`. Si has seleccionado más de un clip, el software te pedirá confirmación.
 
-El borrado desde la rejilla quita los clips del proyecto actual, no los archivos de audio del disco. Si te equivocas, `Ctrl+Z` deshace la operación.
+Borrar desde la rejilla solo quita los clips del proyecto actual, no los archivos de audio del disco. Si te equivocas, `Ctrl+Z` deshace la operación.
 
-> **Consejo práctico.** Con el directo ya empezado, vaciar la columna Pre-Show con una selección múltiple y `Supr` es la forma más rápida de liberar espacio visual en la interfaz y pasar al modo operativo.
+> **Consejo práctico.** Cuando el directo ya ha empezado, vaciar la columna Pre-Show con una selección múltiple y `Supr` es la manera más rápida de despejar la interfaz y pasar al modo operativo.
 
 ---
 
 ## 4.4 Cues de estructura: INTRO y OUTRO
 
-Cada clip puede tener dos **marcadores estructurales** configurados en el editor de la forma de onda (Capítulo 5):
+Cada clip admite dos **marcadores estructurales**, configurables en el editor de la forma de onda (Capítulo 5):
 
-- **Intro Marker** — el punto en el que la melodía principal del tema entra realmente, tras la introducción instrumental. Útil para saber exactamente cuándo empezar a hablar sobre la intro.
-- **Outro Marker** — el punto en el que empieza la cola final del tema. Señala el momento justo para preparar la transición a la pista siguiente.
+- **Intro Marker** — marca el punto en el que entra la melodía principal del tema, tras la introducción instrumental. Útil para saber exactamente cuándo empezar a hablar sobre la intro.
+- **Outro Marker** — marca el punto en el que arranca la cola final del tema, y avisa del momento justo para preparar la transición a la siguiente pista.
 
-Cuando la reproducción de un clip se acerca a estos puntos, en la card aparece un aviso visual:
+A medida que la reproducción se acerca a estos puntos, aparece un aviso visual en la card:
 
 - **INTRO: −MM:SS** — cuenta atrás hasta el Intro Marker.
-- **OUTRO IN: −MM:SS** — cuenta atrás hasta el Outro Marker, seguido de **🚨 OUTRO** cuando la cola ha comenzado.
+- **OUTRO IN: −MM:SS** — cuenta atrás hasta el Outro Marker, seguida de **🚨 OUTRO** en cuanto empieza la cola.
 
-Estos avisos solo se muestran si los marcadores se han configurado. En los clips sin marcadores, la card muestra únicamente la cuenta atrás estándar al final del tema.
+Estos avisos solo aparecen si has configurado los marcadores. Los clips sin marcadores muestran únicamente la cuenta atrás estándar hacia el final del tema.

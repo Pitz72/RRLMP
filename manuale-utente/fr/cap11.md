@@ -2,7 +2,7 @@
 
 ---
 
-Celui qui anime n'est pas toujours assis devant l'ordinateur. Parfois l'animateur est à l'autre bout du studio, derrière une vitre, ou bien il se déplace avec un invité. Le **Contrôle à distance** de Runtime Live Machine Pro permet de commander les passages essentiels de l'émission depuis un second appareil (une tablette, un téléphone, un portable) relié au même réseau local, en utilisant simplement le navigateur. Il n'y a rien à installer sur l'appareil distant.
+L'animateur n'est pas toujours assis devant l'ordinateur. Il se trouve parfois à l'autre bout du studio, derrière une vitre, ou se déplace avec un invité. Le **Contrôle à distance** de Runtime Live Machine Pro permet justement de piloter les passages essentiels de l'émission depuis un second appareil, tablette, téléphone ou portable, relié au même réseau local, simplement via le navigateur. Rien à installer sur l'appareil distant.
 
 La fonction est pour l'instant marquée comme **Bêta**.
 
@@ -10,9 +10,9 @@ La fonction est pour l'instant marquée comme **Bêta**.
 
 ## 11.1 Comment ça marche
 
-Quand vous l'activez, RLMP démarre en son sein un petit **serveur web local**. L'appareil distant se connecte à ce serveur en ouvrant une adresse dans le navigateur : de là apparaît une page de contrôle qui reflète l'état de la colonne Musique et permet d'agir dessus.
+Une fois activé, RLMP démarre en interne un petit **serveur web local**. L'appareil distant s'y connecte en ouvrant une adresse dans le navigateur, ce qui affiche une page de contrôle reflétant l'état de la colonne Musique et permettant d'agir dessus.
 
-Tout se passe **à l'intérieur du réseau local** : le serveur est accessible aux appareils connectés au même réseau Wi-Fi ou LAN que le studio, et il ne passe pas par internet.
+Tout se passe **à l'intérieur du réseau local** : seuls les appareils connectés au même réseau Wi-Fi ou LAN que le studio peuvent atteindre le serveur, qui ne transite jamais par internet.
 
 ---
 
@@ -33,7 +33,7 @@ Le serveur écoute sur le port **8787**. Le PIN est **régénéré à chaque dé
 2. Une page avec un pavé numérique apparaît : saisissez le **PIN à six chiffres**.
 3. Une fois le PIN correct, la page affiche la liste des clips de la colonne **Musique**, avec les commandes de lecture, et un bouton **Stop All**. Un bouton dédié passe la page en plein écran, pratique sur tablette.
 
-De là, vous pouvez lancer et arrêter les morceaux de la colonne Musique et, au besoin, tout arrêter. L'état se met à jour en temps réel : ce qui part ou s'arrête sur l'ordinateur principal se reflète sur la page distante, et inversement.
+De là, vous lancez et arrêtez les morceaux de la colonne Musique, et si besoin coupez tout d'un coup. L'état se met à jour en temps réel dans les deux sens : ce qui démarre ou s'arrête sur l'ordinateur principal se reflète sur la page distante, et réciproquement.
 
 ---
 
@@ -45,7 +45,7 @@ Le Contrôle à distance est délibérément minimal. À distance, vous pouvez 
 - **Arrêter** un clip de la colonne Musique.
 - Exécuter un **Stop All**.
 
-Ce sont les seules actions autorisées. Le reste de la régie (les autres colonnes, le pad FX, l'éditeur, les paramètres) reste sur l'ordinateur principal. C'est un choix de sécurité : la télécommande sert à gérer le flux musical à distance, non à remplacer le poste de régie.
+Ce sont les seules actions autorisées. Le reste de la régie, les autres colonnes, le pad FX, l'éditeur, les paramètres, demeure sur l'ordinateur principal. Ce choix répond à un impératif de sécurité : la télécommande sert à gérer le flux musical à distance, pas à remplacer le poste de régie.
 
 ---
 
@@ -57,4 +57,4 @@ Ce sont les seules actions autorisées. Le reste de la régie (les autres colonn
 - **Réseau local uniquement.** Le serveur est pensé pour le réseau du studio. Si votre réseau Wi-Fi est ouvert ou partagé, évaluez avec attention qui peut l'atteindre.
 - **Aucune persistance.** Le PIN et l'état d'activation ne sont pas enregistrés : à chaque redémarrage, vous repartez d'une configuration propre.
 
-> **Note.** S'agissant d'une fonction en Bêta, l'ensemble des commandes disponibles pourra s'élargir dans les versions futures. Pour l'instant, elle est calibrée sur le cas d'usage le plus fréquent : gérer la musique à distance pendant l'animation.
+> **Note.** Cette fonction étant en version Bêta, l'éventail des commandes disponibles pourra s'élargir dans les versions futures. Pour l'heure, elle vise le cas d'usage le plus courant : gérer la musique à distance pendant l'animation.

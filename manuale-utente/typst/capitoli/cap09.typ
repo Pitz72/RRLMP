@@ -1,110 +1,95 @@
 #import "../lib/manuale-template.typ": *
 
-= Registrazione della sessione
+= 会话录制
+<第-9-章-会话录制>
 
-La registrazione della sessione trasforma Runtime Live Machine Pro da
-strumento di playout a strumento di produzione completa. Invece di
-richiedere un software di registrazione separato o una catena di routing
-virtuale, RLMP cattura direttamente il #strong[master mix
-post-processato], ovvero tutto ciò che esce dall'applicazione, inclusi
-gli effetti del Master Chain, in un file audio sul disco.
+会话录制让 Runtime Live Machine Pro
+从一个播出工具变成完整的制作工具。不需要另一款录制软件，也不需要虚拟路由链------RLMP
+直接捕获#strong[经处理的 master mix]，把应用输出的一切（包括 Master
+Chain 的效果）写进磁盘上的一个音频文件。
 
-== 9.1 Avviare la registrazione
-Il controllo della registrazione si trova nell'header, identificato
-dall'icona di registrazione.
+== 9.1 开始录制
+<开始录制>
+录制控件在页眉，由录制图标标识。
 
-#strong[Avvio.] Clicca sul pulsante di registrazione. Un indicatore
-rosso e un contatore mostrano che la cattura è in corso. La
-registrazione parte immediatamente: tutto ciò che esce dall'output del
-software da quel momento viene catturato.
+#strong[开始。]
+点击录制按钮，红色指示器和计数器表明捕获正在进行。录制立即开始，从那一刻起软件输出的一切都被捕获。
 
-Non è necessario avere clip in riproduzione per avviare la
-registrazione: puoi avviare la cattura in anticipo rispetto all'inizio
-dello show, per non perdere i primi secondi in caso di partenza
-anticipata.
+不需要有片段在播放才能开始录制：可以在节目开始前提前启动捕获，免得提前开场时丢掉最初几秒。
 
-#strong[Cosa viene registrato.] Il segnale catturato è il #strong[master
-dopo il limiter]: include il mix di tutte le clip in riproduzione e il
-processing dell'intero Master Chain (HPF, glue multibanda, limiter). È
-esattamente il segnale che raggiunge la periferica audio di uscita.
+#strong[录制的内容。] 捕获的信号是 #strong[limiter 之后的
+master]：包含所有正在播放片段的混音，以及整条 Master Chain
+的处理（HPF、multiband
+glue、limiter）。这正是最终抵达输出音频设备的信号。
 
-#strong[Il formato interno.] Durante la cattura, RLMP scrive un flusso
-compresso Opus (in container WebM) a 320 kbps: leggerissimo sul disco e
-trasparente all'ascolto. La registrazione continua ha un limite di
-sicurezza di circa #strong[quattro ore]\; oltre quella durata la cattura
-si ferma automaticamente per non saturare la memoria.
+#strong[内部格式。] 捕获期间，RLMP 以 320 kbps 写入一个 Opus
+压缩流（装在 WebM 容器里），对磁盘极轻、听感透明。连续录制有约
+#strong[四小时]的安全上限，超过后捕获会自动停止，避免耗尽内存。
 
-#strong[Overhead di sistema.] La cattura avviene a valle del motore
-audio, senza gravare sul Renderer. Puoi registrare sessioni di ore senza
-preoccuparti del consumo di risorse.
+#strong[系统开销。] 捕获发生在音频引擎下游，不会加重 Renderer
+的负担。录制数小时的会话，不用担心资源消耗。
 
-== 9.2 Fermare la registrazione e scegliere il formato
-Quando clicchi di nuovo sul pulsante per fermare la registrazione, si
-apre la #strong[finestra di esportazione]. È il momento in cui scegli in
-quale formato salvare il file: la conversione dal flusso interno al
-formato finale è affidata a FFmpeg.
+== 9.2 停止录制并选择格式
+<停止录制并选择格式>
+再次点击按钮停止录制时，会打开#strong[导出窗口]，这时选择用哪种格式保存文件：从内部流到最终格式的转换由
+FFmpeg 负责。
 
-=== Formati disponibili
+=== 可用格式
+<可用格式>
 #figure(
   align(center)[#table(
     columns: (33.33%, 33.33%, 33.33%),
     align: (auto,auto,auto,),
-    table.header([Formato], [Estensione], [Caratteristiche],),
+    table.header([格式], [扩展名], [特点],),
     table.hline(),
-    [#strong[WAV]], [`.wav`], [Lossless non compresso. Massima qualità,
-    file grandi. Ideale per archivio e post-produzione.],
-    [#strong[FLAC]], [`.flac`], [Lossless compresso. Stessa qualità del
-    WAV, dimensioni ridotte. Ideale per archivio.],
-    [#strong[MP3]], [`.mp3`], [Lossy. Bitrate selezionabile. Ideale per
-    distribuzione e podcast.],
-    [#strong[OGG]], [`.ogg`], [Lossy open-source. Buon rapporto
-    qualità/dimensione.],
-    [#strong[WEBM]], [`.webm`], [Lossy, ottimizzato per il web.
-    Corrisponde al formato interno di cattura.],
+    [#strong[WAV]], [`.wav`], [未压缩
+    lossless。最高质量，文件大。适合存档与后期。],
+    [#strong[FLAC]], [`.flac`], [压缩 lossless。与 WAV
+    同质量，体积更小。适合存档。],
+    [#strong[MP3]], [`.mp3`], [Lossy。bitrate 可选。适合分发与播客。],
+    [#strong[OGG]], [`.ogg`], [开源 lossy。质量与体积比良好。],
+    [#strong[WEBM]], [`.webm`], [Lossy，为网络优化。对应内部捕获的格式。],
   )]
   , kind: table
   )
 
-=== Opzioni di qualità
-<opzioni-di-qualità>
-Per i formati lossless (WAV e FLAC) puoi selezionare la
-#strong[profondità di bit]: 16 bit (standard CD), 24 bit (standard
-professionale broadcast, valore predefinito) o 32 bit float (massima
-precisione, se la registrazione verrà masterizzata in seguito).
+=== 质量选项
+<质量选项>
+lossless 格式（WAV 与 FLAC）可以选#strong[位深度]：16 bit（CD 标准）、24
+bit（专业广播标准，默认值）、32 bit
+float（最高精度，适合之后要做母带的录制）。
 
-Per i formati lossy (MP3, OGG, WEBM) puoi selezionare il
-#strong[bitrate] tra 128, 192, 256 e 320 kbps. Per un podcast destinato
-alla distribuzione online, 192 kbps stereo è il minimo consigliato; 256
-kbps è lo standard corrente per la qualità «trasparente».
+lossy 格式（MP3、OGG、WEBM）可以在 128、192、256、320 kbps 之间选
+#strong[bitrate]。面向线上分发的播客，推荐下限是 192 kbps 立体声；256
+kbps 是目前「透明」质量的标准。
 
-=== Selezione del percorso di salvataggio
-Nella finestra di esportazione scegli la cartella di destinazione e il
-nome del file. Se non specifichi un nome, RLMP ne genera uno basato su
-data e ora della sessione. Al termine della conversione, un toast di
-conferma mostra il percorso del file salvato.
+=== 选择保存路径
+<选择保存路径>
+导出窗口里选目标文件夹和文件名。不指定名称的话，RLMP
+会按会话的日期时间生成一个。转换完成时，一条确认 toast
+会显示保存文件的路径。
 
-== 9.3 Considerazioni pratiche
-=== Sincronizzazione con lo show
-La registrazione cattura tutto il tempo trascorso tra Start e Stop,
-inclusi i silenzi. Se hai avviato la cattura 30 secondi prima
-dell'inizio effettivo dello show, il file risultante includerà quei 30
-secondi iniziali. Per un risultato pronto alla distribuzione senza
-post-editing, avvia la registrazione esattamente quando inizia lo show.
+== 9.3 实用建议
+<实用建议>
+=== 与节目的同步
+<与节目的同步>
+录制捕获 Start 与 Stop 之间流逝的全部时间，包括静音。若节目实际开始前 30
+秒就启动了捕获，文件开头就会带着那 30
+秒。想要一个不用后期剪辑、能直接分发的结果，就在节目开始的确切时刻启动录制。
 
-=== Registrazione e backup contemporanei
-Il sistema di autosave del progetto (vedi Capitolo 10) e la
-registrazione della sessione operano in modo indipendente. Puoi
-registrare uno show mentre l'autosave salva silenziosamente lo stato del
-progetto: le due operazioni non interferiscono.
+=== 录制与备份同时进行
+<录制与备份同时进行>
+项目的自动保存系统（见第 10
+章）跟会话录制彼此独立。录制一场节目的同时，自动保存照样在静默保存项目状态，两者互不干扰。
 
-=== Formato consigliato per contesti diversi
-#strong[Podcast] --- MP3 256 kbps stereo o FLAC 16 bit. Il primo se
-distribuisci direttamente il file, il secondo se passerai per un editor.
+=== 不同场景的推荐格式
+<不同场景的推荐格式>
+#strong[播客] --- MP3 256 kbps 立体声，或 FLAC 16
+bit。前者直接用于分发，后者留给之后要过编辑器的情况。
 
-#strong[Archivio storico] --- WAV 24 bit o FLAC 24 bit. Dimensioni
-generose, massima flessibilità per eventuali rimaster futuri.
+#strong[历史存档] --- WAV 24 bit 或 FLAC 24
+bit，体积大方，给将来可能的重制留足灵活性。
 
-#strong[Radio / Streaming] --- verifica i requisiti della tua
-piattaforma. La maggior parte accetta MP3 128--192 kbps; alcune
-richiedono WAV non compresso. RLMP esporta nei formati più diffusi per
-coprire ogni scenario.
+#strong[电台 / 流媒体] --- 核对你所用平台的要求。多数平台接受 MP3
+128--192 kbps，有些要求未压缩的 WAV。RLMP
+导出最常见的各种格式，覆盖每一种场景。

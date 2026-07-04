@@ -2,33 +2,33 @@
 
 ---
 
-La grabación de la sesión transforma Runtime Live Machine Pro de herramienta de playout en herramienta de producción completa. En lugar de exigir un software de grabación aparte o una cadena de enrutamiento virtual, RLMP captura directamente el **master mix posprocesado**, es decir, todo lo que sale de la aplicación, incluidos los efectos de la Master Chain, en un archivo de audio en el disco.
+Grabar la sesión convierte a Runtime Live Machine Pro en algo más que una herramienta de playout: lo transforma en un auténtico sistema de producción. No hace falta un software de grabación aparte ni montar una cadena de enrutamiento virtual, porque RLMP captura directamente el **master mix posprocesado** —todo lo que sale de la aplicación, efectos de la Master Chain incluidos— y lo vuelca en un archivo de audio en el disco.
 
 ---
 
 ## 9.1 Iniciar la grabación
 
-El control de la grabación está en el encabezado, identificado por el icono de grabación.
+El control de grabación está en el encabezado, marcado con el icono correspondiente.
 
 **Inicio.**
-Haz clic en el botón de grabación. Un indicador rojo y un contador muestran que la captura está en curso. La grabación arranca de inmediato: todo lo que salga de la salida del software a partir de ese momento se captura.
+Haz clic en el botón de grabación. Un indicador rojo junto con un contador confirman que la captura ya está en marcha, y arranca de inmediato: desde ese instante, todo lo que sale por la salida del software queda capturado.
 
-No hace falta tener clips en reproducción para iniciar la grabación: puedes arrancar la captura por adelantado respecto al inicio del show, para no perder los primeros segundos en caso de partida anticipada.
+No necesitas tener clips en reproducción para empezar a grabar. De hecho conviene arrancar la captura un poco antes del inicio del show, así te aseguras de no perder los primeros segundos si la partida se adelanta.
 
 **Qué se graba.**
-La señal capturada es el **master después del limiter**: incluye la mezcla de todos los clips en reproducción y el procesado de toda la Master Chain (HPF, glue multibanda, limiter). Es exactamente la señal que llega al dispositivo de salida de audio.
+La señal capturada es el **master después del limiter**: la mezcla de todos los clips en reproducción con el procesado completo de la Master Chain (HPF, glue multibanda, limiter) ya aplicado. Es, literalmente, la misma señal que llega al dispositivo de salida de audio.
 
 **El formato interno.**
-Durante la captura, RLMP escribe un flujo comprimido Opus (en contenedor WebM) a 320 kbps: ligerísimo en el disco y transparente a la escucha. La grabación continua tiene un límite de seguridad de unas **cuatro horas**; más allá de esa duración la captura se detiene automáticamente para no saturar la memoria.
+Mientras dura la captura, RLMP escribe un flujo comprimido Opus (en contenedor WebM) a 320 kbps, muy ligero en disco y transparente al oído. Existe eso sí un límite de seguridad de unas **cuatro horas** de grabación continua; pasado ese tiempo, la captura se detiene sola para no saturar la memoria.
 
 **Overhead del sistema.**
-La captura se realiza aguas abajo del motor de audio, sin cargar al Renderer. Puedes grabar sesiones de horas sin preocuparte por el consumo de recursos.
+Como la captura ocurre aguas abajo del motor de audio, no supone carga adicional para el Renderer. Puedes grabar sesiones de varias horas sin que el consumo de recursos sea un problema.
 
 ---
 
 ## 9.2 Detener la grabación y elegir el formato
 
-Cuando vuelves a hacer clic en el botón para detener la grabación, se abre la **ventana de exportación**. Es el momento en que eliges en qué formato guardar el archivo: la conversión del flujo interno al formato final corre a cargo de FFmpeg.
+Al volver a hacer clic en el botón se detiene la grabación y se abre la **ventana de exportación**, donde eliges el formato final del archivo. De la conversión del flujo interno a ese formato se encarga FFmpeg.
 
 ### Formatos disponibles
 
@@ -42,13 +42,13 @@ Cuando vuelves a hacer clic en el botón para detener la grabación, se abre la 
 
 ### Opciones de calidad
 
-Para los formatos lossless (WAV y FLAC) puedes seleccionar la **profundidad de bits**: 16 bits (estándar CD), 24 bits (estándar profesional broadcast, valor por defecto) o 32 bits float (máxima precisión, si la grabación se va a masterizar después).
+En los formatos lossless (WAV y FLAC) puedes elegir la **profundidad de bits**: 16 bits (estándar CD), 24 bits (estándar profesional de broadcast y valor por defecto) o 32 bits float, pensado para cuando la grabación se va a masterizar más adelante.
 
-Para los formatos lossy (MP3, OGG, WEBM) puedes seleccionar el **bitrate** entre 128, 192, 256 y 320 kbps. Para un podcast destinado a la distribución en línea, 192 kbps estéreo es el mínimo recomendado; 256 kbps es el estándar actual para la calidad «transparente».
+En los formatos lossy (MP3, OGG, WEBM) se elige en cambio el **bitrate**, entre 128, 192, 256 y 320 kbps. Si el podcast va a distribuirse online, 192 kbps estéreo es el mínimo recomendable; 256 kbps se ha convertido en el estándar de facto para una calidad que suena «transparente».
 
 ### Selección de la ruta de guardado
 
-En la ventana de exportación eliges la carpeta de destino y el nombre del archivo. Si no especificas un nombre, RLMP genera uno basado en la fecha y la hora de la sesión. Al terminar la conversión, un toast de confirmación muestra la ruta del archivo guardado.
+Aquí también eliges la carpeta de destino y el nombre del archivo. Si no le pones nombre, RLMP genera uno a partir de la fecha y la hora de la sesión, y al terminar la conversión un toast de confirmación indica dónde ha quedado guardado el archivo.
 
 ---
 
@@ -56,16 +56,16 @@ En la ventana de exportación eliges la carpeta de destino y el nombre del archi
 
 ### Sincronización con el show
 
-La grabación captura todo el tiempo transcurrido entre Start y Stop, incluidos los silencios. Si arrancaste la captura 30 segundos antes del inicio real del show, el archivo resultante incluirá esos 30 segundos iniciales. Para un resultado listo para la distribución sin postedición, inicia la grabación exactamente cuando empieza el show.
+La grabación registra todo lo que pasa entre Start y Stop, silencios incluidos. Si arrancaste la captura 30 segundos antes del inicio real del show, esos 30 segundos quedarán al principio del archivo. Para tener un resultado listo para distribuir sin necesidad de postedición, lo mejor es iniciar la grabación justo cuando arranca el show.
 
 ### Grabación y backup simultáneos
 
-El sistema de autoguardado del proyecto (véase el Capítulo 10) y la grabación de la sesión operan de forma independiente. Puedes grabar un show mientras el autoguardado salva silenciosamente el estado del proyecto: las dos operaciones no interfieren.
+El sistema de autoguardado del proyecto (Capítulo 10) funciona en paralelo a la grabación de la sesión, sin que una dependa de la otra. Puedes grabar un show mientras el autoguardado va salvando el estado del proyecto en silencio: no hay interferencia entre ambas.
 
 ### Formato recomendado para distintos contextos
 
-**Podcast** — MP3 256 kbps estéreo o FLAC 16 bits. El primero si distribuyes directamente el archivo, el segundo si pasarás por un editor.
+Para **podcast**, lo habitual es MP3 256 kbps estéreo si vas a distribuir el archivo tal cual, o FLAC 16 bits si todavía pasará por un editor.
 
-**Archivo histórico** — WAV 24 bits o FLAC 24 bits. Tamaños generosos, máxima flexibilidad para eventuales remasterizaciones futuras.
+Cuando se trata de **archivo histórico**, conviene apostar por WAV 24 bits o FLAC 24 bits: pesan más, pero dejan margen para remasterizaciones futuras.
 
-**Radio / Streaming** — comprueba los requisitos de tu plataforma. La mayoría acepta MP3 128–192 kbps; algunas exigen WAV sin comprimir. RLMP exporta en los formatos más difundidos para cubrir cualquier escenario.
+Para **radio o streaming**, conviene revisar antes los requisitos de la plataforma de destino. La mayoría admite MP3 entre 128 y 192 kbps, aunque alguna exige WAV sin comprimir; RLMP cubre ambos casos exportando en los formatos más habituales del sector.
