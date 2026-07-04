@@ -1,4 +1,4 @@
-# Kapitel 2 — Installation und erster Start
+# Kapitel 2 – Installation und erster Start
 
 ---
 
@@ -52,8 +52,8 @@ Ab macOS 15 (Sequoia) lautet der Pfad *Systemeinstellungen* → *Datenschutz & S
 
 Es stehen zwei Vertriebsformate zur Verfügung:
 
-- **AppImage** — portable ausführbare Datei, keine Installation nötig. Machen Sie die Datei ausführbar (`chmod +x`) und starten Sie sie direkt.
-- **.deb-Paket** — für Debian/Ubuntu/Mint-Distributionen. Installieren Sie es mit `sudo dpkg -i dateiname.deb` oder öffnen Sie es mit der grafischen Paketverwaltung.
+- **AppImage** – portable ausführbare Datei, keine Installation nötig. Machen Sie die Datei ausführbar (`chmod +x`) und starten Sie sie direkt.
+- **.deb-Paket** – für Debian/Ubuntu/Mint-Distributionen. Installieren Sie es mit `sudo dpkg -i dateiname.deb` oder öffnen Sie es mit der grafischen Paketverwaltung.
 
 Auf manchen Distributionen kann es nötig sein, das Paket `libasound2` für die ALSA-Audiounterstützung zu installieren. Ziehen Sie die Dokumentation Ihrer Distribution zu Rate, falls die Anwendung nicht startet.
 
@@ -63,24 +63,24 @@ Auf manchen Distributionen kann es nötig sein, das Paket `libasound2` für die 
 
 ![Der Begrüßungsbildschirm von Runtime Live Machine Pro, mit den Hauptaktionen und dem Sprachwähler.](../screenshots-de/schermata-benvenuto.png)
 
-*Abbildung 2.1 — Der Begrüßungsbildschirm: Identität der Software, Update-Status, Hauptaktionen und Sprachwähler.*
+*Abbildung 2.1 – Der Begrüßungsbildschirm: Identität der Software, Update-Status, Hauptaktionen und Sprachwähler.*
 
-Beim ersten Start — und bei jedem weiteren Start, solange Sie kein Projekt öffnen — zeigt RLMP den **Begrüßungsbildschirm**, den Einstiegspunkt für alle vorbereitenden Handlungen. Der Bereich ist in zwei Zonen geteilt.
+Beim ersten Start – und bei jedem weiteren Start, solange Sie kein Projekt öffnen – zeigt RLMP den **Begrüßungsbildschirm**, den Einstiegspunkt für alle vorbereitenden Handlungen. Der Bereich ist in zwei Zonen geteilt.
 
-**Linke Zone — Identität und Aktionen.**
+**Linke Zone – Identität und Aktionen.**
 Das Logo der Software (die Balken eines VU meter mit dem Play-Symbol) kennzeichnet die Pro-Version. Unter Titel und Slogan erscheint die Nummer der installierten Version, begleitet vom Status des Update-Systems:
 
-- **„Neueste Version“** (grün) — Sie verwenden die aktuellste verfügbare Version.
-- **„Update verfügbar“** (Bernstein, blinkend) — es ist eine Schaltfläche: Klicken Sie darauf, um das Update-Fenster zu öffnen (Kapitel 12).
-- **„OFFLINE“** (gedämpftes Rot) — der Update-Dienst konnte nicht erreicht werden; die Software funktioniert trotzdem.
+- **„Neueste Version“** (grün) – Sie verwenden die aktuellste verfügbare Version.
+- **„Update verfügbar“** (Bernstein, blinkend) – es ist eine Schaltfläche: Klicken Sie darauf, um das Update-Fenster zu öffnen (Kapitel 12).
+- **„OFFLINE“** (gedämpftes Rot) – der Update-Dienst konnte nicht erreicht werden; die Software funktioniert trotzdem.
 
 Darunter finden Sie die Hauptaktionen:
 
-- *Neues Projekt* — legt eine leere Session an, mit ladebereiten Spalten.
-- *Projekt laden* — öffnet eine bestehende `.lmp`-Datei. Bevor sie einsatzbereit wird, führt RLMP eine **Integritätsprüfung** durch: Es überprüft, ob jede referenzierte Audiodatei noch am gespeicherten Pfad vorhanden ist. Fehlende Dateien werden sofort mit einem roten Rahmen am jeweiligen Clip signalisiert.
-- *Handbuch* — der Eintrag ist vorhanden, aber derzeit deaktiviert: Die aus der Software heraus abrufbare Dokumentation kommt in einer künftigen Version über das Web.
+- *Neues Projekt* – legt eine leere Session an, mit ladebereiten Spalten.
+- *Projekt laden* – öffnet eine bestehende `.lmp`-Datei. Bevor sie einsatzbereit wird, führt RLMP eine **Integritätsprüfung** durch: Es überprüft, ob jede referenzierte Audiodatei noch am gespeicherten Pfad vorhanden ist. Fehlende Dateien werden sofort mit einem roten Rahmen am jeweiligen Clip signalisiert.
+- *Handbuch* – der Eintrag ist vorhanden, aber derzeit deaktiviert: Die aus der Software heraus abrufbare Dokumentation kommt in einer künftigen Version über das Web.
 
-**Rechte Zone — Sprachwähler.**
+**Rechte Zone – Sprachwähler.**
 RLMP unterstützt acht Oberflächensprachen: Englisch, Italienisch, Französisch, Deutsch, Spanisch, Portugiesisch, Russisch und vereinfachtes Chinesisch. Die aktive Sprache ist mit einem cyanfarbenen Rahmen und einem Häkchen hervorgehoben. Die Auswahl wirkt sofort und bleibt über die Sessions hinweg gespeichert.
 
 ---
@@ -89,6 +89,6 @@ RLMP unterstützt acht Oberflächensprachen: Englisch, Italienisch, Französisch
 
 Beim ersten Öffnen eines Projekts bemerken Sie im Header das Logo mit dem **PRO**-Badge im schillernden Farbverlauf. Hinter der Oberfläche startet das Öffnen des Projekts die Audio-Engine im Hintergrund: FFmpeg wird initialisiert, und das Streaming-Protokoll `media://` geht in Bereitschaft, um die Dateien von der Festplatte auszuliefern, ohne sie in den Speicher zu laden.
 
-Die Software startet bevorzugt im Vollbildmodus. Sollte sich das Fenster verkleinert öffnen, drücken Sie `F11` (Windows/Linux) oder `Ctrl+Cmd+F` (macOS), um es in den Vollbildmodus zu bringen — die optimale Bedingung für die Regiearbeit.
+Die Software startet bevorzugt im Vollbildmodus. Sollte sich das Fenster verkleinert öffnen, drücken Sie `F11` (Windows/Linux) oder `Ctrl+Cmd+F` (macOS), um es in den Vollbildmodus zu bringen – die optimale Bedingung für die Regiearbeit.
 
 Der **On-Air-Timer** im Header bleibt auf `--:--:--`, bis der erste Clip der Session gestartet wird. Ab diesem Moment beginnt er, die vergangene Sendezeit zu zählen: eine nützliche Referenz für alle, die mit fest getakteten Playlists arbeiten.

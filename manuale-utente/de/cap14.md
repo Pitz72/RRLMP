@@ -1,4 +1,4 @@
-# Kapitel 14 — Problembehebung und FAQ
+# Kapitel 14 – Problembehebung und FAQ
 
 ---
 

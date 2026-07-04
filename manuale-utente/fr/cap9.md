@@ -11,15 +11,15 @@ L'enregistrement de la session transforme Runtime Live Machine Pro d'outil de pl
 La commande d'enregistrement se trouve dans l'en-tête, identifiée par l'icône d'enregistrement.
 
 **Démarrage.**
-Cliquez sur le bouton d'enregistrement. Un indicateur rouge et un compteur montrent que la capture est en cours. L'enregistrement démarre immédiatement : tout ce qui sort de l'application à partir de cet instant est capturé.
+Cliquez sur le bouton d'enregistrement. Un indicateur rouge et un compteur montrent que la capture est en cours. L'enregistrement démarre immédiatement : tout ce qui sort de l'application à partir de cet instant est capturé.
 
-Il n'est pas nécessaire d'avoir des clips en lecture pour démarrer l'enregistrement : vous pouvez lancer la capture en avance sur le début de l'émission, pour ne pas perdre les premières secondes en cas de départ anticipé.
+Il n'est pas nécessaire d'avoir des clips en lecture pour démarrer l'enregistrement : vous pouvez lancer la capture en avance sur le début de l'émission, pour ne pas perdre les premières secondes en cas de départ anticipé.
 
 **Ce qui est enregistré.**
-Le signal capturé est le **master après le limiter** : il inclut le mix de tous les clips en lecture et le traitement de toute la Master Chain (HPF, glue multibande, limiter). C'est exactement le signal qui atteint le périphérique audio de sortie.
+Le signal capturé est le **master après le limiter** : il inclut le mix de tous les clips en lecture et le traitement de toute la Master Chain (HPF, glue multibande, limiter). C'est exactement le signal qui atteint le périphérique audio de sortie.
 
 **Le format interne.**
-Pendant la capture, RLMP écrit un flux compressé Opus (en conteneur WebM) à 320 kbps : très léger sur le disque et transparent à l'écoute. L'enregistrement continu a une limite de sécurité d'environ **quatre heures** ; au-delà de cette durée, la capture s'arrête automatiquement pour ne pas saturer la mémoire.
+Pendant la capture, RLMP écrit un flux compressé Opus (en conteneur WebM) à 320 kbps : très léger sur le disque et transparent à l'écoute. L'enregistrement continu a une limite de sécurité d'environ **quatre heures** ; au-delà de cette durée, la capture s'arrête automatiquement pour ne pas saturer la mémoire.
 
 **Charge système.**
 La capture se fait en aval du moteur audio, sans peser sur le Renderer. Vous pouvez enregistrer des sessions de plusieurs heures sans vous soucier de la consommation de ressources.
@@ -28,7 +28,7 @@ La capture se fait en aval du moteur audio, sans peser sur le Renderer. Vous pou
 
 ## 9.2 Arrêter l'enregistrement et choisir le format
 
-Quand vous cliquez de nouveau sur le bouton pour arrêter l'enregistrement, la **fenêtre d'exportation** s'ouvre. C'est le moment où vous choisissez dans quel format enregistrer le fichier : la conversion du flux interne vers le format final est confiée à FFmpeg.
+Quand vous cliquez de nouveau sur le bouton pour arrêter l'enregistrement, la **fenêtre d'exportation** s'ouvre. C'est le moment où vous choisissez dans quel format enregistrer le fichier : la conversion du flux interne vers le format final est confiée à FFmpeg.
 
 ### Formats disponibles
 
@@ -42,9 +42,9 @@ Quand vous cliquez de nouveau sur le bouton pour arrêter l'enregistrement, la *
 
 ### Options de qualité
 
-Pour les formats lossless (WAV et FLAC), vous pouvez sélectionner la **profondeur de bits** : 16 bit (standard CD), 24 bit (standard professionnel broadcast, valeur par défaut) ou 32 bit float (précision maximale, si l'enregistrement sera masterisé par la suite).
+Pour les formats lossless (WAV et FLAC), vous pouvez sélectionner la **profondeur de bits** : 16 bit (standard CD), 24 bit (standard professionnel broadcast, valeur par défaut) ou 32 bit float (précision maximale, si l'enregistrement sera masterisé par la suite).
 
-Pour les formats lossy (MP3, OGG, WEBM), vous pouvez sélectionner le **bitrate** entre 128, 192, 256 et 320 kbps. Pour un podcast destiné à la distribution en ligne, 192 kbps stéréo est le minimum conseillé ; 256 kbps est le standard actuel pour la qualité « transparente ».
+Pour les formats lossy (MP3, OGG, WEBM), vous pouvez sélectionner le **bitrate** entre 128, 192, 256 et 320 kbps. Pour un podcast destiné à la distribution en ligne, 192 kbps stéréo est le minimum conseillé ; 256 kbps est le standard actuel pour la qualité « transparente ».
 
 ### Choix du chemin d'enregistrement
 
@@ -60,7 +60,7 @@ L'enregistrement capture tout le temps écoulé entre Start et Stop, silences co
 
 ### Enregistrement et sauvegarde simultanés
 
-Le système d'autosave du projet (voir Chapitre 10) et l'enregistrement de la session fonctionnent de façon indépendante. Vous pouvez enregistrer une émission pendant que l'autosave enregistre en silence l'état du projet : les deux opérations n'interfèrent pas.
+Le système d'autosave du projet (voir Chapitre 10) et l'enregistrement de la session fonctionnent de façon indépendante. Vous pouvez enregistrer une émission pendant que l'autosave enregistre en silence l'état du projet : les deux opérations n'interfèrent pas.
 
 ### Format conseillé selon le contexte
 
@@ -68,4 +68,4 @@ Le système d'autosave du projet (voir Chapitre 10) et l'enregistrement de la se
 
 **Archivage historique** — WAV 24 bit ou FLAC 24 bit. Dimensions généreuses, souplesse maximale pour d'éventuels remasters futurs.
 
-**Radio / Streaming** — vérifiez les exigences de votre plateforme. La plupart acceptent le MP3 128–192 kbps ; certaines demandent du WAV non compressé. RLMP exporte dans les formats les plus répandus pour couvrir chaque scénario.
+**Radio / Streaming** — vérifiez les exigences de votre plateforme. La plupart acceptent le MP3 128–192 kbps ; certaines demandent du WAV non compressé. RLMP exporte dans les formats les plus répandus pour couvrir chaque scénario.

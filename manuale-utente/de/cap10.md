@@ -1,4 +1,4 @@
-# Kapitel 10 — Projektverwaltung und Datensicherheit
+# Kapitel 10 – Projektverwaltung und Datensicherheit
 
 ---
 
@@ -72,8 +72,8 @@ RLMP analysiert alle Pfade zu den Audiodateien des Projekts, erstellt einen Unte
 
 Der Vorgang hat zwei Modi:
 
-- **Neben dem Projekt** — wenn Sie in den Ordner exportieren, in dem die `.lmp` bereits liegt, synchronisiert RLMP den Unterordner `audio/` daneben.
-- **Freier Ordner** — wenn Sie einen neuen Ordner wählen (einen USB-Stick, ein NAS), schreibt RLMP dorthin eine `project.lmp` mit bereits aktualisierten Pfaden, die auf den lokalen Unterordner `audio/` zeigen.
+- **Neben dem Projekt** – wenn Sie in den Ordner exportieren, in dem die `.lmp` bereits liegt, synchronisiert RLMP den Unterordner `audio/` daneben.
+- **Freier Ordner** – wenn Sie einen neuen Ordner wählen (einen USB-Stick, ein NAS), schreibt RLMP dorthin eine `project.lmp` mit bereits aktualisierten Pfaden, die auf den lokalen Unterordner `audio/` zeigen.
 
 ### Das Ergebnis
 

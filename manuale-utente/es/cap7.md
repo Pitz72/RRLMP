@@ -4,7 +4,6 @@
 
 Dos superficies de trabajo viven sobre la rejilla, invocables con una tecla y pensadas para dos momentos opuestos de la regia: el **pad FX**, para lanzar efectos y ráfagas a golpe seguro sin interrumpir nada, y la **vista Automix**, para gestionar el flujo musical como lo haría un DJ. Ninguna de las dos resta espacio a la rejilla: se abren cuando hacen falta y se cierran con un clic.
 
-
 ---
 
 ## 7.1 El pad FX: la jingle machine

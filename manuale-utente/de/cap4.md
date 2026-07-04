@@ -1,4 +1,4 @@
-# Kapitel 4 — Der grundlegende Arbeitsablauf: laden und abspielen
+# Kapitel 4 – Der grundlegende Arbeitsablauf: laden und abspielen
 
 ---
 
@@ -49,15 +49,15 @@ RLMP speichert den **absoluten Pfad** der Datei auf der Festplatte, nicht eine K
 
 Ein **Linksklick** auf die Karte genügt, um die Wiedergabe zu starten. Das Feedback ist sofortig: Die Karte leuchtet im Grün des aktiven Zustands auf, der Timer wechselt zum Countdown, und die VU meter im Header spiegeln das Ausgangssignal wider.
 
-Wurde dem Clip eine Tastaturtaste zugewiesen (siehe Kapitel 8), funktioniert diese Taste als Alternative zum Klick — nützlich, wenn Sie gerade an einem anderen Teil der Oberfläche arbeiten und die Maus nicht bewegen möchten.
+Wurde dem Clip eine Tastaturtaste zugewiesen (siehe Kapitel 8), funktioniert diese Taste als Alternative zum Klick – nützlich, wenn Sie gerade an einem anderen Teil der Oberfläche arbeiten und die Maus nicht bewegen möchten.
 
 ### Einen Clip stoppen
 
-**Klick auf den aktiven Clip** — der Clip tritt in die **Fade-Out**-Phase ein und stoppt innerhalb der in seinen Eigenschaften konfigurierten Zeit (siehe Kapitel 5).
+**Klick auf den aktiven Clip** – der Clip tritt in die **Fade-Out**-Phase ein und stoppt innerhalb der in seinen Eigenschaften konfigurierten Zeit (siehe Kapitel 5).
 
-**Taste `Esc`** — stoppt alle aktiven Clips augenblicklich. Es ist der Notfallbefehl. Er funktioniert, wenn RLMP das aktive Fenster ist, auch während Sie in ein Textfeld schreiben.
+**Taste `Esc`** – stoppt alle aktiven Clips augenblicklich. Es ist der Notfallbefehl. Er funktioniert, wenn RLMP das aktive Fenster ist, auch während Sie in ein Textfeld schreiben.
 
-**Schaltfläche STOP ALL** im Header — identisch mit `Esc`, per Maus erreichbar.
+**Schaltfläche STOP ALL** im Header – identisch mit `Esc`, per Maus erreichbar.
 
 ### Die Ausschlusslogik je Spalte
 
@@ -98,12 +98,12 @@ Das Löschen aus dem Raster entfernt die Clips aus dem aktuellen Projekt, nicht 
 
 Jeder Clip kann zwei **strukturelle Marker** haben, die im Waveform-Editor konfiguriert werden (Kapitel 5):
 
-- **Intro Marker** — der Punkt, an dem die Hauptmelodie des Titels tatsächlich einsetzt, nach dem instrumentalen Vorspann. Nützlich, um genau zu wissen, wann man über dem Intro zu sprechen beginnen kann.
-- **Outro Marker** — der Punkt, an dem das Schluss-Outro des Titels beginnt. Signalisiert den richtigen Moment, um den Übergang zum nächsten Titel vorzubereiten.
+- **Intro Marker** – der Punkt, an dem die Hauptmelodie des Titels tatsächlich einsetzt, nach dem instrumentalen Vorspann. Nützlich, um genau zu wissen, wann man über dem Intro zu sprechen beginnen kann.
+- **Outro Marker** – der Punkt, an dem das Schluss-Outro des Titels beginnt. Signalisiert den richtigen Moment, um den Übergang zum nächsten Titel vorzubereiten.
 
 Wenn sich die Wiedergabe eines Clips diesen Punkten nähert, erscheint auf der Karte ein visueller Hinweis:
 
-- **INTRO: −MM:SS** — Countdown bis zum Intro Marker.
-- **OUTRO IN: −MM:SS** — Countdown bis zum Outro Marker, gefolgt von **🚨 OUTRO**, wenn das Outro begonnen hat.
+- **INTRO: −MM:SS** – Countdown bis zum Intro Marker.
+- **OUTRO IN: −MM:SS** – Countdown bis zum Outro Marker, gefolgt von **🚨 OUTRO**, wenn das Outro begonnen hat.
 
 Diese Hinweise erscheinen nur, wenn die Marker konfiguriert wurden. Auf Clips ohne Marker zeigt die Karte lediglich den Standard-Countdown zum Ende des Titels.

@@ -1,4 +1,4 @@
-# Kapitel 11 — Controllo Remoto (Fernsteuerung)
+# Kapitel 11 – Controllo Remoto (Fernsteuerung)
 
 ---
 

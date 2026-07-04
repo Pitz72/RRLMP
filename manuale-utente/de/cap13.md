@@ -1,4 +1,4 @@
-# Kapitel 13 — Erweiterte Funktionen
+# Kapitel 13 – Erweiterte Funktionen
 
 ---
 

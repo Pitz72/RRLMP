@@ -1,4 +1,4 @@
-# Kapitel 9 — Aufnahme der Session
+# Kapitel 9 – Aufnahme der Session
 
 ---
 
@@ -64,8 +64,8 @@ Das Autosave-System des Projekts (siehe Kapitel 10) und die Aufnahme der Session
 
 ### Empfohlenes Format für verschiedene Kontexte
 
-**Podcast** — MP3 256 kbps Stereo oder FLAC 16 bit. Ersteres, wenn Sie die Datei direkt verteilen, Letzteres, wenn Sie noch durch einen Editor gehen.
+**Podcast** – MP3 256 kbps Stereo oder FLAC 16 bit. Ersteres, wenn Sie die Datei direkt verteilen, Letzteres, wenn Sie noch durch einen Editor gehen.
 
-**Historisches Archiv** — WAV 24 bit oder FLAC 24 bit. Großzügige Größen, höchste Flexibilität für eventuelle spätere Remaster.
+**Historisches Archiv** – WAV 24 bit oder FLAC 24 bit. Großzügige Größen, höchste Flexibilität für eventuelle spätere Remaster.
 
-**Radio / Streaming** — prüfen Sie die Anforderungen Ihrer Plattform. Die meisten akzeptieren MP3 128–192 kbps; manche verlangen unkomprimiertes WAV. RLMP exportiert in die gängigsten Formate, um jedes Szenario abzudecken.
+**Radio / Streaming** – prüfen Sie die Anforderungen Ihrer Plattform. Die meisten akzeptieren MP3 128–192 kbps; manche verlangen unkomprimiertes WAV. RLMP exportiert in die gängigsten Formate, um jedes Szenario abzudecken.

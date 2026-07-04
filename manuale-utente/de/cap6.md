@@ -1,4 +1,4 @@
-# Kapitel 6 — Die Mixing-Engine
+# Kapitel 6 – Die Mixing-Engine
 
 ---
 
@@ -12,13 +12,13 @@ Die Mixing-Engine von Runtime Live Machine Pro beseitigt den Großteil dieser Zw
 
 Das automatische Mixing-System beruht auf einer **Prioritätshierarchie** zwischen den Clip-Typen. Am einfachsten versteht man sie, wenn man sie sich als Rangfolge des „Rederechts“ vorstellt.
 
-**Stimme / Aufnahmen — absolute Priorität.**
+**Stimme / Aufnahmen – absolute Priorität.**
 Wenn ein Sprach-Clip läuft, bleibt er auf seiner Nennlautstärke und alles andere wird abgesenkt. Kein anderes Signal kann diese Regel außer Kraft setzen.
 
 **Episoden-Musik.**
 Sie räumt der Stimme den Platz, hat aber Vorrang vor den Beds der Assets. Wenn ein Song einsetzt, werden die Musikbetten der Assets auf null gebracht (sie stoppen nicht: Sie laufen still weiter, bereit für die Rückkehr). Das ist die Music Dominance, weiter unten beschrieben.
 
-**Show Assets, Jingle und Promo — die Service-Beds.**
+**Show Assets, Jingle und Promo – die Service-Beds.**
 Sie werden von den Stimmen abgesenkt und von der Musik stummgeschaltet. Ist ein Asset jedoch ein **Stacco** (Trenner), übernimmt es die Führung (siehe §6.4).
 
 **Effekte des pad FX.**
@@ -39,7 +39,7 @@ Der Operator berührt nichts. Die ausgeführte Geste war ein einziger Klick: das
 
 ## 6.3 Music Dominance: intelligente Verwaltung der Beds
 
-Ein klassischer klanglicher Fehler ist der Moment, in dem sich ein Song und ein Musikbett (*bed*) überlagern: zwei rhythmische Elemente, die aufeinanderprallen, zwei Kick-Drums, die nicht zusammenfallen — das Ergebnis ist wirr.
+Ein klassischer klanglicher Fehler ist der Moment, in dem sich ein Song und ein Musikbett (*bed*) überlagern: zwei rhythmische Elemente, die aufeinanderprallen, zwei Kick-Drums, die nicht zusammenfallen – das Ergebnis ist wirr.
 
 RLMP handhabt dieses Szenario mit der **Music Dominance**.
 
@@ -73,7 +73,7 @@ In der Praxis bewertet die Software die wahrgenommene Lautheit jedes Clips und n
 
 ![Der Reiter Master-Kette im Fenster Einstellungen.](../screenshots-de/impostazioni-master-chain.png)
 
-*Abbildung 6.1 — Die Master Chain: Lautstärke-Angleichung (−16 LUFS), HPF bei 30 Hz, multiband glue und Limiter Brickwall.*
+*Abbildung 6.1 – Die Master Chain: Lautstärke-Angleichung (−16 LUFS), HPF bei 30 Hz, multiband glue und Limiter Brickwall.*
 
 Das kombinierte Signal aller laufenden Clips durchläuft nach der Master-Lautstärke eine **Prozessorkette** auf dem Master-Bus, bevor es das Ausgabegerät erreicht. Die Kette ist standardmäßig aktiv und auf einen broadcast-tauglichen Klang ausgelegt, ohne dass eine aufwendige Konfiguration nötig ist.
 

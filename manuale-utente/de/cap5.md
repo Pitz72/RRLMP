@@ -1,4 +1,4 @@
-# Kapitel 5 — Clip-Eigenschaften und Waveform-Editor
+# Kapitel 5 – Clip-Eigenschaften und Waveform-Editor
 
 ---
 
@@ -14,7 +14,7 @@ Um die Einstellungen eines Clips zu öffnen, klicken Sie mit der **rechten Maust
 
 ![Das Fenster mit den Clip-Einstellungen, Reiter General.](../screenshots-de/impostazioni-clip.png)
 
-*Abbildung 5.1 — Die Clip-Einstellungen: Clip Name, Color Label, Volume Gain, Playback Behavior, Next Action und Tastenzuweisung.*
+*Abbildung 5.1 – Die Clip-Einstellungen: Clip Name, Color Label, Volume Gain, Playback Behavior, Next Action und Tastenzuweisung.*
 
 ### Name und Erscheinung
 
@@ -34,7 +34,7 @@ Der häufigste Anwendungsfall ist die Pegelanpassung: Wenn Sie eine leise aufgen
 
 ![Der Waveform-Editor mit den Trim-Handles und den Struktur-Markern.](../screenshots-de/waveform-editor.png)
 
-*Abbildung 5.2 — Der Waveform-Editor: Trim-Handles, Intro- und Outro-Marker, Auto-Trim, Smart Cues und Blenden.*
+*Abbildung 5.2 – Der Waveform-Editor: Trim-Handles, Intro- und Outro-Marker, Auto-Trim, Smart Cues und Blenden.*
 
 Der visuelle Editor ist die stärkste Funktion des Konfigurationspanels. Er nimmt die Mitte des Panels ein und zeigt die grafische Darstellung des Audios des gesamten Clips.
 
@@ -82,19 +82,19 @@ Gibt es einen **nachfolgenden** Clip in derselben Spalte, spielt die Schaltfläc
 
 ### Playback Behavior (Überlagerungsmodus)
 
-**Normal** — das Standardverhalten. Wenn dieser Clip gestartet wird, unterbricht er jeden anderen laufenden Clip in derselben Spalte (mit Fade Out). Es ist das richtige Verhalten für Songs und Beds: ein Song schließt die anderen aus.
+**Normal** – das Standardverhalten. Wenn dieser Clip gestartet wird, unterbricht er jeden anderen laufenden Clip in derselben Spalte (mit Fade Out). Es ist das richtige Verhalten für Songs und Beds: ein Song schließt die anderen aus.
 
-**Stacco (Jingle)** — der Clip wird gestartet, ohne die anderen zu unterbrechen. Er hat hohe Priorität: Er blendet die anderen Assets der Spalte stumm und senkt die Musik ab, stoppt aber nichts. Der typische Anwendungsfall ist eine *Station-ID* („Sie hören…“), die über dem Intro eines Titels „reiten“ soll, oder ein kurzer Jingle über einem Bed in loop.
+**Stacco (Jingle)** – der Clip wird gestartet, ohne die anderen zu unterbrechen. Er hat hohe Priorität: Er blendet die anderen Assets der Spalte stumm und senkt die Musik ab, stoppt aber nichts. Der typische Anwendungsfall ist eine *Station-ID* („Sie hören…“), die über dem Intro eines Titels „reiten“ soll, oder ein kurzer Jingle über einem Bed in loop.
 
 ### Next Action (Automatisierung am Ende)
 
 Legt fest, was geschieht, wenn der Clip den Punkt Trim End erreicht.
 
-**Stop** — das Standardverhalten für Musik, Stimme und Assets. Der Clip endet und stoppt.
+**Stop** – das Standardverhalten für Musik, Stimme und Assets. Der Clip endet und stoppt.
 
-**Play Next** — wenn sich der Clip dem Ende nähert, startet er automatisch den nächsten Clip der Spalte mit dem konfigurierten Übergang. Das Badge **NEXT** erscheint auf der Karte. Es ist das Standardverhalten der Spalte Pre-Show und erzeugt de facto eine automatische Playlist: Sie können es über mehrere aufeinanderfolgende Clips einstellen, um Blöcke zu bauen, die ohne Unterbrechung durchlaufen.
+**Play Next** – wenn sich der Clip dem Ende nähert, startet er automatisch den nächsten Clip der Spalte mit dem konfigurierten Übergang. Das Badge **NEXT** erscheint auf der Karte. Es ist das Standardverhalten der Spalte Pre-Show und erzeugt de facto eine automatische Playlist: Sie können es über mehrere aufeinanderfolgende Clips einstellen, um Blöcke zu bauen, die ohne Unterbrechung durchlaufen.
 
-Die Wiedergabe in **loop** ist eine eigene Option: Wenn sie aktiv ist, beginnt der Clip nahtlos von vorn (ab Trim Start), und auf der Karte erscheint das Badge **LOOP**. Nutzen Sie sie für Musikbetten, Klangumgebungen oder Hintergrundkennungen, die laufen sollen, bis sie ausdrücklich gestoppt werden. Die Übergangsmodi — Crossfade, Segue, Gapless — sind in Kapitel 13 beschrieben.
+Die Wiedergabe in **loop** ist eine eigene Option: Wenn sie aktiv ist, beginnt der Clip nahtlos von vorn (ab Trim Start), und auf der Karte erscheint das Badge **LOOP**. Nutzen Sie sie für Musikbetten, Klangumgebungen oder Hintergrundkennungen, die laufen sollen, bis sie ausdrücklich gestoppt werden. Die Übergangsmodi – Crossfade, Segue, Gapless – sind in Kapitel 13 beschrieben.
 
 ---
 
@@ -104,7 +104,7 @@ Das Panel erlaubt es, für den einzelnen Clip die Dauer der Ein- und Ausblenden 
 
 **Fade In.** Die Zeit, die die Lautstärke ab dem Start braucht, um den Maximalpegel zu erreichen. Ein Wert von 2000 ms erzeugt einen sanften Anstieg von zwei Sekunden. Nutzen Sie ihn bei Musikbetten, die weich hervortreten sollen; halten Sie ihn bei 0 für Stimmen und Effekte, die sofort hörbar sein müssen.
 
-**Fade Out.** Die Blendzeit beim Schließen — sowohl beim Klick auf einen aktiven Clip als auch bei den Übergängen. Typische Werte: 2000–3000 ms für Songs, 500–1000 ms für Beds, 0 ms für harte Stacchi.
+**Fade Out.** Die Blendzeit beim Schließen – sowohl beim Klick auf einen aktiven Clip als auch bei den Übergängen. Typische Werte: 2000–3000 ms für Songs, 500–1000 ms für Beds, 0 ms für harte Stacchi.
 
 Ein Fade Out von 0 ms erzeugt ein sofortiges Schließen („hard cut“). Bei einem Musiktitel in der Sendung kann das wie ein technischer Fehler wirken: Überlegen Sie genau, wann es angebracht ist.
 

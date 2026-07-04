@@ -89,6 +89,12 @@ def post_typ(t):
     # Es. "= Chapter 3 --- X", "= Kapitel 3 --- X", "= 第 3 章 --- X".
     t = re.sub(r"^=\s*\S[^\n]*?\s*(?:---|—|–)\s*(.+)$", r"= \1", t, flags=re.M)
     t = quotes_to_boxes(t)
+    if LANG == "de":
+        # pandoc svaluta la „chiusura“ tedesca (U+201C) in un apice ASCII "
+        # semplice, che Typst ritipografa come apertura invece che chiusura
+        # (risultato: „testo„ invece di „testo"). Ripristina il carattere
+        # tipografico corretto sul primo " che segue una „ di apertura.
+        t = re.sub(r"„([\s\S]*?)\"", "„\\1“", t)
     # comprime 3+ righe vuote
     t = re.sub(r"\n{3,}", "\n\n", t)
     return IMPORT + t.strip() + "\n"

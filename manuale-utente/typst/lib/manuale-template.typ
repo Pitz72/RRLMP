@@ -38,66 +38,16 @@
 #let _capnum = counter("rlmp-capitolo")
 
 // =============================================================================
-// COPERTINA — pagina a vivo, disegnata in Typst (testo per lingua da strings.typ)
-// Riproduce l'identità del banner: fondo navy, logo, titolo, pill di versione,
-// slogan, blocco d'edizione localizzato, crediti e onda audio a fondo pagina.
+// COPERTINA — pagina a vivo, immagine localizzata a piena pagina.
+// Ogni lingua ha la propria copertina (assets/copertina-<lang>.png), renderizzata
+// dalla stessa pipeline SVG->PNG del riferimento estetico IT (branding/build-cover.py
+// + manuale-utente/render-svg.js), non un redraw Typst separato: garantisce
+// gradiente, glow e onda audio identici in tutte le lingue.
 // =============================================================================
-#let _wavebar(h, col) = box(width: 4pt, height: h, radius: 1pt, fill: col, baseline: 0pt)
-
-#let _waveform() = {
-  // Onda audio decorativa: 84 barre, gradiente emerald -> amber -> red.
-  let n = 84
-  let hs = (10, 22, 14, 34, 46, 26, 18, 52, 30, 12, 40, 60, 24, 16, 44, 70, 28, 20, 50, 36)
-  set align(bottom)
-  box(width: 100%, height: 46pt)[
-    #place(bottom + center)[
-      #grid(columns: (2pt,) * n, column-gutter: 2pt, align: bottom,
-        ..range(n).map(i => {
-          let h = hs.at(calc.rem(i * 7 + 3, hs.len())) * 1pt + 6pt
-          let t = i / n
-          let col = if t < 0.5 { c.emerald-bright.mix((c.amber-bright, t * 2)) }
-                    else { c.amber-bright.mix((c.red, (t - 0.5) * 2)) }
-          box(width: 2pt, height: h, radius: .8pt, fill: col)
-        }))
-    ]
-  ]
-}
-
 #let copertina() = page(
   fill: c.navy, margin: 0pt, header: none, footer: none,
 )[
-  // Filo gradiente in cima
-  #place(top)[#box(width: 100%, height: 4pt, fill: brandGrad)]
-  #set text(fill: white)
-  #v(1fr)
-  #align(center)[
-    #image("../assets/logo.png", width: 118pt)
-    #v(9mm)
-    #text(font: font-display, size: 15pt, weight: 700, tracking: 10pt, fill: c.cyan-bright)[RUNTIME]
-    #v(4mm)
-    #text(font: font-display, size: 46pt, weight: 800, tracking: 1pt, fill: white)[LIVE MACHINE]
-    #v(2mm)
-    #text(font: font-display, size: 46pt, weight: 800, tracking: 3pt, fill: brandGrad)[PRO]
-    #v(6mm)
-    #box(stroke: .8pt + c.ink-soft, radius: 20pt, inset: (x: 14pt, y: 6pt))[
-      #text(font: font-mono, size: 11pt, weight: 600, fill: c.emerald-bright)[● ]#text(font: font-mono, size: 11pt, weight: 600, fill: white)[v 1.11.5]
-    ]
-    #v(7mm)
-    #text(font: font-display, size: 15pt, style: "italic", fill: rgb("#9aa7b5"))[On Air. #text(weight: 700, fill: c.emerald-bright)[In Control.]]
-  ]
-  #v(1fr)
-  #align(center)[
-    #box(width: 62%, line(length: 100%, stroke: .6pt + c.ink-soft))
-    #v(6mm)
-    #text(font: font-display, size: 12pt, weight: 700, tracking: 6pt, fill: c.cyan-bright)[#upper(T.manual-title)]
-    #v(3.5mm)
-    #text(font: font-display, size: 12pt, weight: 500, fill: white)[#T.edition-name · #T.version-word 1.11.5 · #T.language-name]
-    #v(6mm)
-    #text(font: font-display, size: 9pt, weight: 600, tracking: 3pt, fill: rgb("#5b6675"))[ECOSYSTEM.RUNTIME · SIMONE PIZZI · 2026]
-  ]
-  #v(10mm)
-  #_waveform()
-  #v(6mm)
+  #image("../assets/copertina-" + LANG + ".png", width: 100%, height: 100%)
 ]
 
 // =============================================================================

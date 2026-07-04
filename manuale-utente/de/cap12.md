@@ -1,4 +1,4 @@
-# Kapitel 12 — Aktualisierungen
+# Kapitel 12 – Aktualisierungen
 
 ---
 
@@ -10,9 +10,9 @@ Runtime Live Machine Pro aktualisiert sich selbst, aber niemals zu Ihrem Nachtei
 
 Kurz nach dem Start (etwa drei Sekunden) prüft RLMP still, ob eine neuere Version existiert. Das Ergebnis erscheint im Begrüßungsbildschirm, neben der Versionsnummer:
 
-- **„Neueste Version“** (grün) — Sie verwenden die aktuellste Version.
-- **„Update verfügbar“** (Bernstein) — eine neuere Version ist verfügbar. Es ist eine Schaltfläche: Klicken Sie darauf, um das Update-Fenster zu öffnen.
-- **„OFFLINE“** — der Dienst konnte nicht erreicht werden; versuchen Sie es später erneut. Die Software funktioniert normal.
+- **„Neueste Version“** (grün) – Sie verwenden die aktuellste Version.
+- **„Update verfügbar“** (Bernstein) – eine neuere Version ist verfügbar. Es ist eine Schaltfläche: Klicken Sie darauf, um das Update-Fenster zu öffnen.
+- **„OFFLINE“** – der Dienst konnte nicht erreicht werden; versuchen Sie es später erneut. Die Software funktioniert normal.
 
 Die Prüfung ist optional und nicht blockierend: Wenn Sie offline sind, startet und arbeitet RLMP ohne Probleme.
 
@@ -22,9 +22,9 @@ Die Prüfung ist optional und nicht blockierend: Wenn Sie offline sind, startet 
 
 Wenn ein Update verfügbar ist, zeigt das dedizierte Fenster die aktuelle Version, die neue Version und die Release Notes. Von hier aus entscheiden Sie:
 
-- **Später** — schließt das Fenster, ohne etwas zu tun. Sie können es jederzeit wieder öffnen.
-- **Herunterladen** — startet den Download der neuen Version. Der Download **startet nie von selbst**: Er beginnt erst, wenn Sie diese Schaltfläche drücken. Ein Fortschrittsbalken zeigt den Verlauf.
-- **Neu starten und installieren** — erscheint, wenn der Download abgeschlossen ist: startet die Anwendung neu und wendet das Update an.
+- **Später** – schließt das Fenster, ohne etwas zu tun. Sie können es jederzeit wieder öffnen.
+- **Herunterladen** – startet den Download der neuen Version. Der Download **startet nie von selbst**: Er beginnt erst, wenn Sie diese Schaltfläche drücken. Ein Fortschrittsbalken zeigt den Verlauf.
+- **Neu starten und installieren** – erscheint, wenn der Download abgeschlossen ist: startet die Anwendung neu und wendet das Update an.
 
 ---
 

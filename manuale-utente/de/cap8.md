@@ -1,4 +1,4 @@
-# Kapitel 8 — Hardware, Tastatur und MIDI
+# Kapitel 8 – Hardware, Tastatur und MIDI
 
 ---
 
@@ -40,7 +40,7 @@ Die Computertastatur ist der schnellste in der Sendung verfügbare Controller: S
 
 | Taste | Aktion |
 |---|---|
-| **Esc** | STOP ALL — stoppt alle aktiven Clips |
+| **Esc** | STOP ALL – stoppt alle aktiven Clips |
 | **Entf / Backspace** | Löscht die ausgewählten Clips |
 | **Ctrl+Z** | Macht die letzte Änderung der Playlist rückgängig |
 | **Ctrl+Y** (oder **Ctrl+Shift+Z**) | Wiederholt die rückgängig gemachte Änderung |
@@ -91,9 +91,9 @@ Deaktivieren Sie zum Abschluss MIDI Learn, um in den Betriebsmodus zurückzukehr
 
 ### Unterstützte Nachrichtentypen
 
-**Note On** — Nachrichten von Tasten, Pads und Klaviaturtasten. Ideal für den Start der Clips und der globalen Aktionen; RLMP reagiert auf den Tastendruck und erkennt alle MIDI-Kanäle. Note-Off-Nachrichten werden ignoriert.
+**Note On** – Nachrichten von Tasten, Pads und Klaviaturtasten. Ideal für den Start der Clips und der globalen Aktionen; RLMP reagiert auf den Tastendruck und erkennt alle MIDI-Kanäle. Note-Off-Nachrichten werden ignoriert.
 
-**Control Change (CC)** — Nachrichten von Fadern und Potentiometern, mit stufenlosem Wert von 0 bis 127. Ideal für die Master-Lautstärke: Ein auf den Master gelegter physischer Fader bietet die natürlichste Kontrolle über den Ausgangspegel.
+**Control Change (CC)** – Nachrichten von Fadern und Potentiometern, mit stufenlosem Wert von 0 bis 127. Ideal für die Master-Lautstärke: Ein auf den Master gelegter physischer Fader bietet die natürlichste Kontrolle über den Ausgangspegel.
 
 ### Portabilität der Zuordnungen
 

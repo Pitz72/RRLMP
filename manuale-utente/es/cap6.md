@@ -24,7 +24,6 @@ Las bajan las Voces y las silencian las Canciones. Cuando un asset es un **Stacc
 **Efectos del pad FX.**
 Los efectos de sonido quedan fuera de la jerarquía: suenan a su propio volumen, se superponen a lo que está en antena y no se silencian. Hay una sola cortesía hacia el habla: cuando una voz está activa, los efectos bajan a medio volumen (50 %) para no taparla y luego suben solos.
 
-
 ---
 
 ## 6.2 Ducking automático

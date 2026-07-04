@@ -1,8 +1,8 @@
-# Kapitel 3 — Die Arbeitsoberfläche
+# Kapitel 3 – Die Arbeitsoberfläche
 
 ---
 
-Die Oberfläche von Runtime Live Machine Pro ist für den anspruchsvollsten Betriebskontext gebaut: die Live-Sendung. Jede visuelle Entscheidung — das dunkle Thema, der hohe Kontrast, die Größe der Bedienelemente — erfüllt eine funktionale Anforderung. Es ist keine Ästhetik um der Ästhetik willen, sondern Ergonomie.
+Die Oberfläche von Runtime Live Machine Pro ist für den anspruchsvollsten Betriebskontext gebaut: die Live-Sendung. Jede visuelle Entscheidung – das dunkle Thema, der hohe Kontrast, die Größe der Bedienelemente – erfüllt eine funktionale Anforderung. Es ist keine Ästhetik um der Ästhetik willen, sondern Ergonomie.
 
 Wenn Sie ein Projekt öffnen, teilt sich der Bildschirm in zwei klar getrennte Zonen: die **Steuerleiste** oben, die Projekt und System verwaltet, und das zentrale **Regie-Raster**, in dem die eigentliche Arbeit stattfindet.
 
@@ -14,18 +14,18 @@ Der Header nimmt die gesamte Bildschirmbreite ein. Von links nach rechts vereint
 
 ### Identität
 
-**Logo und PRO-Badge.** Links steht das Logo neben dem Schriftzug **RLM PRO** — das Wort „PRO“ ist mit einem schillernden Farbverlauf umgesetzt, der von Cyan über Grün und Bernstein zu Rot wechselt. Daneben steht in Monospace-Schrift die installierte Version (`v1.11.5`). Wenn Sie mit der Maus über das Logo fahren, erscheint der vollständige Name der Software mit der Versionsnummer.
+**Logo und PRO-Badge.** Links steht das Logo neben dem Schriftzug **RLM PRO** – das Wort „PRO“ ist mit einem schillernden Farbverlauf umgesetzt, der von Cyan über Grün und Bernstein zu Rot wechselt. Daneben steht in Monospace-Schrift die installierte Version (`v1.11.5`). Wenn Sie mit der Maus über das Logo fahren, erscheint der vollständige Name der Software mit der Versionsnummer.
 
 ### Menü Datei
 
 Die Schaltfläche **FILE** öffnet ein Menü mit den Projekt-Operationen:
 
-- *Neues Projekt* — öffnet eine leere Session. Gibt es ungespeicherte Änderungen, fragt die Software nach.
-- *Projekt speichern* — schnelles Speichern in die aktuelle `.lmp`-Datei. Der Eintrag hebt sich gelb hervor, wenn es ungespeicherte Änderungen gibt.
-- *Speichern unter…* — öffnet stets den Dialog, um fortlaufende Versionen zu erstellen (z. B. `Ep47_entwurf.lmp`, `Ep47_final.lmp`).
-- *Projekt laden* — öffnet ein `.lmp`-Projekt von der Festplatte.
-- *M3U importieren* — importiert eine Playlist im M3U-Format als Clip-Sequenz.
-- *Eigenständiges Archiv exportieren* — erstellt eine in sich geschlossene Kopie des Projekts, samt Audiodateien. Beschrieben in Kapitel 10.
+- *Neues Projekt* – öffnet eine leere Session. Gibt es ungespeicherte Änderungen, fragt die Software nach.
+- *Projekt speichern* – schnelles Speichern in die aktuelle `.lmp`-Datei. Der Eintrag hebt sich gelb hervor, wenn es ungespeicherte Änderungen gibt.
+- *Speichern unter…* – öffnet stets den Dialog, um fortlaufende Versionen zu erstellen (z. B. `Ep47_entwurf.lmp`, `Ep47_final.lmp`).
+- *Projekt laden* – öffnet ein `.lmp`-Projekt von der Festplatte.
+- *M3U importieren* – importiert eine Playlist im M3U-Format als Clip-Sequenz.
+- *Eigenständiges Archiv exportieren* – erstellt eine in sich geschlossene Kopie des Projekts, samt Audiodateien. Beschrieben in Kapitel 10.
 
 ### Monitoring und Transport
 
@@ -33,7 +33,7 @@ Die Schaltfläche **FILE** öffnet ein Menü mit den Projekt-Operationen:
 
 **Master-Lautstärke.** Der Fader steuert die Gesamt-Ausgangslautstärke der Software, von 0 bis 100 %. Er wirkt wie ein Master-Fader: auf null gestellt, kommt kein Ton heraus, unabhängig vom Zustand der einzelnen Clips. Wenn Sie ein MIDI-Steuerelement auf die Master-Lautstärke gelegt haben, zeigt ein kleines Badge die Zuordnung an.
 
-**STOP ALL (rote Schaltfläche „ALL“).** Stoppt sofort alle aktiven Clips und setzt laufende Fades zurück. Es ist der Notfallbefehl des Systems. Die Taste `Esc` auf der Tastatur führt dieselbe Funktion aus, wenn die Anwendung im Fokus ist — auch während Sie in ein Textfeld schreiben.
+**STOP ALL (rote Schaltfläche „ALL“).** Stoppt sofort alle aktiven Clips und setzt laufende Fades zurück. Es ist der Notfallbefehl des Systems. Die Taste `Esc` auf der Tastatur führt dieselbe Funktion aus, wenn die Anwendung im Fokus ist – auch während Sie in ein Textfeld schreiben.
 
 > **Hinweis.** Anders als in früheren Versionen ist `Esc` nicht mehr als systemweites Kürzel registriert: Es wirkt, wenn RLMP das aktive Fenster ist. Diese Entscheidung erlaubt es Dialogfenstern, `Esc` zum Schließen zu nutzen, ohne die Sendung zu stoppen.
 
@@ -45,17 +45,17 @@ Die Schaltfläche **FILE** öffnet ein Menü mit den Projekt-Operationen:
 
 Das Menü **Werkzeuge** (Schraubenschlüssel-Symbol) vereint:
 
-- *Rückgängig* und *Wiederholen* — die Änderungshistorie der Playlist (`Ctrl+Z` / `Ctrl+Y`).
-- *MIDI Learn* — aktiviert den MIDI-Lernmodus (Kapitel 8).
-- *Tastenbelegung* — das Fenster zur Zuweisung von Tasten an Clips.
-- *Einstellungen* — die globalen Voreinstellungen der Software (Kapitel 13).
-- *Info* — Version, Credits und manuelle Update-Prüfung.
+- *Rückgängig* und *Wiederholen* – die Änderungshistorie der Playlist (`Ctrl+Z` / `Ctrl+Y`).
+- *MIDI Learn* – aktiviert den MIDI-Lernmodus (Kapitel 8).
+- *Tastenbelegung* – das Fenster zur Zuweisung von Tasten an Clips.
+- *Einstellungen* – die globalen Voreinstellungen der Software (Kapitel 13).
+- *Info* – Version, Credits und manuelle Update-Prüfung.
 
 Kurz unter dem Menü erscheint für einen Moment die Anzeige *Auto-saved* als Bestätigung, dass das Projekt automatisch gespeichert wurde.
 
 ![Die Steuerleiste mit geöffnetem Menü Werkzeuge.](../screenshots-de/barra-controllo.png)
 
-*Abbildung 3.1 — Die Steuerleiste und das geöffnete Menü Werkzeuge (Rückgängig/Wiederholen, MIDI Learn, Tastenbelegung, Allgemeine Einstellungen, Info).*
+*Abbildung 3.1 – Die Steuerleiste und das geöffnete Menü Werkzeuge (Rückgängig/Wiederholen, MIDI Learn, Tastenbelegung, Allgemeine Einstellungen, Info).*
 
 ### Session-Anzeigen
 
@@ -69,7 +69,7 @@ Im Bereich des Headers können außerdem unaufdringliche Benachrichtigungen (**T
 
 ![Das Regie-Raster mit sechs Spalten, Beispiel-Clips und den zugehörigen Status-Badges.](../screenshots-de/interfaccia-principale.png)
 
-*Abbildung 3.2 — Die Arbeitsoberfläche: das Raster mit sechs Spalten und den Audio-Karten.*
+*Abbildung 3.2 – Die Arbeitsoberfläche: das Raster mit sechs Spalten und den Audio-Karten.*
 
 Das Raster ist das Betriebszentrum der Software: sechs nebeneinanderliegende senkrechte Spalten, jede mit einer eigenen farbigen Kopfzeile und einer eigenen Logik des Audio-Verhaltens. Die Soundeffekte haben keine Spalte im Raster: Sie leben im pad FX (Kapitel 7).
 
@@ -112,14 +112,14 @@ Jede importierte Audiodatei materialisiert sich im Raster als rechteckige **Kart
 
 **Status-Badges.** Kleine Etiketten teilen sofort die konfigurierten Eigenschaften mit:
 
-- **STACCO** — der Clip ist so eingestellt, dass er sich über die anderen legt, ohne sie zu stoppen.
-- **LOOP** — der Clip startet am Ende der Wiedergabe wieder von vorn.
-- **NEXT** — am Ende dieses Clips startet automatisch der nächste in der Spalte.
-- **▶ UP NEXT** — hebt hervor, welcher Clip als nächster in der automatischen Sequenz startet.
-- **### BPM** — das erkannte Tempo, auf Musik-Clips.
-- **TRIM…** — laufende Stilleanalyse (Auto-Trim).
-- **FADE OUT** — erscheint auf dem ausgehenden Clip während eines crossfade oder einer Blende.
-- **📋** — der Clip hat eine Notiz in der NoteBoard (Kapitel 13).
+- **STACCO** – der Clip ist so eingestellt, dass er sich über die anderen legt, ohne sie zu stoppen.
+- **LOOP** – der Clip startet am Ende der Wiedergabe wieder von vorn.
+- **NEXT** – am Ende dieses Clips startet automatisch der nächste in der Spalte.
+- **▶ UP NEXT** – hebt hervor, welcher Clip als nächster in der automatischen Sequenz startet.
+- **### BPM** – das erkannte Tempo, auf Musik-Clips.
+- **TRIM…** – laufende Stilleanalyse (Auto-Trim).
+- **FADE OUT** – erscheint auf dem ausgehenden Clip während eines crossfade oder einer Blende.
+- **📋** – der Clip hat eine Notiz in der NoteBoard (Kapitel 13).
 
 **Zuweisungen.** Hat der Clip eine Tastaturtaste zugewiesen, erscheint der Buchstabe in einem Badge in der Farbe der Spalte; hat er ein MIDI-Binding, erscheint das Etikett `M` gefolgt von der Notennummer (z. B. `M60`).
 
@@ -129,11 +129,11 @@ Jede importierte Audiodatei materialisiert sich im Raster als rechteckige **Kart
 
 ### Interaktion mit den Karten
 
-- **Linksklick** — startet den Clip, wenn er steht; stoppt ihn (mit Fade Out), wenn er läuft.
-- **Ctrl + Klick** (Windows/Linux) oder **Cmd + Klick** (macOS) — wählt den Clip aus, ohne ihn zu starten. Der Rahmen wird blau. Nützlich für die Mehrfachauswahl und das Löschen im Block.
-- **Taste Entf** (oder *Delete* / *Backspace*) — löscht die ausgewählten Clips aus dem Raster. Sind mehrere Clips ausgewählt, fragt die Software nach.
-- **Rechtsklick** — öffnet die **Clip-Einstellungen**: Eigenschaften, Waveform-Editor, Notizen (Kapitel 5).
-- **Drag & Drop** — ziehen Sie eine Karte, um sie innerhalb der Spalte umzusortieren oder in eine andere zu verschieben. Ein leuchtender blauer Indikator zeigt während des Ziehens die Einfügeposition.
+- **Linksklick** – startet den Clip, wenn er steht; stoppt ihn (mit Fade Out), wenn er läuft.
+- **Ctrl + Klick** (Windows/Linux) oder **Cmd + Klick** (macOS) – wählt den Clip aus, ohne ihn zu starten. Der Rahmen wird blau. Nützlich für die Mehrfachauswahl und das Löschen im Block.
+- **Taste Entf** (oder *Delete* / *Backspace*) – löscht die ausgewählten Clips aus dem Raster. Sind mehrere Clips ausgewählt, fragt die Software nach.
+- **Rechtsklick** – öffnet die **Clip-Einstellungen**: Eigenschaften, Waveform-Editor, Notizen (Kapitel 5).
+- **Drag & Drop** – ziehen Sie eine Karte, um sie innerhalb der Spalte umzusortieren oder in eine andere zu verschieben. Ein leuchtender blauer Indikator zeigt während des Ziehens die Einfügeposition.
 
 ### Karten im Fehlerzustand
 
