@@ -29,11 +29,12 @@ export const UpdateModal: React.FC<Props> = ({ isOpen, status, currentVersion, o
 
     const version = status.type === 'available' || status.type === 'ready' ? status.version : undefined;
     const canAutoInstall = status.type === 'available' || status.type === 'ready' ? status.canAutoInstall : false;
-    const releaseNotes = status.type === 'available' ? status.releaseNotes : undefined;
+    // v1.15.10: mostra le note anche a download completato ('ready'), non solo in 'available'.
+    const releaseNotes = status.type === 'available' || status.type === 'ready' ? status.releaseNotes : undefined;
 
     return (
         <div className="ov" style={{ zIndex: 200 }}>
-            <div className="ov-panel anim-in w-full max-w-md">
+            <div className="ov-panel anim-in w-full max-w-2xl">
 
                 {/* HEADER */}
                 <div className="bg-gradient-to-r from-emerald-900/60 to-zinc-800 px-5 py-4 border-b border-emerald-500/20 flex items-center justify-between">
@@ -70,7 +71,7 @@ export const UpdateModal: React.FC<Props> = ({ isOpen, status, currentVersion, o
                     )}
 
                     {releaseNotes && (
-                        <div className="card !p-3 max-h-32 overflow-y-auto release-notes-html text-[11px] text-zinc-400 leading-relaxed">
+                        <div className="card !p-4 max-h-80 overflow-y-auto release-notes-html text-xs text-zinc-300 leading-relaxed">
                             {/* 2026-07-04: releaseNotes arriva già come HTML (feed Atom di electron-updater
                                 su Windows/Linux, `body_html` di GitHub sul fallback macOS/.deb) — va
                                 renderizzato, non mostrato come testo. Contenuto fidato: proviene solo dal

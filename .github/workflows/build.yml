@@ -135,6 +135,23 @@ jobs:
           name: macos-artifacts
           path: artifacts/macos
 
+      # v1.15.10: le note di rilascio = changelog della versione (docs/changelogs/current/<ver>.md)
+      # + tabella download. Così il popup di aggiornamento in-app mostra le novità reali,
+      # non solo la tabella generica dei file.
+      - name: Prepare release notes
+        run: |
+          NUM="$(node -p "require('./package.json').version")"
+          CHANGELOG="docs/changelogs/current/${NUM}.md"
+          : > RELEASE_NOTES.md
+          if [ -f "$CHANGELOG" ]; then
+            cat "$CHANGELOG" >> RELEASE_NOTES.md
+            printf '\n\n---\n\n' >> RELEASE_NOTES.md
+          fi
+          printf '### Download\n\n' >> RELEASE_NOTES.md
+          printf '%s\n' '| Piattaforma | File |' '|----------|------|' '| **Windows** | `*.exe` |' '| **macOS** | `*.dmg` |' '| **Linux (AppImage)** | `*.AppImage` |' '| **Linux (deb)** | `*.deb` |' '' >> RELEASE_NOTES.md
+          printf '%s\n' '> macOS: build non firmata — al primo avvio tasto destro -> Apri per bypassare Gatekeeper.' '> Aggiornamento automatico su Windows e Linux (AppImage); su macOS e Linux (deb) si apre questa pagina.' >> RELEASE_NOTES.md
+          echo '----- RELEASE_NOTES.md -----'; cat RELEASE_NOTES.md
+
       - name: Publish release to RRLMP-Releases
         uses: softprops/action-gh-release@v2
         with:
@@ -142,22 +159,7 @@ jobs:
           token: ${{ secrets.RELEASE_TOKEN }}
           tag_name: ${{ steps.version.outputs.tag }}
           name: "Runtime Live Machine Pro ${{ steps.version.outputs.tag }}"
-          body: |
-            ## Runtime Live Machine Pro ${{ steps.version.outputs.tag }}
-
-            Scarica l'installer per la tua piattaforma:
-
-            | Piattaforma | File |
-            |----------|------|
-            | **Windows** | `*.exe` |
-            | **macOS** | `*.dmg` |
-            | **Linux (AppImage)** | `*.AppImage` |
-            | **Linux (deb)** | `*.deb` |
-
-            > macOS: build non firmata (nessun certificato Apple Developer) — al primo
-            > avvio va aperta con tasto destro → Apri per bypassare Gatekeeper.
-            > L'app si aggiorna automaticamente su Windows e Linux (AppImage); su macOS
-            > e Linux (deb) l'app segnala il nuovo aggiornamento e apre questa pagina.
+          body_path: RELEASE_NOTES.md
           files: |
             artifacts/linux/**/*.AppImage
             artifacts/linux/**/*.deb

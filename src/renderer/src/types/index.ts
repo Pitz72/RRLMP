@@ -35,7 +35,7 @@ export type UpdaterStatusPayload =
     | { type: 'not-available' }
     | { type: 'available'; version: string; canAutoInstall: boolean; downloadUrl?: string; releaseNotes?: string }
     | { type: 'downloading'; percent: number }
-    | { type: 'ready'; version: string; canAutoInstall: boolean }
+    | { type: 'ready'; version: string; canAutoInstall: boolean; releaseNotes?: string }
     | { type: 'error'; message: string };
 
 declare global {

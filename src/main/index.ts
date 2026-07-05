@@ -958,7 +958,18 @@ ipcMain.handle('download-update', async () => {
 
 ipcMain.handle('quit-and-install', () => {
     quittingForUpdate = true;
+    // Prima lancia l'installer (electron-updater lo spawna in modo sincrono e
+    // programma un app.quit() differito).
     quitAndInstall();
+    // v1.15.10 — FIX il vero motivo per cui l'app restava aperta dietro l'installer:
+    // il flag 'quittingForUpdate' (v1.15.8) salta solo l'handshake dell'handler 'close',
+    // ma il renderer ha ANCHE un listener 'beforeunload' (protezione modifiche non
+    // salvate, GlobalControls.tsx) che con e.returnValue ANNULLA la chiusura durante
+    // app.quit(). destroy() chiude le finestre senza passare da 'close'/'beforeunload',
+    // quindi l'uscita non può più essere annullata: l'app si chiude e l'installer parte.
+    for (const w of BrowserWindow.getAllWindows()) {
+        if (!w.isDestroyed()) w.destroy();
+    }
     return { success: true };
 });
 

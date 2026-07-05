@@ -27,11 +27,15 @@ export type UpdaterStatusPayload =
     | { type: 'not-available' }
     | { type: 'available'; version: string; canAutoInstall: boolean; downloadUrl?: string; releaseNotes?: string }
     | { type: 'downloading'; percent: number }
-    | { type: 'ready'; version: string; canAutoInstall: boolean }
+    | { type: 'ready'; version: string; canAutoInstall: boolean; releaseNotes?: string }
     | { type: 'error'; message: string };
 
 let windowGetter: (() => BrowserWindow | null) | null = null;
 let lastAvailable: { canAutoInstall: boolean; downloadUrl?: string } | null = null;
+// v1.15.10: le note di rilascio arrivano con 'update-available', ma il popup può
+// restare aperto fino a 'ready' (download completato) — memorizziamole per poterle
+// rimostrare anche nello stato 'ready', dove info.releaseNotes può essere assente.
+let lastReleaseNotes = '';
 let nativeEventsWired = false;
 
 // Stessa policy di isSafeExternalUrl in index.ts (SEC audit 2026-05-29): solo
@@ -92,11 +96,12 @@ function wireNativeEventsOnce(): void {
 
     autoUpdater.on('checking-for-update', () => emit({ type: 'checking' }));
     autoUpdater.on('update-available', (info) => {
+        lastReleaseNotes = typeof info.releaseNotes === 'string' ? info.releaseNotes : '';
         emit({
             type: 'available',
             version: info.version,
             canAutoInstall: true,
-            releaseNotes: typeof info.releaseNotes === 'string' ? info.releaseNotes : ''
+            releaseNotes: lastReleaseNotes
         });
     });
     autoUpdater.on('update-not-available', () => emit({ type: 'not-available' }));
@@ -104,7 +109,8 @@ function wireNativeEventsOnce(): void {
         emit({ type: 'downloading', percent: Math.round(progress.percent) });
     });
     autoUpdater.on('update-downloaded', (info) => {
-        emit({ type: 'ready', version: info.version, canAutoInstall: true });
+        const notes = typeof info.releaseNotes === 'string' && info.releaseNotes ? info.releaseNotes : lastReleaseNotes;
+        emit({ type: 'ready', version: info.version, canAutoInstall: true, releaseNotes: notes });
     });
     autoUpdater.on('error', (err) => {
         logger.error('[UpdateManager] electron-updater error:', err);
