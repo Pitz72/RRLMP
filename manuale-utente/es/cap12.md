@@ -20,11 +20,11 @@ Esta comprobación es opcional y no bloquea nada: si estás offline, RLMP arranc
 
 ## 12.2 La ventana de actualización
 
-Cuando hay una actualización disponible, se abre una ventana dedicada con la versión actual, la nueva versión y las notas de la versión. A partir de ahí, la decisión es tuya:
+Cuando hay una actualización disponible, la ventana dedicada muestra la versión actual, la nueva versión y las **notas de la versión**: la lista real de novedades de esa versión (el mismo changelog de este software), formateada y legible, no un simple listado de archivos. Las notas siguen visibles incluso cuando la descarga ha terminado, justo antes de instalar, de modo que siempre sabes qué estás a punto de aplicar. A partir de ahí, la decisión es tuya:
 
 - **Más tarde**: cierra la ventana sin hacer nada. Podrás volver a abrirla cuando quieras.
 - **Descargar**: inicia la descarga de la nueva versión. La descarga **nunca arranca sola**, solo empieza cuando pulsas este botón, y una barra de avance muestra el progreso.
-- **Reiniciar e instalar**: aparece cuando la descarga ha terminado y reinicia la aplicación aplicando la actualización.
+- **Reiniciar e instalar**: aparece cuando la descarga ha terminado: cierra la aplicación y aplica la actualización. El cierre es limpio e inmediato: como ya has confirmado el reinicio, el software no vuelve a pedir que guardes ni se queda abierto por detrás del instalador.
 
 ---
 

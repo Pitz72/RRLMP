@@ -51,7 +51,7 @@ Der rote Rahmen zeigt an, dass die Audiodatei unter dem im Projekt gespeicherten
 1. **Festplatte wieder anschließen.** Lag die Datei auf einem externen Laufwerk, verbinden Sie es erneut.
 2. **Datei an die ursprüngliche Position zurückbringen.** Wurde sie verschoben, legen Sie sie wieder an den ursprünglichen Pfad.
 3. **Clip ersetzen.** Ziehen Sie die richtige Datei erneut ins Raster und löschen Sie die rote Karte.
-4. **Künftig Eigenständiges Archiv exportieren nutzen.** Am wirksamsten beugen Sie vor, indem Sie ein Archiv erstellen, bevor Sie das Projekt verschieben oder übertragen (Kapitel 10).
+4. **Künftig Projekt mit Audio exportieren nutzen.** Am wirksamsten beugen Sie vor, indem Sie das Audio ins Projekt konsolidieren, bevor Sie das Projekt verschieben oder übertragen (Kapitel 10).
 
 ---
 
@@ -97,7 +97,7 @@ Nein. RLMP ist für die Live-Regie ausgelegt – für Shows, die ein Operator be
 **Kann ich RLMP auf einem iPad oder auf Mobilgeräten nutzen?**
 Nicht als Hauptanwendung – RLMP ist Desktop-Software für Windows, macOS und Linux. Ein Tablet oder Smartphone kann aber über den Browser als **Fernbedienung** dienen, mittels Controllo Remoto (Kapitel 11).
 
-**Sind die `.lmp`-Dateien früherer Versionen mit 1.11.5 kompatibel?**
+**Sind die `.lmp`-Dateien früherer Versionen mit 1.15.10 kompatibel?**
 Ja. Öffnen Sie ein mit einer früheren Version erstelltes Projekt, aktualisiert RLMP dessen Struktur automatisch – einschließlich zwischenzeitlich hinzugefügter Spalten –, ohne die Datei zu verändern, solange Sie nicht selbst speichern.
 
 **Wie aktualisiere ich RLMP auf eine neue Version?**

@@ -27,7 +27,7 @@ Runtime Live Machine Pro 的安装尽量不折腾人：点几下鼠标，不需�
 
 ## 2.2 在 Windows 上安装
 
-1. 从官方分发渠道下载文件 `Runtime-Live-Machine-Pro-1.11.5.exe`。
+1. 从官方分发渠道下载文件 `Runtime-Live-Machine-Pro-1.15.10.exe`。
 2. 双击该可执行文件。NSIS 安装程序会启动，并将文件复制到相应目录。
 3. 完成后，会在桌面和开始菜单中创建快捷方式。
 4. 安装完成时，应用会自动启动。

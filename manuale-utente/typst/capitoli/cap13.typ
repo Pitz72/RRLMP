@@ -1,105 +1,143 @@
 #import "../lib/manuale-template.typ": *
 
-= 高级功能
-<第-13-章-高级功能>
+= Fonctions avancées
+<chapitre-13-fonctions-avancées>
 
-本章汇集一批不属于基础工作流、但一旦用上就会稳稳融入日常制作的功能：NoteBoard、列的配色管理、转场、常规设置、触发记录、更改历史。
+Ce chapitre rassemble des fonctionnalités qui ne relèvent pas du flux de
+travail de base, mais qui, une fois découvertes, s'installent
+durablement dans les habitudes de ceux qui produisent leurs émissions
+avec soin~: la NoteBoard, la gestion des couleurs de colonnes, les
+transitions, les paramètres généraux, le registre des lancements et
+l'historique des modifications.
 
-== 13.1 NoteBoard：导播中的脚本
-<noteboard导播中的脚本>
-#strong[NoteBoard]
-是绑在片段上的备注系统。可以把一段文字（操作指示、播出单、访谈笔记、一条广告的完整文案）关联到任意片段，片段一进入播放，文字自动出现在屏幕上。
+== 13.1 NoteBoard~: le conducteur en régie
+<noteboard-le-conducteur-en-régie>
+La #strong[NoteBoard] est le système de notes intégrées aux clips. Elle
+permet d'associer à n'importe quel clip un texte, instructions
+opérationnelles, conduite, notes sur une interview ou texte complet d'un
+spot, et de le faire apparaître automatiquement à l'écran dès que ce
+clip entre en lecture.
 
-=== 插入一条备注
-<插入一条备注>
-+ 打开片段设置（卡片上右键），进 #emph[备注] 部分。
-+ 在自由文本框里写字，没有长度限制。
+=== Saisir une note
++ Ouvrez les paramètres du clip (clic droit sur la carte) et allez à la
+  section #emph[Notes].
++ Écrivez le texte dans le champ libre. Il n'y a pas de limite de
+  longueur.
 
-带备注的片段会在卡片上显示 📋 徽标。
+Les clips ayant une note affichent le badge 📋 sur la carte.
 
-=== 直播中的面板
-<直播中的面板>
-带备注的片段进入播放时，#strong[NoteBoard
-面板]会出现在屏幕下部，显示关联文字，用片段的名称和颜色作抬头。面板在整个播放期间保持可见，片段结束时自行关闭。若多个带备注的片段同时响，面板显示优先级最高的那一个。
+=== Le panneau en direct
+Dès qu'un clip muni d'une note entre en lecture, le #strong[panneau
+NoteBoard] apparaît en bas de l'écran, avec le texte associé sous le nom
+et la couleur du clip. Il reste affiché pendant toute la lecture et se
+referme tout seul quand le clip se termine. Si plusieurs clips notés
+jouent en même temps, le panneau montre celui de priorité la plus haute.
 
-=== 用例
-<用例>
-- #strong[口播导播。]
-  每个片头关联随后口播段落的头几行，片头一响，文字已经在眼前。
-- #strong[待读内容。] 一条广告把完整文案放进备注，一开始播就能照读。
-- #strong[操作指示。]「调低监听」「检查嘉宾耳机电平」「开始录制」。
-- #strong[访谈。] 给嘉宾准备的问题在整个片段期间保持可见。
+=== Cas d'usage
+- #strong[Régie parlée.] Associez à chaque générique les premières
+  lignes du bloc parlé qui suit~: quand le générique part, le texte est
+  déjà sous les yeux.
+- #strong[Contenu à lire.] Un spot publicitaire avec le texte complet
+  dans la note~: dès qu'il part, on lit.
+- #strong[Instructions opérationnelles.] «~Baisser le retour~»,
+  «~Contrôler le niveau du casque invité~», «~Démarrer
+  l'enregistrement~».
+- #strong[Interviews.] Les questions pour l'invité restent visibles
+  pendant toute la durée du clip.
 
-== 13.2 列的配色自定义
-<列的配色自定义>
-默认颜色各有固定含义（Show Assets
-绿、本期歌曲红，等等），但每一列都能自定义。点击列标题的#strong[彩色圆点]，打开一个含
-#strong[30
-种颜色]的调色板，选一个，该列（标题、卡片、指示器）立即换上新颜色，选择会保存在项目文件里。
+== 13.2 Personnalisation des couleurs de colonne
+Les couleurs par défaut suivent une convention établie, vert pour les
+Assets, rouge pour les Musiques, et ainsi de suite, mais chaque colonne
+reste personnalisable. Un clic sur la #strong[pastille colorée] de
+l'en-tête de colonne ouvre une palette de #strong[30 couleurs]~: sitôt
+le choix fait, la colonne entière (en-tête, cartes, indicateurs) adopte
+la nouvelle teinte, enregistrée dans le fichier de projet.
 
-卡片动态继承列的颜色：静止时是减淡的色调，播放时是满色。每个项目都能因此有自己的配色身份。
+Les cartes héritent dynamiquement de la couleur de leur colonne~:
+atténuée au repos, pleine en lecture. Chaque projet peut ainsi
+développer sa propre identité chromatique.
 
-== 13.3 片段之间的转场
-<片段之间的转场>
-片段被设为 #emph[Play Next]
-时，向该列下一个片段的过渡按配置好的转场模式进行：
+== 13.3 Transitions entre clips
+Quand un clip est réglé sur #emph[Play Next], le passage au clip suivant
+de la colonne se fait selon le mode de transition configuré~:
 
-- #strong[Crossfade。]
-  退出的片段渐弱，进入的片段渐强，两者叠加。默认时长 2 秒。
-- #strong[Segue。] 退出的片段淡出，下一个立即以满音量开始。淡变默认时长
-  0.8 秒。
-- #strong[Gapless（硬切）。]
-  退出的片段骤然停止，下一个立即开始，没有淡变。
+- #strong[Crossfade.] Le clip sortant s'estompe pendant que l'entrant
+  monte, superposés. Durée par défaut~: 2 secondes.
+- #strong[Segue.] Le clip sortant s'estompe en sortie pendant que le
+  suivant démarre aussitôt à plein volume. Durée par défaut du fondu~:
+  0,8 seconde.
+- #strong[Gapless (coupe nette).] Le clip sortant s'arrête net et le
+  suivant démarre immédiatement, sans fondu.
 
-转场可以设在单个片段层级，也可以保留
-#strong[全局默认]，也就是设置里定义的总体选择。Pre-Show 列默认用
-crossfade。所有模式都能通过编辑器里的「Test
-→」按钮在不播出的情况下试听（第 5 章）。
+Vous pouvez régler la transition clip par clip, ou vous en remettre à
+#strong[Défaut global], qui applique le choix défini dans les
+Paramètres. La colonne Pré-émission utilise le crossfade par défaut.
+Tous les modes s'essaient sans passer à l'antenne, via le bouton «~Test
+→~» de l'éditeur (Chapitre 5).
 
-== 13.4 常规设置窗口
-<常规设置窗口>
-#strong[设置]（工具菜单）把软件的全局偏好按标签页组织在一起。
+== 13.4 La fenêtre Paramètres généraux
+<la-fenêtre-paramètres-généraux>
+Les #strong[Paramètres] (menu Outils) rassemblent les préférences
+globales du logiciel, organisées en onglets.
 
-=== 常规
-<常规>
-- #strong[语言。] 从八种可用语言中选界面语言，修改立即生效。
-- #strong[远程控制（Beta）。] 启用基于浏览器的遥控，显示
-  PIN、端口和地址（第 11 章）。
-- #strong[导播布局。]
-  单独显示或隐藏网格中的各列。隐藏一列不会删除其片段，它们仍留在项目里。这是全局偏好，对所有项目生效。
+=== Généraux
+<généraux>
+- #strong[Langue.] Sélectionnez la langue de l'interface parmi les huit
+  disponibles. La modification est immédiate.
+- #strong[Contrôle à distance (Bêta).] Active la télécommande via
+  navigateur et affiche PIN, port et adresses (Chapitre 11).
+- #strong[Disposition régie.] Affiche ou masque individuellement les
+  colonnes de la grille. Masquer une colonne n'en supprime pas les
+  clips~: ils restent dans le projet. C'est une préférence globale,
+  valable pour tous les projets.
 
 === Audio & Mix
-- #strong[输出设备。] 音频去向（第 8 章）。
-- #strong[智能混音。] ducking 的幅度（人声说话时音乐降多少，默认
-  20%）和快慢（默认 500 ms）。
-- #strong[转场。] 默认转场模式，以及 crossfade 与 segue 的时长。
+- #strong[Périphérique de sortie.] La destination audio (Chapitre 8).
+- #strong[Intelligence de mixage.] L'ampleur du ducking (de combien la
+  musique descend quand une voix parle, par défaut 20 %) et sa rapidité
+  (par défaut 500 ms).
+- #strong[Transitions.] Le mode de transition par défaut et les durées
+  de crossfade et de segue.
 
-=== 录制
-<录制>
-捕获点（limiter 之后）的概要，以及导出时预选的默认格式（第 9 章）。
+=== Enregistrement
+Récapitulatif du point de capture (après le limiter) et choix du format
+par défaut proposé à l'exportation (Chapitre 9).
 
-=== 主处理链（Master Chain）
-<主处理链master-chain>
-- #strong[音量归一化。] 启用/停用 loudness 归一化，设置目标（默认 −16
-  LUFS）。
-- #strong[Master Chain。] 启用或旁通整条链，调节各级：HPF
-  的频率、multiband glue 的风格、limiter
-  的阈值。有个按钮可以恢复默认值（第 6 章）。
+=== Master Chain
+- #strong[Homologation du volume.] Active/désactive la normalisation de
+  loudness et en définit la cible (par défaut −16 LUFS).
+- #strong[Master Chain.] Active ou bypasse toute la chaîne, et règle les
+  étages individuels~: fréquence de l'HPF, style du glue multibande,
+  seuil du limiter. Un bouton rétablit les valeurs par défaut (Chapitre
+  6).
 
 == 13.5 Playout Log
-#strong[Playout
-Log]（页眉里的图标）是触发的时间顺序记录，追踪什么在何时播出，保留最近数千条事件。事后重建播出单、核对播了什么、写一份直播报告，都用得上它。
+Le #strong[Playout Log] (icône dans l'en-tête) est le registre
+chronologique des lancements~: il garde la trace de ce qui est passé à
+l'antenne, et quand, sur les derniers milliers d'événements. Utile pour
+reconstituer une conduite a posteriori, vérifier ce qui a été diffusé,
+ou compiler un compte rendu du direct.
 
-== 13.6 撤销与重做
-<撤销与重做>
-对播出单的更改（添加、移动、删除）是可逆的。`Ctrl+Z`
-撤销上一次操作，`Ctrl+Y`（或
-`Ctrl+Shift+Z`）重做，历史深度达数十步，工具菜单里也能找到同样的项目。它是准备期间手忙脚乱时的安全网。
+== 13.6 Annuler et Répéter
+<annuler-et-répéter>
+Les modifications de la conduite, ajouts, déplacements, suppressions,
+sont réversibles. `Ctrl+Z` annule la dernière opération, `Ctrl+Y` (ou
+`Ctrl+Shift+Z`) la répète, avec un historique qui remonte sur plusieurs
+dizaines de pas. Ces mêmes commandes figurent aussi dans le menu
+Outils~: un vrai filet de sécurité pour les manipulations faites à la
+hâte pendant la préparation.
 
-== 13.7 Toast 通知系统
-<toast-通知系统>
-RLMP 不用阻断式窗口处理日常信息传达。非关键通知以 #strong[toast]
-形式出现：屏幕一角不打扰人的小横幅，停几秒后自行消失，不打断播放。用来确认一次保存、一次导出完成、一次
-MIDI Learn 操作，或提示文件缺失。
+== 13.7 Système de notifications toast
+<système-de-notifications-toast>
+RLMP se garde d'utiliser des fenêtres bloquantes pour les communications
+de routine. Les notifications non critiques prennent la forme de
+#strong[toasts]~: de petits bandeaux discrets, dans un coin de l'écran,
+qui restent quelques secondes puis disparaissent d'eux-mêmes sans
+interrompre la lecture. Ils confirment un enregistrement, signalent la
+fin d'une exportation, une opération de MIDI Learn, ou avertissent de
+fichiers manquants.
 
-#strong[确认窗口]只在动作不可逆时才出现（删除片段、关闭未保存的项目），是模态的，需要你回应，但设计上不会掐断正在进行的播放------你做决定的当口，音频照常继续。
+Les #strong[fenêtres de confirmation], elles, s'imposent quand une
+action est irréversible, suppression de clips, fermeture d'un projet non
+enregistré~: modales, elles exigent une réponse, mais sans jamais couper
+la lecture en cours. L'audio continue pendant que vous décidez.

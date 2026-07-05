@@ -14,7 +14,7 @@ Der Header nimmt die gesamte Bildschirmbreite ein. Von links nach rechts vereint
 
 ### Identität
 
-**Logo und PRO-Badge.** Links steht das Logo neben dem Schriftzug **RLM PRO** – das Wort „PRO“ ist in einem schillernden Farbverlauf gehalten, der von Cyan über Grün und Bernstein bis Rot reicht. Daneben zeigt eine Monospace-Schrift die installierte Version (`v1.11.5`). Fahren Sie mit der Maus über das Logo, erscheint der vollständige Name der Software samt Versionsnummer.
+**Logo und PRO-Badge.** Links steht das Logo neben dem Schriftzug **RLM PRO** – das Wort „PRO“ ist in einem schillernden Farbverlauf gehalten, der von Cyan über Grün und Bernstein bis Rot reicht. Daneben zeigt eine Monospace-Schrift die installierte Version (`v1.15.10`). Fahren Sie mit der Maus über das Logo, erscheint der vollständige Name der Software samt Versionsnummer.
 
 ### Menü Datei
 
@@ -23,9 +23,9 @@ Die Schaltfläche **FILE** öffnet ein Menü mit den Projektoperationen:
 - *Neues Projekt* – öffnet eine leere Session. Gibt es ungespeicherte Änderungen, fragt die Software vorher nach.
 - *Projekt speichern* – schnelles Speichern in die aktuelle `.lmp`-Datei. Gibt es ungespeicherte Änderungen, hebt sich der Eintrag gelb hervor.
 - *Speichern unter…* – öffnet stets den Dialog, praktisch für fortlaufende Versionen (z. B. `Ep47_entwurf.lmp`, `Ep47_final.lmp`).
+- *Projekt mit Audio exportieren* – konsolidiert das gesamte Audio innerhalb des Projekts (Unterordner `audio/`) und verweist die Clips dorthin, sodass Sie die Originale gefahrlos löschen können. Beschrieben in Kapitel 10.
 - *Projekt laden* – öffnet ein `.lmp`-Projekt von der Festplatte.
 - *M3U importieren* – importiert eine Playlist im M3U-Format als Clip-Sequenz.
-- *Eigenständiges Archiv exportieren* – erstellt eine in sich geschlossene Kopie des Projekts samt Audiodateien, beschrieben in Kapitel 10.
 
 ### Monitoring und Transport
 
@@ -79,6 +79,8 @@ Jede Kopfzeile nennt Name und Typ der Spalte und dient zugleich als Statusanzeig
 
 Die Farbe jeder Spalte lässt sich anpassen: Ein Klick auf den farbigen Punkt in der Kopfzeile öffnet eine Palette mit **30 Farbtönen**. Die Auswahl speichert die Software in der Projektdatei.
 
+Enthält eine Spalte mindestens einen Clip, erscheint in ihrer Kopfzeile ein **Papierkorb**-Symbol: Der Befehl **Spalte leeren** entfernt in einem Zug sämtliche Clips dieser Spalte. Zur Sicherheit fragt er stets nach und nennt dabei, wie viele Clips entfernt werden; der Vorgang lässt sich mit *Rückgängig* (`Ctrl+Z`) zurücknehmen. Auf leeren Spalten erscheint das Symbol nicht.
+
 Auf der Kopfzeile der Spalte **Pre-Show** sitzt zusätzlich eine **Rotations**-Schaltfläche: Ist sie aktiv, fügt die Warteschlange vor der Sendung automatisch Jingles und Promos in regelmäßigen Abständen ein (Kapitel 13).
 
 ### Die sechs Spalten
@@ -116,7 +118,8 @@ Jede importierte Audiodatei materialisiert sich im Raster als rechteckige **Kart
 - **LOOP** – der Clip startet am Ende der Wiedergabe wieder von vorn.
 - **NEXT** – am Ende dieses Clips startet automatisch der nächste in der Spalte.
 - **▶ UP NEXT** – hebt hervor, welcher Clip als nächster in der automatischen Sequenz startet.
-- **### BPM** – das erkannte Tempo, auf Musik-Clips.
+- **### BPM** – das erkannte Tempo, auf Musik-Clips, auf einem fluoreszierend gelben Badge mit hoher Sichtbarkeit.
+- **I ##s** – der Clip hat einen konfigurierten Intro-Punkt (Kapitel 5): Das Badge in Cyan nennt dessen Dauer in Sekunden und ist stets sichtbar, auch bei stehendem Clip.
 - **TRIM…** – laufende Stilleanalyse (Auto-Trim).
 - **FADE OUT** – erscheint auf dem ausgehenden Clip während eines crossfade oder einer Blende.
 - **📋** – der Clip hat eine Notiz in der NoteBoard (Kapitel 13).

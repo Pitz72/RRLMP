@@ -1,5 +1,5 @@
 # Runtime Live Machine Pro — Benutzerhandbuch
-## Inhaltsverzeichnis — Deutsche Ausgabe (v1.11.5, Zweite Auflage)
+## Inhaltsverzeichnis — Deutsche Ausgabe (v1.15.10, Zweite Auflage)
 
 ---
 
@@ -31,7 +31,7 @@ Audio-Routing: Geräteauswahl, USB-Mixer, Latenz. Tastaturbefehle mit globalen K
 Wie die Aufnahme startet, was dabei erfasst wird, das interne Format sowie der Export nach WAV, FLAC, MP3, OGG und WEBM mit den jeweiligen Qualitätsoptionen und praktischen Überlegungen.
 
 **Kapitel 10 — Projektverwaltung und Datensicherheit**
-Die Projektdatei `.lmp`, Schnellspeichern und Speichern unter, der Schutz beim Schließen sowie Auto-Backup, Autosave, Export Package und Integritätsprüfung.
+Die Projektdatei `.lmp`, Schnellspeichern und Speichern unter, der Schutz beim Schließen sowie Auto-Backup, Autosave, Projekt mit Audio exportieren und Integritätsprüfung.
 
 **Kapitel 11 — Controllo Remoto (Fernsteuerung)**
 Der lokale Server im Browser, Aktivierung und PIN, die Verbindung von Tablet oder Telefon aus, der Umfang der Fernsteuerung sowie ihre Sicherheitsgrenzen.

@@ -51,7 +51,7 @@ El borde rojo indica que el archivo de audio no está accesible en la ruta que e
 1. **Reconecta el disco.** Si el archivo estaba en una unidad externa, vuelve a conectarla.
 2. **Devuelve el archivo a su ubicación original.** Si lo has movido, colócalo de nuevo en la ruta original.
 3. **Sustituye el clip.** Arrastra el archivo correcto a la rejilla y borra la card roja.
-4. **A partir de ahora, usa Exportar archivo autónomo.** La prevención más eficaz consiste en crear un archivo autónomo antes de mover o transferir el proyecto (Capítulo 10).
+4. **A partir de ahora, usa Exportar proyecto con audio.** La prevención más eficaz consiste en consolidar el audio dentro del proyecto antes de mover o transferir la carpeta (Capítulo 10).
 
 ---
 
@@ -97,7 +97,7 @@ No. RLMP está pensado para la regia en directo, para shows atendidos por un ope
 **¿Puedo usar RLMP en iPad o en dispositivos móviles?**
 No como aplicación principal, porque RLMP es un software de escritorio para Windows, macOS y Linux. Una tablet o un teléfono sí pueden hacer de **mando a distancia** vía navegador, a través del Control Remoto (Capítulo 11).
 
-**¿Los archivos `.lmp` de versiones anteriores son compatibles con la 1.11.5?**
+**¿Los archivos `.lmp` de versiones anteriores son compatibles con la 1.15.10?**
 Sí. Cuando abres un proyecto creado con una versión anterior, RLMP actualiza automáticamente su estructura —incluidas las columnas que se hayan añadido mientras tanto— sin tocar el archivo hasta que tú mismo ejecutes un guardado.
 
 **¿Cómo actualizo RLMP a una nueva versión?**

@@ -39,7 +39,7 @@ Le moteur FFmpeg intégré garantit la compatibilité avec un large éventail de
 
 ### Le chemin des fichiers
 
-RLMP mémorise le **chemin absolu** du fichier sur le disque, pas une copie du fichier. Déplacez, renommez ou supprimez l'original, et la carte correspondante devient rouge, illisible. Pour travailler sur plusieurs ordinateurs ou créer des archives portables, la fonction **Export Package** (Chapitre 10) reste la meilleure option.
+RLMP mémorise le **chemin absolu** du fichier sur le disque, pas une copie du fichier. Déplacez, renommez ou supprimez l'original, et la carte correspondante devient rouge, illisible. Pour travailler sur plusieurs ordinateurs ou créer des archives portables, la fonction **Exporter le projet avec l'audio** (Chapitre 10) reste la meilleure option.
 
 ---
 

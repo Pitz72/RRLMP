@@ -20,11 +20,11 @@ Cette vérification est optionnelle et non bloquante : hors ligne, RLMP démarr
 
 ## 12.2 La fenêtre de mise à jour
 
-Quand une mise à jour est disponible, une fenêtre dédiée affiche la version courante, la nouvelle version et les notes de version. C'est ensuite à vous de décider :
+Quand une mise à jour est disponible, la fenêtre dédiée affiche la version courante, la nouvelle version et les **notes de version** : la liste réelle des nouveautés de cette version (le même changelog que celui de ce logiciel), mise en forme et lisible, et non une simple liste de fichiers. Les notes restent visibles même une fois le téléchargement terminé, juste avant l'installation, pour que vous sachiez toujours ce que vous vous apprêtez à appliquer. C'est ensuite à vous de décider :
 
 - **Plus tard** — ferme la fenêtre sans rien faire. Vous pourrez la rouvrir quand vous voulez.
 - **Télécharger** — lance le téléchargement de la nouvelle version. Le téléchargement **ne se lance jamais tout seul** : il ne commence que lorsque vous appuyez sur ce bouton. Une barre de progression en montre l'avancement.
-- **Redémarrer et installer** — apparaît quand le téléchargement est terminé : redémarre l'application en appliquant la mise à jour.
+- **Redémarrer et installer** — apparaît quand le téléchargement est terminé : ferme l'application et applique la mise à jour. La fermeture est propre et immédiate : ayant déjà confirmé le redémarrage, le logiciel ne repropose pas la demande d'enregistrement et ne reste pas ouvert derrière l'installateur.
 
 ---
 

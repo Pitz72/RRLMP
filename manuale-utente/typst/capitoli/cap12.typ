@@ -1,53 +1,87 @@
 #import "../lib/manuale-template.typ": *
 
-= 更新
-<第-12-章-更新>
+= Mises à jour
+<chapitre-12-mises-à-jour>
 
-Runtime Live Machine Pro
-会自我更新，但不会以牺牲你为代价。两条原则管着一切：更新不得打断直播，下载不会在未经你同意时开始。本章讲软件怎么检查新版本、怎么安装，以及为什么在不同操作系统上表现不一样。
+Runtime Live Machine Pro se met à jour tout seul, mais jamais à vos
+dépens. Deux règles gouvernent le processus~: aucune mise à jour ne
+vient jamais interférer avec un direct, et aucun téléchargement ne
+démarre sans votre accord. Ce chapitre explique comment le logiciel
+repère les nouvelles versions, comment il les installe, et pourquoi son
+comportement varie selon le système d'exploitation.
 
-== 12.1 启动时的检查
-<启动时的检查>
-启动后不久（约三秒），RLMP
-会静默检查有没有新版本，结果显示在欢迎界面版本号旁边：
+== 12.1 La vérification au démarrage
+<la-vérification-au-démarrage>
+Quelques secondes à peine après le démarrage, RLMP vérifie discrètement
+s'il existe une version plus récente. Le résultat s'affiche sur l'écran
+d'accueil, à côté du numéro de version~:
 
-- #strong[「已是最新版本」]（绿色）------当前已是最新版本。
-- #strong[「发现新版本」]（琥珀色）------有更新可用，这是一个按钮，点击打开更新窗口。
-- #strong[「OFFLINE」]------联系不到服务，稍后重试，软件照常运行。
+- #strong[«~Version la plus récente~»] (vert) --- vous utilisez la
+  dernière version.
+- #strong[«~Mise à jour disponible~»] (ambre) --- une version plus
+  récente est disponible. C'est un bouton~: cliquez dessus pour ouvrir
+  la fenêtre de mise à jour.
+- #strong[«~OFFLINE~»] --- impossible de contacter le service~;
+  réessayez plus tard. Le logiciel fonctionne normalement.
 
-这个检查是可选的、非阻断的：就算处于离线状态，RLMP
-也能正常启动、正常工作。
+Cette vérification est optionnelle et non bloquante~: hors ligne, RLMP
+démarre et fonctionne sans le moindre problème.
 
-== 12.2 更新窗口
-<更新窗口>
-有更新可用时，专门的窗口会显示当前版本、新版本和发行说明，由你决定：
+== 12.2 La fenêtre de mise à jour
+<la-fenêtre-de-mise-à-jour>
+Quand une mise à jour est disponible, la fenêtre dédiée affiche la
+version courante, la nouvelle version et les #strong[notes de version] :
+la liste réelle des nouveautés de cette version (le même changelog que
+celui de ce logiciel), mise en forme et lisible, et non une simple liste
+de fichiers. Les notes restent visibles même une fois le téléchargement
+terminé, juste avant l'installation, pour que vous sachiez toujours ce
+que vous vous apprêtez à appliquer. C'est ensuite à vous de décider :
 
-- #strong[稍后] --- 关闭窗口，什么都不做，随时可以重新打开。
-- #strong[下载] ---
-  开始下载新版本。下载#strong[绝不会自行启动]，只在你按下这个按钮时才开始，进度条显示进展。
-- #strong[重启并安装] --- 下载完成后出现，重启应用并套用更新。
+- #strong[Plus tard] --- ferme la fenêtre sans rien faire. Vous pourrez
+  la rouvrir quand vous voulez.
+- #strong[Télécharger] --- lance le téléchargement de la nouvelle
+  version. Le téléchargement #strong[ne se lance jamais tout seul]~: il
+  ne commence que lorsque vous appuyez sur ce bouton. Une barre de
+  progression en montre l'avancement.
+- #strong[Redémarrer et installer] --- apparaît quand le téléchargement
+  est terminé : ferme l'application et applique la mise à jour. La
+  fermeture est propre et immédiate : ayant déjà confirmé le
+  redémarrage, le logiciel ne repropose pas la demande d'enregistrement
+  et ne reste pas ouvert derrière l'installateur.
 
-== 12.3 「绝不在直播中」原则
-<绝不在直播中原则>
-自动检查可能恰好在你播出时发现更新。这种情况下 RLMP
-#strong[不会打断你]：更新窗口会一直等着，只在直播结束（你停下全部）之后才自己打开。进行中的节目永远优先。
+== 12.3 La règle «~jamais pendant le direct~»
+<la-règle-jamais-pendant-le-direct>
+Il peut arriver que la vérification automatique trouve une mise à jour
+pendant que vous êtes à l'antenne. Dans ce cas, RLMP #strong[ne vous
+interrompt jamais]~: la fenêtre de mise à jour patiente et ne s'ouvre
+d'elle-même qu'une fois le direct terminé, c'est-à-dire quand vous
+arrêtez tout. L'émission en cours passe toujours avant le reste.
 
-唯一的例外是刻意设计的：#emph[信息]面板（工具菜单）里的
-#strong[立即检查更新]
-按钮，是你的主动操作，就算在直播中也会立刻打开窗口------你按了它，就说明你想这么做。
+Une seule exception existe, et elle est volontaire~: le bouton
+#strong[Vérifier les mises à jour maintenant], dans le panneau
+#emph[Infos & Mises à jour] (menu Outils), traduit une action explicite
+de votre part et ouvre donc la fenêtre sur-le-champ, même en direct. En
+l'actionnant, vous savez ce que vous faites.
 
-== 12.4 各平台之间的差异
-<各平台之间的差异>
-更新的安装方式取决于操作系统。
+== 12.4 Différences entre les plateformes
+<différences-entre-les-plateformes>
+La manière dont la mise à jour s'installe dépend du système
+d'exploitation.
 
-#strong[Windows 与 Linux（AppImage）。]
-更新完全一体化：从窗口下载新版本，软件在下次重启时自动安装，不需要手动步骤。
+#strong[Windows et Linux (AppImage).] La mise à jour est entièrement
+intégrée~: vous téléchargez la nouvelle version depuis la fenêtre, et le
+logiciel l'installe au redémarrage suivant, sans aucune étape manuelle.
 
-#strong[macOS 与 Linux（.deb 软件包）。] 这些系统上 RLMP
-无法可靠地自动安装更新。窗口会提示你，并在浏览器里打开新版本的下载页面，你从那里下载软件包，像全新安装一样装上（第
-2 章）。项目和 `.lmp` 文件都不受影响。
+#strong[macOS et Linux (paquet \.deb).] Sur ces systèmes, RLMP ne peut
+pas installer la mise à jour de façon fiable. Plutôt que de tenter une
+installation automatique, la fenêtre vous prévient et ouvre le
+navigateur sur la page de téléchargement de la nouvelle version. De là,
+vous téléchargez le paquet et l'installez comme pour une installation
+initiale (Chapitre 2). Vos projets et vos fichiers `.lmp` restent
+intacts dans tous les cas.
 
 #nota[
-无论哪种情况，更新 RLMP 都不会导致项目丢失：`.lmp`
-文件在各版本间兼容，不需要手动迁移。
+Dans tous les cas, mettre RLMP à jour n'entraîne pas la
+perte des projets~: les fichiers `.lmp` sont compatibles entre les
+versions et ne demandent pas de migration manuelle.
 ]

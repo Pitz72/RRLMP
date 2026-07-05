@@ -1,143 +1,174 @@
 #import "../lib/manuale-template.typ": *
 
-= 基础工作流：加载与播放
-<第-4-章-基础工作流加载与播放>
+= Le workflow de base~: charger et diffuser
 
-Runtime Live Machine Pro
-的基本操作循环分三步：导入音频文件、在网格中整理、在直播中播放。本章会把每一步讲到足够精确，让你在压力下也能放心操作。
+Le cycle de travail de Runtime Live Machine Pro tient en trois temps~:
+importer les fichiers audio, les organiser dans la grille, les diffuser
+en direct. Ce chapitre détaille chaque étape avec la précision voulue
+pour travailler sereinement, même sous pression.
 
-== 4.1 导入音频文件
-<导入音频文件>
-RLMP
-没有内部浏览器，也没有集中式媒体库。导入靠从操作系统文件管理器（Windows
-的资源管理器、macOS 的 Finder、Linux 的 Nautilus
-或同类工具）直接#strong[拖放]。也可以从 FILE 菜单导入 #strong[M3U]
-播放列表，把它转换成一串片段。
+== 4.1 Importer les fichiers audio
+RLMP ne propose ni navigateur de fichiers interne ni bibliothèque
+centralisée. Tout passe par le #strong[glisser-déposer], directement
+depuis le gestionnaire de fichiers du système (Explorateur sous Windows,
+Finder sous macOS, Nautilus ou équivalent sous Linux). Le menu FILE
+permet aussi d'importer une playlist #strong[M3U] et de la convertir en
+séquence de clips.
 
-=== 基本动作
-<基本动作>
-+ 打开存放音频文件的文件夹。
-+ 选择一个或多个文件：`Ctrl+单击`选非连续的多个文件，`Shift+单击`选连续的一段。
-+ 把选中的文件拖到网格某一列上方松手。音效则直接拖到 pad FX 上（第 7
-  章）。
+=== Le geste de base
++ Ouvrez le dossier de votre ordinateur où se trouvent les fichiers
+  audio.
++ Sélectionnez un ou plusieurs fichiers. Pour en sélectionner
+  plusieurs~: `Ctrl+clic` pour une sélection discontinue, `Shift+clic`
+  pour une sélection continue.
++ Faites glisser les fichiers sélectionnés au-dessus de l'une des
+  colonnes de la grille et relâchez. Pour les effets sonores,
+  glissez-les directement sur le pad FX (Chapitre 7).
 
-每个文件都在目标列生成一张卡片。同时拖入多个文件时，卡片按文件在文件管理器中从上到下的顺序创建。
+Chaque fichier génère une carte dans la colonne de destination. En cas
+de glissement multiple, les cartes se créent dans l'ordre d'apparition
+des fichiers dans le gestionnaire, de haut en bas.
 
-#strong[插入指示器。]
-拖动时一条发光蓝线会沿列滑动，指示卡片将插入的确切位置，方便你把新片段精确放到顶部、底部或中间任意一处。
+#strong[Indicateur d'insertion.] Une ligne bleue lumineuse court le long
+de la colonne pendant le glissement et marque la position exacte
+d'insertion. Vous pouvez ainsi placer un nouveau clip en haut, en bas,
+ou à un endroit précis entre deux autres.
 
-=== 支持的格式
-<支持的格式>
-集成的 FFmpeg 引擎兼容大量音频格式：
+=== Formats pris en charge
+Le moteur FFmpeg intégré garantit la compatibilité avec un large
+éventail de formats audio~:
 
 #figure(
   align(center)[#table(
-    columns: 3,
+    columns: (33.33%, 33.33%, 33.33%),
     align: (auto,auto,auto,),
-    table.header([格式], [扩展名], [说明],),
+    table.header([Format], [Extension], [Notes],),
     table.hline(),
-    [MP3], [`.mp3`], [全部 bitrate],
-    [WAV], [`.wav`], [未压缩 PCM，任意位深度],
-    [FLAC], [`.flac`], [Lossless，任意采样率],
-    [AAC / M4A], [`.aac`、`.m4a`], [含来自 iTunes/Apple Music 的文件],
+    [MP3], [`.mp3`], [Tous les bitrates],
+    [WAV], [`.wav`], [PCM non compressé, toute profondeur de bits],
+    [FLAC], [`.flac`], [Lossless, tout sample rate],
+    [AAC / M4A], [`.aac`, `.m4a`], [Inclut les fichiers d'iTunes/Apple
+    Music],
     [OGG Vorbis], [`.ogg`], [],
     [Opus], [`.opus`], [],
     [WMA], [`.wma`], [Windows Media Audio],
-    [WebM / MP4], [`.webm`、`.mp4`], [这些容器中包含的音频轨],
+    [WebM / MP4], [`.webm`, `.mp4`], [Pistes audio contenues dans ces
+    conteneurs],
   )]
   , kind: table
   )
 
-#strong[关于性能。] `media://`
-流式协议保证音频文件导入时不会被载入内存。一个 2 GB 的未压缩 WAV
-文件和一个 5 MB 的 MP3
-表现完全一样：加载瞬间完成，对系统内存的影响可以忽略。CPU
-只在实际解码时------也就是播放期间------才被占用。
+#strong[Une remarque sur les performances.] Le protocole de streaming
+`media://` évite tout chargement des fichiers audio en mémoire vive au
+moment de l'importation. Un WAV non compressé de 2 Go se comporte
+exactement comme un MP3 de 5 Mo~: chargement instantané, impact
+négligeable sur la mémoire système. Le CPU n'est sollicité que pendant
+le décodage actif, autrement dit pendant la lecture.
 
-=== 文件的路径
-<文件的路径>
-RLMP
-记录的是文件在磁盘上的#strong[绝对路径]，而不是文件本身的副本。移动、重命名或删除原始文件，对应卡片就会变红、无法播放。要在多台电脑上工作或创建便携式存档，用第
-10 章描述的 #strong[Export Package] 功能。
+=== Le chemin des fichiers
+RLMP mémorise le #strong[chemin absolu] du fichier sur le disque, pas
+une copie du fichier. Déplacez, renommez ou supprimez l'original, et la
+carte correspondante devient rouge, illisible. Pour travailler sur
+plusieurs ordinateurs ou créer des archives portables, la fonction
+#strong[Exporter le projet avec l'audio] (Chapitre 10) reste la
+meilleure option.
 
-== 4.2 播放：启动与停止片段
-<播放启动与停止片段>
-=== 启动片段
-<启动片段>
-在卡片上#strong[左键单击]就开始播放，反馈即时：卡片亮起为活动状态的绿色，计时器转为倒计时，页眉的
-VU meter 反映输出信号。
+== 4.2 Lecture~: lancer et arrêter les clips
+<lecture-lancer-et-arrêter-les-clips>
+=== Lancer un clip
+Un #strong[clic gauche] sur la carte suffit à lancer la lecture. Le
+retour est immédiat~: la carte s'allume en vert actif, le minuteur passe
+en compte à rebours, et les VU meter de l'en-tête reflètent aussitôt le
+signal de sortie.
 
-若片段已分配键盘按键（见第 8
-章），那个按键可以代替鼠标点击------手在别处忙、不想挪鼠标时很好用。
+Si une touche du clavier a été attribuée au clip (voir Chapitre 8), elle
+fait aussi bien l'affaire que le clic. Pratique quand vous travaillez
+ailleurs dans l'interface et préférez ne pas quitter le clavier.
 
-=== 停止片段
-<停止片段>
-#strong[点击活动片段] ---
-片段进入#strong[淡出]阶段，按其属性中配置的时间停止（见第 5 章）。
+=== Arrêter un clip
+<arrêter-un-clip>
+#strong[Clic sur le clip actif] --- le clip entre en phase de
+#strong[fondu de sortie] et s'arrête dans le temps configuré dans ses
+propriétés (voir Chapitre 5).
 
-#strong[`Esc` 键] --- 瞬时停止所有活动片段，是紧急命令。RLMP
-为活动窗口时就生效，哪怕光标停在文本框里。
+#strong[Touche `Échap`] --- arrête instantanément tous les clips actifs.
+C'est la commande d'urgence, active dès que RLMP est la fenêtre au
+premier plan, même en pleine saisie dans un champ de texte.
 
-#strong[页眉中的 STOP ALL 按钮] --- 效果与 `Esc` 完全相同，用鼠标操作。
+#strong[Bouton STOP ALL] dans l'en-tête --- identique à `Échap`,
+accessible à la souris.
 
-=== 按列的互斥逻辑
-<按列的互斥逻辑>
-多数列里，RLMP
-遵循#strong[「一次一个片段」]的规则：本期歌曲列正播放#emph[曲目
-A]，点击同列的#emph[曲目 B]，#emph[曲目 A]
-就会停止（带淡出）、#emph[曲目 B] 启动。不需要先手动停掉正在播放的片段。
+=== La logique d'exclusion par colonne
+Dans la plupart des colonnes, RLMP applique la règle #strong[«~un clip à
+la fois~»]~: diffusez le #emph[Morceau A] dans la colonne Musiques,
+cliquez sur le #emph[Morceau B] de la même colonne, et le premier
+s'arrête en fondu pendant que le second démarre. Inutile d'arrêter
+manuellement un clip avant d'en lancer un autre.
 
-#strong[pad FX
-的效果]是主要例外：它们叠加在一切之上，包括其他效果，不会打断正在播放的内容------一段掌声可以在歌曲进行中响起而不打断歌曲。
+Les #strong[effets du pad FX] échappent à cette règle~: ils se
+superposent à tout, effets compris, sans jamais interrompre ce qui joue
+déjà. Un applaudissement peut ainsi démarrer en plein milieu d'un
+morceau sans en couper la lecture.
 
-设有 #strong[Stacco] 行为的片段（属性中可配置，见第 5
-章）也是叠加播放，不会停止列中的其他片段，无论它们在哪个位置。
+Même logique pour les clips en mode #strong[Stacco] (configurable dans
+les propriétés, Chapitre 5)~: ils se superposent sans jamais arrêter les
+autres clips de leur colonne.
 
-== 4.3 整理播出单
-<整理播出单>
-=== 重排片段
-<重排片段>
-准备节目期间，甚至节目进行中，都可以随时重新排列片段顺序。
+== 4.3 Organiser la conduite
+=== Réorganiser les clips
+<réorganiser-les-clips>
+L'ordre des clips se réorganise à tout moment, que ce soit pendant la
+préparation de l'émission ou en plein direct.
 
-#strong[列内拖动。]
-点住一张卡片在同列内上下拖动，蓝色导引线指示插入位置，片段插入新位置时不会打断正在进行的播放。
+#strong[Glissement interne.] Cliquez sur une carte, maintenez, puis
+faites-la glisser vers le haut ou le bas dans la même colonne. La ligne
+guide bleue indique où elle s'insérera, sans jamais interrompre les
+lectures en cours.
 
-#strong[跨列移动。]
-片段可以从一列拖到另一列，这时它会#strong[继承目标列的规则]：一段预录人声被移到本期歌曲列后，就会像音乐曲目一样开始承受
-ducking。
+#strong[Déplacement entre colonnes.] Un clip glissé d'une colonne à
+l'autre #strong[hérite des règles de sa nouvelle colonne]~: une voix
+préenregistrée déplacée vers la colonne Musiques subira le ducking
+exactement comme un morceau musical.
 
-跨列移动是个分量不轻的操作，直播期间尤其要谨慎使用。
+C'est une opération puissante, à réserver à des choix délibérés ---
+d'autant plus prudents pendant un direct.
 
-=== 多选与删除
-<多选与删除>
-一次性从网格移除多个片段：
+=== Sélection multiple et suppression
+<sélection-multiple-et-suppression>
+Pour retirer plusieurs clips d'un coup~:
 
-+ 对每个要选的片段做 `Ctrl+单击`（Windows/Linux）或
-  `Cmd+单击`（macOS），边框变蓝。
-+ 按 `Canc` 或 `Delete`。选中数超过一个时软件会请求确认。
++ `Ctrl+clic` (Windows/Linux) ou `Cmd+clic` (macOS) sur chaque clip à
+  sélectionner~: la bordure devient bleue.
++ Appuyez sur `Suppr` ou `Delete`. Au-delà d'un clip sélectionné, le
+  logiciel demande confirmation.
 
-从网格删除只是把片段移出当前项目，不会删除磁盘上的音频文件。操作有误，`Ctrl+Z`
-可以撤销。
+Supprimer depuis la grille retire les clips du projet courant, pas les
+fichiers audio du disque. En cas d'erreur, `Ctrl+Z` rattrape le coup.
 
-#nota[
-直播开始后，用多选加 `Canc` 清空 Pre-Show
-列，是腾出界面视觉空间、切入操作模式最快的办法。
+#suggerimento[
+Le direct commencé, videz la colonne
+Pré-émission d'un coup, via une sélection multiple suivie de `Suppr`~:
+c'est le moyen le plus rapide de dégager l'interface et de basculer en
+mode opérationnel.
 ]
 
-== 4.4 结构 cue：INTRO 与 OUTRO
-<结构-cueintro-与-outro>
-每个片段都能在波形编辑器中配置两个#strong[结构标记]（第 5 章）：
+== 4.4 Repères de structure~: INTRO et OUTRO
+<repères-de-structure-intro-et-outro>
+Chaque clip peut recevoir deux #strong[marqueurs structurels],
+configurés dans l'éditeur de forme d'onde (Chapitre 5)~:
 
-- #strong[Intro 标记] ---
-  曲目主旋律在乐器前奏之后真正进入的那一点，用来精确把握何时开始在 intro
-  上叠话。
-- #strong[Outro 标记] ---
-  曲目结尾段落开始的那一点，标示准备转下一轨的时机。
+- #strong[Intro Marker] --- le moment où la mélodie principale entre
+  vraiment, après l'introduction instrumentale. Il indique précisément
+  quand commencer à parler par-dessus l'intro.
+- #strong[Outro Marker] --- le début de la coda finale, qui signale le
+  bon moment pour préparer la transition vers la piste suivante.
 
-播放接近这些点时，卡片上会出现视觉提示：
+À l'approche de ces points, la carte affiche un avis visuel~:
 
-- #strong[INTRO: −MM:SS] --- 到 Intro 标记的倒计时。
-- #strong[OUTRO IN: −MM:SS] --- 到 Outro 标记的倒计时，outro
-  开始后切换为 #strong[🚨 OUTRO]。
+- #strong[INTRO: −MM:SS] --- compte à rebours jusqu'à l'Intro Marker.
+- #strong[OUTRO IN: −MM:SS] --- compte à rebours jusqu'à l'Outro Marker,
+  suivi de #strong[🚨 OUTRO] quand la coda a commencé.
 
-这些提示只在配置了标记时出现。没有标记的片段，卡片只在曲目结束时显示标准倒计时。
+Ces avis n'apparaissent que si les marqueurs ont été configurés. Sans
+marqueur, la carte se contente du compte à rebours standard vers la fin
+du morceau.

@@ -1,5 +1,5 @@
 # Runtime Live Machine Pro — User Manual
-## Table of Contents — English Edition (v1.11.5, Second Edition)
+## Table of Contents — English Edition (v1.15.10, Second Edition)
 
 ---
 
@@ -31,7 +31,7 @@ Audio routing: device selection, USB mixers, latency. Keyboard commands: global 
 Starting the recording. What gets recorded. The internal format. Export: WAV, FLAC, MP3, OGG, WEBM. Quality options. Practical considerations.
 
 **Chapter 10 — Project management and data safety**
-The `.lmp` project file. Quick Save and Save As. Protection on close. Auto-Backup and autosave. Export Package. Integrity check.
+The `.lmp` project file. Quick Save and Save As. Protection on close. Auto-Backup and autosave. Export project with audio. Integrity check.
 
 **Chapter 11 — Remote Control**
 The local browser server. Activation and PIN. Connecting from a tablet or phone. What you control remotely. Security and limits.

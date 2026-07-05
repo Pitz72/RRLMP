@@ -39,7 +39,7 @@ Il motore FFmpeg integrato garantisce compatibilità con un'ampia gamma di forma
 
 ### Il percorso dei file
 
-RLMP memorizza il **percorso assoluto** del file sul disco, non una copia del file stesso. Se sposti, rinomini o cancelli il file originale, la card corrispondente diventerà rossa e non sarà più riproducibile. Per lavorare su più computer o creare archivi portabili, utilizza la funzione **Export Package** descritta nel Capitolo 10.
+RLMP memorizza il **percorso assoluto** del file sul disco, non una copia del file stesso. Se sposti, rinomini o cancelli il file originale, la card corrispondente diventerà rossa e non sarà più riproducibile. Per consolidare l'audio nel progetto (e poter cancellare gli originali in sicurezza) o creare archivi portabili, utilizza la funzione **Esporta progetto con audio** descritta nel Capitolo 10.
 
 ---
 

@@ -1,131 +1,169 @@
 #import "../lib/manuale-template.typ": *
 
-= 硬件、键盘与 MIDI
-<第-8-章-硬件键盘与-midi>
+= Matériel, clavier et MIDI
+<chapitre-8-matériel-clavier-et-midi>
 
-Runtime Live Machine Pro
-设计上就要跟演播室现有的硬件配合，不需要繁琐配置。本章讲怎么引导音频输出、怎么把电脑键盘当控制器用、怎么接物理
-MIDI 设备来获得触感式的导播掌控。
+Runtime Live Machine Pro s'intègre au matériel déjà présent dans le
+studio sans exiger de configuration compliquée. Ce chapitre explique
+comment router la sortie audio, comment se servir du clavier de
+l'ordinateur comme contrôleur, et comment brancher des périphériques
+MIDI physiques pour un contrôle tactile de la régie.
 
-== 8.1 音频路由
-<音频路由>
-=== 选择输出设备
-<选择输出设备>
-默认情况下，RLMP 从操作系统的默认音频设备输出。在配 USB
-混音器、外置声卡或多轨系统的专业/半专业环境里，明确指定信号去向会很有用。
+== 8.1 Routage audio
+=== Choisir le périphérique de sortie
+<choisir-le-périphérique-de-sortie>
+Par défaut, RLMP sort sur le périphérique audio par défaut du système
+d'exploitation. Dans un contexte professionnel ou semi-professionnel,
+avec mixeurs USB, cartes son externes ou systèmes multipistes, mieux
+vaut choisir explicitement la destination du signal.
 
-+ 从工具菜单打开#strong[设置]。
-+ 在 #emph[Audio & Mix]
-  标签页打开输出设备菜单，会看到系统上可用音频设备的列表。
-+ 选择想要的设备。
++ Ouvrez les #strong[Paramètres] depuis le menu Outils.
++ Dans l'onglet #emph[Audio & Mix], ouvrez le menu du périphérique de
+  sortie~: vous y trouvez la liste des périphériques audio disponibles
+  sur le système.
++ Sélectionnez le périphérique voulu.
 
-所选设备一旦断开，RLMP 会自动回退到系统设备；应用会监测连接状态，对 USB
-设备的插拔作出反应。
+Si le périphérique choisi est déconnecté, RLMP se rabat automatiquement
+sur celui du système~: l'application surveille les connexions et réagit
+à chaque insertion ou retrait de périphérique USB.
 
-=== USB 混音器与多通道设置
-<usb-混音器与多通道设置>
-Rødecaster Pro、RØDECaster Duo 或 Focusrite Scarlett 这类 USB
-混音器，通常会向操作系统暴露多个 USB 通道（Main
-Mix、Sounds/Chat、Monitor 等）。RLMP 表现为单一立体声源，引导到哪个 USB
-通道由你决定。
+=== Mixeurs USB et setup multicanal
+Les mixeurs USB comme le Rødecaster Pro, le RØDECaster Duo ou le
+Focusrite Scarlett exposent en général plusieurs canaux USB au système
+d'exploitation (Main Mix, Sounds/Chat, Monitor, etc.). RLMP apparaît
+comme une source stéréo unique \; à vous de choisir vers quel canal USB
+le diriger.
 
-#strong[USB 混音器的推荐设置。] 把 RLMP 分配到混音器的一个副通道（例如
-Rødecaster Pro
-上的「Sounds」），而不是主通道。这样能用一个专用物理推子控制 RLMP
-的音量，跟物理麦克风的信号分开，也只对这个通道施加可能需要的硬件处理。
+#strong[Setup conseillé avec mixeur USB.] Affectez RLMP à un canal
+secondaire du mixeur (par exemple «~Sounds~» sur le Rødecaster Pro),
+plutôt qu'au canal principal. Vous gagnez ainsi un fader physique dédié
+pour le volume de RLMP, une séparation nette d'avec le signal du micro,
+et la possibilité d'appliquer un traitement matériel à ce seul canal.
 
-=== 延迟与缓冲
-<延迟与缓冲>
-RLMP 用操作系统的原生音频
-API，输出延迟由音频设备的缓冲决定，不是软件决定的。配合专业声卡时延迟在几毫秒量级，播出场景里察觉不到。
+=== Latence et buffer
+RLMP utilise les API audio natives du système d'exploitation. La latence
+de sortie dépend du buffer du périphérique audio, pas du logiciel. Avec
+des cartes son professionnelles, elle se situe autour de quelques
+millisecondes, imperceptible en playout.
 
-若注意到音频杂音（爆音、dropout），多半是设备缓冲值太低。去声卡的控制面板调高它（不是
-RLMP，它不直接管理驱动）：256 或 512
-采样的缓冲，是延迟和稳定之间理想的平衡点。
+Si vous constatez des artefacts audio (crépitements, dropouts), la
+valeur de buffer du périphérique est sans doute trop basse. Augmentez-la
+depuis le panneau de contrôle de la carte son, pas depuis RLMP qui ne
+gère pas directement le driver~: un buffer de 256 ou 512 échantillons
+offre un bon équilibre entre latence et stabilité.
 
-== 8.2 键盘控制
-<键盘控制>
-电脑键盘是直播中最快的控制器：不需要手眼协调，黑暗中也能用，且始终触手可及。RLMP
-提供一组全局快捷键，也能给单个片段分配按键。
+== 8.2 Contrôle au clavier
+<contrôle-au-clavier>
+En direct, le clavier de l'ordinateur reste le contrôleur le plus
+rapide~: pas de coordination œil-main à gérer, fonctionne dans
+l'obscurité, toujours à portée de main. RLMP propose un jeu de
+raccourcis globaux et la possibilité d'attribuer une touche à chaque
+clip.
 
-=== 全局快捷键
-<全局快捷键>
+=== Raccourcis globaux
 #figure(
   align(center)[#table(
-    columns: 2,
+    columns: (50%, 50%),
     align: (auto,auto,),
-    table.header([按键], [动作],),
+    table.header([Touche], [Action],),
     table.hline(),
-    [#strong[Esc]], [STOP ALL --- 停止所有活动片段],
-    [#strong[Canc / Backspace]], [删除选中的片段],
-    [#strong[Ctrl+Z]], [撤销对播出单的上一次修改],
-    [#strong[Ctrl+Y]（或 #strong[Ctrl+Shift+Z]）], [重做已撤销的修改],
-    [#strong[Ctrl+Shift+D]], [显示/隐藏 Debug Overlay],
-    [#strong[Ctrl+Shift+M]], [打开 MIDI 模拟器（用于无控制器时的测试）],
+    [#strong[Échap]], [STOP ALL --- arrête tous les clips actifs],
+    [#strong[Suppr / Backspace]], [Supprime les clips sélectionnés],
+    [#strong[Ctrl+Z]], [Annule la dernière modification de la conduite],
+    [#strong[Ctrl+Y] (ou #strong[Ctrl+Shift+Z])], [Répète la
+    modification annulée],
+    [#strong[Ctrl+Shift+D]], [Affiche/masque le Debug Overlay],
+    [#strong[Ctrl+Shift+M]], [Ouvre le simulateur MIDI (pour tester sans
+    contrôleur)],
   )]
   , kind: table
   )
 
-RLMP 为活动窗口时，`Esc` 就当 STOP ALL
-用，光标停在文本框里也一样。它不再是注册到操作系统层面的快捷键：应用在后台的话，得先把窗口切回前台。
+`Échap` agit comme STOP ALL dès lors que RLMP est la fenêtre active,
+même si le curseur se trouve dans un champ de texte. Ce raccourci n'est
+pas enregistré au niveau du système d'exploitation~: si l'application
+tourne en arrière-plan, ramenez d'abord la fenêtre au premier plan.
 
 #nota[
-没有预先分配给列触发的功能键（F1--F5）。要快速触发某个片段，请照下面的方法给它分配专用按键。
+Il n'existe pas de touches de fonction (F1--F5)
+préaffectées au lancement des colonnes. Pour lancer rapidement un clip
+précis, attribuez-lui une touche dédiée, comme décrit ci-dessous.
 ]
 
-=== 单个片段的自定义按键
-<单个片段的自定义按键>
-除了全局快捷键，每个片段都能有一个专用按键，对应徽标会出现在卡片上。
+=== Touches personnalisées par clip
+<touches-personnalisées-par-clip>
+Chaque clip peut aussi recevoir une touche dédiée, en plus des
+raccourcis globaux. Le badge correspondant apparaît alors sur la carte.
 
-#strong[分配按键：] 1. 打开片段设置（卡片上右键），或从工具菜单打开
-#strong[Keybinds] 窗口。 2. 点击按键字段。 3. 按下想要的按键。
+#strong[Pour attribuer une touche~:] 1. Ouvrez les paramètres du clip
+(clic droit sur la carte) ou la fenêtre #strong[Raccourcis & tableau
+MIDI] depuis le menu Outils. 2. Cliquez dans le champ de la touche. 3.
+Appuyez sur la touche voulue.
 
-#strong[可用按键。]
-几乎任意按键都行：字母（A--Z）、数字（0--9）、数字小键盘、空格键、空闲的功能键。按键若已分配给另一个片段，软件会在覆盖前提示冲突，避免制造看不见的重复。
+#strong[Touches disponibles.] Pratiquement n'importe laquelle~: lettres
+(A--Z), chiffres (0--9), pavé numérique, barre d'espace, touches de
+fonction libres. Si la touche est déjà attribuée à un autre clip, le
+logiciel signale le conflit avant d'écraser quoi que ce soit, pour
+éviter les doublons invisibles.
 
-#strong[输入时的安全保护。]
-处于文本输入模式（重命名片段、写备注）时，自定义按键会自动禁用，防止打字时误触发。
+#strong[Sécurité pendant la saisie.] Les touches personnalisées se
+désactivent automatiquement dès que vous êtes en train de saisir du
+texte, par exemple pour renommer un clip ou écrire une note, ce qui
+évite les lancements accidentels pendant que vous tapez.
 
-== 8.3 MIDI 控制器
-<midi-控制器>
-要物理、触感、可靠的掌控，MIDI 是专业之选。RLMP 支持 USB-MIDI
-控制器：键盘、pad（如 Novation Launchpad）、推子控制器（如 Korg
-nanoKONTROL2）、混合式控制面。
+== 8.3 Contrôleurs MIDI
+<contrôleurs-midi>
+Le MIDI reste le choix professionnel pour un contrôle physique, tactile
+et fiable. RLMP prend en charge les contrôleurs USB-MIDI~: claviers,
+pads (par exemple Novation Launchpad), contrôleurs à faders (par exemple
+Korg nanoKONTROL2), surfaces de contrôle hybrides.
 
-=== 连接
-<连接>
-把 USB 控制器接到电脑，再启动 RLMP。软件通过系统的 Web MIDI API
-检测设备，实时识别控制器的连接和断开。多数 USB-MIDI 控制器是
-#emph[class-compliant]
-的，不需要驱动；带专有驱动的专业控制面，请先装好驱动再接设备。
+=== Connexion
+Branchez le contrôleur USB à l'ordinateur, puis lancez RLMP. Le logiciel
+détecte les périphériques via la Web MIDI API du système et reconnaît en
+temps réel la connexion ou la déconnexion d'un contrôleur. La plupart
+des contrôleurs USB-MIDI sont #emph[class-compliant] et se passent de
+driver \; pour les surfaces professionnelles à driver propriétaire,
+installez ce dernier avant de brancher l'appareil.
 
 === MIDI Learn
-RLMP 不要求你记住 MIDI 音符编号，也不要求手动配置消息，学习靠
-#strong[MIDI Learn] 模式完成，从工具菜单（或 Keybinds 窗口）进入。
+Nul besoin de connaître la numérotation des notes MIDI ni de configurer
+les messages à la main~: l'apprentissage se fait via le mode
+#strong[MIDI Learn], accessible depuis le menu Outils (ou depuis la
+fenêtre Raccourcis).
 
-#strong[把片段映射到某个键/pad：] 1. 启用 MIDI Learn，卡片进入等待状态。
-\2. 选择要映射的片段（或 pad FX 的格子）。 3.
-在控制器上弹那个音符、按那个 pad 或键。带音符编号的 `M`
-徽标会出现在卡片上。
+#strong[Pour mapper un clip à une touche/pad~:] 1. Activez MIDI Learn.
+Les cartes entrent en état d'attente. 2. Sélectionnez le clip (ou la
+cellule du pad FX) à mapper. 3. Jouez la note, appuyez sur le pad ou sur
+la touche du contrôleur. Le badge `M` avec le numéro de note apparaît
+sur la carte.
 
-#strong[映射全局功能：] - 选中 #strong[STOP
-ALL]，在控制器上按一个键，那个键就执行 Stop All。 -
-选中#strong[主音量]，移动一个推子或旋钮，那个控制就连续管理主音量。
+#strong[Pour mapper les fonctions globales~:] - Sélectionnez
+#strong[STOP ALL] et appuyez sur une touche du contrôleur~: cette touche
+exécutera le Stop All. - Sélectionnez le #strong[Master Volume] et
+bougez un fader ou un potentiomètre~: cette commande gérera le volume
+master de façon continue.
 
-完成后停用 MIDI Learn，回到操作模式。
+Une fois le mapping terminé, désactivez MIDI Learn pour revenir au mode
+opérationnel.
 
-=== 支持的消息类型
-<支持的消息类型>
-#strong[Note On] ---
-按钮、pad、键产生的消息，适合触发片段和全局动作。RLMP
-响应按键按下，识别所有 MIDI 通道；Note Off 消息会被忽略。
+=== Types de messages pris en charge
+#strong[Note On] --- messages générés par des boutons, des pads et des
+touches. Parfaits pour le lancement des clips et des actions globales~:
+RLMP répond dès l'appui de la touche et reconnaît tous les canaux MIDI.
+Les messages Note Off, eux, sont ignorés.
 
-#strong[Control Change（CC）] --- 推子和电位器产生的消息，带 0 到 127
-的连续值，适合主音量：一个映射到 master
-的物理推子，给出对输出电平最自然的掌控。
+#strong[Control Change (CC)] --- messages générés par des faders et des
+potentiomètres, avec une valeur continue de 0 à 127. Parfaits pour le
+Master Volume~: un fader physique mappé sur le master reste la façon la
+plus naturelle de contrôler le niveau de sortie.
 
-=== 映射的可移植性
-<映射的可移植性>
-#strong[片段]的 MIDI 映射保存在 `.lmp`
-项目文件里：把项目带到另一台配有同款控制器的电脑，映射不用重新配置就能用。而#strong[全局功能]（Stop
-All、主音量）的映射跟电脑绑定，保存在应用的本地偏好中，对那台机器上的所有项目都有效。
+=== Portabilité des mappings
+<portabilité-des-mappings>
+Les mappings MIDI des #strong[clips] sont enregistrés dans le fichier de
+projet `.lmp`~: transportez le projet sur un autre ordinateur équipé du
+même contrôleur, et ils fonctionnent sans reconfiguration. Les mappings
+des #strong[fonctions globales] (Stop All, Master Volume), en revanche,
+sont liés à l'ordinateur~: enregistrés dans les préférences locales de
+l'application, ils restent valables pour tous les projets de cette
+machine.

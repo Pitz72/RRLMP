@@ -20,11 +20,11 @@ Die Prüfung ist optional und blockiert nichts: Sind Sie offline, startet RLMP t
 
 ## 12.2 Das Update-Fenster
 
-Sobald ein Update vorliegt, zeigt ein eigenes Fenster die aktuelle Version, die neue Version und die Release Notes an. Drei Möglichkeiten stehen zur Wahl:
+Sobald ein Update vorliegt, zeigt ein eigenes Fenster die aktuelle Version, die neue Version und die **Release Notes** an: die tatsächliche Liste der Neuerungen dieser Version (dasselbe Changelog dieser Software), formatiert und lesbar, nicht eine bloße Dateiliste. Die Notizen bleiben auch nach abgeschlossenem Download sichtbar, unmittelbar vor der Installation, sodass Sie stets wissen, was Sie gleich anwenden. Von hier aus entscheiden Sie:
 
 - **Später**: Schließt das Fenster, ohne etwas zu verändern. Sie können es jederzeit erneut öffnen.
 - **Herunterladen**: Startet den Download der neuen Version. Von selbst passiert hier nichts – erst ein Klick auf diese Schaltfläche setzt den Download in Gang. Ein Fortschrittsbalken zeigt den Verlauf an.
-- **Neu starten und installieren**: Erscheint, sobald der Download abgeschlossen ist, startet die Anwendung neu und wendet das Update an.
+- **Neu starten und installieren**: Erscheint, sobald der Download abgeschlossen ist: Sie schließt die Anwendung und wendet das Update an. Das Schließen erfolgt sauber und unmittelbar: Da Sie den Neustart bereits bestätigt haben, stellt die Software die Frage nach dem Speichern nicht erneut und bleibt nicht hinter dem Installer geöffnet.
 
 ---
 

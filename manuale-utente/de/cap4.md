@@ -39,7 +39,7 @@ Die integrierte FFmpeg-Engine garantiert Kompatibilität mit einer breiten Palet
 
 ### Der Pfad der Dateien
 
-RLMP speichert den **absoluten Pfad** der Datei auf der Festplatte, nicht die Datei selbst als Kopie. Verschieben, benennen Sie um oder löschen Sie die Originaldatei, färbt sich die zugehörige Karte rot und lässt sich nicht mehr abspielen. Für die Arbeit an mehreren Computern oder portable Archive nutzen Sie die Funktion **Export Package** aus Kapitel 10.
+RLMP speichert den **absoluten Pfad** der Datei auf der Festplatte, nicht die Datei selbst als Kopie. Verschieben, benennen Sie um oder löschen Sie die Originaldatei, färbt sich die zugehörige Karte rot und lässt sich nicht mehr abspielen. Für die Arbeit an mehreren Computern oder portable Archive nutzen Sie die Funktion **Projekt mit Audio exportieren** aus Kapitel 10.
 
 ---
 

@@ -62,24 +62,29 @@ Der Ordner `autosaves` befindet sich im Datenverzeichnis der Anwendung:
 
 ---
 
-## 10.4 Export Package: vollständige Portabilität
+## 10.4 Projekt mit Audio exportieren
 
-Die `.lmp`-Datei enthält nur die Pfade zu den Audiodateien, nicht die Dateien selbst. Beim Umzug des Projekts auf einen anderen Computer ist deshalb Vorsicht geboten: Liegen die Dateien auf der Zielmaschine nicht an denselben absoluten Pfaden, werden die Clips rot markiert. Die Funktion **Eigenständiges Archiv exportieren** (Export Package) im Menü FILE löst dieses Problem an der Wurzel.
+Da die `.lmp`-Datei nur die Pfade zu den Audiodateien enthält, nicht die Dateien selbst, ist ein Projekt zerbrechlich: Verschieben, benennen oder löschen Sie auch nur eine der Quelldateien, wird der zugehörige Clip rot. Die Funktion **Projekt mit Audio exportieren** im Menü FILE (direkt unter *Speichern unter…*) löst das Problem an der Wurzel, indem sie das gesamte Audio innerhalb des Projekts konsolidiert.
 
 ### Wie es funktioniert
 
-RLMP analysiert sämtliche Pfade zu den Audiodateien des Projekts, legt einen Unterordner `audio/` an und **kopiert physisch** jede referenzierte Datei hinein. Bereits vorhandene, identische Dateien werden dabei nicht erneut kopiert. Namensdopplungen werden umbenannt, damit nichts überschrieben wird, und verwaiste, nicht mehr referenzierte Dateien werden aus dem Ordner entfernt.
+RLMP analysiert sämtliche Pfade zu den Audiodateien des Projekts, legt einen Unterordner `audio/` neben der `.lmp`-Datei an und **kopiert physisch** jede referenzierte Datei hinein. Bereits vorhandene, identische Dateien werden dabei nicht erneut kopiert; Namensdopplungen werden umbenannt, damit nichts überschrieben wird, und verwaiste, nicht mehr referenzierte Dateien werden aus dem Ordner entfernt.
 
-Dabei stehen zwei Modi zur Verfügung:
+Der Unterschied zu einem einfachen Backup liegt in dem, was **nach** dem Kopieren geschieht: RLMP **verweist jeden Clip auf die neue Kopie** innerhalb von `audio/` und **speichert das Projekt erneut**. Von diesem Moment an ist der Ordner `audio/` kein Reserve-Archiv neben dem Projekt mehr, sondern die Quelle, aus der die Session das Audio tatsächlich liest.
 
-- **Neben dem Projekt** – exportieren Sie in den Ordner, in dem die `.lmp` bereits liegt, synchronisiert RLMP den Unterordner `audio/` direkt daneben.
-- **Freier Ordner** – wählen Sie einen neuen Ordner (einen USB-Stick, ein NAS), schreibt RLMP dorthin eine `project.lmp` mit bereits angepassten Pfaden, die auf den lokalen Unterordner `audio/` verweisen.
+### Das Ergebnis: Sie können die Originale löschen
 
-### Das Ergebnis
+Da das Projekt nun auf die Kopien in `audio/` verweist, **werden die Audiodateien an ihrem ursprünglichen Ort nicht mehr benötigt**, und Sie können sie gefahrlos löschen: Die Show läuft weiter und liest aus dem Archiv. Das ist der Unterschied zu den früheren Versionen, in denen der Ordner `audio/` ein verwaistes Duplikat blieb und das Löschen der Originale die Clips zerstörte.
 
-Der Zielordner ist danach in sich geschlossen: Er enthält alles Nötige, um die Show auf jedem Computer mit installiertem RLMP auszuführen – unabhängig von dessen Ordnerstruktur.
+Der Projektordner wird so autark: `.lmp` samt Unterordner `audio/`, alles Nötige, um die Show auszuführen – bereit zum Archivieren, Kopieren oder Mitnehmen auf einen anderen Computer mit installiertem RLMP.
 
-> **Empfohlene Vorgehensweise.** Nutzen Sie Eigenständiges Archiv exportieren am Ende jeder Showvorbereitung, um einen „Master“ für das Studio oder das Archiv zu erstellen. Bei technischen Problemen in letzter Minute steht so stets eine vollständige, portable Kopie bereit.
+Einige nützliche Details:
+
+- Der Vorgang ist **wiederholbar**: Fügen Sie neue Clips hinzu und exportieren erneut, kopiert RLMP nur die neuen Dateien und richtet das Projekt neu aus, ohne die bereits archivierten zu duplizieren.
+- Das Anbinden an das Archiv **fließt nicht in die Historie Rückgängig/Wiederholen ein**: Ein *Rückgängig* würde die Clips auf die Originale zurückführen, die Sie womöglich schon gelöscht haben.
+- Der Verweis auf das Archiv ist ein **absoluter Pfad**. Solange der Projektordner an seinem Platz bleibt, funktioniert alles; verschieben Sie ihn woanders hin, müssen die Pfade mit einem neuen Export von der neuen Position aus neu erzeugt werden.
+
+> **Empfohlene Vorgehensweise.** Nutzen Sie *Projekt mit Audio exportieren* am Ende jeder Showvorbereitung, um das Audio im Projekt zu konsolidieren. So erhalten Sie einen kompakten, portablen „Master“ und können Speicherplatz freigeben, indem Sie die verstreuten Dateien löschen, aus denen Sie importiert hatten.
 
 ### Integritätsprüfung beim Öffnen
 

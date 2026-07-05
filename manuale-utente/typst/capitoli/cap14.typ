@@ -1,134 +1,179 @@
 #import "../lib/manuale-template.typ": *
 
-= 故障排除与常见问题
-<第-14-章-故障排除与常见问题>
+= Résolution des problèmes et FAQ
+<chapitre-14-résolution-des-problèmes-et-faq>
 
-本章汇集 Runtime Live Machine Pro
-日常使用中最常见的问题和解决办法。每一节都会讲清症状、最可能的原因、解决步骤。
+Ce chapitre rassemble les problèmes les plus fréquents dans l'usage
+quotidien de Runtime Live Machine Pro, avec leurs solutions. Chaque
+section décrit le symptôme, la cause la plus probable, puis la marche à
+suivre pour y remédier.
 
-== 14.1 音频问题
-<音频问题>
-=== 计时器在走、VU meter 在动，却听不到声音
-<计时器在走vu-meter-在动却听不到声音>
-软件在正确播放（内部总线里有信号），但没抵达监听设备。
+== 14.1 Problèmes audio
+<problèmes-audio>
+=== Le minuteur défile et les VU meter bougent, mais on n'entend rien
+<le-minuteur-défile-et-les-vu-meter-bougent-mais-on-nentend-rien>
+Le logiciel diffuse bien le signal, présent dans le bus interne, mais
+celui-ci n'atteint jamais le périphérique d'écoute.
 
-#strong[按顺序检查：]
+#strong[Vérifiez dans l'ordre~:]
 
-+ #strong[主音量。] 页眉的滑块是不是拉到零了？拉回 100%。
-+ #strong[输出设备。] 打开 设置 → #emph[Audio &
-  Mix]，看看选中的是哪个设备。Windows 与 macOS 在 USB
-  设备断开重连时可能改变标识符，若名称跟实际连接的设备对不上，重新选一下。
-+ #strong[外部混音器。]
-  信号送到硬件混音器时，检查该通道的推子有没有被拉低或静音，也确认混音器输出已经接到监听或传输链。
++ #strong[Master Volume.] Le curseur de l'en-tête est-il à zéro~?
+  Portez-le à 100 %.
++ #strong[Périphérique de sortie.] Ouvrez Paramètres → #emph[Audio &
+  Mix] et contrôlez quel périphérique est sélectionné. Windows et macOS
+  peuvent changer l'identifiant des périphériques USB lorsqu'ils sont
+  débranchés et rebranchés. Si le nom ne correspond pas à celui
+  physiquement connecté, sélectionnez-le de nouveau.
++ #strong[Mixeur externe.] Si le signal arrive à un mixeur matériel,
+  contrôlez que le fader du canal n'est pas baissé ou en mute, et que la
+  sortie du mixeur est reliée aux moniteurs ou à la chaîne de diffusion.
 
-=== 音频跳帧、破音或有中断
-<音频跳帧破音或有中断>
-音频引擎对这些杂音通常是稳健的。真出现了，原因几乎总在软件之外。
+=== L'audio saute, grésille ou a des interruptions
+<laudio-saute-grésille-ou-a-des-interruptions>
+En temps normal, le moteur audio résiste bien à ce type d'artefact. S'il
+en survient malgré tout, la cause est presque toujours extérieure au
+logiciel.
 
-- #strong[CPU 极度负载。]
-  关掉同时运行的重型应用（视频剪辑、渲染、密集备份）。
-- #strong[音频缓冲过低。]
-  配合专业声卡时，检查驱动控制面板里的缓冲值。256 或 512
-  采样是正确的平衡，低于 128 采样可能出现 dropout。
-- #strong[磁盘缓慢或吃紧。] RLMP
-  从磁盘流式读取音频，一块慢速机械硬盘或几近写满的
-  SSD，在大文件上可能造成中断。
+- #strong[CPU sous charge extrême.] Fermez les applications lourdes en
+  parallèle (montage vidéo, rendu, sauvegardes intensives).
+- #strong[Buffer audio trop bas.] Avec une carte son professionnelle,
+  contrôlez la valeur de buffer dans le panneau de contrôle du driver.
+  Une valeur de 256 ou 512 échantillons est le bon équilibre~; sous 128
+  échantillons, des dropouts peuvent apparaître.
+- #strong[Disque lent ou sous stress.] RLMP diffuse l'audio en streaming
+  depuis le disque. Un disque mécanique lent, ou un SSD presque plein,
+  peut causer des interruptions sur les fichiers volumineux.
 
-=== 音频电平太低或太高
-<音频电平太低或太高>
-- #strong[单片段 Gain。] 在片段属性里调 Gain（右键 → Volume 部分）。
-- #strong[主音量。] 整体电平不对，就调页眉的滑块。
-- #strong[归一化与 Master Chain。]
-  音量归一化会把各片段电平拉向一个共同参照，Master Chain 的 glue
-  会让声音更紧实。结果不合意的话，可以在 设置 → 主处理链
-  中调节或停用这些级。
+=== Le niveau audio est trop bas ou trop haut
+- #strong[Gain par clip.] Réglez le Gain dans les propriétés du clip
+  (clic droit → section Volume).
+- #strong[Master Volume.] Si le niveau global est incorrect, agissez sur
+  le curseur de l'en-tête.
+- #strong[Homologation et Master Chain.] L'homologation du volume
+  rapproche les niveaux des clips d'une référence commune~; le glue de
+  la Master Chain peut rendre le son plus compact. Si un résultat ne
+  vous convainc pas, vous pouvez régler ou désactiver ces étages dans
+  Paramètres → Master Chain.
 
-== 14.2 红色片段与文件缺失
-<红色片段与文件缺失>
-=== 一张卡片变红了（「文件缺失」），点击无反应
-<一张卡片变红了文件缺失点击无反应>
-红色边框表示音频文件在项目记录的路径上找不到了。
+== 14.2 Clips rouges et fichiers manquants
+=== Une carte est devenue rouge («~FICHIER MANQUANT~») et ne répond pas au clic
+<une-carte-est-devenue-rouge-fichier-manquant-et-ne-répond-pas-au-clic>
+La bordure rouge signale que le fichier audio est introuvable au chemin
+enregistré dans le projet.
 
-#strong[可能原因：]
+#strong[Causes possibles~:]
 
-- 文件在磁盘上被移动或改名。
-- 文件曾在一个现已断开的外部磁盘或 U 盘上。
-- 项目是在另一台电脑上打开的，路径不一致。
+- Le fichier a été déplacé ou renommé sur le disque.
+- Le fichier était sur un disque externe ou une clé USB maintenant
+  déconnectée.
+- Le projet a été ouvert sur un ordinateur différent, où les chemins ne
+  correspondent pas.
 
-#strong[解决办法：]
+#strong[Solutions~:]
 
-+ #strong[重新连接磁盘。] 文件曾在外部驱动器上，重新接上它。
-+ #strong[把文件放回原位。] 文件被移动过，放回原始路径。
-+ #strong[替换片段。] 把正确的文件重新拖进网格，删掉红色卡片。
-+ #strong[今后用「导出独立存档」。]
-  最有效的预防是移动或转移项目之前先建一个存档（第 10 章）。
++ #strong[Reconnectez le disque.] Si le fichier était sur une unité
+  externe, rebranchez-la.
++ #strong[Remettez le fichier à sa position d'origine.] S'il a été
+  déplacé, replacez-le à son chemin initial.
++ #strong[Remplacez le clip.] Faites glisser de nouveau le bon fichier
+  dans la grille et supprimez la carte rouge.
++ #strong[Utilisez Exporter le projet avec l'audio à l'avenir.] La
+  prévention la plus efficace consiste à consolider l'audio dans le
+  projet avant de déplacer ou de transférer le projet (Chapitre 10).
 
-== 14.3 MIDI 问题
-<midi-问题>
-=== 控制器未被检测到
-<控制器未被检测到>
-+ #strong[连接。] 确认控制器已连接并被操作系统识别。RLMP
-  实时检测设备连接与断开，没出现的话拔下 USB 线再插一次。
-+ #strong[驱动。] 多数 USB-MIDI 控制器是 #emph[class-compliant]
-  的，不需要驱动。带专有驱动的专业控制面，确认驱动已装好。
-+ #strong[在 Learn 模式下验证。] 启用 MIDI Learn
-  并在控制器上按一个键，卡片若收到了映射，说明控制器已被检测到。
+== 14.3 Problèmes MIDI
+<problèmes-midi>
+=== Le contrôleur n'est pas détecté
+<le-contrôleur-nest-pas-détecté>
++ #strong[Connexion.] Vérifiez que le contrôleur est bien branché et
+  reconnu par le système d'exploitation. RLMP détecte en temps réel la
+  connexion et la déconnexion des périphériques \; s'il n'apparaît
+  toujours pas, débranchez puis rebranchez le câble USB.
++ #strong[Driver.] La plupart des contrôleurs USB-MIDI sont
+  #emph[class-compliant] et ne demandent pas de driver. Pour les
+  surfaces professionnelles à driver propriétaire, vérifiez que le
+  driver est installé.
++ #strong[Vérification en mode Learn.] Activez MIDI Learn et appuyez sur
+  une touche du contrôleur~: si la carte reçoit le mapping, le
+  contrôleur est détecté.
 
-=== 已映射的片段不响应控制器的按键
-<已映射的片段不响应控制器的按键>
-- #strong[MIDI Learn 模式仍处于启用状态。] MIDI Learn
-  中控制器按键只记录新映射，不触发片段，请从工具菜单停用该模式。
-- #strong[映射丢失了。] 片段映射存在 `.lmp` 文件里，确认项目在 MIDI
-  Learn 会话之后已保存。全局功能的映射则跟单台电脑绑定。
+=== Les clips mappés ne répondent pas aux touches du contrôleur
+<les-clips-mappés-ne-répondent-pas-aux-touches-du-contrôleur>
+- #strong[Le mode MIDI Learn est encore actif.] En MIDI Learn, les
+  touches du contrôleur enregistrent de nouveaux mappings au lieu
+  d'exécuter les clips. Désactivez le mode depuis le menu Outils.
+- #strong[Le mapping a été perdu.] Les mappings des clips sont dans le
+  fichier `.lmp` \; vérifiez que le projet a été enregistré après la
+  session de MIDI Learn. Les mappings des fonctions globales sont, eux,
+  liés à l'ordinateur individuel.
 
-== 14.4 启动问题
-<启动问题>
-=== 应用在 macOS 上无法启动（Gatekeeper 提示）
-<应用在-macos-上无法启动gatekeeper-提示>
-见 2.3 节：通过 #emph[系统设置 → 隐私与安全性] 解除限制。
+== 14.4 Problèmes de démarrage
+<problèmes-de-démarrage>
+=== L'application ne démarre pas sous macOS (avertissement Gatekeeper)
+<lapplication-ne-démarre-pas-sous-macos-avertissement-gatekeeper>
+Voir la section 2.3~: déblocage via #emph[Réglages Système →
+Confidentialité et sécurité].
 
-=== 应用在 Windows 上无法启动（SmartScreen 提示）
-<应用在-windows-上无法启动smartscreen-提示>
-见 2.2 节，点击#emph[更多信息]，再点击#emph[仍要运行]。
+=== L'application ne démarre pas sous Windows (avertissement SmartScreen)
+<lapplication-ne-démarre-pas-sous-windows-avertissement-smartscreen>
+Voir la section 2.2. Cliquez sur #emph[Informations complémentaires]
+puis sur #emph[Exécuter quand même].
 
-=== 启动时的异常行为
-<启动时的异常行为>
-软件打开时表现异常，先关闭再重开
-RLMP。问题持续的话，检查安装路径里有没有可能干扰 FFmpeg
-组件加载的特殊字符。
+=== Comportements anormaux au démarrage
+<comportements-anormaux-au-démarrage>
+Si le logiciel se comporte de façon inattendue à l'ouverture, fermez-le
+et rouvrez-le. Si le problème persiste, vérifiez que le chemin
+d'installation ne contient pas de caractères spéciaux, ils peuvent gêner
+le chargement des composants FFmpeg.
 
-== 14.5 常见问题
-<常见问题>
-#strong[RLMP 能不能无人值守地把一家电台跑满 24 小时？] 不能。RLMP
-是给现场导播用的，节目由操作员值守，没有按时排期，也没有播放列表自动轮换。Automix
-视图能给纯音乐流提供有限、自愿的自动化，视图打开期间生效（第 7
-章）。全天候自动化另有专门软件（Zara Radio、PlayIt
-Live、Rivendell），它们解决的是不同的问题。
+== 14.5 Questions fréquentes
+<questions-fréquentes>
+#strong[RLMP peut-il automatiser une radio 24 heures sur 24 sans
+surveillance ?] Non. RLMP est pensé pour la régie live, des émissions
+tenues par un opérateur, et ne propose ni programmation horaire ni
+rotation automatique de playlist. Seule la vue Automix offre une
+automatisation limitée et volontaire du flux musical, active tant
+qu'elle reste ouverte (Chapitre 7). Pour l'automatisation 24h/24, des
+logiciels dédiés existent déjà (Zara Radio, PlayIt Live, Rivendell)~:
+ils couvrent un besoin différent.
 
-#strong[「保存」和「另存为」有什么区别？] #emph[保存项目] 静默覆盖打开的
-`.lmp` 文件；#emph[另存为…] 始终打开对话框，创建新文件，不动当前文件。
+#strong[Quelle est la différence entre Enregistrer et Enregistrer
+sous~?] #emph[Enregistrer le projet] écrase le fichier `.lmp` ouvert, en
+silence. #emph[Enregistrer sous…] ouvre toujours la boîte de dialogue et
+crée un nouveau fichier, sans toucher au fichier courant.
 
-#strong[能在 iPad 或移动设备上用 RLMP 吗？] 不能当主应用用：RLMP 是
-Windows、macOS、Linux
-上的桌面软件。不过平板或手机能通过远程控制当浏览器#strong[遥控器]用（第
-11 章）。
+#strong[Puis-je utiliser RLMP sur iPad ou sur des appareils mobiles ?]
+Pas comme application principale~: RLMP reste un logiciel de bureau,
+pour Windows, macOS et Linux. Une tablette ou un téléphone peuvent en
+revanche servir de #strong[télécommande] via navigateur, grâce au
+Contrôle à distance (Chapitre 11).
 
-#strong[早期版本的 `.lmp` 文件跟 1.11.5 兼容吗？]
-兼容。打开更早版本创建的项目时，RLMP
-会自动更新其结构，包括其间新增的列，在你执行保存之前不会改动文件。
+#strong[Les fichiers `.lmp` des versions précédentes sont-ils
+compatibles avec la 1.15.10~?] Oui. À l'ouverture d'un projet créé avec
+une version précédente, RLMP en met à jour automatiquement la structure,
+colonnes ajoutées entre-temps comprises, sans modifier le fichier tant
+que vous n'effectuez pas d'enregistrement.
 
-#strong[怎么把 RLMP 更新到新版本？] 软件启动时检查更新并提示你。Windows
-与 Linux AppImage 上安装从更新窗口自动完成；macOS 与 Linux `.deb`
-上会在浏览器打开下载页面。细节见第 12 章。
+#strong[Comment mettre RLMP à jour vers une nouvelle version~?] Le
+logiciel vérifie les mises à jour au démarrage et vous avertit. Sous
+Windows et Linux AppImage, l'installation est automatique depuis la
+fenêtre de mise à jour~; sous macOS et Linux `.deb`, le navigateur est
+ouvert sur la page de téléchargement. Tous les détails au Chapitre 12.
 
-#strong[自动备份存在哪里？] 应用数据目录里的 `autosaves` 文件夹（Windows
-是 `%APPDATA%\runtime-live-machine-pro\autosaves\`，macOS 与 Linux
-是等价路径，第 10 章）。系统保留最近十个快照。
+#strong[Où sont enregistrées les sauvegardes automatiques~?] Dans le
+dossier `autosaves` du répertoire de données de l'application
+(`%APPDATA%\runtime-live-machine-pro\autosaves\` sous Windows~; chemins
+équivalents sous macOS et Linux, Chapitre 10). Les dix instantanés les
+plus récents sont conservés.
 
-#strong[软件能离线运行吗？] 能，完全可以。RLMP
-不需要网络就能工作。网络只用于检查更新（可选）和局域网内的远程控制（可选）。
+#strong[Le logiciel fonctionne-t-il hors ligne ?] Oui, entièrement. RLMP
+n'a besoin d'aucune connexion internet pour tourner. Le réseau ne sert
+que pour la vérification des mises à jour, optionnelle, et pour le
+Contrôle à distance en réseau local, optionnel lui aussi.
 
-#strong[远程控制连不上，怎么回事？]
-确认远程设备跟电脑在#strong[同一网络]，输入了#strong[正确的
-PIN]（每次启动都会变），用的是设置里显示的地址。记住远程控制每次启动都以关闭状态重来（第
-11 章）。
+#strong[Le Contrôle à distance ne se connecte pas. Pourquoi~?] Vérifiez
+que l'appareil distant est sur le #strong[même réseau] que l'ordinateur,
+que vous avez saisi le #strong[PIN correct] (il change à chaque
+démarrage) et que vous utilisez l'adresse affichée dans les Paramètres.
+Rappelez-vous que le Contrôle à distance repart éteint à chaque
+démarrage de l'application (Chapitre 11).

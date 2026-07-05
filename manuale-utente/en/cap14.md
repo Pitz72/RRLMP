@@ -51,7 +51,7 @@ The red border indicates that the audio file isn’t reachable at the path store
 1. **Reconnect the disk.** If the file was on an external drive, plug it back in.
 2. **Return the file to its original location.** If it was moved, put it back at the original path.
 3. **Replace the clip.** Drag the correct file into the grid again and delete the red card.
-4. **Use Export Self-Contained Archive in future.** The most effective prevention is to create an archive before moving or transferring the project (Chapter 10).
+4. **Use Export project with audio in future.** The most effective prevention is to consolidate the audio into the project before moving or transferring it (Chapter 10).
 
 ---
 
@@ -97,7 +97,7 @@ No. RLMP is designed for live production: shows attended by an operator. It has 
 **Can I use RLMP on an iPad or on mobile devices?**
 Not as the main application: RLMP is desktop software for Windows, macOS and Linux. A tablet or a phone can, however, act as a **remote** via the browser, through Remote Control (Chapter 11).
 
-**Are `.lmp` files from earlier versions compatible with 1.11.5?**
+**Are `.lmp` files from earlier versions compatible with 1.15.10?**
 Yes. When you open a project created with an earlier version, RLMP automatically updates its structure, including the columns added in the meantime, without modifying the file until you perform a save.
 
 **How do I update RLMP to a new version?**

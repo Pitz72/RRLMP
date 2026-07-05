@@ -20,11 +20,11 @@ Il controllo è opzionale e non bloccante: se sei offline, RLMP parte e lavora s
 
 ## 12.2 La finestra di aggiornamento
 
-Quando un aggiornamento è disponibile, la finestra dedicata mostra la versione corrente, la nuova versione e le note di rilascio. Da qui decidi tu:
+Quando un aggiornamento è disponibile, la finestra dedicata mostra la versione corrente, la nuova versione e le **note di rilascio**: l'elenco reale delle novità di quella versione (lo stesso changelog di questo software), formattato e leggibile, non un semplice elenco di file. Le note restano visibili anche a download completato, subito prima di installare, così sai sempre cosa stai per applicare. Da qui decidi tu:
 
 - **Più tardi** — chiude la finestra senza fare nulla. Potrai riaprirla quando vuoi.
 - **Scarica** — avvia il download della nuova versione. Il download **non parte mai da solo**: comincia solo quando premi questo pulsante. Una barra di avanzamento ne mostra il progresso.
-- **Riavvia e installa** — compare quando il download è completo: riavvia l'applicazione applicando l'aggiornamento.
+- **Riavvia e installa** — compare quando il download è completo: chiude l'applicazione e applica l'aggiornamento. La chiusura è pulita e immediata: avendo già confermato il riavvio, il software non ripropone la richiesta di salvataggio e non resta aperto dietro l'installer.
 
 ---
 

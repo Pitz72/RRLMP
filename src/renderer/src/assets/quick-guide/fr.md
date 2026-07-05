@@ -1,8 +1,17 @@
 # Runtime Live Machine Pro — Guide de Démarrage Rapide
 
-**Version 1.15.6 · Français**
+**Version 1.15.10 · Français**
 
 Bienvenue dans Runtime Live Machine Pro (RLMP), le logiciel de playout audio pour la radio, les directs et les événements live. Ce guide vous accompagne de l'installation à votre première lecture en quelques minutes. Pour la documentation complète, consultez le Manuel Utilisateur (téléchargeable depuis le logiciel avec le bouton « Manuel »).
+
+---
+
+## Nouveautés de cette version
+
+- **Exporter le projet avec l'audio** — l'entrée du menu FICHIER (sous *Enregistrer sous…*) regroupe tout l'audio dans un sous-dossier `audio/` et y redirige les clips : à partir de ce moment, l'archive devient la référence du projet et **vous pouvez supprimer les fichiers d'origine en toute sécurité**. Cette entrée s'appelait auparavant « Exporter l'archive ».
+- **Vider la colonne** — l'icône de corbeille dans l'en-tête de chaque colonne supprime toutes ses clips d'un seul coup, avec demande de confirmation (annulable avec `Ctrl+Z`).
+- **Badge Intro sur les cartes** — si une clip a un point d'Intro configuré, un badge cyan `I` avec les secondes reste toujours visible ; le badge BPM est désormais jaune fluorescent, à haute visibilité.
+- **Mises à jour intégrées améliorées** — la fenêtre de mise à jour est plus grande et affiche les vraies notes de version (le changelog) ; lors de « Redémarrer et installer », l'application se ferme proprement et l'installation démarre sans accroc.
 
 ---
 

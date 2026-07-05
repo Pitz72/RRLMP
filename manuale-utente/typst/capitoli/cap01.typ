@@ -1,111 +1,172 @@
 #import "../lib/manuale-template.typ": *
 
-= Runtime Live Machine Pro：一种理念
-<第-1-章-runtime-live-machine-pro一种理念>
+= Runtime Live Machine Pro~: une philosophie
 
-#emph[作者手记]
+#emph[Note de l'auteur]
 
-十五年的开麦生涯，在人身上留下的印记很难抹去。我做过播客，主持过谈话节目，独自撑起过一家网络电台。播出单、音乐、访谈、音量、节奏------大部分时候都是我一个人扛。那种滋味我很清楚：直播中忽然发现歌快放完了，脑子里要说的话却还没理顺。一只手压着推子，另一只手去翻找片段，而真正缺的是第三只手------本该替你接住话头的那只。
+Quinze ans de micro ouvert, ça laisse des traces. J'ai animé des
+podcasts, mené des talks, fait tourner une web radio, et pendant
+longtemps j'ai tout fait seul~: la conduite, la musique, les interviews,
+les volumes, le timing. Cette sensation de voir un morceau filer vers sa
+fin alors qu'on cherche encore ses mots, je la connais bien. Devoir
+baisser le fader d'une main et attraper le bon clip de l'autre, pendant
+qu'une troisième main imaginaire tiendrait le fil du discours~: je suis
+passé par là plus souvent qu'à mon tour.
 
-Runtime Live Machine Pro
-就诞生于这份挫败感，以及一个朴素的想法：音频导播不该是一份独立的工作，而应当隐形。深夜独自主持谈话节目的主播、播客作者、身边没有音响师的内容创作者，理应专注于自己最擅长的事------说话、思考、与听众建立联系。其余的，交给软件。
+Runtime Live Machine Pro est né de cette frustration et d'une conviction
+simple~: la régie audio ne devrait pas être un métier à part entière,
+elle devrait se faire oublier. L'animateur, le podcasteur, le créateur
+de contenu qui mène seul un talk nocturne, sans ingénieur du son pour
+l'épauler, doit pouvoir se concentrer sur son vrai travail~: parler,
+penser, construire une relation avec son audience. Le logiciel prend le
+reste à sa charge.
 
-我把一位优秀的声音导播会自动执行的规则装进了
-RLMP：音频事件之间的层级、你一开口就触发的
-ducking、在恰当时机停下又续上的音乐。这些规则本身很复杂，但界面只要求你做一件事：在对的时机，点对的片段。
+RLMP intègre les réflexes qu'un bon réalisateur son applique sans y
+penser~: la hiérarchie entre les événements audio, le ducking qui
+s'active dès que vous parlez, la musique qui s'interrompt puis reprend
+au bon instant. Ce sont des mécanismes complexes, mais ils restent
+invisibles derrière une interface qui ne demande qu'un geste~: cliquer
+sur le bon clip au bon moment.
 
-这款软件首先为三类人而做：经营中小型谈话电台的人、怀有专业野心的播客制作者、身边没有技术团队却要撑起直播流的人。但它并不排他------在更成体系的环境中工作的人，同样能在其中找到合用的工具。目标只有一个：让主播不必依赖那些并非总在场、也并非总是必需的支援人手。
+Ce logiciel vise d'abord ceux qui font vivre de petites ou moyennes talk
+radios, ceux qui produisent des podcasts avec de vraies ambitions, ceux
+qui diffusent un live streaming sans équipe technique. Il ne s'enferme
+pourtant dans aucune niche~: les équipes plus structurées y trouveront
+elles aussi de quoi travailler efficacement. Un seul objectif le guide~:
+affranchir l'animateur de renforts qui ne sont pas toujours présents, et
+qui ne sont pas toujours indispensables non plus.
 
-工具因需求而生。Runtime Live Machine Pro
-回应的是一个具体问题：现场音频导播（电台、播客、活动、剧场）是一场表演，不是自动化流程。它需要瞬时的掌控、稳定的心态，以及一款不会在错误时刻掉链子的软件。
+Un outil naît toujours en réponse à quelque chose. Celle de Runtime Live
+Machine Pro est précise~: la régie audio en direct (radio, podcast,
+événementiel, théâtre) relève de la performance, pas de
+l'automatisation. Elle demande un contrôle instantané, des nerfs solides
+et un logiciel qui ne lâche jamais au pire moment.
 
-你电脑上装的这款软件，不是全天候的音乐排期系统，不是用于后期制作的
-DAW，也不是带队列的简易播放器。它是#strong[实时导播机器]：每一场节目都是独一无二、不可复制的一次演出，理应有自己专属的容器，也理应对每一次转场都能精细掌控------RLMP
-正是围绕这个理念搭建的。
+Ce que vous installez n'est ni un système de programmation musicale
+tournant 24 heures sur 24, ni une STAN pensée pour la post-production,
+ni un simple lecteur à file d'attente. C'est autre chose~: une
+#strong[machine de régie en temps réel], conçue autour d'une idée
+directrice --- chaque émission est un acte unique, non reproductible,
+qui mérite un contenant dédié et un contrôle précis sur chaque
+transition.
 
-== 1.1 为谁而造
-<为谁而造>
-Runtime Live Machine Pro
-面向两类用户。他们所处的环境不同，需求的核心却是一样的。
+== 1.1 Pour qui il a été conçu
+<pour-qui-il-a-été-conçu>
+Runtime Live Machine Pro s'adresse à deux types d'utilisateurs qui,
+malgré la différence de contexte, partagent le même besoin fondamental.
 
-#strong[广播专业人士]------商业电台的导播、音视频直播的音响师、独自掌控自家节目的主播------会发现
-RLMP 具备高端专业设备的能力，却没有那些系统常有的复杂操作负担。
+Le #strong[professionnel du broadcast] (réalisateur d'une radio
+commerciale, ingénieur du son d'un live streaming audio ou vidéo,
+animateur qui gère sa propre émission) trouvera dans RLMP un système à
+la hauteur des outils professionnels haut de gamme, sans l'agilité
+opérationnelle que ces systèmes sacrifient trop souvent à la complexité.
 
-#strong[内容创作者]------独立播客作者、网络电台主持人、现场活动的组织者------则会发现一款不必花数年学习就能上手的工具，成品质量却毫不打折。
+Le #strong[créateur de contenu] (podcasteur indépendant, animateur d'une
+web radio, organisateur d'événements en direct) trouvera un outil
+accessible sans des années de formation technique, mais qui ne transige
+jamais sur la qualité du résultat.
 
-无论哪一类用户，得到的都是同一套东西：对按键即时响应的界面、稳定的音频引擎，以及一套不会漏保存的存档系统。
+Dans les deux cas, l'utilisateur retrouvera une interface qui répond
+instantanément à la touche, un moteur audio stable et un système de
+sauvegarde qui n'oublie rien.
 
-== 1.2 「Single Show」理念
-<single-show理念>
-Runtime Live Machine Pro
-的立身之本是#strong[项目相互隔离]。你做的每一场节目------一期播客、一场电台直播、一次剧场演出------都单独存活在一个
-`.lmp` 文件里：片段布局、音量、MIDI 映射、cue
-点、导播笔记，全部在内。加载这个文件，就能原样找回你离开时的那场节目。
+== 1.2 La philosophie «~Single Show~»
+Le concept fondateur de Runtime Live Machine Pro tient en une idée~: le
+#strong[projet isolé]. Chaque émission que vous réalisez, qu'il s'agisse
+d'un épisode de podcast, d'un direct radio ou d'un spectacle de théâtre,
+vit dans un fichier `.lmp` autonome qui contient tout~: la disposition
+des clips, les volumes, les mappings MIDI, les points de cue, les notes
+de régie. Chargez ce fichier, et vous retrouvez l'émission exactement
+telle que vous l'avez laissée.
 
-好处很实在。节目之间切换不用重新配置软件。借助 Export Package
-功能，一个项目能被带到任意一台电脑上正常运行。往期节目可以归档，几个月后重新打开也不会出岔子。
+Cette approche a des conséquences bien concrètes. Plus besoin de
+reconfigurer le logiciel à chaque changement d'émission. Un projet se
+transporte sur n'importe quel ordinateur grâce à la fonction Exporter le
+projet avec l'audio, avec la garantie qu'il fonctionnera. Les épisodes
+passés s'archivent et se rouvrent des mois plus tard sans mauvaise
+surprise.
 
-`.lmp`
-文件本身不含音频文件，只记录文件在磁盘上的路径。要在多台电脑之间迁移，用
-#strong[Export Package]
-功能把所有必需内容物理复制到一个自包含的文件夹里即可。
+Le fichier `.lmp` ne contient pas les fichiers audio physiques~: il
+mémorise les chemins sur le disque. Pour le déplacement d'un ordinateur
+à l'autre, la fonction #strong[Exporter le projet avec l'audio] copie
+physiquement tout le nécessaire dans un dossier autonome.
 
-== 1.3 Main-Side-Heavy 架构
-<main-side-heavy-架构>
-了解内部架构不是使用软件的前提，但能解释清楚为什么其他播放器常见的某些毛病在这里不会出现。
+== 1.3 L'architecture Main-Side-Heavy
+Comprendre l'architecture interne n'a rien d'indispensable pour utiliser
+le logiciel. Cela aide néanmoins à saisir pourquoi certains problèmes
+fréquents chez d'autres lecteurs n'apparaissent pas ici.
 
-Runtime Live Machine Pro 构建于 #strong[Electron]
-之上。这个平台把主进程（#emph[Main Process]，运行于
-Node.js）和界面渲染进程（#emph[Renderer Process]）清楚地分开，RLMP
-有意利用了这层分离。
+Runtime Live Machine Pro repose sur #strong[Electron], une plateforme
+qui sépare nettement le processus principal (#emph[Main Process], en
+Node.js) du processus de rendu de l'interface (#emph[Renderer Process]).
+Cette séparation n'a rien d'accidentel~: elle est exploitée
+délibérément.
 
-繁重的活------用 FFmpeg
-解码音频、从磁盘读文件、分析波形、管理备份------全部交给 Main
-Process。Renderer 只管界面：显示片段、驱动 VU meter
-动画、响应点击。好处是：密集操作期间界面依旧流畅，音频引擎也不用跟屏幕上的像素抢资源。
+Le Main Process prend en charge toutes les opérations lourdes~: décodage
+audio via FFmpeg, lecture des fichiers depuis le disque, analyse des
+formes d'onde, gestion des sauvegardes. Le Renderer, lui, s'occupe
+uniquement de l'interface --- afficher les clips, animer les VU meter,
+répondre aux clics. Résultat~: une interface qui reste fluide même sous
+forte charge, et un moteur audio qui ne se bat jamais pour les
+ressources avec les pixels à l'écran.
 
-自定义的 `media://`
-协议保证音频文件不会被整体读进内存：它们以流的形式直接从磁盘送到播放器。哪怕处理时长数小时的未压缩
-WAV 文件，应用的内存占用也不会有明显变化。
+Le protocole personnalisé `media://` garantit que les fichiers audio ne
+sont jamais chargés en entier dans la mémoire vive~: ils circulent en
+streaming, directement du disque vers le lecteur. Résultat, des fichiers
+WAV non compressés de plusieurs heures se gèrent sans que la
+consommation mémoire de l'application ne bouge de façon perceptible.
 
-== 1.4 导播网格：一套可视化的语法
-<导播网格一套可视化的语法>
-RLMP
-的操作界面由若干竖直的列组成，每一列都有明确的语义角色。启动软件之前，先记住这套语法会很有帮助。
+== 1.4 La grille de régie~: une grammaire visuelle
+<la-grille-de-régie-une-grammaire-visuelle>
+L'interface opérationnelle de RLMP s'organise en colonnes verticales,
+chacune avec un rôle sémantique précis. Avant même de lancer le
+logiciel, mieux vaut se familiariser avec cette grammaire.
 
-主网格里有#strong[六列]。第七个操作面------#strong[pad FX]，效果的
-#emph[jingle machine]------不在网格里，而是位于一个专属面板中，详见第 7
-章。
+Six colonnes sont visibles dans la grille principale. Une septième
+surface --- le #strong[pad FX], la #emph[jingle machine] des effets ---
+vit en dehors de la grille, dans un panneau dédié décrit au Chapitre 7.
 
 #figure(
   align(center)[#table(
-    columns: 3,
+    columns: (33.33%, 33.33%, 33.33%),
     align: (auto,auto,auto,),
-    table.header([列], [颜色], [功能],),
+    table.header([Colonne], [Couleur], [Fonction],),
     table.hline(),
-    [#strong[Show
-    Assets]], [绿色], [节目的片头、垫乐、结构性的背景铺底],
-    [#strong[Jingle]], [琥珀色], [反复出现的标识性 jingle 与 stacco],
-    [#strong[Promo]], [青色], [预告、自我宣传、排期播出的通告],
-    [#strong[本期歌曲]], [红色], [音乐播放列表],
-    [#strong[人声 / 预录]], [橙色], [访谈、语音、口播段落],
-    [#strong[Pre-Show]], [紫色], [直播前的候播音乐，附带 jingle 与 promo
-    的轮播],
+    [#strong[Show Assets]], [Vert], [Génériques, bases, ambiances
+    structurelles de l'émission],
+    [#strong[Jingle]], [Ambre], [Jingles et stacchi identitaires
+    récurrents],
+    [#strong[Promo]], [Cyan], [Promos, autopromotions, annonces
+    programmées],
+    [#strong[Musiques de l'épisode]], [Rouge], [La playlist musicale],
+    [#strong[Voix / Enregistrements]], [Orange], [Interviews, messages
+    vocaux, blocs parlés],
+    [#strong[Pré-émission]], [Violet], [Musique d'attente avant le
+    direct, avec rotation de jingles et de promos],
   )]
   , kind: table
   )
 
-前三列（Show
-Assets、Jingle、Promo）在音频层面其实是一回事：都是结构性、服务性的元素，混音引擎一视同仁地对待它们。分开纯粹是为了组织方便------把片头、jingle
-和 promo 分列，播出单再拥挤也能一眼看清。
+Les trois premières colonnes (Show Assets, Jingle et Promo) partagent la
+même nature audio~: ce sont des éléments de structure et de service,
+traités de façon identique par le moteur de mixage. Leur séparation
+reste purement organisationnelle --- elle garde la conduite lisible,
+même chargée, en distinguant clairement génériques, jingles et promos.
 
-每一列的音频行为各不相同：混音优先级、互斥规则、淡变数值，详见第 6
-章。眼下只需记住一点：片段在网格中的位置不是摆设，它决定了软件在播出时怎么对待这个片段。用不到的列可以从视图中隐藏（设置
-→ 常规 → 导播布局），片段不会因此丢失。
+Chaque colonne possède des comportements audio distincts (priorité dans
+le mixage, règles d'exclusion, valeurs de fondu), détaillés au Chapitre
+\6. Retenez pour l'instant l'essentiel~: la position d'un clip dans la
+grille n'a rien de décoratif, elle détermine comment le logiciel le
+traitera pendant la diffusion. Les colonnes inutiles peuvent être
+masquées (Paramètres → Généraux → Disposition régie) sans perdre les
+clips qu'elles contiennent.
 
-== 1.5 当前版本与更新
-<当前版本与更新>
-本手册对应 Runtime Live Machine Pro #strong[1.11.5]
-版本。启动时软件会静默检查有无新版本；发现更新会弹出提示，但绝不会在直播中弹出。更新系统详见第
-12 章。`.lmp`
-项目文件向下兼容后续版本：升级软件不会丢失现有项目，也不需要手动迁移。
+== 1.5 Version actuelle et mises à jour
+<version-actuelle-et-mises-à-jour>
+Ce manuel décrit la version #strong[1.15.10] de Runtime Live Machine
+Pro. Au démarrage, le logiciel vérifie discrètement si une version plus
+récente existe et, le cas échéant, affiche un avis de mise à jour ---
+jamais pendant un direct. Le système de mise à jour fait l'objet du
+Chapitre 12. Les fichiers de projet `.lmp` restent compatibles avec les
+versions ultérieures~: une mise à jour n'entraîne ni perte ni migration
+manuelle des projets existants.

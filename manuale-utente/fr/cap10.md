@@ -62,24 +62,29 @@ Le dossier `autosaves` se trouve dans le répertoire de données de l'applicatio
 
 ---
 
-## 10.4 Export Package : portabilité complète
+## 10.4 Exporter le projet avec l'audio
 
-Le fichier `.lmp` ne contient que les chemins vers les fichiers audio, jamais les fichiers eux-mêmes. Transporter un projet vers un autre ordinateur demande donc de la prudence : si la machine de destination n'a pas les fichiers aux mêmes chemins absolus, les clips passent au rouge. C'est exactement ce que résout la fonction **Exporter l'archive autonome** (Export Package), dans le menu FILE.
+Comme le fichier `.lmp` ne contient que les chemins vers les fichiers audio, et non les fichiers eux-mêmes, un projet est fragile : si vous déplacez, renommez ou supprimez ne serait-ce qu'un seul des fichiers sources, le clip correspondant passe au rouge. La fonction **Exporter le projet avec l'audio**, dans le menu FILE (juste sous *Enregistrer sous…*), résout le problème à la racine en consolidant tout l'audio à l'intérieur du projet.
 
 ### Comment ça marche
 
-RLMP analyse tous les chemins vers les fichiers audio du projet, crée un sous-dossier `audio/` et **copie physiquement** chaque fichier référencé à l'intérieur. Les fichiers déjà présents et identiques ne sont pas recopiés, les doublons de nom sont renommés pour éviter tout écrasement, et les fichiers orphelins, ceux qui ne sont plus référencés, sont retirés du dossier.
+RLMP analyse tous les chemins vers les fichiers audio du projet, crée un sous-dossier `audio/` à côté du fichier `.lmp` et **copie physiquement** chaque fichier référencé à l'intérieur. Les fichiers déjà présents et identiques ne sont pas recopiés ; les doublons de nom sont renommés pour éviter tout écrasement, et les fichiers orphelins, ceux qui ne sont plus référencés, sont retirés du dossier.
 
-L'opération a deux modes :
+La différence par rapport à une simple sauvegarde tient à ce qui se passe **après** la copie : RLMP **repointe chaque clip vers la nouvelle copie** dans `audio/` et **réenregistre le projet**. Dès lors, le dossier `audio/` n'est pas une archive de secours posée à côté du projet, mais la source depuis laquelle la session lit réellement l'audio.
 
-- **À côté du projet** — si vous exportez vers le dossier où réside déjà le `.lmp`, RLMP synchronise le sous-dossier `audio/` à côté de lui.
-- **Dossier libre** — si vous choisissez un nouveau dossier (une clé USB, un NAS), RLMP y écrit un `project.lmp` avec les chemins déjà mis à jour pour pointer vers le sous-dossier `audio/` local.
+### Le résultat : vous pouvez supprimer les originaux
 
-### Le résultat
+Comme le projet pointe désormais vers les copies dans `audio/`, **les fichiers audio à leur emplacement d'origine ne servent plus** et vous pouvez les supprimer en toute sécurité : l'émission continue de fonctionner en lisant depuis l'archive. C'est là toute la différence avec les versions précédentes, où le dossier `audio/` restait un doublon orphelin et où supprimer les originaux cassait les clips.
 
-Le dossier de destination devient ainsi autonome : il réunit tout ce qu'il faut pour diffuser l'émission sur n'importe quel ordinateur équipé de RLMP, quelle que soit la structure de dossiers de cette machine.
+Le dossier du projet devient ainsi autonome : `.lmp` plus sous-dossier `audio/`, tout le nécessaire pour diffuser l'émission, prêt à être archivé, copié ou transporté sur un autre ordinateur équipé de RLMP.
 
-> **Bonne pratique.** Utilisez Exporter l'archive autonome à la fin de la préparation de chaque émission pour créer un « master » à emporter en studio ou à archiver. En cas de pépin technique de dernière minute, vous aurez toujours sous la main une copie complète et prête à l'emploi.
+Quelques détails utiles :
+
+- L'opération est **répétable** : si vous ajoutez de nouveaux clips et réexportez, RLMP ne copie que les fichiers nouveaux et réaligne le projet, sans dupliquer ceux qui sont déjà archivés.
+- Le raccrochage à l'archive **n'entre pas dans l'historique Annuler/Répéter** : un *Annuler* ramènerait les clips vers les originaux, que vous avez peut-être déjà supprimés.
+- La référence à l'archive est un **chemin absolu**. Tant que le dossier du projet reste où il est, tout fonctionne ; si vous le déplacez ailleurs, les chemins doivent être régénérés par un nouvel export depuis le nouvel emplacement.
+
+> **Bonne pratique.** Utilisez *Exporter le projet avec l'audio* à la fin de la préparation de chaque émission pour consolider l'audio dans le projet. Vous obtiendrez un « master » compact et portable, et vous pourrez libérer de l'espace en supprimant les fichiers épars depuis lesquels vous aviez importé.
 
 ### Contrôle d'intégrité à l'ouverture
 

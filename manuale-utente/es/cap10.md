@@ -62,24 +62,29 @@ La carpeta `autosaves` está en el directorio de datos de la aplicación:
 
 ---
 
-## 10.4 Export Package: portabilidad completa
+## 10.4 Exportar proyecto con audio
 
-Como el `.lmp` guarda solo las rutas a los archivos de audio, y no los archivos en sí, llevar el proyecto a otro ordenador tiene su riesgo: si la máquina de destino no tiene esos archivos exactamente en las mismas rutas absolutas, los clips aparecen en rojo. Para evitarlo de raíz está la función **Exportar archivo autónomo** (Export Package), disponible en el menú FILE.
+Como el archivo `.lmp` guarda solo las rutas a los archivos de audio, y no los archivos en sí, un proyecto es frágil: si mueves, renombras o borras aunque sea uno solo de los archivos de origen, el clip correspondiente se pone en rojo. La función **Exportar proyecto con audio**, en el menú FILE (justo debajo de *Guardar como…*), resuelve el problema de raíz consolidando todo el audio dentro del proyecto.
 
 ### Cómo funciona
 
-RLMP recorre todas las rutas de audio del proyecto, crea una subcarpeta `audio/` y **copia físicamente** dentro cada archivo referenciado. Lo que ya está copiado e idéntico no se vuelve a duplicar; si hay coincidencias de nombre se renombran para no pisarse entre sí, y los archivos huérfanos que ya no se usan se eliminan de la carpeta.
+RLMP recorre todas las rutas de audio del proyecto, crea una subcarpeta `audio/` junto al archivo `.lmp` y **copia físicamente** dentro cada archivo referenciado. Lo que ya está copiado e idéntico no se vuelve a duplicar; si hay coincidencias de nombre se renombran para no pisarse entre sí, y los archivos huérfanos que ya no se usan se eliminan de la carpeta.
 
-Hay dos formas de hacerlo:
+La diferencia con respecto a una simple copia de seguridad es lo que ocurre **después** de la copia: RLMP **reapunta cada clip a la nueva copia** dentro de `audio/` y **vuelve a guardar el proyecto**. A partir de ese momento, la carpeta `audio/` no es un archivo de reserva junto al proyecto, sino la fuente desde la que la sesión lee realmente el audio.
 
-- **Junto al proyecto** — si exportas a la misma carpeta donde ya vive el `.lmp`, RLMP se limita a sincronizar la subcarpeta `audio/` junto a él.
-- **Carpeta libre** — si en cambio eliges una carpeta nueva (una memoria USB, un NAS), RLMP escribe allí un `project.lmp` con las rutas ya apuntando a la subcarpeta `audio/` local.
+### El resultado: puedes borrar los originales
 
-### El resultado
+Como el proyecto ahora apunta a las copias de `audio/`, **los archivos de audio en su ubicación original ya no hacen falta** y puedes borrarlos con total seguridad: el show sigue funcionando leyendo desde el archivo consolidado. Es la diferencia con respecto a las versiones anteriores, donde la carpeta `audio/` quedaba como un duplicado huérfano y borrar los originales rompía los clips.
 
-La carpeta de destino queda autocontenida, con todo lo necesario para ejecutar el show en cualquier ordenador que tenga RLMP instalado, sin que importe cómo esté organizado el disco de esa máquina.
+Así, la carpeta del proyecto queda autocontenida: el `.lmp` más la subcarpeta `audio/`, todo lo necesario para ejecutar el show, listo para archivar, copiar o llevar a otro ordenador que tenga RLMP instalado.
 
-> **Práctica recomendada.** Conviene usar Exportar archivo autónomo al cerrar la preparación de cada show, para dejar listo un «master» que llevarte al estudio o guardar en el archivo. Si surge un imprevisto técnico de última hora, tendrás siempre a mano una copia completa y portable.
+Algunos detalles útiles:
+
+- La operación es **repetible**: si añades clips nuevos y vuelves a exportar, RLMP copia solo los archivos nuevos y realinea el proyecto, sin duplicar los que ya están archivados.
+- El reenganche al archivo consolidado **no entra en el historial de Deshacer/Rehacer**: un *Deshacer* devolvería los clips a los originales, que quizá ya hayas borrado.
+- La referencia al archivo consolidado es una **ruta absoluta**. Mientras la carpeta del proyecto siga donde está, todo funciona; si la mueves a otro sitio, hay que regenerar las rutas con una nueva exportación desde la nueva ubicación.
+
+> **Práctica recomendada.** Usa *Exportar proyecto con audio* al terminar la preparación de cada show para consolidar el audio dentro del proyecto. Tendrás un «master» compacto y portable, y podrás liberar espacio borrando los archivos dispersos desde los que habías importado.
 
 ### Control de integridad al abrir
 

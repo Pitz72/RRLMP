@@ -39,7 +39,7 @@ The bundled FFmpeg engine ensures compatibility with a wide range of audio forma
 
 ### The file path
 
-RLMP stores the **absolute path** of the file on disk, not a copy of the file itself. If you move, rename or delete the original file, the corresponding card turns red and is no longer playable. To work across several computers or create portable archives, use the **Export Package** feature described in Chapter 10.
+RLMP stores the **absolute path** of the file on disk, not a copy of the file itself. If you move, rename or delete the original file, the corresponding card turns red and is no longer playable. To work across several computers or create portable archives, use the **Export project with audio** feature described in Chapter 10.
 
 ---
 

@@ -14,7 +14,7 @@ L'header occupa l'intera larghezza dello schermo. Procedendo da sinistra a destr
 
 ### Identità
 
-**Logo e badge PRO.** A sinistra, il logo affianca la scritta **RLM PRO** — la parola «PRO» è resa con un gradiente iridescente che passa dal ciano al verde, all'ambra, al rosso. Accanto, in caratteri monospazio, è riportata la versione installata (`v1.11.5`). Passando il mouse sul logo compare il nome completo del software con il numero di versione.
+**Logo e badge PRO.** A sinistra, il logo affianca la scritta **RLM PRO** — la parola «PRO» è resa con un gradiente iridescente che passa dal ciano al verde, all'ambra, al rosso. Accanto, in caratteri monospazio, è riportata la versione installata (`v1.15.10`). Passando il mouse sul logo compare il nome completo del software con il numero di versione.
 
 ### Menu File
 
@@ -23,9 +23,9 @@ Il pulsante **FILE** apre un menu con le operazioni sui progetti:
 - *Nuovo Progetto* — apre una sessione vuota. Se ci sono modifiche non salvate, il software chiede conferma.
 - *Salva Progetto* — salvataggio rapido sul file `.lmp` corrente. La voce si evidenzia in giallo quando ci sono modifiche non salvate.
 - *Salva Come…* — apre sempre la finestra di dialogo, per creare versioni progressive (es. `Ep47_bozza.lmp`, `Ep47_finale.lmp`).
+- *Esporta progetto con audio* — consolida tutto l'audio dentro il progetto (sottocartella `audio/`) e vi ripunta le clip, così puoi cancellare gli originali in sicurezza. Descritto nel Capitolo 10.
 - *Carica Progetto* — apre un progetto `.lmp` dal disco.
 - *Importa M3U* — importa una playlist in formato M3U come sequenza di clip.
-- *Esporta Archivio* — crea una copia autocontenuta del progetto, comprensiva dei file audio. Descritto nel Capitolo 10.
 
 ### Monitoraggio e trasporto
 
@@ -79,6 +79,8 @@ Ogni intestazione riporta il nome della colonna, la sua tipologia e funge da ind
 
 Il colore di ogni colonna è personalizzabile: clicca sul pallino colorato nell'intestazione per aprire una palette di **30 tinte**. La scelta viene salvata nel file di progetto.
 
+Quando una colonna contiene almeno una clip, nell'intestazione compare un'icona a **cestino**: il comando **Svuota colonna** rimuove in un colpo solo tutte le clip di quella colonna. Per sicurezza chiede sempre conferma, indicando quante clip verranno rimosse, e l'operazione è reversibile con *Annulla* (`Ctrl+Z`). Sulle colonne vuote l'icona non appare.
+
 Sull'intestazione della colonna **Pre-Show** compare inoltre un pulsante di **rotazione**: quando è attivo, la coda pre-diretta inserisce automaticamente jingle e promo a intervalli regolari (Capitolo 13).
 
 ### Le sei colonne
@@ -116,7 +118,8 @@ Ogni file audio importato si materializza nella griglia come una **card** rettan
 - **LOOP** — la clip ripartirà dall'inizio al termine della riproduzione.
 - **NEXT** — al termine di questa clip partirà automaticamente la successiva nella colonna.
 - **▶ UP NEXT** — evidenzia quale clip sarà la prossima a partire nella sequenza automatica.
-- **### BPM** — il tempo rilevato, sulle clip musicali.
+- **### BPM** — il tempo rilevato, sulle clip musicali, su un badge giallo fluorescente ad alta visibilità.
+- **I ##s** — la clip ha un punto di Intro configurato (Capitolo 5): il badge, in ciano, ne indica la durata in secondi ed è sempre visibile, anche a clip ferma.
 - **TRIM…** — analisi del silenzio in corso (Auto-Trim).
 - **FADE OUT** — appare sulla clip uscente durante un crossfade o una dissolvenza.
 - **📋** — la clip ha una nota associata nella NoteBoard (Capitolo 13).

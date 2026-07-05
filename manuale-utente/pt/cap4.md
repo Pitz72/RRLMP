@@ -39,7 +39,7 @@ O motor FFmpeg integrado garante compatibilidade com uma ampla gama de formatos 
 
 ### O caminho dos ficheiros
 
-O RLMP guarda o **caminho absoluto** do ficheiro no disco, não uma cópia dele. Se mover, renomear ou apagar o ficheiro original, a card correspondente fica vermelha e deixa de ser reproduzível. Para trabalhar em vários computadores, ou para criar arquivos portáteis, use a função **Export Package** descrita no Capítulo 10.
+O RLMP guarda o **caminho absoluto** do ficheiro no disco, não uma cópia dele. Se mover, renomear ou apagar o ficheiro original, a card correspondente fica vermelha e deixa de ser reproduzível. Para trabalhar em vários computadores, ou para criar arquivos portáteis, use a função **Exportar projeto com áudio** descrita no Capítulo 10.
 
 ---
 

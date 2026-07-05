@@ -39,7 +39,7 @@ El motor FFmpeg integrado garantiza compatibilidad con una amplia gama de format
 
 ### La ruta de los archivos
 
-RLMP memoriza la **ruta absoluta** del archivo en el disco, no una copia del archivo. Si mueves, renombras o borras el original, la card correspondiente se pondrá roja y dejará de reproducirse. Para trabajar en varios ordenadores o crear versiones portables del proyecto, usa la función **Export Package**, descrita en el Capítulo 10.
+RLMP memoriza la **ruta absoluta** del archivo en el disco, no una copia del archivo. Si mueves, renombras o borras el original, la card correspondiente se pondrá roja y dejará de reproducirse. Para trabajar en varios ordenadores o crear versiones portables del proyecto, usa la función **Exportar proyecto con audio**, descrita en el Capítulo 10.
 
 ---
 

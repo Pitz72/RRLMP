@@ -1,188 +1,265 @@
 #import "../lib/manuale-template.typ": *
 
-= 工作界面
-<第-3-章-工作界面>
+= L'interface de travail
 
-Runtime Live Machine Pro
-的界面是为最苛刻的场景设计的：直播。深色主题、高对比度、控件尺寸------每一处视觉选择背后都有一个功能上的理由，不是为了好看，而是人机工程学。
+L'interface de Runtime Live Machine Pro a été pensée pour le contexte le
+plus exigeant qui soit~: le direct. Le thème sombre, le fort contraste,
+la taille des commandes --- chaque choix visuel répond à un besoin
+fonctionnel précis. Rien d'esthétique ici pour le seul plaisir des
+yeux~: tout sert l'ergonomie.
 
-打开项目后，屏幕分为两块：顶部的#strong[控制栏]管项目与系统，中部的#strong[导播网格]是实际工作发生的地方。
+À l'ouverture d'un projet, l'écran se divise en deux zones~: la
+#strong[barre de contrôle], en haut, qui gère le projet et le système,
+et la #strong[grille de régie], au centre, où se joue le travail réel.
 
-== 3.1 控制栏（页眉）
-<控制栏页眉>
-页眉横贯整个屏幕宽度，自左向右依次是软件标识、文件命令、监听与传输控件、工具菜单、会话指示器。
+== 3.1 La barre de contrôle (en-tête)
+<la-barre-de-contrôle-en-tête>
+L'en-tête occupe toute la largeur de l'écran. De gauche à droite se
+succèdent l'identité du logiciel, les commandes sur les fichiers, le
+monitoring et les commandes de transport, le menu des outils, puis les
+indicateurs de session.
 
-=== 标识
-<标识>
-#strong[Logo 与 PRO 徽标。] 左侧是 logo，紧挨着 #strong[RLM PRO]
-字样------「PRO」以虹彩渐变呈现，从青色过渡到绿色、琥珀色，再到红色。旁边用等宽字体标出已安装的版本号（`v1.11.5`）。鼠标移到
-logo 上会显示软件全名及版本号。
+=== Identité
+<identité>
+#strong[Logo et badge PRO.] À gauche, le logo côtoie l'inscription
+#strong[RLM PRO], dont le mot «~PRO~» affiche un dégradé iridescent
+passant du cyan au vert, à l'ambre, puis au rouge. À côté, en caractères
+à chasse fixe, figure la version installée (`v1.15.10`). Survolez le
+logo à la souris~: le nom complet du logiciel apparaît avec son numéro
+de version.
 
-=== 文件菜单
-<文件菜单>
-#strong[FILE] 按钮打开一个菜单，包含针对项目的操作：
+=== Menu Fichier
+Le bouton #strong[FILE] ouvre un menu regroupant les opérations sur les
+projets~:
 
-- #emph[新建项目] --- 打开一个空会话。若有未保存的更改，软件会请求确认。
-- #emph[保存项目] --- 对当前 `.lmp`
-  文件的快速保存。当有未保存的更改时，该项会以黄色高亮。
-- #emph[另存为…] --- 始终打开对话框，用于创建递进的版本（例如
-  `Ep47_bozza.lmp`、`Ep47_finale.lmp`）。
-- #emph[加载项目] --- 从磁盘打开一个 `.lmp` 项目。
-- #emph[导入 M3U] --- 将 M3U 格式的播放列表作为一串片段导入。
-- #emph[导出独立存档] --- 创建项目的自包含副本，含音频文件。详见第 10
-  章。
+- #emph[Nouveau Projet] --- ouvre une session vide. En cas de
+  modifications non enregistrées, le logiciel demande confirmation.
+- #emph[Enregistrer le projet] --- enregistrement rapide sur le fichier
+  `.lmp` courant. L'entrée se met en jaune lorsqu'il y a des
+  modifications non enregistrées.
+- #emph[Enregistrer sous…] --- ouvre toujours la boîte de dialogue, pour
+  créer des versions progressives (ex. `Ep47_brouillon.lmp`,
+  `Ep47_final.lmp`).
+- #emph[Exporter le projet avec l'audio] --- consolide tout l'audio à
+  l'intérieur du projet (sous-dossier `audio/`) et y repointe les clips,
+  ce qui vous permet de supprimer les originaux en toute sécurité.
+  Décrit au Chapitre 10.
+- #emph[Charger un Projet] --- ouvre un projet `.lmp` depuis le disque.
+- #emph[Importer playlist M3U] --- importe une playlist au format M3U
+  comme séquence de clips.
 
-=== 监听与传输
-<监听与传输>
-#strong[立体声 VU Meter（L/R）。]
-两条水平表条显示经主音量处理后实际输出的电平。配色很直观：约到 85%
-之前是绿色，之后转黄，接近满刻度变红。持续的红色意味着
-clipping（削波），需要降低电平。
+=== Monitoring et transport
+#strong[VU meter stéréo (L/R).] Deux barres horizontales affichent le
+niveau audio réel en sortie, après le Master Volume. L'échelle
+chromatique parle d'elle-même~: vert jusqu'à environ 85 % du parcours,
+puis jaune, puis rouge en approchant du fond d'échelle. Un rouge qui
+persiste signale un écrêtage --- baissez le niveau.
 
-#strong[主音量。] 推子控制软件总输出音量，范围 0 到
-100%，相当于一个总闸：拉到零，无论各片段处于什么状态都不会出声。若某个
-MIDI 控制已映射到主音量，旁边会有一个小徽标显示分配情况。
+#strong[Master Volume.] Ce fader contrôle le volume général de sortie,
+de 0 à 100 %. Ramené à zéro, plus aucun son ne sort, quel que soit
+l'état des clips individuels --- c'est un vrai fader master. Un petit
+badge signale l'attribution si vous avez mappé une commande MIDI dessus.
 
-#strong[STOP ALL（红色「ALL」按钮）。]
-瞬时停止所有活动片段，清零进行中的淡变，是系统的紧急命令。应用处于焦点时，键盘上的
-`Esc` 键效果相同，哪怕光标正停在文本框里。
+#strong[STOP ALL (bouton rouge «~ALL~»).] Arrête instantanément tous les
+clips actifs et remet à zéro les fondus en cours~: c'est la commande
+d'urgence du système. La touche `Échap` fait exactement la même chose
+quand l'application est au premier plan, y compris pendant la saisie de
+texte dans un champ.
 
 #nota[
-与先前版本不同，`Esc` 不再是系统级全局快捷键，只在 RLMP
-为活动窗口时生效。这样一来，对话框可以用 `Esc` 关闭而不会打断直播。
+Contrairement aux versions précédentes, `Échap` n'est
+plus un raccourci global du système~: elle n'agit que si RLMP est la
+fenêtre active. Les boîtes de dialogue peuvent ainsi utiliser `Échap`
+pour se fermer sans interrompre le direct.
 ]
 
-#strong[FX。] 打开和关闭 pad FX，即效果的 #emph[jingle machine]（第 7
-章）。一个小计数器显示此刻正在播放的效果数量。
+#strong[FX.] Ouvre et ferme le pad FX, la #emph[jingle machine] des
+effets (Chapitre 7). Un petit compteur indique le nombre d'effets en
+cours de lecture.
 
-#strong[MIX。] 打开和关闭 Automix 视图，即 Music 列的专属 deck（第 7
-章）。
+#strong[MIX.] Ouvre et ferme la vue Automix, le deck dédié à la colonne
+Musique (Chapitre 7).
 
-=== 工具
-<工具>
-#strong[工具]菜单（扳手图标）包含：
+=== Outils
+Le menu #strong[Outils] (icône clé anglaise) regroupe~:
 
-- #emph[撤销] 与 #emph[重做] --- 播出单更改的历史记录（`Ctrl+Z` /
-  `Ctrl+Y`）。
-- #emph[MIDI Learn] --- 启用 MIDI 学习模式（第 8 章）。
-- #emph[Keybinds] --- 为片段分配按键的窗口。
-- #emph[设置] --- 软件的全局偏好（第 13 章）。
-- #emph[信息] --- 版本、致谢、手动检查更新。
+- #emph[Annuler] et #emph[Répéter] --- l'historique des modifications
+  apportées à la conduite (`Ctrl+Z` / `Ctrl+Y`).
+- #emph[Apprentissage MIDI] --- active le mode d'apprentissage MIDI
+  (Chapitre 8).
+- #emph[Raccourcis & tableau MIDI] --- la fenêtre d'attribution des
+  touches aux clips.
+- #emph[Paramètres généraux] --- les préférences globales du logiciel
+  (Chapitre 13).
+- #emph[Infos & Mises à jour] --- version, crédits et vérification
+  manuelle des mises à jour.
 
-菜单下方会短暂弹出 #emph[Auto-saved] 指示器，确认项目已自动保存。
+Juste sous le menu, l'indicateur #emph[Auto-saved] apparaît brièvement
+pour confirmer l'enregistrement automatique du projet.
 
-#figure(image("../screenshots-zh-cn/barra-controllo.png", alt: "图 3.1 — 控制栏与打开的工具菜单（撤销/重做、MIDI Learn、Keybinds、常规设置、信息）。"),
+#figure(image("../screenshots-fr/barra-controllo.png", alt: "Figure 3.1 — La barre de contrôle et le menu Outils ouvert (Annuler/Répéter, Apprentissage MIDI, Raccourcis, Paramètres généraux, Infos)."),
   caption: [
-    图 3.1 --- 控制栏与打开的工具菜单（撤销/重做、MIDI
-    Learn、Keybinds、常规设置、信息）。
+    Figure 3.1 --- La barre de contrôle et le menu Outils ouvert
+    (Annuler/Répéter, Apprentissage MIDI, Raccourcis, Paramètres
+    généraux, Infos).
   ]
 )
 
-=== 会话指示器
-<会话指示器>
-页眉右侧依次是 #strong[Playout Log] 按钮（触发的时间顺序记录，第 13
-章）、#strong[录制]按钮（第 9 章）、#strong[On Air
-计时器]（直播时以红底显示 `ON AIR HH:MM:SS`），以及一个与系统时钟同步的
-24 小时制数字#strong[演播室时钟]。
+=== Indicateurs de session
+À droite de l'en-tête se trouvent le bouton du #strong[Playout Log] (le
+registre chronologique des lancements, Chapitre 13), le bouton
+d'#strong[Enregistrement] (Chapitre 9), le #strong[minuteur On Air] (qui
+affiche `ON AIR HH:MM:SS` sur fond rouge une fois en direct) et
+l'#strong[horloge de studio] numérique au format 24 heures, calée sur
+l'horloge système.
 
-页眉区域偶尔会出现不打扰人的通知（#strong[toast]），提示操作完成或系统警示。它跟阻断式对话框不同，几秒后会自行消失，不会打断播放。
+Des notifications discrètes (#strong[toast]) peuvent également
+apparaître dans l'en-tête pour signaler une opération terminée ou un
+avertissement système. À la différence des boîtes de dialogue
+bloquantes, elles disparaissent seules après quelques secondes sans
+interrompre la lecture.
 
-== 3.2 六列网格
-<六列网格>
-#figure(image("../screenshots-zh-cn/interfaccia-principale.png", alt: "图 3.2 — 工作界面：带音频卡的六列网格。"),
+== 3.2 La grille à six colonnes
+<la-grille-à-six-colonnes>
+#figure(image("../screenshots-fr/interfaccia-principale.png", alt: "Figure 3.2 — L’interface de travail : la grille à six colonnes avec les cartes audio."),
   caption: [
-    图 3.2 --- 工作界面：带音频卡的六列网格。
+    Figure 3.2 --- L'interface de travail~: la grille à six colonnes
+    avec les cartes audio.
   ]
 )
 
-网格是软件的操作中枢：六条并排的竖列，每列有自己的配色标题和音频行为逻辑。音效在网格中没有专属列，它们存活在
-pad FX 里（第 7 章）。
+La grille est le centre opérationnel du logiciel~: six colonnes
+verticales côte à côte, chacune avec son en-tête coloré et sa propre
+logique de comportement audio. Les effets sonores n'y ont pas leur
+place~: ils vivent dans le pad FX (Chapitre 7).
 
-=== 列标题
-<列标题>
-标题标出列名与类型，同时兼作状态指示器。正常情况下是静态的，以该列的特征色调着色。当正在播放的片段是该列最后一个可用片段、不处于循环状态、且距结束不足
-#strong[20 秒]时，标题进入 #strong[DEAD AIR]
-警报：开始脉动，转为琥珀色，显示警示图标和 #strong[END]
-徽标。这个提前量是留给你的准备时间，好在陷入静默之前把下一条轨道接上。
+=== En-têtes de colonne
+<en-têtes-de-colonne>
+Chaque en-tête affiche le nom de la colonne, sa catégorie, et sert aussi
+d'indicateur d'état. En temps normal, il reste statique, coloré dans la
+teinte propre à la colonne. Mais si le clip en lecture est le dernier
+disponible, qu'il n'est pas en boucle et qu'il reste moins de #strong[20
+secondes] avant la fin, l'en-tête bascule en alerte #strong[DEAD AIR]~:
+il pulse, vire à l'ambre, affiche une icône d'avertissement et le badge
+#strong[END]. De quoi avoir le temps de préparer la piste suivante avant
+que le silence ne s'installe.
 
-每列的颜色都能自定义：点击标题里的彩色圆点，会打开一个含 #strong[30
-种色调]的调色板，选择会保存在项目文件中。
+Chaque couleur de colonne se personnalise~: un clic sur la pastille
+colorée de l'en-tête ouvre une palette de #strong[30 teintes], et le
+choix est enregistré dans le fichier de projet.
 
-#strong[Pre-Show]
-列的标题上还有一个#strong[轮播]按钮：启用后，直播前的候播队列会按固定间隔自动插入
-jingle 与 promo（第 13 章）。
+Lorsqu'une colonne contient au moins un clip, une icône de
+#strong[corbeille] apparaît dans son en-tête : la commande #strong[Vider
+la colonne] retire d'un seul coup tous les clips de cette colonne. Par
+sécurité, elle demande toujours confirmation en indiquant combien de
+clips seront retirés, et l'opération est réversible via #emph[Annuler]
+(`Ctrl+Z`). Sur les colonnes vides, l'icône n'apparaît pas.
 
-=== 六列
-<六列>
-#strong[Show Assets（绿色）]
-节目的结构性元素：片头、音乐垫、背景铺底（#emph[bed]）、机构性
-stacco。它们是背景层：人声或歌曲进入时会让出空间，被停止之前则保持内部轮换。
+L'en-tête de la colonne #strong[Pré-émission] porte en plus un bouton de
+#strong[rotation]~: une fois activé, il insère automatiquement jingles
+et promos à intervalles réguliers dans la file d'attente d'avant-direct
+(Chapitre 13).
 
-#strong[Jingle（琥珀色）] 与 #strong[Promo（青色）] 分别专用于标识性
-jingle 和 promo/自我宣传。音频层面上二者与 Show Assets
-完全一致（属于同一家族），分列只是为了让播出单保持有序、易读。
+=== Les six colonnes
+#strong[Show Assets (Vert)] Ce sont les éléments structurels de
+l'émission~: génériques, bases musicales, ambiances (#emph[bed]),
+stacchi institutionnels. Ils se comportent en éléments de second plan,
+cédant de l'espace dès qu'une voix ou un morceau arrive, mais gardent
+leur rotation interne tant qu'on ne les arrête pas.
 
-#strong[本期歌曲（红色）]
-音乐播放列表。此列的片段主动参与自动混音：人声播放时会被压低，进入播放时又会把
-Assets 的垫乐静音（第 6 章）。软件会自动检测音乐片段的
-#strong[BPM]，以专用徽标显示。
+#strong[Jingle (Ambre)] et #strong[Promo (Cyan)] Ces deux colonnes
+accueillent respectivement les jingles identitaires et les promos ou
+autopromotions. Sur le plan audio, elles se comportent exactement comme
+les Show Assets, dont elles partagent la famille \; les séparer garde
+simplement la conduite lisible.
 
-#strong[人声 / 预录（橙色）]
-访谈、预录口播段落、语音消息。这一列在混音系统中拥有#strong[最高优先级]：这里的片段一播放，其他所有信号都会被压到背景电平。
+#strong[Musiques de l'épisode (Rouge)] C'est la playlist musicale. Ses
+clips participent activement au mixage automatique~: baissés quand une
+voix intervient, ils font eux-mêmes taire les bases des Assets dès
+qu'ils entrent en lecture (Chapitre 6). Le logiciel détecte
+automatiquement leur #strong[BPM], affiché par un badge dédié.
 
-#strong[Pre-Show（紫色）]
-直播前的暖场播放列表，作为自主的音乐队列运行，可选择轮播 jingle 与
-promo。正式直播开始后，这一列通常会被清空或停用。
+#strong[Voix / Enregistrements (Orange)] Interviews, blocs parlés
+préenregistrés, messages vocaux~: cette colonne détient la
+#strong[priorité maximale] du système de mixage. Dès qu'un de ses clips
+joue, tous les autres signaux passent à un niveau d'arrière-plan.
 
-== 3.3 音频卡（片段）
-<音频卡片段>
-每个导入的音频文件都在网格中具现为一张矩形#strong[卡片]。卡片是系统的操作单元：看到它、触发它、配置它、移动它，都是同一张卡。
+#strong[Pré-émission (Violet)] C'est la playlist d'échauffement avant le
+direct, une file musicale autonome avec rotation optionnelle de jingles
+et de promos. Une fois le direct lancé, cette colonne est en général
+vidée ou désactivée.
 
-=== 卡片的结构
-<卡片的结构>
-#strong[标题与艺人。]
-显示文件名，或属性中赋予的自定义名称。改标题只改软件内的标签，磁盘上的原始文件不受影响。音乐片段的标题下方可能显示艺人名。
+== 3.3 La carte audio (clip)
+Chaque fichier audio importé prend la forme d'une #strong[carte]
+rectangulaire dans la grille. C'est l'unité opérationnelle du système~:
+on la voit, on la lance, on la configure, on la déplace.
 
-#strong[计时器。] 静止时显示片段总时长，格式
-`MM:SS`；播放期间转为#strong[倒计时]，带负号前缀（例如
-`−01:20`）。距结束不足 15 秒时，计时器变#strong[红]。
+=== Anatomie d'une carte
+#strong[Titre et artiste.] C'est le nom du fichier, ou un nom
+personnalisé attribué dans les propriétés. Ce titre personnalisé ne
+change que l'étiquette affichée dans le logiciel~: le fichier original
+reste intact sur le disque. Sur les clips musicaux, le nom de l'artiste
+peut s'afficher sous le titre.
 
-#strong[状态徽标。] 小标签即时传达已配置的属性：
+#strong[Minuteur.] À l'arrêt, il affiche la durée totale du clip au
+format `MM:SS`. Pendant la lecture, il bascule en #strong[compte à
+rebours] avec un signe négatif (ex. `−01:20`), puis passe au
+#strong[rouge] à moins de 15 secondes de la fin.
 
-- #strong[STACCO] --- 该片段被设为叠加于其他片段之上而不将其停止。
-- #strong[LOOP] --- 该片段在播放结束时会从头重新开始。
-- #strong[NEXT] --- 该片段结束时会自动启动该列的下一个片段。
-- #strong[▶ UP NEXT] --- 标出在自动序列中下一个将启动的片段。
-- #strong[\#\#\# BPM] --- 检测到的节奏，显示在音乐片段上。
-- #strong[TRIM…] --- 静音分析进行中（Auto-Trim）。
-- #strong[FADE OUT] --- 在 crossfade 或淡出期间出现在正在退出的片段上。
-- #strong[📋] --- 该片段在 NoteBoard 中有一条关联的备注（第 13 章）。
+#strong[Badges d'état.] De petites étiquettes communiquent immédiatement
+les propriétés configurées~:
 
-#strong[分配。]
-若片段分配了键盘按键，字母会显示在以列色着色的徽标里；若有 MIDI
-绑定，则显示标签 `M` 加音符编号（例如 `M60`）。
+- #strong[STACCO] --- le clip est réglé pour se superposer aux autres
+  sans les arrêter.
+- #strong[LOOP] --- le clip repartira du début à la fin de la lecture.
+- #strong[NEXT] --- à la fin de ce clip, le suivant de la colonne
+  démarrera automatiquement.
+- #strong[▶ UP NEXT] --- met en évidence quel clip sera le prochain à
+  partir dans la séquence automatique.
+- #strong[\#\#\# BPM] --- le tempo détecté, sur les clips musicaux, sur
+  un badge jaune fluo à haute visibilité.
+- #strong[I \#\#s] --- le clip a un point d'Intro configuré (Chapitre 5)
+  : le badge, en cyan, en indique la durée en secondes et reste toujours
+  visible, même clip à l'arrêt.
+- #strong[TRIM…] --- analyse du silence en cours (Auto-Trim).
+- #strong[FADE OUT] --- apparaît sur le clip sortant pendant un
+  crossfade ou un fondu.
+- #strong[📋] --- le clip a une note associée dans la NoteBoard
+  (Chapitre 13).
 
-#strong[结构 cue。] 若配置了标记，播放期间会出现倒计时
-`INTRO: −MM:SS`（青色）与 `OUTRO IN: −MM:SS`（橙色），outro 开始时切换为
-`🚨 OUTRO` 提示。
+#strong[Attributions.] Une touche assignée au clip affiche sa lettre
+dans un badge à la couleur de la colonne \; un binding MIDI affiche
+l'étiquette `M` suivie du numéro de note (ex. `M60`).
 
-#strong[播放指示。]
-播放中的卡片会亮起：绿色边框、带光晕的背景、脉动的圆点、高亮的标题，进度条在卡片背景上滑动。
+#strong[Repères de structure.] Une fois les marqueurs configurés, la
+lecture affiche les comptes à rebours `INTRO: −MM:SS` (en cyan) puis
+`OUTRO IN: −MM:SS` (en orange), jusqu'à l'avis `🚨 OUTRO` au début de la
+coda.
 
-=== 与卡片的交互
-<与卡片的交互>
-- #strong[左键单击] --- 停止状态下启动片段，播放状态下停止它（带淡出）。
-- #strong[Ctrl + 单击]（Windows/Linux）或 #strong[Cmd +
-  单击]（macOS）--- 只选中片段不启动，边框变蓝，便于多选与批量删除。
-- #strong[Canc 键]（或 #emph[Delete] / #emph[Backspace]）---
-  删除选中的片段。选中多个时软件会请求确认。
-- #strong[右键] --- 打开#strong[片段设置]：属性、波形编辑器、备注（第 5
-  章）。
-- #strong[拖放] ---
-  拖动卡片可在列内重排，或移到另一列。拖动期间蓝色发光指示器会显示插入位置。
+#strong[Indicateur de lecture.] Un clip en lecture illumine sa carte~:
+bordure verte, halo lumineux en fond, pastille pulsante, titre mis en
+évidence. La barre de progression défile en arrière-plan de la carte.
 
-=== 处于错误状态的卡片
-<处于错误状态的卡片>
-带 #strong[文件缺失]
-标识和红色边框的卡片，说明被引用的音频文件已无法访问------可能被移动、重命名，或存放在一个未连接的外部磁盘上。文件重新出现在原始路径之前，该片段无法播放。路径错误的处理方式见第
-14 章。
+=== Interaction avec les cartes
+- #strong[Clic gauche] --- lance le clip à l'arrêt, ou l'arrête (avec
+  fondu de sortie) s'il joue déjà.
+- #strong[Ctrl + clic] (Windows/Linux) ou #strong[Cmd + clic] (macOS)
+  --- sélectionne le clip sans le lancer. La bordure devient bleue.
+  Utile pour la sélection multiple et la suppression groupée.
+- #strong[Touche Suppr] (ou #emph[Delete] / #emph[Backspace]) ---
+  supprime les clips sélectionnés de la grille. Si plusieurs clips sont
+  sélectionnés, le logiciel demande confirmation.
+- #strong[Clic droit] --- ouvre les #strong[Paramètres du clip]~:
+  propriétés, éditeur de forme d'onde, notes (Chapitre 5).
+- #strong[Glisser-déposer] --- faites glisser une carte pour la
+  réorganiser dans la colonne ou la déplacer vers une autre. Un
+  indicateur lumineux bleu montre la position d'insertion pendant le
+  glissement.
+
+=== Carte en état d'erreur
+<carte-en-état-derreur>
+Une carte affichant #strong[FICHIER MANQUANT] avec une bordure rouge
+signale un fichier audio devenu inaccessible~: déplacé, renommé, ou
+situé sur un disque externe débranché. Le clip reste illisible tant que
+le fichier n'a pas retrouvé son chemin d'origine. La gestion de ces
+erreurs de chemin est détaillée au Chapitre 14.

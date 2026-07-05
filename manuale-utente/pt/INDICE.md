@@ -1,5 +1,5 @@
 # Runtime Live Machine Pro — Manual do Utilizador
-## Índice geral — Edição portuguesa (v1.11.5, Segunda edição)
+## Índice geral — Edição portuguesa (v1.15.10, Segunda edição)
 
 ---
 
@@ -31,7 +31,7 @@ Encaminhamento de áudio: seleção de dispositivo, mixer USB, latência. Comand
 Iniciar a gravação. O que é gravado. O formato interno. Exportação: WAV, FLAC, MP3, OGG, WEBM. Opções de qualidade. Considerações práticas.
 
 **Capítulo 10 — Gestão de projetos e segurança dos dados**
-O ficheiro de projeto `.lmp`. Guardar rápido e Guardar Como. Proteção ao fechar. Auto-Backup e autosave. Export Package. Verificação de integridade.
+O ficheiro de projeto `.lmp`. Guardar rápido e Guardar Como. Proteção ao fechar. Auto-Backup e autosave. Exportar projeto com áudio. Verificação de integridade.
 
 **Capítulo 11 — Controlo Remoto**
 O servidor local via browser. Ativação e PIN. Ligação a partir de tablet ou telemóvel. O que pode ser controlado à distância. Segurança e limites.

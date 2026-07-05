@@ -1,172 +1,224 @@
 #import "../lib/manuale-template.typ": *
 
-= 片段属性与波形编辑器
-<第-5-章-片段属性与波形编辑器>
+= Propriétés du clip et Waveform Editor
+<chapitre-5-propriétés-du-clip-et-waveform-editor>
 
-每个音频文件进网格之前都有自己的来历：开头带几秒静音的录音、结尾拖沓的曲目、电平比节目其余部分低得多的访谈。遇到这类「没准备好播出」的文件，不用跑去外部音频编辑器------RLMP
-给每个片段配了一个设置面板，加上一个能裁剪、能打标记的可视化波形编辑器。
+Aucun fichier audio n'arrive parfait dans la grille. Il y a toujours
+quelques secondes de silence au début d'un enregistrement, une coda de
+morceau qui n'en finit pas, une interview dont le niveau est trop bas
+par rapport au reste de l'émission. Pas besoin pour autant d'ouvrir un
+éditeur audio externe à chaque fois qu'un fichier n'est pas «~prêt pour
+l'antenne~»~: RLMP intègre un panneau de configuration pour chaque clip,
+avec un éditeur visuel de forme d'onde doté de fonctions de coupe et de
+marquage.
 
-用这些工具做的一切修改都是#strong[非破坏性]的，磁盘上的原始文件不受影响。设置记录在
-`.lmp` 项目文件里，播放时即时生效。
+Toutes ces modifications sont #strong[non destructives]~: le fichier
+original reste intact sur le disque. RLMP mémorise les réglages dans le
+fichier de projet `.lmp` et les applique à la volée, pendant la lecture.
 
-打开某个片段的设置，在卡片上#strong[右键单击]即可。
+Pour ouvrir les paramètres d'un clip, faites un #strong[clic droit] sur
+la carte.
 
-== 5.1 基础属性
-<基础属性>
-#figure(image("../screenshots-zh-cn/impostazioni-clip.png", alt: "图 5.1 — 片段设置：名称、颜色标签、Volume Gain、行为、Next Action 与按键分配。"),
+== 5.1 Propriétés de base
+<propriétés-de-base>
+#figure(image("../screenshots-fr/impostazioni-clip.png", alt: "Figure 5.1 — Les paramètres du clip : Clip Name, Color Label, Volume Gain, Playback Behavior, Autoplay Next et attribution des touches."),
   caption: [
-    图 5.1 --- 片段设置：名称、颜色标签、Volume Gain、行为、Next Action
-    与按键分配。
+    Figure 5.1 --- Les paramètres du clip~: Clip Name, Color Label,
+    Volume Gain, Playback Behavior, Autoplay Next et attribution des
+    touches.
   ]
 )
 
-=== 名称与外观
-<名称与外观>
-#strong[Clip Name。]
-可以给片段指定一个独立于原始文件名的自定义名称，显示在网格卡片上。取名要在直播中一眼能认、便于操作：只有三秒钟去找片段时，「SIGLA
-DI APERTURA」远比 `sigla_rev3_finale_def.mp3` 好认得多。
+=== Nom et apparence
+#strong[Clip Name.] Vous pouvez donner au clip un nom personnalisé,
+indépendant du nom de fichier original \; c'est ce nom qui s'affiche sur
+la carte, dans la grille. Choisissez des noms descriptifs, pensés pour
+l'antenne~: «~GÉNÉRIQUE D'OUVERTURE~» se repère bien plus vite que
+`generique_rev3_final_def.mp3` quand il ne vous reste que trois secondes
+pour trouver le bon clip.
 
-#strong[Color Label（自定义颜色）。]
-片段默认继承所属列的颜色，这里可以单独指定一个颜色让它更显眼。用来标记关键片段（比如收尾片头），或者在同一列内区分主题分组，都很好用。
+#strong[Color Label.] Par défaut, le clip hérite de la couleur de sa
+colonne, mais vous pouvez lui attribuer une couleur propre pour le faire
+ressortir visuellement. C'est pratique pour repérer un clip critique,
+comme le générique de clôture, ou pour distinguer des groupes
+thématiques dans une même colonne.
 
-=== 音量（Volume Gain）
-<音量volume-gain>
-Volume Gain 滑块范围 0% 到 150%，是该片段专属的
-pre-fader，作用在全局主音量之前。
+=== Volume (Gain)
+Le curseur de gain (Volume Gain) va de 0 % à 150 % et agit comme un
+pré-fader propre à ce clip, en amont du Master Volume global.
 
-最常见的用法是电平对齐：一段录音强度偏低的人声（比如 WhatsApp
-语音、电话录音），可以推过 100%
-去贴近其他轨道的音量；反过来，也能在不动主音量的情况下把某个特别「烫」的片段压下去。
+L'usage le plus courant, c'est l'alignement des niveaux. Une voix
+enregistrée trop bas, un message WhatsApp par exemple ou un appel
+téléphonique, peut être poussée au-delà de 100 % pour se rapprocher du
+volume des autres pistes. À l'inverse, un clip particulièrement
+«~chaud~» se ramène à un niveau raisonnable sans toucher au Master
+Volume.
 
-== 5.2 波形编辑器
-<波形编辑器>
-#figure(image("../screenshots-zh-cn/waveform-editor.png", alt: "图 5.2 — 波形编辑器：Trim 手柄、Intro 与 Outro 标记、Auto-Trim、Smart Cues 与淡变。"),
+== 5.2 L'éditeur de forme d'onde
+<léditeur-de-forme-donde>
+#figure(image("../screenshots-fr/waveform-editor.png", alt: "Figure 5.2 — L’éditeur de forme d’onde : poignées Trim Start/End, marqueurs Intro End et Outro Start, Auto-Trim, Smart Cues et fondus."),
   caption: [
-    图 5.2 --- 波形编辑器：Trim 手柄、Intro 与 Outro
-    标记、Auto-Trim、Smart Cues 与淡变。
+    Figure 5.2 --- L'éditeur de forme d'onde~: poignées Trim Start/End,
+    marqueurs Intro End et Outro Start, Auto-Trim, Smart Cues et fondus.
   ]
 )
 
-可视化编辑器是设置面板里最强大的功能，占据面板中部区域，把整段音频画成图形。
+C'est la fonction la plus puissante du panneau de configuration. Il
+occupe la zone centrale et affiche la représentation graphique de
+l'audio du clip entier.
 
-=== 在编辑器中导航
-<在编辑器中导航>
-#strong[水平缩放。] 波形视图能从 1×（完整视图）放大到
-8×，中间还有几档（1×、2×、3×、4×、6×、8×），用缩放滑块或在编辑器上方滚动鼠标滚轮都行。高倍缩放下视图会跟着当前位置滚动。
+=== Navigation dans l'éditeur
+<navigation-dans-léditeur>
+#strong[Zoom horizontal.] La vue de la forme d'onde s'agrandit de 1×
+(vue complète) jusqu'à 8×, par paliers (1×, 2×, 3×, 4×, 6×, 8×), avec le
+curseur de zoom ou la molette de la souris au-dessus de l'éditeur. À
+fort zoom, la vue suit la position de lecture en défilant
+automatiquement.
 
-#strong[自适应标尺（Ruler）。]
-编辑器上方的时间轴随缩放自动调整：完整视图时参照点稀疏，最大缩放时密到秒级。
+#strong[Règle adaptative.] L'axe temporel, en haut de l'éditeur,
+s'adapte au niveau de zoom~: espacé en vue complète, il se densifie
+jusqu'à afficher les secondes au zoom maximal.
 
-#strong[Playhead。]
-预览播放时，一个白色竖直指示器会沿波形实时滑动、标出当前位置。在波形上单击可以把播放跳转到那一点。
+#strong[Playhead.] Pendant la lecture d'aperçu, un trait vertical blanc
+parcourt la forme d'onde en temps réel pour indiquer la position
+courante. Cliquer sur la forme d'onde déplace la lecture à l'endroit
+choisi.
 
-=== 四个手柄
-<四个手柄>
-编辑器上有四个可拖动的#strong[手柄]，功能和颜色各不相同：
+=== Les quatre poignées
+<les-quatre-poignées>
+L'éditeur comporte quatre #strong[poignées] déplaçables, chacune avec sa
+fonction et sa couleur propres~:
 
-#strong[Trim Start（红色手柄，左侧）。]
-定义片段实际起始点，左侧的部分播放时会被跳过。向右拖动能去掉开头的静音或不想要的部分。
+#strong[Trim Start (poignée rouge, à gauche).] Définit le point de début
+effectif du clip~: tout ce qui se trouve à gauche est ignoré pendant la
+lecture. Faites-la glisser vers la droite pour couper les silences ou
+les parties indésirables du début.
 
-#strong[Trim End（红色手柄，右侧）。]
-定义实际结束点，右侧的部分会被忽略。向左拖动能缩短结尾。Trim Start 和
-Trim End 不能重叠。
+#strong[Trim End (poignée rouge, à droite).] Définit le point de fin
+effectif~: tout ce qui se trouve à droite est ignoré. Faites-la glisser
+vers la gauche pour raccourcir la coda. Trim Start et Trim End ne
+peuvent jamais se chevaucher.
 
-#strong[Intro 标记（青色手柄）。]
-标出曲目主旋律在前奏之后真正进入的结构点。设定后，播放中的卡片上会出现倒计时
-#strong[INTRO: −MM:SS]。
+#strong[Intro End (poignée cyan).] Marque le point où la mélodie
+principale entre dans le morceau, après l'éventuelle introduction. Une
+fois ce marqueur défini, le compte à rebours #strong[INTRO~: −MM~:SS]
+s'affiche sur la carte en lecture.
 
-#strong[Outro 标记（橙色手柄）。]
-标出曲目结尾段落开始的那一点，通常也是开口说话填补转场的时机。卡片上会出现倒计时
-#strong[OUTRO IN:
-−MM:SS]；若这个值跟裁剪或时长对不上，软件会停用它并提示你。
+#strong[Outro Start (poignée orange).] Marque le début de la coda, en
+général le moment idéal pour prendre la parole et meubler la transition.
+Le compte à rebours #strong[OUTRO IN~: −MM~:SS] s'affiche sur la carte.
+Si la valeur entre en conflit avec le trim ou avec la durée du clip, le
+logiciel la désactive et vous prévient.
 
-除了拖动，四个 #emph[Set] 按钮能把各手柄直接设到 playhead
-当前位置，方便边听边标。数值也可以在各自的字段里精确修改。
+Au lieu de faire glisser les poignées, on peut aussi utiliser les quatre
+boutons #emph[Set], qui placent chacune à la position courante du
+playhead~: pratique pour marquer à la volée pendant l'écoute. Les
+valeurs restent ajustables avec précision dans leurs champs respectifs.
 
-=== Auto-Trim（魔法棒）
-<auto-trim魔法棒>
-带#strong[魔法棒]图标的按钮通过 FFmpeg
-启动静音自动检测。阈值不是写死的：软件先估算文件的平均电平，再把静音阈值定在该电平之下约
-25 dB（限定在 −55 到 −20 dB 的安全区间内，估算不出时回退到 −40
-dB）。Trim Start 和 Trim End
-随之自动设定，不用手动干预就能去掉开头的静音和结尾的哑段。
+=== Auto-Trim (baguette magique)
+Le bouton à l'icône de #strong[baguette magique] lance la détection
+automatique du silence via FFmpeg. Le seuil n'est pas fixe~: le logiciel
+évalue d'abord le niveau moyen du fichier, puis fixe le seuil de silence
+environ 25 dB en dessous, dans une plage de sécurité comprise entre −55
+et −20 dB (à défaut d'estimation fiable, il se rabat sur −40 dB). Trim
+Start et Trim End se positionnent alors automatiquement, ce qui élimine
+silences initiaux et codas muettes sans intervention manuelle.
 
-这个功能对没处理过的人声录音特别有用：电话、语音消息、手机录的访谈都是。节目前对整个人声/预录列跑一遍
-Auto-Trim，不到一分钟，却能让转场干净不少。
+Cette fonction rend service surtout sur les enregistrements vocaux
+bruts~: appels téléphoniques, messages audio, interviews captées sur
+mobile. Appliquer l'Auto-Trim à toute la colonne Voix avant une émission
+prend moins d'une minute et rend les transitions nettement plus propres.
 
 #nota[
-分析在 Main Process 中通过 FFmpeg
-进行，不会把文件载入 Renderer 内存。就算是大文件，分析时间也就几秒。
+L'analyse a lieu dans le Main Process via
+FFmpeg, sans charger le fichier en mémoire dans le Renderer. Même sur
+des fichiers volumineux, elle ne prend que quelques secondes.
 ]
 
-=== Smart Cues（标记的自动检测）
-<smart-cues标记的自动检测>
-Auto-Trim 旁边的 #strong[Smart Cues] 会自动提议 Intro 与 Outro
-标记。它用更激进的阈值，找出音频达到满能量的那一点（Intro）和结尾淡出开始的那一点（Outro），不用靠耳朵找就能把两个标记放好。
+=== Smart Cues (détection automatique des marqueurs)
+<smart-cues-détection-automatique-des-marqueurs>
+À côté de l'Auto-Trim, la fonction #strong[Smart Cues] propose
+automatiquement les marqueurs d'Intro et d'Outro. Avec un seuil plus
+agressif, elle repère le point où l'audio atteint sa pleine énergie
+(Intro) et celui où démarre le fondu final (Outro), et place les deux
+marqueurs sans que vous ayez à les chercher à l'oreille.
 
-=== 转场预览
-<转场预览>
-同一列里若存在#strong[后续]片段，#strong[「Test
-→」]按钮会播放当前片段的最后几秒，并让转场直接在编辑器中触发到下一个片段。预览期间一个
-#emph[Stop] 按钮可以中断试听。
+=== Aperçu de la transition
+<aperçu-de-la-transition>
+S'il existe un clip #strong[suivant] dans la même colonne, le bouton
+#strong[«~Test →~»] rejoue les dernières secondes du clip courant et
+laisse la transition vers le suivant se déclencher directement dans
+l'éditeur. Un bouton #emph[Stop] permet d'interrompre l'essai à tout
+moment.
 
-== 5.3 行为与自动化
-<行为与自动化>
-=== Playback Behavior（叠加模式）
-<playback-behavior叠加模式>
-#strong[Normal] ---
-默认行为。片段启动时会中断同列中正在播放的片段（带淡出）。这是歌曲和垫乐该有的行为：一首歌排除其他歌。
+== 5.3 Comportements et automatisation
+= mode de superposition)
+#strong[Normal] --- le comportement par défaut. Quand ce clip démarre,
+il coupe (avec fondu de sortie) tout autre clip en lecture dans la même
+colonne. C'est ce qu'il faut pour les morceaux et les bases~: un morceau
+chasse l'autre.
 
-#strong[Stacco（Jingle，短切叠加）] ---
-片段启动时不中断其他片段，且拥有高优先级：把本列其他 asset
-静音、把音乐压低，但不停止任何东西。典型用法是需要「骑」在曲目 intro
-上的 #emph[station ID]（「你正在收听……」），或者叠在循环垫乐之上的短
-jingle。
+#strong[Stacco (Jingle)] --- le clip démarre sans interrompre les
+autres. Sa priorité est élevée~: il fait taire les autres assets de la
+colonne et baisse la musique, mais n'arrête rien. C'est le cas typique
+du #emph[station ID] («~Vous écoutez…~») qui doit chevaucher l'intro
+d'un morceau, ou d'un jingle bref lancé par-dessus une base en boucle.
 
-=== Next Action（结束时的自动化）
-<next-action结束时的自动化>
-定义片段到达 Trim End 时会发生什么。
+= automatisation en fin de clip)
+Définit ce qui se passe quand le clip atteint le point de Trim End.
 
-#strong[Stop] --- 本期歌曲、人声/预录与 Show Assets
-的默认行为，片段结束就停止。
+#strong[Stop] --- comportement par défaut pour Musiques, Voix et Assets.
+Le clip se termine et s'arrête.
 
-#strong[Play Next] ---
-片段接近结尾时，按配置好的转场自动启动本列下一个片段，卡片上出现
-#strong[NEXT] 徽标。这是 Pre-Show
-列的默认行为，实际上构成一份自动播放列表：多个连续片段都配上它，就能拼出无间断流动的段落。
+#strong[Play Next] --- quand le clip approche de la fin, il lance
+automatiquement le clip suivant de la colonne, avec la transition
+configurée. Le badge #strong[NEXT] apparaît sur la carte. C'est le
+comportement par défaut de la colonne Pré-émission, et il suffit de
+l'activer sur plusieurs clips consécutifs pour construire des blocs qui
+s'enchaînent tout seuls, comme une playlist automatique.
 
-#strong[Loop（循环）]播放是独立的选项：启用后片段从头（Trim
-Start）无缝重来，卡片上出现 #strong[LOOP]
-徽标。用来处理需要一直运转、直到被明确停止的音乐垫、环境声或背景片头。转场模式------Crossfade、Segue、Gapless------见第
-13 章。
+La lecture en #strong[boucle] (Loop Playback) est une option à part~:
+une fois activée, le clip repart du début (depuis le Trim Start) sans
+transition, et le badge #strong[LOOP] apparaît sur la carte. Elle
+convient aux bases musicales, aux ambiances sonores ou aux génériques de
+fond destinés à tourner jusqu'à un arrêt explicite. Les modes de
+transition (Crossfade, Segue, Gapless) sont décrits au Chapitre 13.
 
-== 5.4 淡变（Fade In 与 Fade Out）
-<淡变fade-in-与-fade-out>
-面板可以为单个片段设置淡入淡出时长，数值范围 0 到 60000 毫秒（60
-秒），曲线为线性。
+== 5.4 Fondus (Fade In et Fade Out)
+Pour chaque clip, le panneau permet de régler la durée des fondus en
+entrée et en sortie, de 0 à 60 000 millisecondes (60 secondes), avec une
+courbe linéaire.
 
-#strong[Fade In。] 音量从启动升到最大电平所需的时间，2000 ms
-会产生两秒的渐升。需要柔和浮现的音乐垫用它；人声与效果需要立即被听到，就保持
-0。
+#strong[Fade In.] Le temps que met le volume à atteindre son niveau
+maximal depuis le démarrage~: 2000 ms, par exemple, donne une montée
+progressive de deux secondes. À utiliser sur les bases musicales qui
+doivent émerger en douceur \; à laisser à 0 pour les voix et les effets
+qui doivent s'entendre immédiatement.
 
-#strong[Fade Out。]
-收尾时的淡出时间，点击活动片段或转场时都会用到。典型值：歌曲 2000--3000
-ms，垫乐 500--1000 ms，硬切 stacco 用 0 ms。
+#strong[Fade Out.] Le temps de fondu à la fermeture, que ce soit en
+arrêtant un clip actif ou lors d'une transition. Valeurs typiques~:
+2000--3000 ms pour les morceaux, 500--1000 ms pour les bases, 0 ms pour
+les stacchi secs.
 
-0 ms 的淡出是即时收尾（「hard
-cut」）。直播中的一首音乐曲目若这样收尾，听起来可能像技术失误，用之前想清楚场合。
+Un fondu de sortie à 0 ms produit une coupure immédiate («~hard cut~»).
+Sur un morceau musical en direct, elle peut passer pour une erreur
+technique~: à réserver aux cas où elle a vraiment sa place.
 
-== 5.5 控制分配
-<控制分配>
-每个片段也能用键盘按键或 MIDI 控制器触发。
+== 5.5 Attribution des commandes
+Chaque clip peut aussi être lancé depuis une touche du clavier ou un
+contrôleur MIDI.
 
-#strong[Global Keybind。]
-分配给片段的键盘按键，可以在片段设置的专用字段里设置（点击后按下想要的按键），也可以从工具菜单的
-#strong[Keybinds]
-窗口设置，对应徽标会出现在卡片上。按键若已分配给另一个片段，软件会在覆盖前提示冲突。
+#strong[Global Keybind.] La touche du clavier attribuée au clip. Elle se
+définit depuis le champ dédié des paramètres du clip (cliquez, puis
+appuyez sur la touche voulue) ou depuis la fenêtre #strong[Raccourcis &
+tableau MIDI], accessible dans le menu Outils. Le badge correspondant
+apparaît sur la carte. Si la touche est déjà prise par un autre clip, le
+logiciel signale le conflit avant d'écraser quoi que ce soit.
 
-#strong[MIDI Bind。] 分配的 MIDI 音符（例如 `NOTE:60`），通过
-#strong[MIDI Learn] 模式设置（见第 8 章），不需要手动输入编号。
+#strong[MIDI Bind.] La note MIDI attribuée (ex. `NOTE:60`).
+L'attribution se fait via le mode #strong[MIDI Learn] (voir Chapitre 8),
+non en saisissant le numéro à la main.
 
-片段的绑定保存在项目文件中：把项目带到另一台配有同款 MIDI
-控制器的电脑上，映射不用重新配置就能用。
+Les bindings des clips sont enregistrés dans le fichier de projet~:
+transportez-le sur un autre ordinateur équipé du même contrôleur MIDI,
+et les mappings fonctionnent sans reconfiguration.

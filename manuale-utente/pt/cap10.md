@@ -62,24 +62,29 @@ A pasta `autosaves` encontra-se na diretoria de dados da aplicação:
 
 ---
 
-## 10.4 Export Package: portabilidade completa
+## 10.4 Exportar projeto com áudio
 
-Como o ficheiro `.lmp` contém apenas os caminhos para os ficheiros de áudio, e não os próprios ficheiros, levar o projeto para outro computador exige atenção: se a máquina de destino não tiver os ficheiros nos mesmos caminhos absolutos, as clips ficam vermelhas. A função **Exportar Arquivo** (Export Package), no menu FICHEIRO, resolve o problema pela raiz.
+Como o ficheiro `.lmp` contém apenas os caminhos para os ficheiros de áudio, e não os próprios ficheiros, um projeto é frágil: se mover, renomear ou eliminar um só dos ficheiros de origem, a clip correspondente fica vermelha. A função **Exportar projeto com áudio**, no menu FICHEIRO (logo abaixo de *Guardar Como…*), resolve o problema pela raiz, consolidando todo o áudio dentro do projeto.
 
 ### Como funciona
 
-O RLMP analisa todos os caminhos para os ficheiros de áudio do projeto, cria uma subpasta `audio/` e **copia fisicamente** cada ficheiro referenciado para dentro dela. Os ficheiros já presentes e idênticos não são copiados de novo; eventuais duplicados de nome são renomeados para não se sobreporem, e os ficheiros órfãos, já não referenciados, são removidos da pasta.
+O RLMP analisa todos os caminhos para os ficheiros de áudio do projeto, cria uma subpasta `audio/` ao lado do ficheiro `.lmp` e **copia fisicamente** cada ficheiro referenciado para dentro dela. Os ficheiros já presentes e idênticos não são copiados de novo; eventuais duplicados de nome são renomeados para não se sobreporem, e os ficheiros órfãos, já não referenciados, são removidos da pasta.
 
-A operação tem dois modos:
+A diferença face a um simples backup está no que acontece **depois** da cópia: o RLMP **reaponta cada clip para a nova cópia** dentro de `audio/` e **volta a guardar o projeto**. A partir desse momento, a pasta `audio/` deixa de ser um arquivo de reserva ao lado do projeto e passa a ser a fonte de onde a sessão lê realmente o áudio.
 
-- **Junto ao projeto** — se exportar para a pasta onde já reside o `.lmp`, o RLMP sincroniza a subpasta `audio/` ao lado dele.
-- **Pasta livre** — se escolher uma pasta nova (uma pen USB, um NAS), o RLMP escreve nela um `project.lmp` com os caminhos já atualizados para apontar para a subpasta `audio/` local.
+### O resultado: pode eliminar os originais
 
-### O resultado
+Como o projeto passa a apontar para as cópias em `audio/`, **os ficheiros de áudio na sua posição original deixam de ser necessários** e pode eliminá-los em segurança: o show continua a funcionar lendo a partir do arquivo. É a diferença face às versões anteriores, em que a pasta `audio/` ficava como um duplicado órfão e eliminar os originais partia as clips.
 
-A pasta de destino torna-se autocontida: passa a conter tudo o que é necessário para executar o show em qualquer computador com o RLMP instalado, seja qual for a estrutura de pastas dessa máquina.
+A pasta do projeto torna-se assim autocontida: `.lmp` mais a subpasta `audio/`, tudo o que é necessário para executar o show, pronto a arquivar, copiar ou levar para outro computador com o RLMP instalado.
 
-> **Boa prática.** Use Exportar Arquivo no final da preparação de cada show para criar um «master» a levar para o estúdio ou a arquivar. Assim, em caso de problemas técnicos de última hora, terá sempre à mão uma cópia completa e portátil.
+Alguns detalhes úteis:
+
+- A operação é **repetível**: se acrescentar novas clips e reexportar, o RLMP copia apenas os ficheiros novos e realinha o projeto, sem duplicar os já arquivados.
+- O reengate ao arquivo **não entra no histórico Anular/Repetir**: um *Anular* levaria as clips de volta aos originais, que pode já ter eliminado.
+- A referência ao arquivo é um **caminho absoluto**. Enquanto a pasta do projeto permanecer onde está, tudo funciona; se a mover para outro lado, os caminhos têm de ser regenerados com uma nova exportação a partir da nova posição.
+
+> **Boa prática.** Use *Exportar projeto com áudio* no final da preparação de cada show para consolidar o áudio no projeto. Terá um «master» compacto e portátil, e poderá libertar espaço eliminando os ficheiros dispersos a partir dos quais tinha importado.
 
 ### Verificação de integridade ao abrir
 

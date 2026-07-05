@@ -1,111 +1,154 @@
 #import "../lib/manuale-template.typ": *
 
-= 混音引擎
-<第-6-章-混音引擎>
+= Le moteur de mixage
 
-手动做电台导播，最根本的难题是同时要做的事情太多：启动一首曲目、压低音乐、对着麦克风说话、准备下一个片段、盯着时钟。多一步操作就多一次出错的机会------而这种场合，错误是公开且当场发生的。
+En régie radiophonique manuelle, tout se joue en même temps~: lancer un
+morceau, baisser la musique, parler au micro, préparer le clip suivant,
+surveiller l'horloge du coin de l'œil. Chaque geste supplémentaire est
+une occasion d'erreur, et l'erreur, ici, se joue en public et sans
+filet.
 
-Runtime Live Machine Pro
-的混音引擎把这些中间动作大部分接管过去了。这不是「软件背着你自作主张」那种自动化，而是把你本来就会定义的规则自动执行------前提是你得有足够多只手去把它们全部做完。
+Le moteur de mixage de Runtime Live Machine Pro délègue au logiciel une
+bonne partie de ces gestes. Il ne s'agit pas d'automatisation façon «~le
+logiciel décide à votre place sans vous prévenir~», mais plutôt de
+règles que vous appliqueriez vous-même si vous aviez assez de mains pour
+tout faire à la fois.
 
-== 6.1 音频层级
-<音频层级>
-自动混音系统建立在片段类型之间的#strong[优先级层级]上。最直接的理解方式，是把它想成一架「谁有话语权」的阶梯。
+== 6.1 La hiérarchie audio
+<la-hiérarchie-audio>
+Le système de mixage automatique repose sur une #strong[hiérarchie de
+priorité] entre les types de clips, qu'on peut se représenter simplement
+comme une échelle de «~droit de parole~».
 
-#strong[人声 / 预录 --- 绝对优先。]
-人声片段播放时，保持自己的标称音量，其余一切都被压低。没有任何信号能覆盖这条规则。
+#strong[Voix / Enregistrements --- priorité absolue.] Quand un clip voix
+est en lecture, il garde son volume nominal et tout le reste baisse
+autour de lui. Aucun autre signal ne peut passer outre.
 
-#strong[本期歌曲。] 向人声让出空间，但压过 Show Assets
-的垫乐。一首歌进入时，Show Assets
-的音乐垫会被清零（不是停止，它们继续在静默中运转，随时准备回归）------这就是下面要讲的
-Music Dominance。
+#strong[Musiques de l'épisode.] Elles cèdent le pas aux Voix, mais
+dominent les bases des Assets. Quand un morceau entre, les bases
+musicales des Assets s'effacent, sans s'arrêter pour autant~: elles
+continuent de tourner en silence, prêtes à revenir. C'est le principe de
+la Music Dominance, détaillé plus loin.
 
-#strong[Show Assets、Jingle 与 Promo --- 服务性的垫乐。]
-被人声压低，被歌曲静音。不过某个 asset 若设为
-#strong[Stacco]，反倒轮到它发号施令（见 §6.4）。
+#strong[Show Assets, Jingle et Promo --- les bases de service.] Les Voix
+les baissent, les Musiques les réduisent au silence. Exception~: quand
+un asset est configuré en #strong[Stacco], c'est lui qui prend le dessus
+(voir §6.4).
 
-#strong[pad FX 的效果。]
-音效在这个层级之外：按自己的音量播放，叠加在正在播出的内容之上，不会被静音。唯一的让步是对口播------人声活动时效果降到一半音量（50%）以免盖过人声，结束后自行升回。
+#strong[Effets du pad FX.] Les effets sonores échappent à cette
+hiérarchie~: ils jouent à leur propre volume, se superposent à ce qui
+est à l'antenne, et ne sont jamais réduits au silence. Une seule
+exception, par courtoisie envers la parole~: quand une voix est active,
+ils descendent à mi-volume (50 %) pour ne pas la couvrir, puis remontent
+d'eux-mêmes.
 
-== 6.2 自动 Ducking
-<自动-ducking>
-#strong[Ducking] 指的是：更高优先级的信号一进播放，另一个信号就被压低。
+== 6.2 Ducking automatique
+Le #strong[ducking] désigne ce mécanisme~: un signal baisse
+automatiquement dès qu'un signal de priorité supérieure entre en
+lecture.
 
-最常见的情形：一首歌正以完整动态播放，你从人声/预录列启动一段预录访谈。RLMP
-会用半秒的柔和淡变，把歌曲带到约 #strong[20% 音量]（约 14 dB
-衰减），让人声清晰地占据声音空间。访谈一结束，歌曲以同样流畅的淡入升回原始音量。
+Le cas le plus courant~: un morceau joue à pleine dynamique, et vous
+lancez une interview préenregistrée depuis la colonne Voix. RLMP amène
+alors le morceau à environ #strong[20 % du volume] (une réduction
+d'environ 14 dB), avec un fondu doux d'une demi-seconde, pour laisser la
+voix occuper l'espace sonore de façon intelligible. Dès que l'interview
+se termine, le morceau remonte à son volume d'origine, avec un fondu
+d'entrée tout aussi fluide.
 
-操作员什么都不用碰，唯一的动作是一次点击：启动访谈。衰减幅度和快慢可以在设置中调节（第
-13 章）。
+L'opérateur, lui, n'a rien touché~: un seul clic, celui qui lance
+l'interview. L'ampleur de la réduction et sa vitesse se règlent dans les
+Paramètres (Chapitre 13).
 
-== 6.3 Music Dominance：对垫乐的智能管理
-<music-dominance对垫乐的智能管理>
-一个经典的声音失误，是一首歌跟一段音乐垫（#emph[bed]）叠在一起的时刻：两个节奏元素相撞，两记不同步的
-kick drum，结果一片混乱。
+== 6.3 Music Dominance~: gestion intelligente des bases
+Une erreur sonore classique survient quand un morceau et une base
+musicale (#emph[bed]) se superposent~: deux rythmes qui s'entrechoquent,
+deux grosses caisses décalées, et au final un mix confus.
 
-RLMP 用 #strong[Music Dominance] 处理这种场景。
+RLMP règle ce scénario grâce à la #strong[Music Dominance].
 
-#strong[典型情形。] 一段垫乐正在 Show Assets
-列里循环，垫在主持人的人声之下，主持人从本期歌曲列启动了一首曲目。
+#strong[Le scénario type.] Une base tourne en boucle dans la colonne
+Assets, sous la voix de l'animateur, qui lance un morceau depuis la
+colonne Musiques.
 
-#strong[RLMP 的处理。]
-不停止垫乐------停止后还得手动重启，反而悄悄把垫乐带到#strong[零音量]，让它「幽灵般」继续播放：文件继续走，循环继续，但什么也听不见。
+#strong[Ce que fait RLMP.] Il n'arrête pas la base~: l'arrêter forcerait
+à la relancer manuellement ensuite. Il la fait plutôt descendre à
+#strong[volume zéro], tout en la gardant en lecture «~fantôme~»~: le
+fichier continue de défiler, la boucle tourne toujours, mais on n'entend
+rien.
 
-#strong[声音结果。] 只听得到那首歌，垫乐消失了，操作员什么都没做。
+#strong[Le résultat sonore.] Seul le morceau s'entend. La base a disparu
+sans que l'opérateur soit intervenu.
 
-#strong[回归。]
-那首歌结束时，垫乐以自动淡入重新浮现，从它在循环中所处的位置续上。垫乐 →
-歌曲 → 垫乐，整个流程不需要一次额外点击。
+#strong[Le retour.] Une fois le morceau terminé, la base réémerge avec
+un fondu d'entrée automatique, exactement là où elle en était dans sa
+boucle. Tout l'enchaînement (base → morceau → base) se fait sans un clic
+de plus.
 
-== 6.4 Stacco：规则的例外
-<stacco规则的例外>
-#strong[Stacco（短切叠加）]行为（每个片段的属性里可配置，见第 5
-章）会暂时颠覆层级：带这个行为的片段变成优先------把本列其他 asset
-静音、把音乐压低，但不停止任何东西。淡变比普通 ducking
-更快，进入更利落、更有冲击力。
+== 6.4 Stacchi~: l'exception à la règle
+<stacchi-lexception-à-la-règle>
+Le comportement #strong[Stacco] («~coupe/transition brève~»,
+configurable dans les propriétés de chaque clip, voir Chapitre 5)
+inverse temporairement la hiérarchie~: le clip qui le porte devient
+prioritaire. Il fait taire les autres assets de sa colonne et baisse la
+musique, sans rien arrêter. Le fondu appliqué, plus rapide que celui du
+ducking ordinaire, donne une entrée plus percussive et nette.
 
-典型用法是人声 #emph[station
-ID]（「你正在收听……」）：必须被清晰听到，底下的垫乐继续运转。想要更讲究的效果，可以给
-Stacco 配一个短促的 fade in（300--500 ms），进入会柔和一些，不那么生硬。
+L'usage typique est le #emph[station ID] vocal («~Vous écoutez…~»)~: il
+doit s'entendre clairement pendant que la base continue de tourner en
+dessous. Pour un résultat plus soigné, associez le Stacco à un fondu
+d'entrée bref (300--500 ms), afin que l'entrée reste douce plutôt que
+brutale.
 
-== 6.5 音量归一化（loudness）
-<音量归一化loudness>
-来源不同的片段几乎总是带着不同电平：一个精心母带过的片头、一段小声录的电话人声、一首下载来的音量自成一格的曲目。为了不用一直手动调
-Gain，RLMP 默认套用基于 EBU R128 loudness
-标准的#strong[音量归一化]，目标 #strong[−16 LUFS]。
+== 6.5 Homologation du volume (loudness)
+Les clips venus d'horizons différents arrivent presque toujours à des
+niveaux différents~: un générique bien masterisé, une voix téléphonique
+enregistrée trop bas, un morceau téléchargé avec son propre volume de
+référence. Pour éviter de devoir sans cesse retoucher le Gain à la main,
+RLMP applique par défaut une #strong[homologation du volume], fondée sur
+la norme de loudness EBU R128, avec une cible de #strong[−16 LUFS].
 
-具体做法是评估每个片段的感知响度，把它拉向一个共同参照，让歌曲、人声、垫乐从一开始就站在同一水平线上。这个功能默认启用，目标值可以在
-设置 → 主处理链 中调节。
+Concrètement, le logiciel évalue la sonorité perçue de chaque clip et la
+ramène vers une référence commune, si bien que morceaux, voix et bases
+démarrent déjà sur un pied d'égalité. La fonction est active par défaut
+\; la valeur cible se règle dans Paramètres → Master Chain.
 
-== 6.6 Master Chain：master bus 上的处理器链
-<master-chainmaster-bus-上的处理器链>
-#figure(image("../screenshots-zh-cn/impostazioni-master-chain.png", alt: "图 6.1 — Master Chain：音量归一化（−16 LUFS）、30 Hz 的 HPF、multiband glue 与 limiter brickwall。"),
+== 6.6 Master Chain~: la chaîne de processeurs sur le master bus
+<master-chain-la-chaîne-de-processeurs-sur-le-master-bus>
+#figure(image("../screenshots-fr/impostazioni-master-chain.png", alt: "Figure 6.1 — La Master Chain : homologation du volume (−16 LUFS), HPF à 30 Hz, glue multibande et limiter brickwall."),
   caption: [
-    图 6.1 --- Master Chain：音量归一化（−16 LUFS）、30 Hz 的
-    HPF、multiband glue 与 limiter brickwall。
+    Figure 6.1 --- La Master Chain~: homologation du volume (−16 LUFS),
+    HPF à 30 Hz, glue multibande et limiter brickwall.
   ]
 )
 
-所有正在播放片段的合成信号，经过主音量之后、抵达输出设备之前，会穿过
-master bus
-上的一条#strong[处理器链]。这条链默认启用，设计目的是不用高级配置就能提供
-broadcast-grade 的声音。
+Le signal combiné de tous les clips en lecture, après le Master Volume,
+traverse une #strong[chaîne de processeurs] sur le bus master avant
+d'atteindre le périphérique de sortie. Active par défaut, cette chaîne
+vise un son de qualité broadcast sans demander de réglages avancés.
 
-它由三级串联而成。
+Elle s'organise en trois étages, en série.
 
-#strong[High-Pass Filter（HPF），30 Hz。] 用柔和的斜率消掉那些没用的
-sub-bass 频率------它们既耗费
-headroom，又可能弄脏扩声系统。截止频率可调（20--200
-Hz），停用时这一级完全透明。
+#strong[High-Pass Filter (HPF) à 30 Hz.] Avec une pente douce, il
+élimine les fréquences sub-bass inutiles, celles qui grignotent le
+headroom et peuvent salir les systèmes de diffusion. La fréquence de
+coupure est réglable (20--200 Hz) \; désactivé, l'étage devient
+totalement transparent.
 
-#strong[Multiband glue（多频段黏合）。]
-不是单个压缩器，而是三个「温和」压缩器在三个频段（低、中、高）上并行工作，由
-crossover
-分开。每个频段的阈值和比例都经过校准，为的是「黏合」混音而不压扁它，同时抹平不同电平片段之间的动态差异。风格可以在几个预设间选（Neutro、Rock、Jazz、Elettronico），默认是
-Neutro。
+#strong[Glue multibande.] Il ne s'agit pas d'un compresseur unique, mais
+de trois compresseurs «~doux~» travaillant en parallèle sur trois bandes
+de fréquence (graves, médiums, aigus), séparées par un crossover. Chaque
+bande a ses seuils et ratios propres, calibrés pour «~coller~» (Glue) le
+mix sans l'écraser, et pour contenir les écarts de dynamique entre clips
+de niveaux différents. Le style se choisit parmi quelques presets
+(Neutre, Rock, Jazz, Électronique), Neutre étant celui par défaut.
 
-#strong[Limiter brickwall（砖墙限制器）。] 阈值 −1
-dBFS，限制比例高、反应极快。它保证信号绝不超过允许的最大电平------不管上游发生什么，都能防住数字失真（clipping）。
+#strong[Limiter brickwall.] Seuil à −1 dBFS, ratio de limitation élevé,
+réaction quasi instantanée~: il garantit que le signal ne dépasse jamais
+le niveau maximal autorisé, et évite ainsi la distorsion numérique
+(clipping) quoi qu'il se passe en amont.
 
-整条链和其中每一级，都能在 设置 → 主处理链
-中配置或停用，那里还有个恢复默认值的按钮。若信号已经过硬件混音器或外部处理链加工，可以把这里停用，避免重复处理。
+Toute la chaîne, comme chaque étage pris isolément, se configure et se
+désactive depuis Paramètres → Master Chain, où se trouve aussi un bouton
+pour revenir aux valeurs par défaut. Si le signal passe déjà par un
+mixeur matériel ou une chaîne externe, mieux vaut la désactiver pour
+éviter un double traitement.

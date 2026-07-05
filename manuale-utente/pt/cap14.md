@@ -51,7 +51,7 @@ O contorno vermelho indica que o ficheiro de áudio já não está acessível no
 1. **Volte a ligar o disco.** Se o ficheiro estava numa unidade externa, ligue-a novamente.
 2. **Reponha o ficheiro na posição original.** Caso tenha sido movido, coloque-o de volta no caminho original.
 3. **Substitua a clip.** Arraste de novo o ficheiro correto para a grelha e elimine a card vermelha.
-4. **Use Exportar Arquivo no futuro.** A forma mais eficaz de prevenir este problema é criar um arquivo antes de mover ou transferir o projeto (Capítulo 10).
+4. **Use Exportar projeto com áudio no futuro.** A forma mais eficaz de prevenir este problema é consolidar o áudio no projeto antes de mover ou transferir o projeto (Capítulo 10).
 
 ---
 
@@ -97,7 +97,7 @@ Não. O RLMP foi concebido para a regia live, ou seja, para shows conduzidos por
 **Posso usar o RLMP em iPad ou em dispositivos móveis?**
 Não como aplicação principal, já que o RLMP é um software desktop para Windows, macOS e Linux. Ainda assim, um tablet ou um telemóvel pode funcionar como **comando à distância** via browser, através do Controlo Remoto (Capítulo 11).
 
-**Os ficheiros `.lmp` das versões anteriores são compatíveis com a 1.11.5?**
+**Os ficheiros `.lmp` das versões anteriores são compatíveis com a 1.15.10?**
 Sim: ao abrir um projeto criado numa versão anterior, o RLMP atualiza automaticamente a sua estrutura, incluindo as colunas entretanto acrescentadas, sem modificar o ficheiro até que seja executada uma gravação.
 
 **Como atualizo o RLMP para uma nova versão?**

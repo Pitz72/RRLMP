@@ -1,124 +1,160 @@
 #import "../lib/manuale-template.typ": *
 
-= 安装与首次启动
-<第-2-章-安装与首次启动>
+= Installation et premier démarrage
+<chapitre-2-installation-et-premier-démarrage>
 
-Runtime Live Machine Pro
-的安装尽量不折腾人：点几下鼠标，不需要手动配置，也不需要另装什么前置组件。音频引擎（FFmpeg）已经打包在安装程序里，不用你操心。
+L'installation de Runtime Live Machine Pro demande un minimum
+d'interaction~: quelques clics suffisent, sans configuration manuelle ni
+prérequis à installer à part. Le moteur audio (FFmpeg) est intégré au
+paquet d'installation \; vous n'avez rien à faire de ce côté.
 
-== 2.1 系统要求
-<系统要求>
-开始之前，先确认电脑满足最低要求。长时间会话或同时加载大量片段时，推荐配置能给出最好的体验。
+== 2.1 Configuration requise
+Avant de commencer, vérifiez que votre ordinateur répond à la
+configuration minimale. Les spécifications recommandées offrent un
+meilleur confort sur les sessions longues ou avec de nombreux clips
+chargés en même temps.
 
 #figure(
   align(center)[#table(
-    columns: 3,
+    columns: (33.33%, 33.33%, 33.33%),
     align: (auto,auto,auto,),
-    table.header([], [最低], [推荐],),
+    table.header([], [Minimum], [Recommandé],),
     table.hline(),
-    [#strong[操作系统（Windows）]], [Windows 10 64-bit], [Windows 11
-    64-bit],
-    [#strong[操作系统（macOS）]], [macOS 11 Big Sur], [macOS 13 Ventura
-    或更新],
-    [#strong[操作系统（Linux）]], [Ubuntu 20.04 / Debian 11], [Ubuntu
-    22.04 LTS],
-    [#strong[RAM]], [4 GB], [8 GB 或更多],
-    [#strong[磁盘空间]], [300 MB（应用本体）], [1 GB +
-    音频文件所需空间],
-    [#strong[CPU]], [任意现代双核], [四核或更高],
+    [#strong[Système d'exploitation (Windows)]], [Windows 10
+    64-bit], [Windows 11 64-bit],
+    [#strong[Système d'exploitation (macOS)]], [macOS 11 Big
+    Sur], [macOS 13 Ventura ou ultérieur],
+    [#strong[Système d'exploitation (Linux)]], [Ubuntu 20.04 / Debian
+    11], [Ubuntu 22.04 LTS],
+    [#strong[RAM]], [4 GB], [8 GB ou plus],
+    [#strong[Espace disque]], [300 MB (application)], [1 GB + espace
+    pour les fichiers audio],
+    [#strong[CPU]], [Tout dual-core moderne], [Quad-core ou supérieur],
   )]
   , kind: table
   )
 
-软件针对 Apple Silicon（M1、M2、M3）做了优化，在两种 macOS
-架构上都能原生运行，不需要 Rosetta 转译。
+Le logiciel est optimisé pour Apple Silicon (M1, M2, M3)~: il tourne
+nativement sur les deux architectures macOS, sans passer par l'émulation
+Rosetta.
 
-不需要专用声卡。只要是操作系统能识别的音频设备，RLMP
-都能配合工作------从集成声卡到 Rødecaster Pro、RØDECaster Duo 这类专业
-USB 混音器皆可。
+Aucune carte son dédiée n'est nécessaire. RLMP fonctionne avec n'importe
+quel périphérique audio reconnu par le système, de la carte son intégrée
+aux mixeurs USB professionnels comme le Rødecaster Pro ou le RØDECaster
+Duo.
 
-== 2.2 在 Windows 上安装
-<在-windows-上安装>
-+ 从官方分发渠道下载文件 `Runtime-Live-Machine-Pro-1.11.5.exe`。
-+ 双击该可执行文件。NSIS 安装程序会启动，并将文件复制到相应目录。
-+ 完成后，会在桌面和开始菜单中创建快捷方式。
-+ 安装完成时，应用会自动启动。
+== 2.2 Installation sous Windows
++ Téléchargez le fichier `Runtime-Live-Machine-Pro-1.15.10.exe` depuis
+  le canal de distribution officiel.
++ Double-cliquez sur l'exécutable. L'installateur NSIS se lance et copie
+  les fichiers dans les répertoires appropriés.
++ À la fin, un raccourci est créé sur le Bureau et dans le menu
+  Démarrer.
++ L'application démarre automatiquement une fois l'installation
+  terminée.
 
-#strong[关于 Windows SmartScreen。]
-软件更新频繁，数字签名证书可能还没积累够进入 SmartScreen
-自动白名单所需的「信誉」。若弹出「Windows
-已保护你的电脑」提示，点击#emph[更多信息]，再点击#emph[仍要运行]即可。软件不含恶意程序，官方安装包只通过作者的分发渠道发布。
+#strong[Note sur Windows SmartScreen.] Le logiciel étant mis à jour
+fréquemment, son certificat de signature numérique n'a pas toujours eu
+le temps d'accumuler la «~réputation~» requise pour la liste blanche
+automatique de SmartScreen. Si l'avertissement «~Windows a protégé votre
+ordinateur~» s'affiche, cliquez sur #emph[Informations complémentaires]
+puis sur #emph[Exécuter quand même]. Le logiciel ne contient aucun
+malware~: les installateurs officiels ne transitent que par les canaux
+de distribution de l'auteur.
 
-== 2.3 在 macOS 上安装
-<在-macos-上安装>
-+ 从官方渠道下载 `.dmg` 文件。
-+ 打开该映像文件，将 Runtime Live Machine Pro
-  的图标拖入#emph[应用程序]文件夹。
-+ 首次启动时，macOS 可能弹出 Gatekeeper 提示（「无法打开该
-  App，因为它来自身份不明的开发者」）。这时打开#emph[系统偏好设置] →
-  #emph[安全性与隐私] →
-  #emph[通用]，在应用名称旁点击#emph[仍要打开]即可继续。
+== 2.3 Installation sous macOS
++ Téléchargez le fichier `.dmg` depuis le canal officiel.
++ Ouvrez l'image disque et faites glisser l'icône de Runtime Live
+  Machine Pro dans le dossier #emph[Applications].
++ Au premier démarrage, macOS peut afficher un avertissement Gatekeeper
+  («~L'app ne peut pas être ouverte, car elle provient d'un développeur
+  non identifié~»). Ouvrez alors #emph[Préférences Système] →
+  #emph[Sécurité et confidentialité] → #emph[Général], puis cliquez sur
+  #emph[Ouvrir quand même] à côté du nom de l'application.
 
-从 macOS 15（Sequoia）起，路径改为#emph[系统设置] →
-#emph[隐私与安全性]，向下滚动到#emph[安全性]部分。
+À partir de macOS 15 (Sequoia), le chemin devient #emph[Réglages
+Système] → #emph[Confidentialité et sécurité] → faites défiler jusqu'à
+la section #emph[Sécurité].
 
 #nota[
-macOS 应用没有用 Apple Developer
-证书签名，这也影响更新的处理方式，详见第 12 章。
+L'application macOS n'est pas signée avec un certificat
+Apple Developer, ce qui a aussi une influence sur la gestion des mises à
+jour --- voir le Chapitre 12.
 ]
 
-== 2.4 在 Linux 上安装
-<在-linux-上安装>
-提供两种分发格式：
+== 2.4 Installation sous Linux
+Deux formats de distribution sont disponibles~:
 
-- #strong[AppImage] ---
-  便携式可执行文件，无需安装，把文件设为可执行（`chmod +x`）后直接运行。
-- #strong[\.deb 软件包] --- 适用于 Debian/Ubuntu/Mint 发行版，用
-  `sudo dpkg -i nomefile.deb` 安装，或用图形化包管理器打开。
+- #strong[AppImage] --- exécutable portable, sans installation. Rendez
+  le fichier exécutable (`chmod +x`) et lancez-le directement.
+- #strong[Paquet \.deb] --- pour les distributions Debian/Ubuntu/Mint.
+  Installez avec `sudo dpkg -i nomfichier.deb` ou ouvrez-le avec le
+  gestionnaire de paquets graphique.
 
-某些发行版可能需要安装 `libasound2` 软件包才能支持 ALSA
-音频。应用若无法启动，请查阅所用发行版的文档。
+Sur certaines distributions, le paquet `libasound2` peut être requis
+pour la prise en charge audio ALSA. Si l'application refuse de démarrer,
+consultez la documentation de votre distribution.
 
-== 2.5 欢迎界面
-<欢迎界面>
-#figure(image("../screenshots-zh-cn/schermata-benvenuto.png", alt: "图 2.1 — 欢迎界面：软件标识、更新状态、主要操作与语言选择器。"),
+== 2.5 L'écran d'accueil
+<lécran-daccueil>
+#figure(image("../screenshots-fr/schermata-benvenuto.png", alt: "Figure 2.1 — L’écran d’accueil : identité du logiciel, état de la mise à jour, actions principales et sélecteur de langue."),
   caption: [
-    图 2.1 --- 欢迎界面：软件标识、更新状态、主要操作与语言选择器。
+    Figure 2.1 --- L'écran d'accueil~: identité du logiciel, état de la
+    mise à jour, actions principales et sélecteur de langue.
   ]
 )
 
-首次启动时------以及此后每次启动，直到你打开某个项目为止------RLMP
-都会显示#strong[欢迎界面]，所有前置操作都从这里开始。面板分两个区域。
+Au premier démarrage, et à chaque démarrage suivant tant qu'aucun projet
+n'est ouvert, RLMP affiche l'#strong[écran d'accueil]~: le point d'accès
+à toutes les opérations préliminaires. Le panneau se divise en deux
+zones.
 
-#strong[左区 --- 标识与操作。] 软件的 logo（一组 VU meter
-竖条加播放符号）标出这是 Pro 版本。标题与 slogan
-下方显示已安装的版本号，以及更新系统的状态：
+#strong[Zone de gauche --- Identité et actions.] Le logo du logiciel,
+les barres d'un VU meter surmontées du symbole de lecture, identifie la
+version Pro. Sous le titre et le slogan figurent le numéro de version
+installée et l'état du système de mise à jour~:
 
-- #strong[「已是最新版本」]（绿色）------当前已是最新版本。
-- #strong[「发现新版本」]（琥珀色，闪烁）------这是一个按钮，点击可打开更新窗口（第
-  12 章）。
-- #strong[「OFFLINE」]（暗红色）------联系不到更新服务，软件照常运行。
+- #strong[«~Version la plus récente~»] (vert) --- vous utilisez la
+  dernière version disponible.
+- #strong[«~Mise à jour disponible~»] (ambre, clignotant) --- c'est un
+  bouton~: cliquez dessus pour ouvrir la fenêtre de mise à jour
+  (Chapitre 12).
+- #strong[«~OFFLINE~»] (rouge estompé) --- impossible de contacter le
+  service de mise à jour~; le logiciel fonctionne quand même.
 
-下方是主要操作：
+Viennent ensuite les actions principales~:
 
-- #emph[新建项目] --- 创建一个空会话，各列就绪待用。
-- #emph[加载项目] --- 打开一个现有的 `.lmp` 文件。RLMP
-  会先执行一次#strong[完整性检查]：核对每个被引用的音频文件是否还在记录的路径上，缺失的文件会立刻以红色边框标注在对应片段上。
-- #emph[手册] --- 这一项目前禁用：软件内文档会在后续版本中通过网络提供。
+- #emph[Nouveau Projet] --- crée une session vide, colonnes prêtes au
+  chargement.
+- #emph[Charger un Projet] --- ouvre un fichier `.lmp` existant. Avant
+  de le rendre opérationnel, RLMP procède à un #strong[contrôle
+  d'intégrité]~: chaque fichier audio référencé doit encore exister au
+  chemin mémorisé. Un fichier manquant est immédiatement signalé par une
+  bordure rouge sur le clip correspondant.
+- #emph[Manuel en ligne] --- l'entrée existe mais reste désactivée pour
+  l'instant~: la documentation consultable depuis le logiciel arrivera
+  dans une prochaine version, via le web.
 
-#strong[右区 --- 语言选择器。] RLMP
-支持八种界面语言：英语、意大利语、法语、德语、西班牙语、葡萄牙语、俄语和简体中文。当前语言以青色边框和勾选标记突出显示，选择立即生效，且在各次会话之间保持记忆。
+#strong[Zone de droite --- Sélecteur de langue.] RLMP prend en charge
+huit langues d'interface~: anglais, italien, français, allemand,
+espagnol, portugais, russe et chinois simplifié. Une bordure cyan et une
+coche signalent la langue active. Le changement de langue prend effet
+immédiatement et reste mémorisé d'une session à l'autre.
 
-== 2.6 首次启动：应当预期什么
-<首次启动应当预期什么>
-首次打开项目时，页眉上会出现带虹彩渐变 #strong[PRO] 徽标的
-logo。表面看不见的地方，打开项目同时在后台启动了音频引擎：FFmpeg
-完成初始化，`media://`
-流式协议开始监听，随时准备把文件从磁盘直接送出而不载入内存。
+== 2.6 Le premier démarrage~: à quoi s'attendre
+<le-premier-démarrage-à-quoi-sattendre>
+À la première ouverture d'un projet, l'en-tête affiche le logo avec son
+badge #strong[PRO] au dégradé iridescent. En coulisse, cette ouverture
+lance le moteur audio~: FFmpeg s'initialise et le protocole de streaming
+`media://` se met à l'écoute, prêt à servir les fichiers depuis le
+disque sans jamais les charger en mémoire.
 
-软件默认以全屏模式启动。若窗口以较小尺寸打开，按
-`F11`（Windows/Linux）或
-`Ctrl+Cmd+F`（macOS）切到全屏------这是导播工作的最佳状态。
+Le logiciel démarre de préférence en mode plein écran. Si la fenêtre
+s'ouvre redimensionnée, un appui sur `F11` (Windows/Linux) ou
+`Ctrl+Cmd+F` (macOS) la fait passer en plein écran, condition optimale
+pour le travail de régie.
 
-页眉中的 #strong[On Air 计时器]会停在
-`--:--:--`，直到本次会话第一个片段被触发才开始计时，此后持续累计直播已流逝的时间。用固定时长播出单的人，会用得上这个参照。
+Le #strong[minuteur On Air], dans l'en-tête, reste à `--:--:--` tant
+qu'aucun clip n'a été lancé. Dès le premier lancement, il se met à
+compter le temps écoulé en direct --- un repère précieux pour qui
+travaille avec une conduite à durée fixe.

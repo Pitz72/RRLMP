@@ -62,24 +62,29 @@ La cartella `autosaves` si trova nella directory dati dell'applicazione:
 
 ---
 
-## 10.4 Export Package: portabilità completa
+## 10.4 Esporta progetto con audio
 
-Poiché il file `.lmp` contiene solo i percorsi ai file audio, non i file stessi, portare il progetto su un altro computer richiede attenzione: se la macchina di destinazione non ha i file negli stessi percorsi assoluti, le clip diventano rosse. La funzione **Esporta Archivio** (Export Package), nel menu FILE, risolve il problema alla radice.
+Poiché il file `.lmp` contiene solo i percorsi ai file audio, non i file stessi, un progetto è fragile: se sposti, rinomini o cancelli anche uno solo dei file sorgente, la clip corrispondente diventa rossa. La funzione **Esporta progetto con audio**, nel menu FILE (subito sotto *Salva Come…*), risolve il problema alla radice consolidando tutto l'audio dentro il progetto.
 
 ### Come funziona
 
-RLMP analizza tutti i percorsi ai file audio del progetto, crea una sottocartella `audio/` e **copia fisicamente** ogni file referenziato al suo interno. I file già presenti e identici non vengono ricopiati; eventuali doppioni di nome vengono rinominati per non sovrascriversi, e i file orfani (non più referenziati) vengono rimossi dalla cartella.
+RLMP analizza tutti i percorsi ai file audio del progetto, crea una sottocartella `audio/` accanto al file `.lmp` e **copia fisicamente** ogni file referenziato al suo interno. I file già presenti e identici non vengono ricopiati; eventuali doppioni di nome vengono rinominati per non sovrascriversi, e i file orfani (non più referenziati) vengono rimossi dalla cartella.
 
-L'operazione ha due modalità:
+La differenza rispetto a un semplice backup è ciò che accade **dopo** la copia: RLMP **ripunta ogni clip alla nuova copia** dentro `audio/` e **ri-salva il progetto**. Da quel momento la cartella `audio/` non è un archivio di scorta accanto al progetto, ma la fonte da cui la sessione legge davvero l'audio.
 
-- **Accanto al progetto** — se esporti verso la cartella dove risiede già il `.lmp`, RLMP sincronizza la sottocartella `audio/` accanto ad esso.
-- **Cartella libera** — se scegli una cartella nuova (una chiavetta USB, un NAS), RLMP vi scrive un `project.lmp` con i percorsi già aggiornati per puntare alla sottocartella `audio/` locale.
+### Il risultato: puoi cancellare gli originali
 
-### Il risultato
+Poiché il progetto ora punta alle copie in `audio/`, **i file audio nella loro posizione originale non servono più** e puoi cancellarli in sicurezza: lo show continua a funzionare leggendo dall'archivio. È la differenza rispetto alle versioni precedenti, dove la cartella `audio/` restava un doppione orfano e cancellare gli originali rompeva le clip.
 
-La cartella di destinazione diventa autocontenuta: contiene tutto il necessario per eseguire lo show su qualsiasi computer con RLMP installato, indipendentemente dalla struttura di cartelle di quella macchina.
+La cartella del progetto diventa così autocontenuta: `.lmp` più sottocartella `audio/`, tutto il necessario per eseguire lo show, pronto da archiviare, copiare o portare su un altro computer con RLMP installato.
 
-> **Prassi consigliata.** Usa Esporta Archivio al termine della preparazione di ogni show per creare un «master» da portare in studio o da archiviare. In caso di problemi tecnici all'ultimo momento, avrai sempre una copia completa e portabile pronta.
+Alcuni dettagli utili:
+
+- L'operazione è **ripetibile**: se aggiungi nuove clip e riesporti, RLMP copia solo i file nuovi e riallinea il progetto, senza duplicare quelli già archiviati.
+- Il riaggancio all'archivio **non entra nella cronologia Annulla/Ripeti**: un *Annulla* riporterebbe le clip agli originali, che potresti avere già cancellato.
+- Il riferimento all'archivio è un **percorso assoluto**. Finché la cartella del progetto resta dov'è, tutto funziona; se la sposti altrove, i percorsi vanno rigenerati con un nuovo export dalla nuova posizione.
+
+> **Prassi consigliata.** Usa *Esporta progetto con audio* al termine della preparazione di ogni show per consolidare l'audio nel progetto. Avrai un «master» compatto e portabile, e potrai liberare spazio cancellando i file sparsi da cui avevi importato.
 
 ### Controllo di integrità all'apertura
 

@@ -20,11 +20,11 @@ Esta verificação é opcional e não bloqueia nada: mesmo offline, o RLMP arran
 
 ## 12.2 A janela de atualização
 
-Quando há uma atualização disponível, a janela dedicada mostra a versão atual, a nova versão e as respetivas notas de lançamento. A partir daqui, tem três opções:
+Quando há uma atualização disponível, a janela dedicada mostra a versão atual, a nova versão e as **notas de lançamento**: a lista real das novidades dessa versão (o mesmo changelog deste software), formatada e legível, e não uma simples lista de ficheiros. As notas permanecem visíveis mesmo depois de o download terminar, mesmo antes de instalar, para que saiba sempre o que está prestes a aplicar. A partir daqui, decide o utilizador:
 
 - **Mais tarde**: fecha a janela sem fazer nada, e pode reabri-la quando quiser.
 - **Transferir**: inicia o download da nova versão. Note que o download **nunca começa sozinho**, só arranca quando prime este botão, e uma barra de progresso acompanha o andamento.
-- **Reiniciar e instalar**: aparece assim que o download termina, e reinicia a aplicação já com a atualização aplicada.
+- **Reiniciar e instalar**: aparece assim que o download termina: fecha a aplicação e aplica a atualização. O fecho é limpo e imediato: tendo já confirmado o reinício, o software não volta a apresentar o pedido de gravação e não fica aberto por trás do instalador.
 
 ---
 

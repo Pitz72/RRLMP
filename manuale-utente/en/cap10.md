@@ -62,24 +62,29 @@ The `autosaves` folder is in the application data directory:
 
 ---
 
-## 10.4 Export Package: complete portability
+## 10.4 Export project with audio
 
-Because the `.lmp` file contains only the paths to the audio files, not the files themselves, carrying the project to another computer takes care: if the destination machine doesn’t have the files at the same absolute paths, the clips turn red. The **Export Self-Contained Archive** feature (Export Package), in the FILE menu, solves this at the root.
+Because the `.lmp` file contains only the paths to the audio files, not the files themselves, a project is fragile: if you move, rename or delete even a single one of the source files, the corresponding clip turns red. The **Export project with audio** feature, in the FILE menu (right below *Save As…*), solves the problem at the root by consolidating all the audio inside the project.
 
 ### How it works
 
-RLMP analyses all the audio-file paths in the project, creates an `audio/` subfolder, and **physically copies** every referenced file into it. Files already present and identical are not re-copied; any name duplicates are renamed so they don’t overwrite each other, and orphan files (no longer referenced) are removed from the folder.
+RLMP analyses all the audio-file paths in the project, creates an `audio/` subfolder next to the `.lmp` file, and **physically copies** every referenced file into it. Files already present and identical are not re-copied; any name duplicates are renamed so they don’t overwrite each other, and orphan files (no longer referenced) are removed from the folder.
 
-The operation has two modes:
+The difference from a simple backup is what happens **after** the copy: RLMP **repoints every clip to the new copy** inside `audio/` and **re-saves the project**. From that moment on, the `audio/` folder is not a spare archive sitting next to the project, but the source the session actually reads its audio from.
 
-- **Next to the project** — if you export to the folder where the `.lmp` already lives, RLMP synchronizes the `audio/` subfolder next to it.
-- **Free folder** — if you choose a new folder (a USB stick, a NAS), RLMP writes a `project.lmp` there with the paths already updated to point to the local `audio/` subfolder.
+### The result: you can delete the originals
 
-### The result
+Because the project now points to the copies in `audio/`, **the audio files in their original location are no longer needed** and you can safely delete them: the show keeps working by reading from the archive. This is the difference from earlier versions, where the `audio/` folder stayed an orphan duplicate and deleting the originals broke the clips.
 
-The destination folder becomes self-contained: it holds everything needed to run the show on any computer with RLMP installed, regardless of that machine’s folder structure.
+The project folder thus becomes self-contained: the `.lmp` plus the `audio/` subfolder, everything needed to run the show, ready to archive, copy, or carry to another computer with RLMP installed.
 
-> **Recommended practice.** Use Export Self-Contained Archive at the end of preparing each show to create a “master” to take into the studio or to archive. In case of last-minute technical trouble, you’ll always have a complete, portable copy ready.
+A few useful details:
+
+- The operation is **repeatable**: if you add new clips and export again, RLMP copies only the new files and realigns the project, without duplicating the ones already archived.
+- Repointing to the archive **does not enter the Undo/Redo history**: an *Undo* would send the clips back to the originals, which you may already have deleted.
+- The reference to the archive is an **absolute path**. As long as the project folder stays where it is, everything works; if you move it elsewhere, the paths must be regenerated with a new export from the new location.
+
+> **Recommended practice.** Use *Export project with audio* at the end of preparing each show to consolidate the audio inside the project. You’ll have a compact, portable “master”, and you can free up space by deleting the scattered files you imported from.
 
 ### Integrity check on opening
 

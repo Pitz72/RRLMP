@@ -20,11 +20,11 @@ The check is optional and non-blocking: if you’re offline, RLMP starts and wor
 
 ## 12.2 The update window
 
-When an update is available, the dedicated window shows the current version, the new version and the release notes. From here you decide:
+When an update is available, the dedicated window shows the current version, the new version and the **release notes**: the real list of what’s new in that version (the same changelog as this software), formatted and readable, not a bare list of files. The notes stay visible even once the download is complete, right before installing, so you always know what you’re about to apply. From here you decide:
 
 - **Later** — closes the window without doing anything. You can reopen it whenever you like.
 - **Download** — starts downloading the new version. The download **never starts on its own**: it begins only when you press this button. A progress bar shows its progress.
-- **Restart and install** — appears when the download is complete: it restarts the application, applying the update.
+- **Restart and install** — appears when the download is complete: it closes the application and applies the update. The shutdown is clean and immediate: since you’ve already confirmed the restart, the software doesn’t re-prompt to save and doesn’t stay open behind the installer.
 
 ---
 

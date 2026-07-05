@@ -36,9 +36,9 @@ En ambos casos hablamos de una interfaz que responde a la tecla sin retardo, un 
 
 El concepto que sostiene todo Runtime Live Machine Pro es el **proyecto aislado**. Cada show que realizas —un episodio de podcast, un directo de radio, una función de teatro— vive en un archivo `.lmp` autónomo que lo contiene todo: la disposición de los clips, los volúmenes, los mapeos MIDI, los puntos de cue, las notas de regia. Al cargar ese archivo, recuperas el show tal y como lo dejaste.
 
-De ahí se derivan varias ventajas prácticas. No hace falta reconfigurar el software cada vez que cambias de show. Un proyecto puede llevarse a cualquier ordenador con la función Export Package, con la garantía de que va a funcionar. Y los episodios pasados se pueden archivar y reabrir meses después sin ninguna sorpresa desagradable.
+De ahí se derivan varias ventajas prácticas. No hace falta reconfigurar el software cada vez que cambias de show. Un proyecto puede llevarse a cualquier ordenador con la función Exportar proyecto con audio, con la garantía de que va a funcionar. Y los episodios pasados se pueden archivar y reabrir meses después sin ninguna sorpresa desagradable.
 
-El archivo `.lmp` no contiene los archivos de audio físicos: memoriza sus rutas en el disco. Para el traslado entre ordenadores, la función **Export Package** copia físicamente todo lo necesario en una carpeta autocontenida.
+El archivo `.lmp` no contiene los archivos de audio físicos: memoriza sus rutas en el disco. Para el traslado entre ordenadores, la función **Exportar proyecto con audio** copia físicamente todo lo necesario dentro del propio proyecto.
 
 ---
 
@@ -77,4 +77,4 @@ Cada columna tiene su propio comportamiento de audio —prioridad en la mezcla, 
 
 ## 1.5 Versión actual y actualizaciones
 
-Este manual describe la versión **1.11.5** de Runtime Live Machine Pro. En el arranque, el software comprueba de forma silenciosa si hay una versión más reciente y, si la encuentra, abre un aviso de actualización, nunca durante un directo. El sistema de actualización se describe en el Capítulo 12. Los archivos de proyecto `.lmp` son compatibles con las versiones posteriores: actualizar el software no implica la pérdida ni la migración manual de los proyectos existentes.
+Este manual describe la versión **1.15.10** de Runtime Live Machine Pro. En el arranque, el software comprueba de forma silenciosa si hay una versión más reciente y, si la encuentra, abre un aviso de actualización, nunca durante un directo. El sistema de actualización se describe en el Capítulo 12. Los archivos de proyecto `.lmp` son compatibles con las versiones posteriores: actualizar el software no implica la pérdida ni la migración manual de los proyectos existentes.

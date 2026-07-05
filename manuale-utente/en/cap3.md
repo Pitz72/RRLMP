@@ -14,7 +14,7 @@ The header spans the full width of the screen. From left to right, it gathers th
 
 ### Identity
 
-**Logo and PRO badge.** On the left, the logo sits beside the wordmark **RLM PRO**, with the word “PRO” rendered in an iridescent gradient running from cyan to green, amber and red. Next to it, in monospaced type, is the installed version (`v1.11.5`). Hover over the logo to reveal the full software name and version number.
+**Logo and PRO badge.** On the left, the logo sits beside the wordmark **RLM PRO**, with the word “PRO” rendered in an iridescent gradient running from cyan to green, amber and red. Next to it, in monospaced type, is the installed version (`v1.15.10`). Hover over the logo to reveal the full software name and version number.
 
 ### File menu
 
@@ -23,9 +23,9 @@ The **FILE** button opens a menu with the project operations:
 - *New Project* — opens an empty session. If there are unsaved changes, the software asks for confirmation.
 - *Save Project* — a quick save to the current `.lmp` file. The entry turns yellow when there are unsaved changes.
 - *Save As…* — always opens the dialog box, for creating progressive versions (e.g. `Ep47_draft.lmp`, `Ep47_final.lmp`).
+- *Export project with audio* — consolidates all the audio inside the project (an `audio/` subfolder) and repoints the clips to it, so you can safely delete the originals. Described in Chapter 10.
 - *Load Project* — opens a `.lmp` project from disk.
 - *Import M3U* — imports a playlist in M3U format as a sequence of clips.
-- *Export Self-Contained Archive* — creates a self-contained copy of the project, including the audio files. Described in Chapter 10.
 
 ### Monitoring and transport
 
@@ -79,6 +79,8 @@ Each header shows the column name and type, and doubles as a status indicator. U
 
 Each column’s colour is customizable: click the coloured dot in the header to open a palette of **30 shades**. The choice is saved in the project file.
 
+When a column contains at least one clip, a **trash** icon appears in its header: the **Clear column** command removes every clip in that column in one go. For safety it always asks for confirmation, stating how many clips will be removed, and the operation can be reversed with *Undo* (`Ctrl+Z`). On empty columns the icon does not appear.
+
 The **Pre-Show** column header also carries a **rotation** button: when active, the pre-broadcast queue automatically inserts jingles and promos at regular intervals (Chapter 13).
 
 ### The six columns
@@ -116,7 +118,8 @@ Every imported audio file materializes in the grid as a rectangular **card**. Th
 - **LOOP** — the clip will restart from the beginning when playback ends.
 - **NEXT** — when this clip ends, the next one in the column will start automatically.
 - **▶ UP NEXT** — highlights which clip will be next to start in the automatic sequence.
-- **### BPM** — the detected tempo, on music clips.
+- **### BPM** — the detected tempo, on music clips, shown on a high-visibility fluorescent-yellow badge.
+- **I ##s** — the clip has an Intro point configured (Chapter 5): the badge, in cyan, shows its duration in seconds and is always visible, even when the clip is stopped.
 - **TRIM…** — silence analysis in progress (Auto-Trim).
 - **FADE OUT** — appears on the outgoing clip during a crossfade or a fade.
 - **📋** — the clip has a note attached in the NoteBoard (Chapter 13).

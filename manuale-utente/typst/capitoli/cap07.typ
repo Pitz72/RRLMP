@@ -1,96 +1,119 @@
 #import "../lib/manuale-template.typ": *
 
-= Pad FX 与 Automix 视图
-<第-7-章-pad-fx-与-automix-视图>
+= Le pad FX et la vue Automix
 
-两个工作面浮在网格之上，各用一个按键唤出，服务于导播中两种相反的时刻：#strong[pad
-FX] 用来稳稳触发效果和 stacco 而不打断任何内容，#strong[Automix 视图]
-用来像 DJ 那样管理音乐流。两者都不占网格空间，需要时打开，一点就关。
+Deux surfaces de travail se superposent à la grille, rappelables d'une
+touche, chacune pensée pour un moment bien différent de la régie~: le
+#strong[pad FX], pour lancer effets et stacchi à coup sûr sans rien
+interrompre, et la #strong[vue Automix], pour gérer le flux musical
+comme le ferait un DJ. Ni l'une ni l'autre n'empiète sur la grille~:
+elles s'ouvrent au besoin et se referment d'un clic.
 
-== 7.1 Pad FX：jingle machine
-#figure(image("../screenshots-zh-cn/pad-fx.png", alt: "图 7.1 — pad FX：5×5 的音效 jingle machine，支持叠加式触发。"),
+== 7.1 Le pad FX~: la jingle machine
+#figure(image("../screenshots-fr/pad-fx.png", alt: "Figure 7.1 — Le pad FX : la jingle machine 5×5 des effets sonores, avec lancement superposé."),
   caption: [
-    图 7.1 --- pad FX：5×5 的音效 jingle machine，支持叠加式触发。
+    Figure 7.1 --- Le pad FX~: la jingle machine 5×5 des effets sonores,
+    avec lancement superposé.
   ]
 )
 
-音效在网格中没有列，它们存活于 #strong[pad FX]
-里------一个由格子组成的网格面板（一台 #emph[jingle machine]），由页眉的
-#strong[FX] 按钮打开，浮在屏幕一角。
+Les effets sonores n'ont pas de colonne dans la grille~: ils vivent dans
+le #strong[pad FX], un panneau en grille de cellules (une #emph[jingle
+machine]) qui s'ouvre depuis le bouton #strong[FX] de l'en-tête et reste
+flottant dans un coin de l'écran.
 
-pad
-是#strong[非阻断式浮层]：不遮挡看板，也不拦截指向别处的点击。你可以触发一个效果，同时继续操作各列或页眉的命令。正因如此，`Esc`
-键不会关闭 pad，它仍是 STOP ALL 命令，随时可用。pad
-靠自己的关闭按钮，或再次点击 FX 开关来关闭。
+Le pad est un #strong[overlay non bloquant]~: il n'assombrit pas la
+board et n'intercepte aucun clic destiné ailleurs. Vous pouvez lancer un
+effet tout en continuant d'opérer sur les colonnes ou sur les commandes
+de l'en-tête. C'est pour cette raison que `Échap` ne ferme pas le pad~:
+elle reste réservée à STOP ALL, toujours disponible. Le pad se ferme
+depuis son propre bouton de fermeture, ou en rappuyant sur le toggle FX.
 
-=== 加载与触发效果
-<加载与触发效果>
-pad 初始是一个 25
-格（5×5）的网格，添加更多效果时会按行增长。填充它的办法跟网格某一列一样------#strong[把音频文件直接拖到
-pad 的格子上]。
+=== Charger et lancer les effets
+Le pad démarre avec une grille de 25 cellules (5×5) et s'agrandit en
+lignes à mesure que vous ajoutez des effets. Pour le peupler,
+#strong[faites glisser les fichiers audio directement sur les cellules]
+du pad, exactement comme sur une colonne de la grille.
 
-单击格子就#strong[触发效果]。pad
-的效果是复音的、可叠加：多个格子能一起响，叠在正在播出的任何内容之上而不打断它。音频行为跟普通片段完全一致，只是触发的操作面不同。页眉中
-FX 按钮旁的计数器显示此刻正在响的效果数量。
+Un clic sur une cellule #strong[lance l'effet]. Les effets du pad sont
+polyphoniques et se superposent~: plusieurs cellules peuvent jouer en
+même temps, par-dessus tout ce qui est à l'antenne, sans rien arrêter.
+Le comportement audio reste celui d'un clip normal \; seule change la
+surface de lancement. Un compteur, à côté du bouton FX de l'en-tête,
+indique combien d'effets jouent à l'instant présent.
 
-=== 配置效果
-<配置效果>
-效果分两个层级配置，对应两种不同需求：
+=== Configurer un effet
+Les effets se configurent à deux niveaux, chacun répondant à un besoin
+différent~:
 
-- #strong[快速设置] --- jingle machine
-  的常见情形：名称、颜色、音量、循环，几秒钟搞定。
-- #strong[完整设置] ---
-  跟网格片段相同的窗口（波形编辑器、trim、标记、淡变、按键分配），从快速设置里的「完整设置……」进入。
+- #strong[Paramètres rapides]~: le cas le plus courant pour une jingle
+  machine --- nom, couleur, volume, boucle. Quelques secondes suffisent.
+- #strong[Paramètres complets]~: la même fenêtre que pour les clips de
+  la grille (éditeur de forme d'onde, trim, marqueurs, fade, attribution
+  des touches), accessible depuis l'entrée «~Paramètres complets…~» dans
+  les paramètres rapides.
 
-=== pad 的位置
-<pad-的位置>
-pad 可以停在屏幕左下角或右下角，用 pad
-上的箭头设置偏好，各次会话之间会记住。停右侧会盖住 NoteBoard
-和最后一列，选哪一侧取决于你怎么排布播出单。
+=== Position du pad
+Le pad se place dans le coin en bas à gauche ou en bas à droite de
+l'écran, au choix~: les flèches du pad permettent de basculer, et la
+préférence reste mémorisée d'une session à l'autre. À droite, il
+recouvre la NoteBoard et la dernière colonne \; choisissez le côté qui
+convient le mieux à la disposition de votre conduite.
 
 #nota[
-MIDI Learn 模式下，点击 pad
-的格子会#strong[选中]该效果用于分配，而不是播放它------这样映射控制时不会一不小心把
-jingle 送上直播（见第 8 章）。
+En mode MIDI Learn, un clic sur une cellule du pad
+#strong[sélectionne] l'effet pour l'attribution au lieu de le jouer,
+afin d'éviter de diffuser un jingle en pleine session de mapping (voir
+Chapitre 8).
 ]
 
-== 7.2 Automix 视图
-<automix-视图>
-#figure(image("../screenshots-zh-cn/vista-automix.png", alt: "图 7.2 — Automix 视图：Music 列的 deck、BPM 兼容性，以及曲目结束时的自动模式。"),
+== 7.2 La vue Automix
+#figure(image("../screenshots-fr/vista-automix.png", alt: "Figure 7.2 — La vue Automix : le deck de la colonne Musique, la compatibilité BPM et le mode automatique en fin de morceau."),
   caption: [
-    图 7.2 --- Automix 视图：Music 列的 deck、BPM
-    兼容性，以及曲目结束时的自动模式。
+    Figure 7.2 --- La vue Automix~: le deck de la colonne Musique, la
+    compatibilité BPM et le mode automatique en fin de morceau.
   ]
 )
 
-#strong[Automix 视图]是本期歌曲列的 deck：一个全幅界面，由页眉的
-#strong[MIX] 按钮唤出，把音乐播出单变成一台 DJ
-控制台。它开在看板之上、pad FX 之下，所以 Automix
-打开着时效果照样能用。跟 pad 一样，`Esc`
-不会关闭它------它仍是紧急命令，STOP ALL 按钮在页眉里随时够得到。
+La #strong[vue Automix] est le deck de la colonne Musique~: un écran
+plein cadre, rappelé par le bouton #strong[MIX] de l'en-tête, qui
+présente la conduite musicale à la manière d'une console de DJ. Elle
+s'ouvre au-dessus de la board mais sous le pad FX, si bien que les
+effets restent utilisables même quand l'Automix est ouverte. Comme pour
+le pad, `Échap` ne la ferme pas~: cette touche reste réservée à
+l'urgence, et le bouton STOP ALL demeure accessible dans l'en-tête.
 
-=== deck
-中央是#strong[正在播出]的曲目，队列里是本期歌曲列的#strong[下一首]，附带剩余时间。可以从这里启动一条轨道，用一个命令管理曲目间的过渡：那颗大转场按钮用的
-crossfade 跟网格里的一样，只是多花了心思做节奏对齐。
+=== Le deck
+Au centre se trouvent le morceau #strong[à l'antenne] et, en file
+d'attente, le #strong[prochain] morceau de la colonne Musique, avec le
+temps restant. De là, une seule commande suffit pour lancer une piste et
+gérer le passage d'un morceau à l'autre~: le gros bouton de transition
+applique le même crossfade que depuis la grille, avec en plus le calage
+rythmique.
 
-=== 兼容性与 beat-matched 转场
-<兼容性与-beat-matched-转场>
-每首曲目旁都有一个跟前一首的#strong[兼容性圆点]，标出两者的节奏亲和度：
+=== Compatibilité et transitions beat-matched
+<compatibilité-et-transitions-beat-matched>
+À côté de chaque morceau, une #strong[pastille de compatibilité] indique
+son affinité rythmique avec le morceau précédent~:
 
-- #strong[绿色] --- 节奏对齐良好，转场可以 beat-matched。
-- #strong[黄色] --- 能对齐，但稍打折扣。
-- #strong[红色] --- 节奏相差太远，对不齐。
+- #strong[Vert] --- les deux tempos se calent bien~: la transition peut
+  être beat-matched.
+- #strong[Jaune] --- calage possible mais avec quelques réserves.
+- #strong[Rouge] --- tempos trop éloignés pour un calage propre.
 
-节奏对齐做不到时（没检测到 BPM、beat
-不确定、节奏差太多），软件会明说，自动回退到#strong[经典
-crossfade]，直播中不会有意外。
+Quand le calage rythmique n'est pas praticable (BPM non détecté, beat
+incertain, tempos trop éloignés), le logiciel le signale et se rabat
+automatiquement sur un #strong[crossfade classique]~: aucune mauvaise
+surprise à l'antenne.
 
-=== 自动模式
-<自动模式>
-视图底部有个#strong[曲目结束时自动]的开关。启用后，正在播出的轨道接近结尾时，RLMP
-会自己启动向下一首的过渡。
+=== Le mode automatique
+En bas de la vue se trouve un interrupteur pour l'#strong[automatisation
+en fin de morceau]~: une fois activé, RLMP enchaîne de lui-même sur le
+morceau suivant dès que la piste à l'antenne approche de sa fin.
 
-这个模式是对软件理念的一次刻意例外------RLMP
-本来选择不把节目自动化。所以它#strong[默认关闭]，而且#strong[只在
-Automix
-视图打开时生效]：关掉视图，自动也就停了。它适合连续的音乐段落，比如回到人声之前那半小时的纯音乐，不适合整场直播都开着。
+Ce mode est une exception assumée à la philosophie du logiciel, qui par
+principe n'automatise pas l'émission. Voilà pourquoi il est
+#strong[désactivé par défaut] et ne fonctionne #strong[que tant que la
+vue Automix reste ouverte]~: la fermer désactive l'automatisation. C'est
+l'outil qu'il faut pour un bloc musical continu, une demi-heure de
+musique seule avant de revenir en voix, pas pour tenir tout le direct.

@@ -14,7 +14,7 @@ L'en-tête occupe toute la largeur de l'écran. De gauche à droite se succèden
 
 ### Identité
 
-**Logo et badge PRO.** À gauche, le logo côtoie l'inscription **RLM PRO**, dont le mot « PRO » affiche un dégradé iridescent passant du cyan au vert, à l'ambre, puis au rouge. À côté, en caractères à chasse fixe, figure la version installée (`v1.11.5`). Survolez le logo à la souris : le nom complet du logiciel apparaît avec son numéro de version.
+**Logo et badge PRO.** À gauche, le logo côtoie l'inscription **RLM PRO**, dont le mot « PRO » affiche un dégradé iridescent passant du cyan au vert, à l'ambre, puis au rouge. À côté, en caractères à chasse fixe, figure la version installée (`v1.15.10`). Survolez le logo à la souris : le nom complet du logiciel apparaît avec son numéro de version.
 
 ### Menu Fichier
 
@@ -23,9 +23,9 @@ Le bouton **FILE** ouvre un menu regroupant les opérations sur les projets :
 - *Nouveau Projet* — ouvre une session vide. En cas de modifications non enregistrées, le logiciel demande confirmation.
 - *Enregistrer le projet* — enregistrement rapide sur le fichier `.lmp` courant. L'entrée se met en jaune lorsqu'il y a des modifications non enregistrées.
 - *Enregistrer sous…* — ouvre toujours la boîte de dialogue, pour créer des versions progressives (ex. `Ep47_brouillon.lmp`, `Ep47_final.lmp`).
+- *Exporter le projet avec l'audio* — consolide tout l'audio à l'intérieur du projet (sous-dossier `audio/`) et y repointe les clips, ce qui vous permet de supprimer les originaux en toute sécurité. Décrit au Chapitre 10.
 - *Charger un Projet* — ouvre un projet `.lmp` depuis le disque.
 - *Importer playlist M3U* — importe une playlist au format M3U comme séquence de clips.
-- *Exporter l'archive autonome* — crée une copie autonome du projet, fichiers audio inclus. Décrit au Chapitre 10.
 
 ### Monitoring et transport
 
@@ -79,6 +79,8 @@ Chaque en-tête affiche le nom de la colonne, sa catégorie, et sert aussi d'ind
 
 Chaque couleur de colonne se personnalise : un clic sur la pastille colorée de l'en-tête ouvre une palette de **30 teintes**, et le choix est enregistré dans le fichier de projet.
 
+Lorsqu'une colonne contient au moins un clip, une icône de **corbeille** apparaît dans son en-tête : la commande **Vider la colonne** retire d'un seul coup tous les clips de cette colonne. Par sécurité, elle demande toujours confirmation en indiquant combien de clips seront retirés, et l'opération est réversible via *Annuler* (`Ctrl+Z`). Sur les colonnes vides, l'icône n'apparaît pas.
+
 L'en-tête de la colonne **Pré-émission** porte en plus un bouton de **rotation** : une fois activé, il insère automatiquement jingles et promos à intervalles réguliers dans la file d'attente d'avant-direct (Chapitre 13).
 
 ### Les six colonnes
@@ -116,7 +118,8 @@ Chaque fichier audio importé prend la forme d'une **carte** rectangulaire dans 
 - **LOOP** — le clip repartira du début à la fin de la lecture.
 - **NEXT** — à la fin de ce clip, le suivant de la colonne démarrera automatiquement.
 - **▶ UP NEXT** — met en évidence quel clip sera le prochain à partir dans la séquence automatique.
-- **### BPM** — le tempo détecté, sur les clips musicaux.
+- **### BPM** — le tempo détecté, sur les clips musicaux, sur un badge jaune fluo à haute visibilité.
+- **I ##s** — le clip a un point d'Intro configuré (Chapitre 5) : le badge, en cyan, en indique la durée en secondes et reste toujours visible, même clip à l'arrêt.
 - **TRIM…** — analyse du silence en cours (Auto-Trim).
 - **FADE OUT** — apparaît sur le clip sortant pendant un crossfade ou un fondu.
 - **📋** — le clip a une note associée dans la NoteBoard (Chapitre 13).

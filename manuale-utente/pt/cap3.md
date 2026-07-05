@@ -14,7 +14,7 @@ O cabeçalho ocupa toda a largura do ecrã e, da esquerda para a direita, reúne
 
 ### Identidade
 
-**Logótipo e badge PRO.** À esquerda, o logótipo surge junto da inscrição **RLM PRO**: a palavra «PRO» aparece com um gradiente iridescente que passa do ciano ao verde, ao âmbar, ao vermelho. Ao lado, em carateres monoespaçados, lê-se a versão instalada (`v1.11.5`). Ao passar o rato sobre o logótipo, aparece o nome completo do software com o número de versão.
+**Logótipo e badge PRO.** À esquerda, o logótipo surge junto da inscrição **RLM PRO**: a palavra «PRO» aparece com um gradiente iridescente que passa do ciano ao verde, ao âmbar, ao vermelho. Ao lado, em carateres monoespaçados, lê-se a versão instalada (`v1.15.10`). Ao passar o rato sobre o logótipo, aparece o nome completo do software com o número de versão.
 
 ### Menu Ficheiro
 
@@ -23,9 +23,9 @@ O botão **FICHEIRO** abre um menu com as operações sobre projetos:
 - *Novo Projeto* — abre uma sessão vazia. Se houver alterações não guardadas, o software pede confirmação.
 - *Guardar Projeto* — gravação rápida no ficheiro `.lmp` atual. A opção fica realçada a amarelo quando há alterações não guardadas.
 - *Guardar Como…* — abre sempre a caixa de diálogo, para criar versões progressivas (ex. `Ep47_rascunho.lmp`, `Ep47_final.lmp`).
+- *Exportar projeto com áudio* — consolida todo o áudio dentro do projeto (subpasta `audio/`) e reaponta as clips para ela, para que possa eliminar os originais em segurança. Descrito no Capítulo 10.
 - *Carregar Projeto* — abre um projeto `.lmp` do disco.
 - *Importar M3U* — importa uma playlist em formato M3U como sequência de clips.
-- *Exportar Arquivo* — cria uma cópia autocontida do projeto, incluindo os ficheiros de áudio. Descrito no Capítulo 10.
 
 ### Monitorização e transporte
 
@@ -79,6 +79,8 @@ Cada cabeçalho indica o nome da coluna, o seu tipo, e funciona como indicador d
 
 A cor de cada coluna pode ser personalizada: basta clicar no círculo colorido do cabeçalho para abrir uma paleta de **30 tons**. A escolha fica guardada no ficheiro de projeto.
 
+Quando uma coluna contém pelo menos uma clip, surge no cabeçalho um ícone de **caixote do lixo**: o comando **Esvaziar coluna** remove de uma só vez todas as clips dessa coluna. Por segurança pede sempre confirmação, indicando quantas clips serão removidas, e a operação é reversível com *Anular* (`Ctrl+Z`). Nas colunas vazias o ícone não aparece.
+
 No cabeçalho da coluna **Pré-Show** há ainda um botão de **rotação**: quando ativo, a fila de pré-direto insere automaticamente jingles e promos a intervalos regulares (Capítulo 13).
 
 ### As seis colunas
@@ -116,7 +118,8 @@ Cada ficheiro de áudio importado materializa-se na grelha como uma **card** ret
 - **LOOP** — a clip recomeça do início ao terminar a reprodução.
 - **NEXT** — no fim desta clip arranca automaticamente a seguinte na coluna.
 - **▶ UP NEXT** — realça qual será a próxima clip a arrancar na sequência automática.
-- **### BPM** — o tempo detetado, nas clips musicais.
+- **### BPM** — o tempo detetado, nas clips musicais, num badge amarelo fluorescente de alta visibilidade.
+- **I ##s** — a clip tem um ponto de Intro configurado (Capítulo 5): o badge, em ciano, indica a sua duração em segundos e está sempre visível, mesmo com a clip parada.
 - **TRIM…** — análise do silêncio em curso (Auto-Trim).
 - **FADE OUT** — surge na clip cessante durante um crossfade ou uma dissolvência.
 - **📋** — a clip tem uma nota associada na NoteBoard (Capítulo 13).

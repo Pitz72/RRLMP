@@ -51,7 +51,7 @@ La bordure rouge signale que le fichier audio est introuvable au chemin enregist
 1. **Reconnectez le disque.** Si le fichier était sur une unité externe, rebranchez-la.
 2. **Remettez le fichier à sa position d'origine.** S'il a été déplacé, replacez-le à son chemin initial.
 3. **Remplacez le clip.** Faites glisser de nouveau le bon fichier dans la grille et supprimez la carte rouge.
-4. **Utilisez Exporter l'archive autonome à l'avenir.** La prévention la plus efficace consiste à créer une archive avant de déplacer ou de transférer le projet (Chapitre 10).
+4. **Utilisez Exporter le projet avec l'audio à l'avenir.** La prévention la plus efficace consiste à consolider l'audio dans le projet avant de déplacer ou de transférer le projet (Chapitre 10).
 
 ---
 
@@ -97,7 +97,7 @@ Non. RLMP est pensé pour la régie live, des émissions tenues par un opérateu
 **Puis-je utiliser RLMP sur iPad ou sur des appareils mobiles ?**
 Pas comme application principale : RLMP reste un logiciel de bureau, pour Windows, macOS et Linux. Une tablette ou un téléphone peuvent en revanche servir de **télécommande** via navigateur, grâce au Contrôle à distance (Chapitre 11).
 
-**Les fichiers `.lmp` des versions précédentes sont-ils compatibles avec la 1.11.5 ?**
+**Les fichiers `.lmp` des versions précédentes sont-ils compatibles avec la 1.15.10 ?**
 Oui. À l'ouverture d'un projet créé avec une version précédente, RLMP en met à jour automatiquement la structure, colonnes ajoutées entre-temps comprises, sans modifier le fichier tant que vous n'effectuez pas d'enregistrement.
 
 **Comment mettre RLMP à jour vers une nouvelle version ?**
