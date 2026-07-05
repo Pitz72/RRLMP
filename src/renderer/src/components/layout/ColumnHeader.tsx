@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Column } from '../../types';
 import { useAudioStore } from '../../store/useAudioStore';
 import { useProjectStore } from '../../store/useProjectStore';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { RotationSettingsModal } from '../modals/RotationSettingsModal';
+import { confirm } from '../../store/useConfirmStore';
 
 interface ColumnHeaderProps {
     column: Column;
@@ -28,6 +29,7 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
     const { t } = useTranslation();
     const activeClips = useAudioStore((state) => state.activeClips);
     const setColumnColor = useProjectStore((s) => s.setColumnColor);
+    const clearColumn = useProjectStore((s) => s.clearColumn);
     const [isDeadAirWarning, setIsDeadAirWarning] = useState(false);
     const [showPicker, setShowPicker] = useState(false);
     const [showRotation, setShowRotation] = useState(false); // v1.3.21
@@ -74,6 +76,18 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
         }
     }, [activeClips, column.clips, column.type]);
 
+    // v1.15.9: svuota l'intera colonna, con conferma esplicita (operazione distruttiva,
+    // usabile anche in diretta → la conferma è la rete di sicurezza contro i click accidentali).
+    const handleClearColumn = async () => {
+        if (column.clips.length === 0) return;
+        const ok = await confirm(
+            t('column.clearConfirm', 'Stai per svuotare l\'intera colonna «{{title}}». Tutte le {{count}} clip verranno rimosse. Continuare?', { title: column.title, count: column.clips.length }),
+            t('column.clearConfirmOk', 'Svuota colonna'),
+            t('modal.dialog.cancel', 'Annulla')
+        );
+        if (ok) clearColumn(column.id);
+    };
+
     return (
         <div
             className={`col-head transition-all duration-500 ${isDeadAirWarning ? 'animate-pulse' : ''}`}
@@ -119,6 +133,17 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
                         style={{ backgroundColor: effectiveColor }}
                         title={t('column.changeColorTip', 'Cambia colore colonna')}
                     />
+                )}
+
+                {/* v1.15.9 — Svuota colonna (con conferma). Nascosto se già vuota. */}
+                {!isDeadAirWarning && column.clips.length > 0 && (
+                    <button
+                        onClick={handleClearColumn}
+                        className="shrink-0 text-white/30 hover:text-red-400 hover:scale-110 transition-all"
+                        title={t('column.clearTip', 'Svuota colonna (rimuovi tutte le clip)')}
+                    >
+                        <Trash2 size={14} />
+                    </button>
                 )}
 
                 {/* Color Picker Popover */}

@@ -559,6 +559,10 @@ ipcMain.handle('export-project', async (event, projectJsonString: string, lmpPat
         }
         const { columns } = projectData.project;
         let successParams = { copied: 0, skipped: 0, pruned: 0 };
+        // v1.15.9: mappa id-clip → path relativo archiviato. Il renderer la usa per
+        // ripuntare le clip alle copie in `audio/` (path assoluto) dopo l'export, così
+        // cancellare gli originali diventa sicuro (l'archivio è il riferimento).
+        const remap: { id: string; path: string }[] = [];
         // SYNC: nomi-destinazione effettivamente usati da QUESTO export. Serve sia per il
         // dedup interno (due clip con stesso filename) sia per il pruning degli orfani dopo.
         const usedDestNames = new Set<string>();
@@ -624,6 +628,7 @@ ipcMain.handle('export-project', async (event, projectJsonString: string, lmpPat
                             successParams.skipped++;
                         }
                         clip.path = `audio/${destFileName}`;
+                        if (clip.id) remap.push({ id: clip.id, path: clip.path });
                     }
                 } else {
                     successParams.skipped++;
@@ -660,7 +665,7 @@ ipcMain.handle('export-project', async (event, projectJsonString: string, lmpPat
             fs.writeFileSync(newLmpPath, JSON.stringify(projectData, null, 2), 'utf-8');
         }
 
-        return { success: true, path: exportDir, stats: successParams };
+        return { success: true, path: exportDir, stats: successParams, remap };
 
     } catch (error) {
         logger.error('Export failed:', error);

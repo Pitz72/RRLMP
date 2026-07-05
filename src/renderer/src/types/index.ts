@@ -59,7 +59,7 @@ declare global {
             restoreDefaultSfx: () => Promise<{ success: boolean; sounds?: Array<{ title: string; path: string }>; error?: string }>;
             saveProject: (content: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
             loadProject: () => Promise<{ success: boolean; data?: string; filePath?: string; error?: string }>;
-            exportProject: (projectJsonString: string, lmpPath?: string) => Promise<{ success: boolean; path?: string; stats?: { copied: number; skipped: number; pruned?: number }; error?: string }>;
+            exportProject: (projectJsonString: string, lmpPath?: string) => Promise<{ success: boolean; path?: string; stats?: { copied: number; skipped: number; pruned?: number }; remap?: { id: string; path: string }[]; error?: string }>;
             saveProjectSilent: (content: string, filePath?: string) => Promise<{ success: boolean; path?: string; error?: string }>;
             saveProjectDirect: (content: string, filePath: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
 

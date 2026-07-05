@@ -43,7 +43,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
     const { t } = useTranslation();
     const { stopAll } = useAudioStore();
     const loadClip = useAudioStore((s) => s.loadClip);
-    const { columns, isDirty, setDirty, loadProject, resetProject, currentFilePath, isMidiLearnMode, setIsMidiLearnMode, runIntegrityCheck, updateClip, addClipFromPath } = useProjectStore();
+    const { columns, isDirty, setDirty, loadProject, resetProject, currentFilePath, isMidiLearnMode, setIsMidiLearnMode, runIntegrityCheck, updateClip, addClipFromPath, applyArchivedPaths } = useProjectStore();
     const { globalMidiBinds, setGlobalMidiBind, masterVolume, setMasterVolume: setStoredVolume,
         micInputDeviceId, micThresholdDb, micActivationHoldMs, micReleaseHoldMs, micEnabled, micMixEnabled, micVolume, micBypassProcessing, setMicSettings } = useSettingsStore();
     const setMicActive = useAudioStore(s => s.setMicActive);
@@ -536,6 +536,22 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
             setExportProgress(prev => ({ ...prev, isOpen: false }));
 
             if (result.success) {
+                // v1.15.9: l'archivio DIVENTA il riferimento. Ripuntiamo le clip alle
+                // copie in audio/ (path assoluto) e ri-salviamo il .lmp, così cancellare
+                // i file originali è sicuro (la sessione e il salvataggio usano la copia).
+                if (currentFilePath && result.remap && result.remap.length > 0) {
+                    const projectDir = currentFilePath.replace(/[\\/][^\\/]*$/, '');
+                    applyArchivedPaths(projectDir, result.remap);
+                    const fresh = useProjectStore.getState().columns;
+                    const persistJson = JSON.stringify({
+                        version: __APP_VERSION__,
+                        timestamp: Date.now(),
+                        project: { columns: fresh }
+                    }, null, 2);
+                    const saveRes = await window.electron.saveProjectDirect(persistJson, currentFilePath);
+                    if (saveRes.success) setDirty(false);
+                    else toast(t('controls.exportRepointSaveFailed', 'Archivio creato, ma il salvataggio dei nuovi riferimenti è fallito: {{err}}', { err: saveRes.error || '' }), 'error', 7000);
+                }
                 // v1.4.14 (#4): archivio sincronizzato col banco regia
                 // (copiati i nuovi/cambiati, rimossi gli orfani).
                 const s = result.stats;
@@ -599,6 +615,14 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                         >
                             <FileOutput size={15} className="shrink-0" /> {t('controls.saveAs')}
                         </button>
+                        {/* v1.15.9: Export subito sotto Salva/Salva come (è un salvataggio
+                            con audio incluso, richiesta utente). Etichetta resa comprensibile. */}
+                        <button
+                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
+                            onClick={() => { setShowFileMenu(false); void handleExportProject(); }}
+                        >
+                            <HardDriveDownload size={15} className="shrink-0" /> {t('controls.export')}
+                        </button>
                         <button
                             className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
                             onClick={() => { setShowFileMenu(false); void handleLoadProject(); }}
@@ -611,12 +635,6 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                             onClick={() => { setShowFileMenu(false); void handleImportM3u(); }}
                         >
                             <ListMusic size={15} className="shrink-0" /> {t('controls.importM3u')}
-                        </button>
-                        <button
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
-                            onClick={() => { setShowFileMenu(false); void handleExportProject(); }}
-                        >
-                            <HardDriveDownload size={15} className="shrink-0" /> {t('controls.export')}
                         </button>
                     </div>
                 )}
@@ -836,9 +854,9 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                                 {midiLearnCountdown !== null ? `${midiLearnCountdown}s` : 'MIDI'}
                             </span>
                         )}
-                        {!isMidiLearnMode && !midiSupported && (
-                            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-500 pointer-events-none" title={t('controls.midiUnavailable', 'MIDI non disponibile')} />
-                        )}
+                        {/* v1.15.9: rimosso il pallino rosso "MIDI non disponibile" — era
+                            statico e sempre acceso (allarme fuorviante). Lo stato MIDI resta
+                            visibile DENTRO il menu, accanto a "MIDI Learn" (✕ n/d / N ctrl). */}
                     </Button>
                     {showToolsMenu && (
                         <div className="absolute right-0 top-full mt-2 w-64 bg-zinc-900 border border-zinc-700 rounded-lg shadow-2xl z-50 py-1">

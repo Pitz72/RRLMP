@@ -216,6 +216,8 @@ interface ProjectState {
     addClipAtIndex: (columnId: string, file: File, insertIndex: number) => AudioClip | undefined;
     addClipFromPath: (columnId: string, filePath: string) => AudioClip | undefined;
     removeClip: (columnId: string, clipId: string) => void;
+    /** v1.15.9: svuota completamente una colonna (rimuove tutte le clip). No-op se già vuota. */
+    clearColumn: (columnId: string) => void;
     updateClip: (columnId: string, clipId: string, updates: Partial<AudioClip>) => void;
     loadProject: (data: { columns: Column[] }, filePath?: string, opts?: { preserveUiState?: boolean }) => void;
     moveClip: (sourceColId: string, destColId: string, oldIndex: number, newIndex: number) => void;
@@ -226,6 +228,10 @@ interface ProjectState {
 
     /** Verifica l'esistenza su disco di tutti i file delle clip. Imposta isMissing. Ritorna il numero di file mancanti. */
     runIntegrityCheck: () => Promise<number>;
+
+    /** v1.15.9: dopo un export self-contained, ripunta le clip alle copie in `audio/`
+     *  (path assoluto <projectDir>/audio/xxx) così cancellare gli originali è sicuro. */
+    applyArchivedPaths: (projectDir: string, remap: { id: string; path: string }[]) => void;
 
     isMidiLearnMode: boolean;
     setIsMidiLearnMode: (active: boolean) => void;
@@ -433,6 +439,22 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         )
     })); },
 
+    // v1.15.9: svuota l'intera colonna. No-op se già vuota (niente snapshot inutile
+    // nella cronologia undo). Ripulisce anche la selezione dalle clip rimosse.
+    clearColumn: (columnId) => {
+        const col = get().columns.find((c) => c.id === columnId);
+        if (!col || col.clips.length === 0) return;
+        get()._snapshot();
+        const removedIds = new Set(col.clips.map((c) => c.id));
+        set((state) => ({
+            isDirty: true,
+            columns: state.columns.map((c) =>
+                c.id === columnId ? { ...c, clips: [] } : c
+            ),
+            selectedClipIds: state.selectedClipIds.filter((id) => !removedIds.has(id))
+        }));
+    },
+
     updateClip: (columnId, clipId, updates) => set((state) => ({
         isDirty: true,
         columns: state.columns.map((col) =>
@@ -490,6 +512,28 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         }));
 
         return missing.length;
+    },
+
+    // v1.15.9: repoint post-export. Il main copia i file in <projectDir>/audio/ e
+    // restituisce la mappa id→path relativo; qui li rendiamo assoluti così le clip
+    // puntano alla COPIA. Deliberatamente NON passa da _snapshot (l'undo ripunterebbe
+    // agli originali, che l'utente potrebbe aver appena cancellato). isMissing=false:
+    // le copie esistono per definizione appena create dall'export.
+    applyArchivedPaths: (projectDir, remap) => {
+        if (!projectDir || remap.length === 0) return;
+        const sep = projectDir.includes('\\') ? '\\' : '/';
+        const byId = new Map(remap.map(r => [r.id, r.path]));
+        set((state) => ({
+            isDirty: true,
+            columns: state.columns.map(col => ({
+                ...col,
+                clips: col.clips.map(c => {
+                    const rel = byId.get(c.id);
+                    if (!rel || !rel.startsWith('audio/')) return c;
+                    return { ...c, path: `${projectDir}${sep}${rel.replace(/\//g, sep)}`, isMissing: false };
+                })
+            }))
+        }));
     },
 
 

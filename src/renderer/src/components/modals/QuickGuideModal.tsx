@@ -21,17 +21,22 @@ export const QuickGuideModal = ({ isOpen, onClose }: QuickGuideModalProps) => {
 
     return (
         <div className="ov" style={{ zIndex: 110 }} onClick={onClose}>
-            <div className="ov-panel anim-in p-6 w-[640px] max-h-[85vh] relative overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="ov-panel anim-in w-[640px] max-h-[85vh] relative" onClick={e => e.stopPropagation()}>
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors"
+                    className="absolute top-4 right-4 z-10 text-zinc-500 hover:text-white transition-colors"
                 >
                     <X size={20} />
                 </button>
 
-                <h2 className="text-lg font-bold text-white mb-4 pr-8">{t('modal.quickGuide.title')}</h2>
+                {/* v1.15.9: il contenuto scrollabile va in .ov-body — .ov-panel ha
+                    overflow:hidden nel tema (spectrum.css) e sovrascriveva l'overflow-y-auto
+                    messo qui, tagliando la guida (non scrollabile dall'intro). */}
+                <div className="ov-body p-6">
+                    <h2 className="text-lg font-bold text-white mb-4 pr-8">{t('modal.quickGuide.title')}</h2>
 
-                <MarkdownLite content={content} />
+                    <MarkdownLite content={content} />
+                </div>
             </div>
         </div>
     );
