@@ -4,6 +4,7 @@ import { X, SlidersHorizontal, Repeat } from 'lucide-react';
 import { AudioClip } from '../../types';
 import { useEscapeToClose } from '../../hooks/useEscapeToClose';
 import { COLUMN_COLORS } from './ClipSettingsModal';
+import { sliderToGain, gainToSlider, gainToDbLabel } from '../../utils/volumeTaper';
 
 interface FxQuickSettingsModalProps {
     clip: AudioClip;
@@ -105,13 +106,19 @@ export const FxQuickSettingsModal: React.FC<FxQuickSettingsModalProps> = ({ clip
 
                 {/* VOLUME */}
                 <label className="block mb-4">
-                    <span className="sect-h text-zinc-500 block mb-1.5">{t('modal.fxQuick.volumeLabel', 'Volume · {{v}}%', { v: Math.round(volume * 100) })}</span>
+                    <span className="sect-h text-zinc-500 block mb-1.5">
+                        {t('modal.fxQuick.volumeLabel', 'Volume · {{v}}%', { v: Math.round(volume * 100) })}
+                        <span className="text-zinc-600 normal-case"> · {gainToDbLabel(volume)}</span>
+                    </span>
+                    {/* v1.15.11: stesso taper percettivo di ClipSettingsModal (volumeTaper.ts),
+                        qui con fondo scala 1.0 come il vecchio slider 0–100%. */}
                     <input
                         type="range"
                         min={0}
-                        max={100}
-                        value={Math.round(volume * 100)}
-                        onChange={(e) => setVolume(Number(e.target.value) / 100)}
+                        max={1}
+                        step={0.005}
+                        value={gainToSlider(volume, 1)}
+                        onChange={(e) => setVolume(sliderToGain(Number(e.target.value), 1))}
                         className="rng w-full"
                     />
                 </label>

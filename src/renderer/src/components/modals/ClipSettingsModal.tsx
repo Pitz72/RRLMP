@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from '../../store/useToastStore';
 import { confirm } from '../../store/useConfirmStore';
 import { WaveformEditor } from '../ui/WaveformEditor';
+import { sliderToGain, gainToSlider, gainToDbLabel } from '../../utils/volumeTaper';
 import { useAudioStore } from '../../store/useAudioStore';
 import { useProjectStore } from '../../store/useProjectStore';
 import { useEscapeToClose } from '../../hooks/useEscapeToClose';
@@ -265,15 +266,21 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center">
                                         <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">{t('modal.clip.volumeGain', 'Guadagno Volume')}</label>
-                                        <span className="text-xs font-mono text-emerald-400">{(volume * 100).toFixed(0)}%</span>
+                                        <span className="text-xs font-mono text-emerald-400">
+                                            {(volume * 100).toFixed(0)}% <span className="text-zinc-500">· {gainToDbLabel(volume)}</span>
+                                        </span>
                                     </div>
+                                    {/* v1.15.11: taper percettivo cubico (volumeTaper.ts) — lo slider era
+                                        lineare in ampiezza (0..2 step 0.05): tutto il range utile dei
+                                        sottofondi (−20…−40 dB) stava nelle prime 2 tacche e il passo
+                                        5%→10% valeva +6 dB. Il valore salvato resta un gain lineare. */}
                                     <input
                                         type="range"
                                         min="0"
-                                        max="2"
-                                        step="0.05"
-                                        value={volume}
-                                        onChange={(e) => setVolume(parseFloat(e.target.value))}
+                                        max="1"
+                                        step="0.005"
+                                        value={gainToSlider(volume, 2)}
+                                        onChange={(e) => setVolume(sliderToGain(parseFloat(e.target.value), 2))}
                                         className="rng green"
                                     />
                                 </div>
