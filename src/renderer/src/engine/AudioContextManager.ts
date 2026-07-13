@@ -197,8 +197,14 @@ class AudioContextManager {
         this.splitter = ctx.createChannelSplitter(2);
         this.analyserL = ctx.createAnalyser();
         this.analyserR = ctx.createAnalyser();
-        this.analyserL.fftSize = 64;
-        this.analyserR.fftSize = 64;
+        // v1.15.13: 64 → 2048. Con fftSize 64 la finestra RMS del VU meter era
+        // di ~1.3 ms (e il hook ne leggeva metà): su una nota bassa il valore
+        // rimbalzava a caso secondo la fase campionata. 2048 campioni ≈ 43 ms
+        // @48kHz: balistica da VU reale. NB: smoothingTimeConstant agisce SOLO
+        // sui dati in frequenza (per specifica Web Audio), non sul time-domain
+        // letto dal meter.
+        this.analyserL.fftSize = 2048;
+        this.analyserR.fftSize = 2048;
         this.analyserL.smoothingTimeConstant = 0.8;
         this.analyserR.smoothingTimeConstant = 0.8;
 
