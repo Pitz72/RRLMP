@@ -4,6 +4,7 @@ import * as ffmpeg from 'fluent-ffmpeg';
 import { spawn } from 'child_process';
 import { logger } from './logger';
 import { computeEnergyEnvelope, estimateBpmFromEnvelope, estimateBeatOffsetSec } from './bpmDetection';
+import { PeakAccumulator, reduceToBars, WAVEFORM_SAMPLE_RATE } from './waveformPeaks';
 import { tMain } from './i18nMain';
 
 // Fix ESM/CJS interop per questi pacchetti old-school exports
@@ -67,28 +68,30 @@ export class AudioProcessor {
   }
 
   /**
-   * Genera i pacchetti Waveform Data (Peak Data) tramite FFmpeg + Audiowaveform proxy
-   * o leggendo l'output stdout in stream. Ritorna i dati serializzati pronti al rendering.
+   * Genera i pacchetti Waveform Data (Peak Data) tramite FFmpeg in streaming.
+   * Ritorna un array di barre 0..1 (max 200) pronte al rendering.
+   *
+   * v1.15.12 — fix fedeltà: il vecchio `aresample=100` filtrava passa-basso a
+   * ~50 Hz (anti-aliasing del resampler), quindi la "waveform" era il residuo
+   * sub-bass del brano, non il suo inviluppo. Ora: decode mono a 8 kHz e
+   * max(|campione|) per finestre da 10 ms (waveformPeaks.ts), barre normalizzate
+   * al picco del file. RAM comunque minima: l'accumulatore tiene 100 valori/s,
+   * mai il PCM intero.
    */
   static async generateWaveformData(filePath: string): Promise<{ success: boolean; data?: number[]; error?: string }> {
     return new Promise((resolve) => {
         try {
             logger.info(`[AudioProcessor] Generazione Peak Data per: ${filePath}`);
 
-            // Utilizziamo un semplice child process chiamando ffmpeg statico
-            // Estrarrà i peak grezzi su un frame ristretto per velocità, per poi buildare i dati omettendo
-            // i blob pesanti. Stiamo simulando il behavior del builder audiowaveform 
-            // ma lo facciamo interamente in fluente-ffmpeg. 
-            
-            let audioBuffer: number[] = [];
+            const accumulator = new PeakAccumulator();
             let _waveformKillTimeout: ReturnType<typeof setTimeout> | null = null;
 
             const command = ffmpeg(filePath)
-                // -ac 1 downmixa in mono per il picco, -filter:a aresample per scalare uniformememente 
-                // e -f s16le stream raw a 16bit per l'analisi dei byte
+                // -ac 1 downmixa in mono, -ar 8000 tiene il passa-basso del resampler
+                // a 4 kHz (l'energia percepita resta), -f s16le stream raw per l'analisi
                 .outputOptions([
                     '-ac', '1',
-                    '-filter:a', 'aresample=100', // Downsampling a 100hz per stabilità e RAM minima
+                    '-ar', String(WAVEFORM_SAMPLE_RATE),
                     '-map', '0:a',
                     '-c:a', 'pcm_s16le',
                     '-f', 's16le'
@@ -115,35 +118,19 @@ export class AudioProcessor {
                 resolve({ success: false, error: err.message });
             });
 
-            ffStream.on('data', (chunk: Buffer) => {
-                 // Sicurezza contro Buffer troncati/dispari che lanciano RangeError
-                 const limit = chunk.length - (chunk.length % 2);
-                 for (let i = 0; i < limit; i += 2) {
-                     const val = chunk.readInt16LE(i);
-                     // Salviamo il valore assoluto modulato per il frontend (Math.abs da 0 a 1)
-                     audioBuffer.push(Math.abs(val / 32768.0));
-                 }
-            });
+            // L'accumulatore gestisce anche i campioni a 16 bit spezzati tra due
+            // chunk (il vecchio codice scartava il byte di coda e da lì in poi
+            // leggeva tutti i campioni disallineati di un byte).
+            ffStream.on('data', (chunk: Buffer) => accumulator.push(chunk));
 
             ffStream.on('end', () => {
                 if (_waveformKillTimeout) { clearTimeout(_waveformKillTimeout); _waveformKillTimeout = null; }
-                if (audioBuffer.length === 0) {
+                // Riduzione a max 200 barre di pari durata (contratto renderer
+                // invariato) + normalizzazione al picco del file.
+                const reducedPeaks = reduceToBars(accumulator.finalize());
+                if (reducedPeaks.length === 0) {
                      console.warn(`[AudioProcessor] Attenzione: l'array peak per ${filePath} è vuoto!`);
                      return resolve({ success: true, data: [] });
-                }
-
-                // Evitiamo DOM overload sul frontend: estraiamo un numero fisso di "Barre" div indipendentemente dalla durata
-                const TARGET_BARS = 200;
-                const samplesPerBar = Math.max(1, Math.floor(audioBuffer.length / TARGET_BARS));
-                const reducedPeaks: number[] = [];
-
-                for (let i = 0; i < audioBuffer.length; i += samplesPerBar) {
-                    let max = 0;
-                    for(let j = 0; j < samplesPerBar && i + j < audioBuffer.length; j++) {
-                        if(audioBuffer[i + j] > max) max = audioBuffer[i + j];
-                    }
-                    // Mappiamo e amplifichiamo i picchi (x2.0) per migliorare la visibilità visiva nel mini-editor
-                    reducedPeaks.push(Math.min(max * 2.0, 1.0));
                 }
 
                 logger.info(`[AudioProcessor] Peak Data estratti con successo! Punti: ${reducedPeaks.length}`);
