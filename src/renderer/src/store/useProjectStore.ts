@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { Column, AudioClip, ClipType, RotationConfig } from '../types';
 import i18n from '../i18n';
+import { resolveClipPath, audioFallbackCandidate } from '../utils/pathPortability';
 
 const VALID_CLIP_TYPES = new Set<ClipType>(['asset', 'music', 'voice', 'sfx', 'preshow']);
 
@@ -470,9 +471,16 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     // Persistence
     loadProject: (stateToLoad: { columns: Column[] }, filePath?: string, opts?: { preserveUiState?: boolean }) => {
         // Reset isMissing on all clips before integrity check
+        // v1.15.14 (portabilità): i path RELATIVI (es. `audio/x.mp3` scritti dal
+        // project.lmp dell'export "libero") vengono risolti contro la cartella del
+        // .lmp appena aperto — a runtime il motore/FFmpeg/media:// vogliono assoluti.
         const cleanColumns = stateToLoad.columns.map(col => ({
             ...col,
-            clips: col.clips.map(c => ({ ...c, isMissing: false }))
+            clips: col.clips.map(c => ({
+                ...c,
+                path: filePath ? resolveClipPath(c.path, filePath) : c.path,
+                isMissing: false
+            }))
         }));
         // PERSIST-09 (v1.3.3): caricamento di un progetto NUOVO azzera selectedClipIds
         // e isMidiLearnMode (gli ID precedenti non esistono più → dangling selection).
@@ -495,6 +503,12 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     },
 
     // Integrity Check (v0.14.2)
+    // v1.15.14 (portabilità): prima di marcare isMissing, per ogni file assente si
+    // tenta la RIPARAZIONE nella cartella `audio/` accanto al .lmp (layout garantito
+    // dall'export). Un archivio esportato e riaperto su un'altra macchina — o
+    // semplicemente spostato — torna così riproducibile senza intervento manuale.
+    // Il repoint marca isDirty: il .lmp su disco ha ancora i path vecchi, e il
+    // salvataggio successivo li consolida per la macchina corrente.
     runIntegrityCheck: async () => {
         const state = useProjectStore.getState();
         const allClips = state.columns.flatMap(col => col.clips);
@@ -502,16 +516,39 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         if (paths.length === 0) return 0;
 
         const { missing } = await window.electron.checkFilesExist(paths);
-        const missingSet = new Set(missing);
+        const missingSet = new Set(missing ?? []);
+
+        // Mappa path-rotto → candidato in <dir del .lmp>/audio/<nomefile>
+        const repairMap = new Map<string, string>();
+        const lmpPath = state.currentFilePath;
+        if (missingSet.size > 0 && lmpPath) {
+            const candidates = new Map<string, string>(); // candidato → path rotto
+            for (const broken of missingSet) {
+                const cand = audioFallbackCandidate(broken, lmpPath);
+                if (cand) candidates.set(cand, broken);
+            }
+            if (candidates.size > 0) {
+                const res = await window.electron.checkFilesExist([...candidates.keys()]);
+                const candMissing = new Set(res.missing ?? []);
+                for (const [cand, broken] of candidates) {
+                    if (!candMissing.has(cand)) repairMap.set(broken, cand);
+                }
+            }
+        }
 
         set((s) => ({
+            ...(repairMap.size > 0 ? { isDirty: true } : {}),
             columns: s.columns.map(col => ({
                 ...col,
-                clips: col.clips.map(c => ({ ...c, isMissing: missingSet.has(c.path) }))
+                clips: col.clips.map(c => {
+                    const repaired = repairMap.get(c.path);
+                    if (repaired) return { ...c, path: repaired, isMissing: false };
+                    return { ...c, isMissing: missingSet.has(c.path) };
+                })
             }))
         }));
 
-        return missing.length;
+        return missingSet.size - repairMap.size;
     },
 
     // v1.15.9: repoint post-export. Il main copia i file in <projectDir>/audio/ e

@@ -150,6 +150,9 @@ function App() {
                         setShowWelcome(false);
                         // v1.11.2: .lmp senza clip FX → pad popolato coi default
                         void populateDefaultFxIfPadEmpty();
+                        // v1.15.14: check integrità + riparazione path (archivio spostato/
+                        // altra macchina) — prima girava solo dal pulsante Carica.
+                        void useProjectStore.getState().runIntegrityCheck();
                     } catch (e) {
                         toast(i18n.t('app.invalidLmp', 'File LMP non valido: {{err}}', { err: e instanceof Error ? e.message : i18n.t('app.unknownStructure', 'struttura non riconosciuta') }), 'error');
                     }
@@ -495,6 +498,9 @@ function App() {
                                 setShowWelcome(false);
                                 // v1.11.2: .lmp senza clip FX → pad popolato coi default
                                 void populateDefaultFxIfPadEmpty();
+                                // v1.15.14: check integrità + riparazione path (archivio
+                                // spostato/altra macchina) anche da questa via di carico.
+                                void store.runIntegrityCheck();
                             } catch (e) {
                                 toast(i18n.t('app.invalidLmp', 'File LMP non valido: {{err}}', { err: e instanceof Error ? e.message : i18n.t('app.unknownStructure', 'struttura non riconosciuta') }), 'error');
                             }
