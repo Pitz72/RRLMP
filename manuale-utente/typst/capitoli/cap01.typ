@@ -1,172 +1,170 @@
 #import "../lib/manuale-template.typ": *
 
-= Runtime Live Machine Pro~: une philosophie
+= Runtime Live Machine Pro: una filosofia
 
-#emph[Note de l'auteur]
+#emph[Nota dell'autore]
 
-Quinze ans de micro ouvert, ça laisse des traces. J'ai animé des
-podcasts, mené des talks, fait tourner une web radio, et pendant
-longtemps j'ai tout fait seul~: la conduite, la musique, les interviews,
-les volumes, le timing. Cette sensation de voir un morceau filer vers sa
-fin alors qu'on cherche encore ses mots, je la connais bien. Devoir
-baisser le fader d'une main et attraper le bon clip de l'autre, pendant
-qu'une troisième main imaginaire tiendrait le fil du discours~: je suis
-passé par là plus souvent qu'à mon tour.
+Quindici anni di microfoni aperti lasciano un'impronta precisa su chi li
+ha vissuti. Ho gestito podcast, ho condotto talk, ho tenuto in piedi una
+web radio, e per buona parte di quel tempo ho fatto tutto da solo: la
+scaletta, la musica, le interviste, i volumi, il timing. So cosa
+significa accorgersi in diretta che la canzone sta per finire mentre
+stai ancora formulando il pensiero da esprimere. So cosa vuol dire dover
+abbassare il fader con una mano e trovare la clip giusta con l'altra,
+mentre la terza mano --- quella che non hai --- dovrebbe tenerti il filo
+del discorso.
 
-Runtime Live Machine Pro est né de cette frustration et d'une conviction
-simple~: la régie audio ne devrait pas être un métier à part entière,
-elle devrait se faire oublier. L'animateur, le podcasteur, le créateur
-de contenu qui mène seul un talk nocturne, sans ingénieur du son pour
-l'épauler, doit pouvoir se concentrer sur son vrai travail~: parler,
-penser, construire une relation avec son audience. Le logiciel prend le
-reste à sa charge.
+Runtime Live Machine Pro nasce da quella frustrazione, e da una
+convinzione semplice: la regia audio non dovrebbe essere un lavoro a sé.
+Dovrebbe essere trasparente. Lo speaker, il podcaster, il content
+creator che conduce da solo una talk di notte --- senza un fonico che
+gli fa da spalla --- deve poter concentrarsi su ciò che sa fare:
+parlare, pensare, costruire il rapporto con chi ascolta. Il software si
+occupa del resto.
 
-RLMP intègre les réflexes qu'un bon réalisateur son applique sans y
-penser~: la hiérarchie entre les événements audio, le ducking qui
-s'active dès que vous parlez, la musique qui s'interrompt puis reprend
-au bon instant. Ce sont des mécanismes complexes, mais ils restent
-invisibles derrière une interface qui ne demande qu'un geste~: cliquer
-sur le bon clip au bon moment.
+Ho messo in RLMP le regole che un buon regista del suono applica
+automaticamente: la gerarchia tra gli eventi audio, il ducking che
+scatta quando parli, la musica che si ferma e riprende al momento
+giusto. Regole complesse, nascoste sotto un'interfaccia che chiede un
+solo gesto: cliccare la clip giusta al momento giusto.
 
-Ce logiciel vise d'abord ceux qui font vivre de petites ou moyennes talk
-radios, ceux qui produisent des podcasts avec de vraies ambitions, ceux
-qui diffusent un live streaming sans équipe technique. Il ne s'enferme
-pourtant dans aucune niche~: les équipes plus structurées y trouveront
-elles aussi de quoi travailler efficacement. Un seul objectif le guide~:
-affranchir l'animateur de renforts qui ne sont pas toujours présents, et
-qui ne sont pas toujours indispensables non plus.
+Questo software è pensato soprattutto per chi gestisce piccole e medie
+talk radio, per chi produce podcast con ambizione professionale, per chi
+manda in onda un live streaming senza una squadra tecnica intorno. Ma la
+sua natura non è esclusiva: chi lavora in contesti più strutturati
+troverà strumenti adeguati alle proprie esigenze. L'obiettivo è uno
+solo: rendere lo speaker indipendente da figure di supporto che non
+sempre ci sono, e non sempre servono.
 
-Un outil naît toujours en réponse à quelque chose. Celle de Runtime Live
-Machine Pro est précise~: la régie audio en direct (radio, podcast,
-événementiel, théâtre) relève de la performance, pas de
-l'automatisation. Elle demande un contrôle instantané, des nerfs solides
-et un logiciel qui ne lâche jamais au pire moment.
+Ogni strumento nasce da una risposta. Runtime Live Machine Pro risponde
+a un problema preciso: la regia audio dal vivo (radio, podcast, eventi,
+teatro) è un'attività di performance, non di automazione. Richiede
+controllo istantaneo, nervi saldi e un software che non tradisca nel
+momento sbagliato.
 
-Ce que vous installez n'est ni un système de programmation musicale
-tournant 24 heures sur 24, ni une STAN pensée pour la post-production,
-ni un simple lecteur à file d'attente. C'est autre chose~: une
-#strong[machine de régie en temps réel], conçue autour d'une idée
-directrice --- chaque émission est un acte unique, non reproductible,
-qui mérite un contenant dédié et un contrôle précis sur chaque
-transition.
+Il software che trovi installato sul tuo computer non è un sistema di
+schedulazione musicale H24, né un DAW per la post-produzione, né un
+semplice player con coda. È qualcosa di diverso: una #strong[macchina da
+regia in tempo reale], costruita attorno all'idea che ogni show è un
+atto unico, irripetibile, che merita un contenitore dedicato e un
+controllo chirurgico su ogni transizione.
 
-== 1.1 Pour qui il a été conçu
-<pour-qui-il-a-été-conçu>
-Runtime Live Machine Pro s'adresse à deux types d'utilisateurs qui,
-malgré la différence de contexte, partagent le même besoin fondamental.
+== 1.1 Per chi è stato costruito
+<per-chi-è-stato-costruito>
+Runtime Live Machine Pro si rivolge a due tipologie di utenti che,
+nonostante le differenze di contesto, condividono la stessa esigenza
+fondamentale.
 
-Le #strong[professionnel du broadcast] (réalisateur d'une radio
-commerciale, ingénieur du son d'un live streaming audio ou vidéo,
-animateur qui gère sa propre émission) trouvera dans RLMP un système à
-la hauteur des outils professionnels haut de gamme, sans l'agilité
-opérationnelle que ces systèmes sacrifient trop souvent à la complexité.
+Il #strong[professionista broadcast] --- il regista di una radio
+commerciale, il fonico di un live streaming audio o video, lo speaker
+che gestisce il proprio show --- troverà in RLMP un sistema all'altezza
+degli strumenti professionali di fascia alta, con l'agilità operativa
+che quei sistemi spesso sacrificano sull'altare della complessità.
 
-Le #strong[créateur de contenu] (podcasteur indépendant, animateur d'une
-web radio, organisateur d'événements en direct) trouvera un outil
-accessible sans des années de formation technique, mais qui ne transige
-jamais sur la qualité du résultat.
+Il #strong[content creator] --- il podcaster indipendente, il conduttore
+di una web radio, l'organizzatore di eventi dal vivo --- troverà uno
+strumento che non richiede anni di formazione tecnica per essere
+padroneggiato, ma che non scende a compromessi sulla qualità del
+risultato.
 
-Dans les deux cas, l'utilisateur retrouvera une interface qui répond
-instantanément à la touche, un moteur audio stable et un système de
-sauvegarde qui n'oublie rien.
+Entrambi troveranno un'interfaccia che risponde al tasto
+istantaneamente, un motore audio stabile e un sistema di salvataggio che
+non dimentica.
 
-== 1.2 La philosophie «~Single Show~»
-Le concept fondateur de Runtime Live Machine Pro tient en une idée~: le
-#strong[projet isolé]. Chaque émission que vous réalisez, qu'il s'agisse
-d'un épisode de podcast, d'un direct radio ou d'un spectacle de théâtre,
-vit dans un fichier `.lmp` autonome qui contient tout~: la disposition
-des clips, les volumes, les mappings MIDI, les points de cue, les notes
-de régie. Chargez ce fichier, et vous retrouvez l'émission exactement
-telle que vous l'avez laissée.
+== 1.2 La filosofia «Single Show»
+Il concetto fondante di Runtime Live Machine Pro è il #strong[progetto
+isolato]. Ogni show che realizzi --- una puntata di podcast, una diretta
+radio, uno spettacolo teatrale --- vive in un file `.lmp` autonomo che
+contiene tutto: la disposizione delle clip, i volumi, i mapping MIDI, i
+punti di cue, le note di regia. Quando carichi quel file, ritrovi
+esattamente lo show così come lo hai lasciato.
 
-Cette approche a des conséquences bien concrètes. Plus besoin de
-reconfigurer le logiciel à chaque changement d'émission. Un projet se
-transporte sur n'importe quel ordinateur grâce à la fonction Exporter le
-projet avec l'audio, avec la garantie qu'il fonctionnera. Les épisodes
-passés s'archivent et se rouvrent des mois plus tard sans mauvaise
-surprise.
+Questo approccio ha conseguenze concrete. Non devi riconfigurare il
+software ogni volta che passi da uno show all'altro. Puoi portare un
+progetto su qualsiasi computer --- tramite la funzione Esporta progetto
+con audio --- e sapere che funzionerà. Puoi archiviare le puntate
+passate e riaprirle mesi dopo senza sorprese.
 
-Le fichier `.lmp` ne contient pas les fichiers audio physiques~: il
-mémorise les chemins sur le disque. Pour le déplacement d'un ordinateur
-à l'autre, la fonction #strong[Exporter le projet avec l'audio] copie
-physiquement tout le nécessaire dans un dossier autonome.
+Il file `.lmp` non contiene i file audio fisici: memorizza i percorsi
+sul disco. Per lo spostamento tra computer, la funzione #strong[Esporta
+progetto con audio] copia fisicamente tutto il necessario in una
+cartella autocontenuta.
 
-== 1.3 L'architecture Main-Side-Heavy
-Comprendre l'architecture interne n'a rien d'indispensable pour utiliser
-le logiciel. Cela aide néanmoins à saisir pourquoi certains problèmes
-fréquents chez d'autres lecteurs n'apparaissent pas ici.
+== 1.3 L'architettura Main-Side-Heavy
+Capire l'architettura interna non è indispensabile per usare il
+software, ma aiuta a comprendere perché certi problemi comuni ad altri
+player qui non si verificano.
 
-Runtime Live Machine Pro repose sur #strong[Electron], une plateforme
-qui sépare nettement le processus principal (#emph[Main Process], en
-Node.js) du processus de rendu de l'interface (#emph[Renderer Process]).
-Cette séparation n'a rien d'accidentel~: elle est exploitée
-délibérément.
+Runtime Live Machine Pro è costruito su #strong[Electron], una
+piattaforma che separa nettamente il processo principale (#emph[Main
+Process], in Node.js) dal processo di rendering dell'interfaccia
+(#emph[Renderer Process]). Questa separazione è sfruttata in modo
+intenzionale.
 
-Le Main Process prend en charge toutes les opérations lourdes~: décodage
-audio via FFmpeg, lecture des fichiers depuis le disque, analyse des
-formes d'onde, gestion des sauvegardes. Le Renderer, lui, s'occupe
-uniquement de l'interface --- afficher les clips, animer les VU meter,
-répondre aux clics. Résultat~: une interface qui reste fluide même sous
-forte charge, et un moteur audio qui ne se bat jamais pour les
-ressources avec les pixels à l'écran.
+Tutte le operazioni pesanti --- decodifica audio tramite FFmpeg, lettura
+dei file dal disco, analisi delle forme d'onda, gestione dei backup ---
+sono delegate al Main Process. Il Renderer si occupa esclusivamente
+dell'interfaccia: visualizzare le clip, animare i VU meter, rispondere
+ai click. Il risultato è un'interfaccia che rimane fluida anche durante
+operazioni intensive, e un motore audio che non compete per le risorse
+con i pixel sullo schermo.
 
-Le protocole personnalisé `media://` garantit que les fichiers audio ne
-sont jamais chargés en entier dans la mémoire vive~: ils circulent en
-streaming, directement du disque vers le lecteur. Résultat, des fichiers
-WAV non compressés de plusieurs heures se gèrent sans que la
-consommation mémoire de l'application ne bouge de façon perceptible.
+Il protocollo custom `media://` garantisce che i file audio non vengano
+mai caricati interamente nella memoria RAM: vengono trasmessi in
+streaming direttamente dal disco al player. Puoi gestire file WAV non
+compressi di ore di durata senza che il consumo di memoria
+dell'applicazione cambi in modo apprezzabile.
 
-== 1.4 La grille de régie~: une grammaire visuelle
-<la-grille-de-régie-une-grammaire-visuelle>
-L'interface opérationnelle de RLMP s'organise en colonnes verticales,
-chacune avec un rôle sémantique précis. Avant même de lancer le
-logiciel, mieux vaut se familiariser avec cette grammaire.
+== 1.4 La griglia di regia: una grammatica visiva
+L'interfaccia operativa di RLMP è organizzata in colonne verticali,
+ciascuna con un ruolo semantico preciso. Prima ancora di avviare il
+software, vale la pena fissare questa grammatica.
 
-Six colonnes sont visibles dans la grille principale. Une septième
-surface --- le #strong[pad FX], la #emph[jingle machine] des effets ---
-vit en dehors de la grille, dans un panneau dédié décrit au Chapitre 7.
+Sei colonne sono visibili nella griglia principale. Una settima
+superficie --- il #strong[pad FX], la #emph[jingle machine] degli
+effetti --- vive fuori dalla griglia, in un pannello dedicato descritto
+al Capitolo 7.
 
 #figure(
   align(center)[#table(
     columns: (33.33%, 33.33%, 33.33%),
     align: (auto,auto,auto,),
-    table.header([Colonne], [Couleur], [Fonction],),
+    table.header([Colonna], [Colore], [Funzione],),
     table.hline(),
-    [#strong[Show Assets]], [Vert], [Génériques, bases, ambiances
-    structurelles de l'émission],
-    [#strong[Jingle]], [Ambre], [Jingles et stacchi identitaires
-    récurrents],
-    [#strong[Promo]], [Cyan], [Promos, autopromotions, annonces
-    programmées],
-    [#strong[Musiques de l'épisode]], [Rouge], [La playlist musicale],
-    [#strong[Voix / Enregistrements]], [Orange], [Interviews, messages
-    vocaux, blocs parlés],
-    [#strong[Pré-émission]], [Violet], [Musique d'attente avant le
-    direct, avec rotation de jingles et de promos],
+    [#strong[Show Assets]], [Verde], [Sigle, basi, sottofondi
+    strutturali dello show],
+    [#strong[Jingle]], [Ambra], [Jingle e stacchi identificativi
+    ricorrenti],
+    [#strong[Promo]], [Ciano], [Promo, autopromozioni, annunci
+    programmati],
+    [#strong[Canzoni dell'episodio]], [Rosso], [La playlist musicale],
+    [#strong[Voci / Preregistrazioni]], [Arancione], [Interviste,
+    vocali, blocchi parlati],
+    [#strong[Pre-Show]], [Viola], [Musica d'attesa prima della diretta,
+    con rotazione di jingle e promo],
   )]
   , kind: table
   )
 
-Les trois premières colonnes (Show Assets, Jingle et Promo) partagent la
-même nature audio~: ce sont des éléments de structure et de service,
-traités de façon identique par le moteur de mixage. Leur séparation
-reste purement organisationnelle --- elle garde la conduite lisible,
-même chargée, en distinguant clairement génériques, jingles et promos.
+Le prime tre colonne (Show Assets, Jingle e Promo) condividono la stessa
+natura audio: sono elementi di struttura e servizio, trattati allo
+stesso modo dal motore di mixaggio. La distinzione è organizzativa:
+separare le sigle dai jingle e dalle promo tiene la scaletta leggibile
+anche quando è affollata.
 
-Chaque colonne possède des comportements audio distincts (priorité dans
-le mixage, règles d'exclusion, valeurs de fondu), détaillés au Chapitre
-\6. Retenez pour l'instant l'essentiel~: la position d'un clip dans la
-grille n'a rien de décoratif, elle détermine comment le logiciel le
-traitera pendant la diffusion. Les colonnes inutiles peuvent être
-masquées (Paramètres → Généraux → Disposition régie) sans perdre les
-clips qu'elles contiennent.
+Ogni colonna ha comportamenti audio distinti --- priorità nel mixaggio,
+regole di esclusione, valori di fade --- che verranno dettagliati nel
+Capitolo 6. Per ora è sufficiente sapere che la posizione di una clip
+nella griglia non è decorativa: determina come il software la tratterà
+durante la messa in onda. Le colonne che non ti servono possono essere
+nascoste dalla vista (Impostazioni → Generali → Layout regia) senza
+perdere le clip che contengono.
 
-== 1.5 Version actuelle et mises à jour
-<version-actuelle-et-mises-à-jour>
-Ce manuel décrit la version #strong[1.15.10] de Runtime Live Machine
-Pro. Au démarrage, le logiciel vérifie discrètement si une version plus
-récente existe et, le cas échéant, affiche un avis de mise à jour ---
-jamais pendant un direct. Le système de mise à jour fait l'objet du
-Chapitre 12. Les fichiers de projet `.lmp` restent compatibles avec les
-versions ultérieures~: une mise à jour n'entraîne ni perte ni migration
-manuelle des projets existants.
+== 1.5 Versione corrente e aggiornamenti
+Questo manuale descrive la versione #strong[1.15.15] di Runtime Live
+Machine Pro. All'avvio, il software verifica in modo silenzioso la
+disponibilità di una versione più recente e, se ne trova una, apre un
+avviso di aggiornamento, mai durante una diretta. Il sistema di
+aggiornamento è descritto nel Capitolo 12. I file di progetto `.lmp`
+sono compatibili con le versioni successive: aggiornare il software non
+comporta la perdita o la migrazione manuale dei progetti esistenti.

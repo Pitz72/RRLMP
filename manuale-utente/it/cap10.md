@@ -82,7 +82,7 @@ Alcuni dettagli utili:
 
 - L'operazione è **ripetibile**: se aggiungi nuove clip e riesporti, RLMP copia solo i file nuovi e riallinea il progetto, senza duplicare quelli già archiviati.
 - Il riaggancio all'archivio **non entra nella cronologia Annulla/Ripeti**: un *Annulla* riporterebbe le clip agli originali, che potresti avere già cancellato.
-- Il riferimento all'archivio è un **percorso assoluto**. Finché la cartella del progetto resta dov'è, tutto funziona; se la sposti altrove, i percorsi vanno rigenerati con un nuovo export dalla nuova posizione.
+- La cartella del progetto (`.lmp` + `audio/`) si può **spostare, rinominare, zippare e portare su un altro computer**: all'apertura, ogni file che non viene trovato alla vecchia posizione viene cercato automaticamente nella cartella `audio/` accanto al `.lmp` e ricollegato da solo. Il progetto risulta *modificato*: al salvataggio successivo i nuovi percorsi vengono consolidati.
 
 > **Prassi consigliata.** Usa *Esporta progetto con audio* al termine della preparazione di ogni show per consolidare l'audio nel progetto. Avrai un «master» compatto e portabile, e potrai liberare spazio cancellando i file sparsi da cui avevi importato.
 

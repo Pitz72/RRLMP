@@ -1,5 +1,5 @@
 # Runtime Live Machine Pro — Manuale Utente
-## Indice generale — Edizione Italiana (v1.15.10, Seconda Edizione)
+## Indice generale — Edizione Italiana (v1.15.15, Seconda Edizione)
 
 ---
 
@@ -16,7 +16,7 @@ La Barra di Controllo: logo, timer On Air, orologio di studio, Master Volume, VU
 Importazione tramite drag & drop. Formati supportati. Riproduzione e stop. La logica di esclusione per colonna. Organizzare la scaletta: riordinamento e selezione multipla. Cue di struttura: Intro e Outro.
 
 **Capitolo 5 — Proprietà della clip e Waveform Editor**
-Proprietà di base: nome, colore, Gain. L'editor della forma d'onda: navigazione, zoom, playhead. Le quattro maniglie. Auto-Trim e Smart Cues. Anteprima della transizione. Comportamenti (Normal, Stacco). Next Action. Fade In e Fade Out. Assegnazione controlli.
+Proprietà di base: nome, colore, Gain. L'editor della forma d'onda: navigazione, zoom, playhead. Le quattro maniglie. Auto-Trim e Smart Cues. Anteprima della transizione. Next Action. Fade In e Fade Out. Assegnazione controlli.
 
 **Capitolo 6 — Il motore di mixaggio**
 La gerarchia audio. Ducking automatico. Music Dominance. Stacchi: l'eccezione alla regola. Omologazione del volume (loudness). Master Chain: HPF, glue multibanda, limiter.

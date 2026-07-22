@@ -1,160 +1,157 @@
 #import "../lib/manuale-template.typ": *
 
-= Installation et premier démarrage
-<chapitre-2-installation-et-premier-démarrage>
+= Installazione e primo avvio
 
-L'installation de Runtime Live Machine Pro demande un minimum
-d'interaction~: quelques clics suffisent, sans configuration manuelle ni
-prérequis à installer à part. Le moteur audio (FFmpeg) est intégré au
-paquet d'installation \; vous n'avez rien à faire de ce côté.
+L'installazione di Runtime Live Machine Pro è progettata per richiedere
+il minimo di interazione: pochi click, nessuna configurazione manuale,
+nessun prerequisito da installare separatamente. Il motore audio
+(FFmpeg) è integrato nel pacchetto di installazione e non richiede alcun
+intervento da parte tua.
 
-== 2.1 Configuration requise
-Avant de commencer, vérifiez que votre ordinateur répond à la
-configuration minimale. Les spécifications recommandées offrent un
-meilleur confort sur les sessions longues ou avec de nombreux clips
-chargés en même temps.
+== 2.1 Requisiti di sistema
+Prima di procedere, verifica che il tuo computer soddisfi i requisiti
+minimi. Le specifiche consigliate garantiscono la migliore esperienza
+durante sessioni lunghe o con molte clip caricate simultaneamente.
 
 #figure(
   align(center)[#table(
     columns: (33.33%, 33.33%, 33.33%),
     align: (auto,auto,auto,),
-    table.header([], [Minimum], [Recommandé],),
+    table.header([], [Minimo], [Consigliato],),
     table.hline(),
-    [#strong[Système d'exploitation (Windows)]], [Windows 10
+    [#strong[Sistema operativo (Windows)]], [Windows 10
     64-bit], [Windows 11 64-bit],
-    [#strong[Système d'exploitation (macOS)]], [macOS 11 Big
-    Sur], [macOS 13 Ventura ou ultérieur],
-    [#strong[Système d'exploitation (Linux)]], [Ubuntu 20.04 / Debian
+    [#strong[Sistema operativo (macOS)]], [macOS 11 Big Sur], [macOS 13
+    Ventura o successivi],
+    [#strong[Sistema operativo (Linux)]], [Ubuntu 20.04 / Debian
     11], [Ubuntu 22.04 LTS],
-    [#strong[RAM]], [4 GB], [8 GB ou plus],
-    [#strong[Espace disque]], [300 MB (application)], [1 GB + espace
-    pour les fichiers audio],
-    [#strong[CPU]], [Tout dual-core moderne], [Quad-core ou supérieur],
+    [#strong[RAM]], [4 GB], [8 GB o più],
+    [#strong[Spazio su disco]], [300 MB (applicazione)], [1 GB + spazio
+    per i file audio],
+    [#strong[CPU]], [Qualsiasi dual-core moderno], [Quad-core o
+    superiore],
   )]
   , kind: table
   )
 
-Le logiciel est optimisé pour Apple Silicon (M1, M2, M3)~: il tourne
-nativement sur les deux architectures macOS, sans passer par l'émulation
-Rosetta.
+Il software è ottimizzato per Apple Silicon (M1, M2, M3) e gira in modo
+nativo su entrambe le architetture macOS senza emulazione Rosetta.
 
-Aucune carte son dédiée n'est nécessaire. RLMP fonctionne avec n'importe
-quel périphérique audio reconnu par le système, de la carte son intégrée
-aux mixeurs USB professionnels comme le Rødecaster Pro ou le RØDECaster
-Duo.
+Non è richiesta una scheda audio dedicata: RLMP funziona con qualsiasi
+periferica audio riconosciuta dal sistema operativo, dalla scheda audio
+integrata ai mixer USB professionali come il Rødecaster Pro o
+l'RØDECaster Duo.
 
-== 2.2 Installation sous Windows
-+ Téléchargez le fichier `Runtime-Live-Machine-Pro-1.15.10.exe` depuis
-  le canal de distribution officiel.
-+ Double-cliquez sur l'exécutable. L'installateur NSIS se lance et copie
-  les fichiers dans les répertoires appropriés.
-+ À la fin, un raccourci est créé sur le Bureau et dans le menu
-  Démarrer.
-+ L'application démarre automatiquement une fois l'installation
-  terminée.
+== 2.2 Installazione su Windows
++ Scarica il file `Runtime-Live-Machine-Pro-1.15.15.exe` dal canale di
+  distribuzione ufficiale.
++ Fai doppio click sull'eseguibile. L'installer NSIS si avvierà e
+  copierà i file nelle directory appropriate.
++ Al termine, un collegamento verrà creato sul Desktop e nel menu Start.
++ L'applicazione si avvia automaticamente al completamento
+  dell'installazione.
 
-#strong[Note sur Windows SmartScreen.] Le logiciel étant mis à jour
-fréquemment, son certificat de signature numérique n'a pas toujours eu
-le temps d'accumuler la «~réputation~» requise pour la liste blanche
-automatique de SmartScreen. Si l'avertissement «~Windows a protégé votre
-ordinateur~» s'affiche, cliquez sur #emph[Informations complémentaires]
-puis sur #emph[Exécuter quand même]. Le logiciel ne contient aucun
-malware~: les installateurs officiels ne transitent que par les canaux
-de distribution de l'auteur.
+#strong[Nota su Windows SmartScreen.] Poiché il software viene
+aggiornato con frequenza, il certificato di firma digitale potrebbe non
+avere ancora accumulato la «reputazione» sufficiente per la whitelist
+automatica di SmartScreen. Se compare l'avviso «Il PC è stato protetto
+da Windows», clicca su #emph[Ulteriori informazioni] e poi su
+#emph[Esegui comunque]. Il software è privo di malware; gli installer
+ufficiali sono pubblicati esclusivamente attraverso i canali di
+distribuzione dell'autore.
 
-== 2.3 Installation sous macOS
-+ Téléchargez le fichier `.dmg` depuis le canal officiel.
-+ Ouvrez l'image disque et faites glisser l'icône de Runtime Live
-  Machine Pro dans le dossier #emph[Applications].
-+ Au premier démarrage, macOS peut afficher un avertissement Gatekeeper
-  («~L'app ne peut pas être ouverte, car elle provient d'un développeur
-  non identifié~»). Ouvrez alors #emph[Préférences Système] →
-  #emph[Sécurité et confidentialité] → #emph[Général], puis cliquez sur
-  #emph[Ouvrir quand même] à côté du nom de l'application.
+== 2.3 Installazione su macOS
++ Scarica il file `.dmg` dal canale ufficiale.
++ Apri il file immagine e trascina l'icona di Runtime Live Machine Pro
+  nella cartella #emph[Applicazioni].
++ Al primo avvio, macOS potrebbe mostrare un avviso Gatekeeper («App non
+  può essere aperta perché proviene da uno sviluppatore non
+  identificato»). Per procedere, apri #emph[Preferenze di Sistema] →
+  #emph[Sicurezza e Privacy] → #emph[Generali] e clicca su #emph[Apri
+  comunque] accanto al nome dell'applicazione.
 
-À partir de macOS 15 (Sequoia), le chemin devient #emph[Réglages
-Système] → #emph[Confidentialité et sécurité] → faites défiler jusqu'à
-la section #emph[Sécurité].
+Dalla versione macOS 15 (Sequoia) in poi, il percorso è
+#emph[Impostazioni di Sistema] → #emph[Privacy e sicurezza] → scorri
+fino alla sezione #emph[Sicurezza].
 
 #nota[
-L'application macOS n'est pas signée avec un certificat
-Apple Developer, ce qui a aussi une influence sur la gestion des mises à
-jour --- voir le Chapitre 12.
+L'applicazione macOS non è firmata con un certificato
+Apple Developer. Questo influisce anche sul modo in cui vengono gestiti
+gli aggiornamenti, come spiegato nel Capitolo 12.
 ]
 
-== 2.4 Installation sous Linux
-Deux formats de distribution sont disponibles~:
+== 2.4 Installazione su Linux
+Sono disponibili due formati di distribuzione:
 
-- #strong[AppImage] --- exécutable portable, sans installation. Rendez
-  le fichier exécutable (`chmod +x`) et lancez-le directement.
-- #strong[Paquet \.deb] --- pour les distributions Debian/Ubuntu/Mint.
-  Installez avec `sudo dpkg -i nomfichier.deb` ou ouvrez-le avec le
-  gestionnaire de paquets graphique.
+- #strong[AppImage] --- eseguibile portabile, non richiede
+  installazione. Rendi il file eseguibile (`chmod +x`) e avvialo
+  direttamente.
+- #strong[Pacchetto \.deb] --- per distribuzioni Debian/Ubuntu/Mint.
+  Installa con `sudo dpkg -i nomefile.deb` oppure aprilo con il gestore
+  pacchetti grafico.
 
-Sur certaines distributions, le paquet `libasound2` peut être requis
-pour la prise en charge audio ALSA. Si l'application refuse de démarrer,
-consultez la documentation de votre distribution.
+Su alcune distribuzioni potrebbe essere necessario installare il
+pacchetto `libasound2` per il supporto audio ALSA. Consulta la
+documentazione della tua distribuzione se l'applicazione non si avvia.
 
-== 2.5 L'écran d'accueil
-<lécran-daccueil>
-#figure(image("../screenshots-fr/schermata-benvenuto.png", alt: "Figure 2.1 — L’écran d’accueil : identité du logiciel, état de la mise à jour, actions principales et sélecteur de langue."),
+== 2.5 La schermata di benvenuto
+#figure(image("../screenshots/schermata-benvenuto.png", alt: "Figura 2.1 — La schermata di benvenuto: identità del software, stato dell’aggiornamento, azioni principali e selettore di lingua."),
   caption: [
-    Figure 2.1 --- L'écran d'accueil~: identité du logiciel, état de la
-    mise à jour, actions principales et sélecteur de langue.
+    Figura 2.1 --- La schermata di benvenuto: identità del software,
+    stato dell'aggiornamento, azioni principali e selettore di lingua.
   ]
 )
 
-Au premier démarrage, et à chaque démarrage suivant tant qu'aucun projet
-n'est ouvert, RLMP affiche l'#strong[écran d'accueil]~: le point d'accès
-à toutes les opérations préliminaires. Le panneau se divise en deux
-zones.
+Al primo avvio --- e a ogni avvio successivo, finché non apri un
+progetto --- RLMP presenta la #strong[schermata di benvenuto], il punto
+di accesso a tutte le operazioni preliminari. Il pannello è diviso in
+due zone.
 
-#strong[Zone de gauche --- Identité et actions.] Le logo du logiciel,
-les barres d'un VU meter surmontées du symbole de lecture, identifie la
-version Pro. Sous le titre et le slogan figurent le numéro de version
-installée et l'état du système de mise à jour~:
+#strong[Zona sinistra --- Identità e azioni.] Il logo del software (le
+barre di un VU meter con il simbolo di play) identifica la versione Pro.
+Sotto il titolo e lo slogan compare il numero di versione installata,
+accompagnato dallo stato del sistema di aggiornamento:
 
-- #strong[«~Version la plus récente~»] (vert) --- vous utilisez la
-  dernière version disponible.
-- #strong[«~Mise à jour disponible~»] (ambre, clignotant) --- c'est un
-  bouton~: cliquez dessus pour ouvrir la fenêtre de mise à jour
-  (Chapitre 12).
-- #strong[«~OFFLINE~»] (rouge estompé) --- impossible de contacter le
-  service de mise à jour~; le logiciel fonctionne quand même.
+- #strong[«Aggiornato»] (verde) --- stai usando l'ultima versione
+  disponibile.
+- #strong[«Aggiornamento disponibile»] (ambra, lampeggiante) --- è un
+  pulsante: cliccalo per aprire la finestra di aggiornamento (Capitolo
+  12).
+- #strong[«OFFLINE»] (rosso tenue) --- non è stato possibile contattare
+  il servizio di aggiornamento; il software funziona ugualmente.
 
-Viennent ensuite les actions principales~:
+Sotto trovi le azioni principali:
 
-- #emph[Nouveau Projet] --- crée une session vide, colonnes prêtes au
-  chargement.
-- #emph[Charger un Projet] --- ouvre un fichier `.lmp` existant. Avant
-  de le rendre opérationnel, RLMP procède à un #strong[contrôle
-  d'intégrité]~: chaque fichier audio référencé doit encore exister au
-  chemin mémorisé. Un fichier manquant est immédiatement signalé par une
-  bordure rouge sur le clip correspondant.
-- #emph[Manuel en ligne] --- l'entrée existe mais reste désactivée pour
-  l'instant~: la documentation consultable depuis le logiciel arrivera
-  dans une prochaine version, via le web.
+- #emph[Nuovo Progetto] --- crea una sessione vuota con le colonne
+  pronte al caricamento.
+- #emph[Carica Progetto] --- apre un file `.lmp` esistente. Prima di
+  renderlo operativo, RLMP esegue un #strong[controllo di integrità]:
+  verifica che ogni file audio referenziato esista ancora nel percorso
+  memorizzato. I file mancanti vengono immediatamente segnalati con un
+  bordo rosso sulla rispettiva clip.
+- #emph[Manuale] --- la voce è presente ma al momento disattivata: la
+  documentazione consultabile dall'interno del software arriverà in una
+  prossima versione via web.
 
-#strong[Zone de droite --- Sélecteur de langue.] RLMP prend en charge
-huit langues d'interface~: anglais, italien, français, allemand,
-espagnol, portugais, russe et chinois simplifié. Une bordure cyan et une
-coche signalent la langue active. Le changement de langue prend effet
-immédiatement et reste mémorisé d'une session à l'autre.
+#strong[Zona destra --- Selettore lingua.] RLMP supporta otto lingue
+dell'interfaccia: Inglese, Italiano, Francese, Tedesco, Spagnolo,
+Portoghese, Russo e Cinese semplificato. La lingua attiva è evidenziata
+con un bordo ciano e un segno di spunta. La selezione ha effetto
+immediato e viene memorizzata tra una sessione e l'altra.
 
-== 2.6 Le premier démarrage~: à quoi s'attendre
-<le-premier-démarrage-à-quoi-sattendre>
-À la première ouverture d'un projet, l'en-tête affiche le logo avec son
-badge #strong[PRO] au dégradé iridescent. En coulisse, cette ouverture
-lance le moteur audio~: FFmpeg s'initialise et le protocole de streaming
-`media://` se met à l'écoute, prêt à servir les fichiers depuis le
-disque sans jamais les charger en mémoire.
+== 2.6 Il primo avvio: cosa aspettarsi
+Alla prima apertura di un progetto, noterai nell'header il logo con il
+badge #strong[PRO] dal gradiente iridescente. Dietro l'interfaccia,
+l'apertura del progetto avvia il motore audio in background: FFmpeg
+viene inizializzato e il protocollo di streaming `media://` si mette in
+ascolto, pronto a servire i file dal disco senza caricarli in memoria.
 
-Le logiciel démarre de préférence en mode plein écran. Si la fenêtre
-s'ouvre redimensionnée, un appui sur `F11` (Windows/Linux) ou
-`Ctrl+Cmd+F` (macOS) la fait passer en plein écran, condition optimale
-pour le travail de régie.
+Il software si avvia preferibilmente in modalità a tutto schermo. Se la
+finestra dovesse aprirsi ridimensionata, premi `F11` (Windows/Linux) o
+`Ctrl+Cmd+F` (macOS) per portarla a schermo intero --- condizione
+ottimale per il lavoro di regia.
 
-Le #strong[minuteur On Air], dans l'en-tête, reste à `--:--:--` tant
-qu'aucun clip n'a été lancé. Dès le premier lancement, il se met à
-compter le temps écoulé en direct --- un repère précieux pour qui
-travaille avec une conduite à durée fixe.
+Il #strong[Timer On Air] nell'header rimarrà a `--:--:--` finché non
+viene lanciata la prima clip della sessione. Da quel momento inizierà a
+contare il tempo trascorso in diretta: un riferimento utile per chi
+lavora con scalette a tempo fisso.

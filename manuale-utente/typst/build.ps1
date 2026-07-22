@@ -4,7 +4,10 @@
 #   pwsh ./build.ps1 -Watch     ricompila a ogni salvataggio (senza rigenerare)
 #   pwsh ./build.ps1 -Png       esporta anche le pagine in pag-{p}.png (anteprima)
 #   pwsh ./build.ps1 -Lang en   usa i capitoli Markdown di un'altra lingua
-#   pwsh ./build.ps1 -All       compila le 8 lingue con il nome file localizzato
+#   pwsh ./build.ps1 -All       compila le lingue del manuale (it, en) con nome file localizzato
+#
+# 2026-07-22: il manuale è mantenuto SOLO in italiano e inglese (decisione utente);
+# le altre 6 lingue sono state rimosse (la guida rapida in-app resta in 8 lingue).
 #
 # Richiede Typst (>= 0.13, winget install --id Typst.Typst) e pandoc.
 param([switch]$Watch, [switch]$Png, [string]$Lang = "it", [switch]$All)
@@ -19,12 +22,6 @@ $src   = Join-Path $root 'manuale.typ'
 $FileNames = @{
   it    = "Manuale-Utente-IT.pdf"
   en    = "User-Manual-EN.pdf"
-  fr    = "Manuel-Utilisateur-FR.pdf"
-  de    = "Benutzerhandbuch-DE.pdf"
-  es    = "Manual-de-Usuario-ES.pdf"
-  pt    = "Manual-do-Utilizador-PT.pdf"
-  ru    = "Rukovodstvo-Polzovatelya-RU.pdf"
-  "zh-cn" = "Yonghu-Shouce-ZH-CN.pdf"
 }
 
 function Build-One([string]$L) {

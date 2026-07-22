@@ -1,172 +1,160 @@
 #import "../lib/manuale-template.typ": *
 
-= Gestion des projets et sécurité des données
-<chapitre-10-gestion-des-projets-et-sécurité-des-données>
+= Gestione progetti e sicurezza dei dati
 
-Préparer une émission prend du temps. Il faut sélectionner les fichiers,
-les ranger dans les colonnes, régler les volumes et les fondus,
-attribuer les touches. Tout ce travail doit pouvoir survivre à n'importe
-quel imprévu, qu'il s'agisse d'un plantage du système, d'un changement
-d'ordinateur ou du simple retour à un épisode archivé des mois
-auparavant.
+Preparare uno show richiede tempo: selezionare i file, organizzarli
+nelle colonne, configurare i volumi, impostare i fade, assegnare i
+tasti. Questo lavoro è un patrimonio operativo che deve sopravvivere a
+qualsiasi imprevisto: un crash del sistema, uno spostamento di computer,
+il ritorno a una puntata archiviata mesi prima.
 
-RLMP protège vos données à plusieurs niveaux, chacun pensé pour couvrir
-un risque bien précis.
+RLMP affronta la sicurezza dei dati a più livelli, ciascuno progettato
+per coprire un rischio specifico.
 
-== 10.1 Le fichier de projet (.lmp)
-<le-fichier-de-projet-.lmp>
-Tout l'état d'une émission (la disposition des clips dans les colonnes,
-les noms personnalisés, les volumes et les fondus, les cue points de
-l'éditeur, les notes de la NoteBoard, les mappings MIDI et clavier, la
-couleur des colonnes) est enregistré dans un fichier portant l'extension
-#strong[`.lmp`] (Live Machine Project).
+== 10.1 Il file di progetto (.lmp)
+<il-file-di-progetto-.lmp>
+Tutto lo stato di uno show (la disposizione delle clip nelle colonne, i
+nomi personalizzati, i volumi e i fade, i cue point dell'editor, le note
+della NoteBoard, le mappature MIDI e tastiera, il colore delle colonne)
+è salvato in un file con estensione #strong[`.lmp`] (Live Machine
+Project).
 
-Le format est du JSON, donc un simple fichier texte structuré, lisible
-avec n'importe quel éditeur et sans dépendance propriétaire. Si RLMP
-venait un jour à disparaître, les données du projet resteraient
-accessibles.
+Il formato è JSON: un file di testo strutturato, leggibile da qualsiasi
+editor, non proprietario. Se un giorno RLMP non fosse disponibile, i
+dati del progetto resterebbero accessibili.
 
-#strong[Ce que contient le fichier `.lmp` :] tous les réglages énumérés
-ci-dessus, y compris les chemins absolus vers les fichiers audio
-référencés.
+#strong[Cosa contiene il file `.lmp`:] tutte le impostazioni sopra
+elencate, inclusi i percorsi assoluti ai file audio referenziati.
 
-#strong[Ce qu'il ne contient pas~:] les fichiers audio eux-mêmes. Le
-`.lmp` mémorise où se trouvent les fichiers sur le disque, il ne copie
-pas leur contenu. Un fichier de projet pèse généralement de l'ordre du
-kilo-octet, quels que soient le nombre et la taille des fichiers audio
-qu'il référence.
+#strong[Cosa non contiene:] i file audio stessi. Il `.lmp` memorizza
+dove si trovano i file sul disco, non copia il loro contenuto. Un file
+di progetto è tipicamente nell'ordine dei kilobyte, indipendentemente da
+quanti o quanto grandi siano i file audio che referenzia.
 
-À l'ouverture, RLMP valide le fichier~: les identifiants dupliqués sont
-reconstruits, les valeurs hors échelle ramenées dans des limites saines.
-Si le projet a été créé avec une version antérieure, les colonnes
-introduites depuis (Jingle, Promo) sont ajoutées automatiquement, sans
-toucher aux données existantes.
+All'apertura, RLMP convalida il file: ricostruisce eventuali
+identificativi duplicati, riporta i valori fuori scala entro limiti sani
+e, se apri un progetto creato con una versione precedente, aggiunge in
+automatico le colonne introdotte nel frattempo (Jingle, Promo), senza
+toccare i dati esistenti.
 
-== 10.2 Enregistrement
-=== Enregistrement rapide
-L'entrée #emph[Enregistrer le projet] du menu FILE enregistre
-immédiatement le fichier `.lmp` ouvert, sans boîte de dialogue. Elle
-passe au jaune dès qu'il y a des modifications non enregistrées~: un
-simple coup d'œil suffit pour le savoir. Utilisez-la souvent pendant la
-préparation de l'émission.
+== 10.2 Salvataggio
+=== Salva rapido
+La voce #emph[Salva Progetto] nel menu FILE esegue un salvataggio
+immediato sul file `.lmp` aperto. Il salvataggio è silenzioso: nessuna
+finestra di dialogo. La voce si evidenzia in giallo quando ci sono
+modifiche non salvate, un promemoria visivo a colpo d'occhio. Usala con
+frequenza durante la preparazione dello show.
 
-L'enregistrement est #strong[atomique]~: le fichier est d'abord écrit
-dans une copie temporaire, puis renommé à la volée. Ainsi, même si
-l'ordinateur s'éteint en pleine écriture, le `.lmp` original ne se
-retrouve jamais à moitié écrit.
+Il salvataggio è #strong[atomico]: il file viene scritto prima in una
+copia temporanea e poi rinominato al volo. Se il computer si spegne
+durante la scrittura, il `.lmp` originale non viene mai lasciato a metà.
 
-=== Enregistrer sous
-L'entrée #emph[Enregistrer sous…] ouvre toujours la boîte de dialogue,
-même si le projet a déjà un nom. Utilisez-la pour~:
+=== Salva con Nome
+La voce #emph[Salva Come…] apre sempre la finestra di dialogo, anche se
+il progetto ha già un nome. Usala per:
 
-- Créer des versions progressives de la même émission
-  (`Ep47_brouillon.lmp`, `Ep47_v2.lmp`, `Ep47_final.lmp`).
-- Enregistrer une variante avec des configurations différentes.
-- Créer un nouveau fichier sans écraser le fichier courant.
+- Creare versioni progressive dello stesso show (`Ep47_bozza.lmp`,
+  `Ep47_v2.lmp`, `Ep47_finale.lmp`).
+- Salvare una variante con configurazioni diverse.
+- Creare un nuovo file senza sovrascrivere quello corrente.
 
-=== Protection à la fermeture
-<protection-à-la-fermeture>
-RLMP surveille en permanence l'état des modifications. Si vous tentez de
-fermer le logiciel, ou d'ouvrir un nouveau projet, alors que des
-modifications ne sont pas enregistrées, l'opération est suspendue et une
-demande de confirmation s'affiche~: enregistrer, abandonner les
-modifications ou annuler. Impossible donc de perdre son travail sur un
-simple clic malheureux.
+=== Protezione alla chiusura
+RLMP monitora in continuo lo stato delle modifiche. Se provi a chiudere
+il software (o ad aprire un nuovo progetto) con modifiche non salvate,
+l'operazione viene sospesa e compare una richiesta di conferma con tre
+scelte: salvare, scartare le modifiche o annullare. Non è possibile
+perdere lavoro per un click accidentale sulla chiusura della finestra.
 
-== 10.3 Sauvegarde automatique et autosave
-Au-delà des enregistrements manuels, le logiciel maintient aussi un
-filet de protection automatique.
+== 10.3 Auto-Backup e autosave
+Oltre ai salvataggi che decidi tu, il software mantiene una rete di
+protezione automatica.
 
-#strong[Copie de sécurité du projet.] À chaque mise à jour en
-arrière-plan d'un projet déjà enregistré, RLMP conserve à côté du `.lmp`
-une copie `.bak` reflétant le dernier état valide.
+#strong[Copia di sicurezza del progetto.] Ogni volta che un progetto già
+salvato viene aggiornato in background, RLMP tiene accanto al `.lmp` una
+copia `.bak` con l'ultimo stato valido.
 
-#strong[Autosave à rotation.] RLMP écrit en parallèle des instantanés de
-l'état courant dans un dossier dédié de l'application, `autosaves`,
-nommés d'après la date et l'heure. Seuls les #strong[dix instantanés les
-plus récents] sont conservés, les plus anciens étant supprimés au fur et
-à mesure. Ce filet protège même le travail effectué sur un projet «~sans
-titre~» jamais enregistré sur le disque.
+#strong[Autosave a rotazione.] In parallelo, RLMP scrive istantanee
+dello stato corrente in una cartella dedicata dell'applicazione,
+`autosaves`, con un nome basato su data e ora. Vengono conservate le
+#strong[dieci istantanee più recenti]: le più vecchie vengono eliminate
+man mano. Questa rete cattura anche il lavoro su un progetto «senza
+titolo» mai salvato su disco.
 
-Le dossier `autosaves` se trouve dans le répertoire de données de
-l'application~:
+La cartella `autosaves` si trova nella directory dati dell'applicazione:
 
-- #strong[Windows~:] `%APPDATA%\runtime-live-machine-pro\autosaves\`
-- #strong[macOS~:]
+- #strong[Windows:] `%APPDATA%\runtime-live-machine-pro\autosaves\`
+- #strong[macOS:]
   `~/Library/Application Support/runtime-live-machine-pro/autosaves/`
-- #strong[Linux~:] `~/.config/runtime-live-machine-pro/autosaves/`
+- #strong[Linux:] `~/.config/runtime-live-machine-pro/autosaves/`
 
-#strong[Comment récupérer.] Si le fichier `.lmp` principal est corrompu,
-ou si l'ordinateur s'est éteint brutalement, ouvrez le dossier
-`autosaves`, repérez l'instantané dont l'horodatage est le plus proche
-du moment de l'interruption, puis chargez-le depuis RLMP comme un
-fichier de projet ordinaire. Vous pouvez aussi renommer le fichier
-`.bak` situé à côté du projet en `.lmp` et l'ouvrir directement.
+#strong[Come recuperare.] Se il file `.lmp` principale si è corrotto o
+il computer si è spento improvvisamente, apri la cartella `autosaves`,
+individua l'istantanea con data e ora più vicine al momento
+dell'interruzione e caricala da RLMP come un normale file di progetto.
+In alternativa, rinomina il file `.bak` accanto al progetto in `.lmp` e
+aprilo.
 
-== 10.4 Exporter le projet avec l'audio
-Comme le fichier `.lmp` ne contient que les chemins vers les fichiers
-audio, et non les fichiers eux-mêmes, un projet est fragile~: si vous
-déplacez, renommez ou supprimez ne serait-ce qu'un seul des fichiers
-sources, le clip correspondant passe au rouge. La fonction
-#strong[Exporter le projet avec l'audio], dans le menu FILE (juste sous
-#emph[Enregistrer sous…]), résout le problème à la racine en consolidant
-tout l'audio à l'intérieur du projet.
+== 10.4 Esporta progetto con audio
+Poiché il file `.lmp` contiene solo i percorsi ai file audio, non i file
+stessi, un progetto è fragile: se sposti, rinomini o cancelli anche uno
+solo dei file sorgente, la clip corrispondente diventa rossa. La
+funzione #strong[Esporta progetto con audio], nel menu FILE (subito
+sotto #emph[Salva Come…]), risolve il problema alla radice consolidando
+tutto l'audio dentro il progetto.
 
-=== Comment ça marche
-<comment-ça-marche>
-RLMP analyse tous les chemins vers les fichiers audio du projet, crée un
-sous-dossier `audio/` à côté du fichier `.lmp` et #strong[copie
-physiquement] chaque fichier référencé à l'intérieur. Les fichiers déjà
-présents et identiques ne sont pas recopiés~; les doublons de nom sont
-renommés pour éviter tout écrasement, et les fichiers orphelins, ceux
-qui ne sont plus référencés, sont retirés du dossier.
+=== Come funziona
+RLMP analizza tutti i percorsi ai file audio del progetto, crea una
+sottocartella `audio/` accanto al file `.lmp` e #strong[copia
+fisicamente] ogni file referenziato al suo interno. I file già presenti
+e identici non vengono ricopiati; eventuali doppioni di nome vengono
+rinominati per non sovrascriversi, e i file orfani (non più
+referenziati) vengono rimossi dalla cartella.
 
-La différence par rapport à une simple sauvegarde tient à ce qui se
-passe #strong[après] la copie~: RLMP #strong[repointe chaque clip vers
-la nouvelle copie] dans `audio/` et #strong[réenregistre le projet]. Dès
-lors, le dossier `audio/` n'est pas une archive de secours posée à côté
-du projet, mais la source depuis laquelle la session lit réellement
-l'audio.
+La differenza rispetto a un semplice backup è ciò che accade
+#strong[dopo] la copia: RLMP #strong[ripunta ogni clip alla nuova copia]
+dentro `audio/` e #strong[ri-salva il progetto]. Da quel momento la
+cartella `audio/` non è un archivio di scorta accanto al progetto, ma la
+fonte da cui la sessione legge davvero l'audio.
 
-=== Le résultat~: vous pouvez supprimer les originaux
-<le-résultat-vous-pouvez-supprimer-les-originaux>
-Comme le projet pointe désormais vers les copies dans `audio/`,
-#strong[les fichiers audio à leur emplacement d'origine ne servent plus]
-et vous pouvez les supprimer en toute sécurité~: l'émission continue de
-fonctionner en lisant depuis l'archive. C'est là toute la différence
-avec les versions précédentes, où le dossier `audio/` restait un doublon
-orphelin et où supprimer les originaux cassait les clips.
+=== Il risultato: puoi cancellare gli originali
+Poiché il progetto ora punta alle copie in `audio/`, #strong[i file
+audio nella loro posizione originale non servono più] e puoi cancellarli
+in sicurezza: lo show continua a funzionare leggendo dall'archivio. È la
+differenza rispetto alle versioni precedenti, dove la cartella `audio/`
+restava un doppione orfano e cancellare gli originali rompeva le clip.
 
-Le dossier du projet devient ainsi autonome~: `.lmp` plus sous-dossier
-`audio/`, tout le nécessaire pour diffuser l'émission, prêt à être
-archivé, copié ou transporté sur un autre ordinateur équipé de RLMP.
+La cartella del progetto diventa così autocontenuta: `.lmp` più
+sottocartella `audio/`, tutto il necessario per eseguire lo show, pronto
+da archiviare, copiare o portare su un altro computer con RLMP
+installato.
 
-Quelques détails utiles~:
+Alcuni dettagli utili:
 
-- L'opération est #strong[répétable]~: si vous ajoutez de nouveaux clips
-  et réexportez, RLMP ne copie que les fichiers nouveaux et réaligne le
-  projet, sans dupliquer ceux qui sont déjà archivés.
-- Le raccrochage à l'archive #strong[n'entre pas dans l'historique
-  Annuler/Répéter]~: un #emph[Annuler] ramènerait les clips vers les
-  originaux, que vous avez peut-être déjà supprimés.
-- La référence à l'archive est un #strong[chemin absolu]. Tant que le
-  dossier du projet reste où il est, tout fonctionne~; si vous le
-  déplacez ailleurs, les chemins doivent être régénérés par un nouvel
-  export depuis le nouvel emplacement.
+- L'operazione è #strong[ripetibile]: se aggiungi nuove clip e
+  riesporti, RLMP copia solo i file nuovi e riallinea il progetto, senza
+  duplicare quelli già archiviati.
+- Il riaggancio all'archivio #strong[non entra nella cronologia
+  Annulla/Ripeti]: un #emph[Annulla] riporterebbe le clip agli
+  originali, che potresti avere già cancellato.
+- La cartella del progetto (`.lmp` + `audio/`) si può #strong[spostare,
+  rinominare, zippare e portare su un altro computer]: all'apertura,
+  ogni file che non viene trovato alla vecchia posizione viene cercato
+  automaticamente nella cartella `audio/` accanto al `.lmp` e
+  ricollegato da solo. Il progetto risulta #emph[modificato]: al
+  salvataggio successivo i nuovi percorsi vengono consolidati.
 
 #suggerimento[
-Utilisez #emph[Exporter le projet avec l'audio]
-à la fin de la préparation de chaque émission pour consolider l'audio
-dans le projet. Vous obtiendrez un «~master~» compact et portable, et
-vous pourrez libérer de l'espace en supprimant les fichiers épars depuis
-lesquels vous aviez importé.
+Usa #emph[Esporta progetto con audio] al
+termine della preparazione di ogni show per consolidare l'audio nel
+progetto. Avrai un «master» compatto e portabile, e potrai liberare
+spazio cancellando i file sparsi da cui avevi importato.
 ]
 
-=== Contrôle d'intégrité à l'ouverture
-<contrôle-dintégrité-à-louverture>
-À chaque ouverture d'un fichier `.lmp`, RLMP lance un #strong[contrôle
-d'intégrité] automatique et vérifie que chaque fichier audio référencé
-est accessible. Les fichiers manquants sont signalés par une bordure
-rouge et l'étiquette FICHIER MANQUANT sur la carte correspondante,
-tandis que le reste du projet, tous les clips dont les fichiers sont
-bien là, reste pleinement fonctionnel.
+=== Controllo di integrità all'apertura
+<controllo-di-integrità-allapertura>
+Ogni volta che apri un file `.lmp`, RLMP esegue un #strong[controllo di
+integrità] automatico: verifica che ciascun file audio referenziato sia
+raggiungibile. I file mancanti vengono segnalati con il bordo rosso e
+l'etichetta FILE MANCANTE sulla card corrispondente. Il resto del
+progetto, tutte le clip con file raggiungibili, resta pienamente
+funzionale.

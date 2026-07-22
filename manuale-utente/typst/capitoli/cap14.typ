@@ -1,179 +1,166 @@
 #import "../lib/manuale-template.typ": *
 
-= Résolution des problèmes et FAQ
-<chapitre-14-résolution-des-problèmes-et-faq>
+= Risoluzione problemi e FAQ
 
-Ce chapitre rassemble les problèmes les plus fréquents dans l'usage
-quotidien de Runtime Live Machine Pro, avec leurs solutions. Chaque
-section décrit le symptôme, la cause la plus probable, puis la marche à
-suivre pour y remédier.
+Questo capitolo raccoglie i problemi più comuni nell'uso quotidiano di
+Runtime Live Machine Pro, con le rispettive soluzioni. Ogni sezione
+descrive il sintomo, la causa più probabile e la procedura di
+risoluzione.
 
-== 14.1 Problèmes audio
-<problèmes-audio>
-=== Le minuteur défile et les VU meter bougent, mais on n'entend rien
-<le-minuteur-défile-et-les-vu-meter-bougent-mais-on-nentend-rien>
-Le logiciel diffuse bien le signal, présent dans le bus interne, mais
-celui-ci n'atteint jamais le périphérique d'écoute.
+== 14.1 Problemi audio
+=== Il timer scorre e i VU meter si muovono, ma non si sente nulla
+Il software sta riproducendo correttamente (il segnale è presente nel
+bus interno), ma non raggiunge la periferica di ascolto.
 
-#strong[Vérifiez dans l'ordre~:]
+#strong[Verifica in ordine:]
 
-+ #strong[Master Volume.] Le curseur de l'en-tête est-il à zéro~?
-  Portez-le à 100 %.
-+ #strong[Périphérique de sortie.] Ouvrez Paramètres → #emph[Audio &
-  Mix] et contrôlez quel périphérique est sélectionné. Windows et macOS
-  peuvent changer l'identifiant des périphériques USB lorsqu'ils sont
-  débranchés et rebranchés. Si le nom ne correspond pas à celui
-  physiquement connecté, sélectionnez-le de nouveau.
-+ #strong[Mixeur externe.] Si le signal arrive à un mixeur matériel,
-  contrôlez que le fader du canal n'est pas baissé ou en mute, et que la
-  sortie du mixeur est reliée aux moniteurs ou à la chaîne de diffusion.
++ #strong[Master Volume.] Lo slider nell'header è a zero? Portalo al
+  100%.
++ #strong[Periferica di uscita.] Apri le Impostazioni → #emph[Audio &
+  Mix] e controlla quale periferica è selezionata. Windows e macOS
+  possono cambiare l'identificativo delle periferiche USB quando vengono
+  scollegate e ricollegate. Se il nome non corrisponde a quella
+  fisicamente connessa, selezionala di nuovo.
++ #strong[Mixer esterno.] Se il segnale arriva a un mixer hardware,
+  controlla che il fader del canale non sia abbassato o in mute, e che
+  l'uscita del mixer sia collegata ai monitor o alla catena di
+  trasmissione.
 
-=== L'audio saute, grésille ou a des interruptions
-<laudio-saute-grésille-ou-a-des-interruptions>
-En temps normal, le moteur audio résiste bien à ce type d'artefact. S'il
-en survient malgré tout, la cause est presque toujours extérieure au
-logiciel.
+=== L'audio salta, gracchia o ha interruzioni
+In condizioni normali il motore audio è robusto rispetto a questi
+artefatti. Se si verificano, la causa è quasi sempre esterna al
+software.
 
-- #strong[CPU sous charge extrême.] Fermez les applications lourdes en
-  parallèle (montage vidéo, rendu, sauvegardes intensives).
-- #strong[Buffer audio trop bas.] Avec une carte son professionnelle,
-  contrôlez la valeur de buffer dans le panneau de contrôle du driver.
-  Une valeur de 256 ou 512 échantillons est le bon équilibre~; sous 128
-  échantillons, des dropouts peuvent apparaître.
-- #strong[Disque lent ou sous stress.] RLMP diffuse l'audio en streaming
-  depuis le disque. Un disque mécanique lent, ou un SSD presque plein,
-  peut causer des interruptions sur les fichiers volumineux.
+- #strong[CPU sotto carico estremo.] Chiudi le applicazioni pesanti in
+  contemporanea (montaggio video, rendering, backup intensivi).
+- #strong[Buffer audio troppo basso.] Con una scheda audio
+  professionale, controlla il valore di buffer nel pannello di controllo
+  del driver. Un valore di 256 o 512 campioni è l'equilibrio corretto;
+  sotto i 128 campioni possono comparire dropout.
+- #strong[Disco lento o sotto stress.] RLMP streamma l'audio dal disco.
+  Un disco meccanico lento, o un SSD quasi pieno, può causare
+  interruzioni su file di grandi dimensioni.
 
-=== Le niveau audio est trop bas ou trop haut
-- #strong[Gain par clip.] Réglez le Gain dans les propriétés du clip
-  (clic droit → section Volume).
-- #strong[Master Volume.] Si le niveau global est incorrect, agissez sur
-  le curseur de l'en-tête.
-- #strong[Homologation et Master Chain.] L'homologation du volume
-  rapproche les niveaux des clips d'une référence commune~; le glue de
-  la Master Chain peut rendre le son plus compact. Si un résultat ne
-  vous convainc pas, vous pouvez régler ou désactiver ces étages dans
-  Paramètres → Master Chain.
+=== Il livello audio è troppo basso o troppo alto
+<il-livello-audio-è-troppo-basso-o-troppo-alto>
+- #strong[Gain per clip.] Regola il Gain nelle proprietà della clip
+  (tasto destro → sezione Volume).
+- #strong[Master Volume.] Se il livello complessivo è scorretto, agisci
+  sullo slider nell'header.
+- #strong[Omologazione e Master Chain.] L'omologazione del volume
+  avvicina i livelli delle clip a un riferimento comune; il glue del
+  Master Chain può rendere il suono più compatto. Se un risultato non ti
+  convince, puoi regolare o disattivare questi stadi nelle Impostazioni
+  → Master Chain.
 
-== 14.2 Clips rouges et fichiers manquants
-=== Une carte est devenue rouge («~FICHIER MANQUANT~») et ne répond pas au clic
-<une-carte-est-devenue-rouge-fichier-manquant-et-ne-répond-pas-au-clic>
-La bordure rouge signale que le fichier audio est introuvable au chemin
-enregistré dans le projet.
+== 14.2 Clip rosse e file mancanti
+=== Una card è diventata rossa («FILE MANCANTE») e non risponde al click
+<una-card-è-diventata-rossa-file-mancante-e-non-risponde-al-click>
+Il bordo rosso indica che il file audio non è raggiungibile al percorso
+memorizzato nel progetto.
 
-#strong[Causes possibles~:]
+#strong[Cause possibili:]
 
-- Le fichier a été déplacé ou renommé sur le disque.
-- Le fichier était sur un disque externe ou une clé USB maintenant
-  déconnectée.
-- Le projet a été ouvert sur un ordinateur différent, où les chemins ne
-  correspondent pas.
+- Il file è stato spostato o rinominato sul disco.
+- Il file era su un disco esterno o una chiavetta USB ora scollegata.
+- Il progetto è stato aperto su un computer diverso, dove i percorsi non
+  corrispondono.
 
-#strong[Solutions~:]
+#strong[Soluzioni:]
 
-+ #strong[Reconnectez le disque.] Si le fichier était sur une unité
-  externe, rebranchez-la.
-+ #strong[Remettez le fichier à sa position d'origine.] S'il a été
-  déplacé, replacez-le à son chemin initial.
-+ #strong[Remplacez le clip.] Faites glisser de nouveau le bon fichier
-  dans la grille et supprimez la carte rouge.
-+ #strong[Utilisez Exporter le projet avec l'audio à l'avenir.] La
-  prévention la plus efficace consiste à consolider l'audio dans le
-  projet avant de déplacer ou de transférer le projet (Chapitre 10).
++ #strong[Riconnetti il disco.] Se il file era su un'unità esterna,
+  ricollegala.
++ #strong[Riporta il file nella posizione originale.] Se è stato
+  spostato, rimettilo nel percorso originale.
++ #strong[Sostituisci la clip.] Trascina di nuovo il file corretto nella
+  griglia e cancella la card rossa.
++ #strong[Usa Esporta progetto con audio in futuro.] La prevenzione più
+  efficace è consolidare l'audio nel progetto prima di spostarlo o
+  trasferirlo (Capitolo 10).
 
-== 14.3 Problèmes MIDI
-<problèmes-midi>
-=== Le contrôleur n'est pas détecté
-<le-contrôleur-nest-pas-détecté>
-+ #strong[Connexion.] Vérifiez que le contrôleur est bien branché et
-  reconnu par le système d'exploitation. RLMP détecte en temps réel la
-  connexion et la déconnexion des périphériques \; s'il n'apparaît
-  toujours pas, débranchez puis rebranchez le câble USB.
-+ #strong[Driver.] La plupart des contrôleurs USB-MIDI sont
-  #emph[class-compliant] et ne demandent pas de driver. Pour les
-  surfaces professionnelles à driver propriétaire, vérifiez que le
-  driver est installé.
-+ #strong[Vérification en mode Learn.] Activez MIDI Learn et appuyez sur
-  une touche du contrôleur~: si la carte reçoit le mapping, le
-  contrôleur est détecté.
+== 14.3 Problemi MIDI
+=== Il controller non viene rilevato
++ #strong[Collegamento.] Verifica che il controller sia collegato e
+  riconosciuto dal sistema operativo. RLMP rileva la connessione e la
+  disconnessione dei dispositivi in tempo reale; se non compare,
+  scollega e ricollega il cavo USB.
++ #strong[Driver.] La maggior parte dei controller USB-MIDI è
+  #emph[class-compliant] e non richiede driver. Per superfici
+  professionali con driver proprietari, verifica che il driver sia
+  installato.
++ #strong[Verifica in modalità Learn.] Attiva MIDI Learn e premi un
+  tasto sul controller: se la card riceve la mappatura, il controller è
+  rilevato.
 
-=== Les clips mappés ne répondent pas aux touches du contrôleur
-<les-clips-mappés-ne-répondent-pas-aux-touches-du-contrôleur>
-- #strong[Le mode MIDI Learn est encore actif.] En MIDI Learn, les
-  touches du contrôleur enregistrent de nouveaux mappings au lieu
-  d'exécuter les clips. Désactivez le mode depuis le menu Outils.
-- #strong[Le mapping a été perdu.] Les mappings des clips sont dans le
-  fichier `.lmp` \; vérifiez que le projet a été enregistré après la
-  session de MIDI Learn. Les mappings des fonctions globales sont, eux,
-  liés à l'ordinateur individuel.
+=== Le clip mappate non rispondono ai tasti del controller
+- #strong[La modalità MIDI Learn è ancora attiva.] In MIDI Learn i tasti
+  del controller registrano nuove mappature invece di eseguire le clip.
+  Disattiva la modalità dal menu Strumenti.
+- #strong[La mappatura è andata persa.] Le mappature delle clip sono nel
+  file `.lmp`\; verifica che il progetto sia stato salvato dopo la
+  sessione di MIDI Learn. Le mappature delle funzioni globali sono
+  invece legate al singolo computer.
 
-== 14.4 Problèmes de démarrage
-<problèmes-de-démarrage>
-=== L'application ne démarre pas sous macOS (avertissement Gatekeeper)
-<lapplication-ne-démarre-pas-sous-macos-avertissement-gatekeeper>
-Voir la section 2.3~: déblocage via #emph[Réglages Système →
-Confidentialité et sécurité].
+== 14.4 Problemi di avvio
+=== L'applicazione non si avvia su macOS (avviso Gatekeeper)
+Vedi la sezione 2.3: sblocco tramite #emph[Impostazioni di Sistema →
+Privacy e sicurezza].
 
-=== L'application ne démarre pas sous Windows (avertissement SmartScreen)
-<lapplication-ne-démarre-pas-sous-windows-avertissement-smartscreen>
-Voir la section 2.2. Cliquez sur #emph[Informations complémentaires]
-puis sur #emph[Exécuter quand même].
+=== L'applicazione non si avvia su Windows (avviso SmartScreen)
+Vedi la sezione 2.2. Clicca su #emph[Ulteriori informazioni] e poi su
+#emph[Esegui comunque].
 
-=== Comportements anormaux au démarrage
-<comportements-anormaux-au-démarrage>
-Si le logiciel se comporte de façon inattendue à l'ouverture, fermez-le
-et rouvrez-le. Si le problème persiste, vérifiez que le chemin
-d'installation ne contient pas de caractères spéciaux, ils peuvent gêner
-le chargement des composants FFmpeg.
+=== Comportamenti anomali all'avvio
+Se il software si comporta in modo inatteso all'apertura, chiudi e
+riapri RLMP. Se il problema persiste, verifica che il percorso di
+installazione non contenga caratteri speciali che potrebbero interferire
+con il caricamento dei componenti FFmpeg.
 
-== 14.5 Questions fréquentes
-<questions-fréquentes>
-#strong[RLMP peut-il automatiser une radio 24 heures sur 24 sans
-surveillance ?] Non. RLMP est pensé pour la régie live, des émissions
-tenues par un opérateur, et ne propose ni programmation horaire ni
-rotation automatique de playlist. Seule la vue Automix offre une
-automatisation limitée et volontaire du flux musical, active tant
-qu'elle reste ouverte (Chapitre 7). Pour l'automatisation 24h/24, des
-logiciels dédiés existent déjà (Zara Radio, PlayIt Live, Rivendell)~:
-ils couvrent un besoin différent.
+== 14.5 Domande frequenti
+#strong[RLMP può automatizzare una radio per 24 ore senza presidio?]
+No.~RLMP è progettato per la regia live: show presidiati da un
+operatore. Non dispone di schedulazione oraria né di rotazione
+automatica della playlist. La vista Automix offre un'automazione
+limitata e volontaria del solo flusso musicale, attiva finché la vista è
+aperta (Capitolo 7). Per l'automazione H24 esistono software dedicati
+(Zara Radio, PlayIt Live, Rivendell): rispondono a esigenze diverse.
 
-#strong[Quelle est la différence entre Enregistrer et Enregistrer
-sous~?] #emph[Enregistrer le projet] écrase le fichier `.lmp` ouvert, en
-silence. #emph[Enregistrer sous…] ouvre toujours la boîte de dialogue et
-crée un nouveau fichier, sans toucher au fichier courant.
+#strong[Qual è la differenza tra Salva e Salva Come?] #emph[Salva
+Progetto] sovrascrive il file `.lmp` aperto, in silenzio. #emph[Salva
+Come…] apre sempre la finestra di dialogo e crea un nuovo file, senza
+toccare quello corrente.
 
-#strong[Puis-je utiliser RLMP sur iPad ou sur des appareils mobiles ?]
-Pas comme application principale~: RLMP reste un logiciel de bureau,
-pour Windows, macOS et Linux. Une tablette ou un téléphone peuvent en
-revanche servir de #strong[télécommande] via navigateur, grâce au
-Contrôle à distance (Chapitre 11).
+#strong[Posso usare RLMP su iPad o su dispositivi mobile?] Non come
+applicazione principale: RLMP è un software desktop per Windows, macOS e
+Linux. Un tablet o un telefono possono però fungere da
+#strong[telecomando] via browser, tramite il Controllo Remoto (Capitolo
+11).
 
-#strong[Les fichiers `.lmp` des versions précédentes sont-ils
-compatibles avec la 1.15.10~?] Oui. À l'ouverture d'un projet créé avec
-une version précédente, RLMP en met à jour automatiquement la structure,
-colonnes ajoutées entre-temps comprises, sans modifier le fichier tant
-que vous n'effectuez pas d'enregistrement.
+#strong[I file `.lmp` delle versioni precedenti sono compatibili con la
+1.15.15?] Sì. Aprendo un progetto creato con una versione precedente,
+RLMP ne aggiorna automaticamente la struttura, comprese le colonne
+aggiunte nel frattempo, senza modificare il file finché non esegui un
+salvataggio.
 
-#strong[Comment mettre RLMP à jour vers une nouvelle version~?] Le
-logiciel vérifie les mises à jour au démarrage et vous avertit. Sous
-Windows et Linux AppImage, l'installation est automatique depuis la
-fenêtre de mise à jour~; sous macOS et Linux `.deb`, le navigateur est
-ouvert sur la page de téléchargement. Tous les détails au Chapitre 12.
+#strong[Come aggiorno RLMP a una nuova versione?] Il software controlla
+gli aggiornamenti all'avvio e ti avvisa. Su Windows e Linux AppImage
+l'installazione è automatica dalla finestra di aggiornamento; su macOS e
+Linux `.deb` viene aperto il browser sulla pagina di download. Tutti i
+dettagli nel Capitolo 12.
 
-#strong[Où sont enregistrées les sauvegardes automatiques~?] Dans le
-dossier `autosaves` du répertoire de données de l'application
-(`%APPDATA%\runtime-live-machine-pro\autosaves\` sous Windows~; chemins
-équivalents sous macOS et Linux, Chapitre 10). Les dix instantanés les
-plus récents sont conservés.
+#strong[Dove vengono salvati i backup automatici?] Nella cartella
+`autosaves` all'interno della directory dati dell'applicazione
+(`%APPDATA%\runtime-live-machine-pro\autosaves\` su Windows; percorsi
+equivalenti su macOS e Linux, Capitolo 10). Vengono conservate le dieci
+istantanee più recenti.
 
-#strong[Le logiciel fonctionne-t-il hors ligne ?] Oui, entièrement. RLMP
-n'a besoin d'aucune connexion internet pour tourner. Le réseau ne sert
-que pour la vérification des mises à jour, optionnelle, et pour le
-Contrôle à distance en réseau local, optionnel lui aussi.
+#strong[Il software funziona offline?] Sì, completamente. RLMP non
+richiede connessione internet per funzionare. La rete viene usata solo
+per il controllo degli aggiornamenti (opzionale) e per il Controllo
+Remoto in rete locale (opzionale).
 
-#strong[Le Contrôle à distance ne se connecte pas. Pourquoi~?] Vérifiez
-que l'appareil distant est sur le #strong[même réseau] que l'ordinateur,
-que vous avez saisi le #strong[PIN correct] (il change à chaque
-démarrage) et que vous utilisez l'adresse affichée dans les Paramètres.
-Rappelez-vous que le Contrôle à distance repart éteint à chaque
-démarrage de l'application (Chapitre 11).
+#strong[Il Controllo Remoto non si connette. Perché?] Verifica che il
+dispositivo remoto sia sulla #strong[stessa rete] del computer, di aver
+inserito il #strong[PIN corretto] (cambia a ogni avvio) e di usare
+l'indirizzo mostrato nelle Impostazioni. Ricorda che il Controllo Remoto
+riparte spento a ogni avvio dell'applicazione (Capitolo 11).

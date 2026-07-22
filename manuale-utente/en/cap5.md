@@ -80,11 +80,11 @@ If there is a **next** clip in the same column, the **“Test →”** button pl
 
 ## 5.3 Behaviours and automation
 
-### Behaviour (overlap mode)
+### Overlap: the column decides
 
-**Normal** — the default behaviour. When this clip is started, it interrupts any other clip playing in the same column (with a fade out). It’s the right behaviour for songs and beds: one song excludes the others.
+When a clip is started, it interrupts any other clip playing in the same column (with a fade out): one song excludes the others. Only the **pad FX** effects overlap freely, playing on top of anything without stopping it.
 
-**Stacco (Jingle)** — the clip is started without interrupting the others. It has high priority: it silences the other assets in the column and lowers the music, but stops nothing. The typical use case is a *station ID* (“You’re listening to…”) that has to “ride” a track’s intro, or a short jingle over a looping bed.
+If an element has to “ride” what’s on air — a *station ID* (“You’re listening to…”) over a track’s intro, a short jingle over a looping bed — no clip setting is needed: put it in the **pad FX** (it plays at full volume over the music) or in the **Voice** column (which additionally lowers everything else with ducking). A clip’s purpose is determined by the column it lives in; the old per-clip “Stacco (Jingle)” behaviour of previous versions has been removed.
 
 ### Next Action (end-of-clip automation)
 

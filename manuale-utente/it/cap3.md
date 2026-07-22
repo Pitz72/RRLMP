@@ -14,7 +14,7 @@ L'header occupa l'intera larghezza dello schermo. Procedendo da sinistra a destr
 
 ### Identità
 
-**Logo e badge PRO.** A sinistra, il logo affianca la scritta **RLM PRO** — la parola «PRO» è resa con un gradiente iridescente che passa dal ciano al verde, all'ambra, al rosso. Accanto, in caratteri monospazio, è riportata la versione installata (`v1.15.10`). Passando il mouse sul logo compare il nome completo del software con il numero di versione.
+**Logo e badge PRO.** A sinistra, il logo affianca la scritta **RLM PRO** — la parola «PRO» è resa con un gradiente iridescente che passa dal ciano al verde, all'ambra, al rosso. Accanto, in caratteri monospazio, è riportata la versione installata (`v1.15.15`). Passando il mouse sul logo compare il nome completo del software con il numero di versione.
 
 ### Menu File
 
@@ -114,7 +114,6 @@ Ogni file audio importato si materializza nella griglia come una **card** rettan
 
 **Badge di stato.** Piccole etichette comunicano in modo immediato le proprietà configurate:
 
-- **STACCO** — la clip è impostata per sovrapporsi alle altre senza fermarle.
 - **LOOP** — la clip ripartirà dall'inizio al termine della riproduzione.
 - **NEXT** — al termine di questa clip partirà automaticamente la successiva nella colonna.
 - **▶ UP NEXT** — evidenzia quale clip sarà la prossima a partire nella sequenza automatica.

@@ -80,11 +80,11 @@ Se esiste una clip **successiva** nella stessa colonna, il pulsante **«Test →
 
 ## 5.3 Comportamenti e automazione
 
-### Behavior (modalità di sovrapposizione)
+### Sovrapposizione: decide la colonna
 
-**Normal** — comportamento predefinito. Quando questa clip viene avviata, interrompe qualsiasi altra clip in riproduzione nella stessa colonna (con fade out). È il comportamento corretto per canzoni e basi: una canzone esclude le altre.
+Quando una clip viene avviata, interrompe qualsiasi altra clip in riproduzione nella stessa colonna (con fade out): una canzone esclude le altre. A sovrapporsi liberamente sono solo gli effetti del **pad FX**, che suonano sopra qualunque cosa senza fermare nulla.
 
-**Stacco (Jingle)** — la clip viene avviata senza interrompere le altre. Ha priorità alta: silenzia gli altri asset della colonna e abbassa la musica, ma non ferma nulla. Il caso d'uso tipico è uno *station ID* («Stai ascoltando…») che deve «cavalcare» l'intro di un brano, o un jingle breve sopra una base in loop.
+Se un elemento deve «cavalcare» ciò che è in onda — uno *station ID* («Stai ascoltando…») sull'intro di un brano, un jingle breve sopra una base in loop — non serve un'impostazione della clip: mettilo nel **pad FX** (suona a volume pieno sopra la musica) oppure nella colonna **Voci** (in più abbassa tutto il resto con il ducking). Lo scopo di una clip lo determina la colonna in cui si trova; il vecchio comportamento per-clip «Stacco (Jingle)» delle versioni precedenti è stato rimosso.
 
 ### Next Action (automazione alla fine)
 

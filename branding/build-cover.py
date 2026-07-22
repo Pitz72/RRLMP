@@ -12,18 +12,13 @@ ROOT = pathlib.Path(r"C:\Users\Utente\Documents\GitHub\RRLMP")
 LOGO = ROOT / "src" / "renderer" / "src" / "assets" / "logo.png"
 OUT_DIR = ROOT / "branding" / "covers"
 
-VERSION = "1.15.10"
+VERSION = "1.15.15"
 
 # Specchio di lib/strings.typ (manual-title, edition-name, version-word, language-name).
+# 2026-07-22: manuale mantenuto SOLO in it/en (decisione utente).
 STRINGS = {
     "it": dict(manual_title="Manuale Utente", edition_name="Seconda Edizione", version_word="Versione", language_name="Italiano"),
     "en": dict(manual_title="User Manual", edition_name="Second Edition", version_word="Version", language_name="English"),
-    "fr": dict(manual_title="Manuel Utilisateur", edition_name="Deuxième Édition", version_word="Version", language_name="Français"),
-    "de": dict(manual_title="Benutzerhandbuch", edition_name="Zweite Auflage", version_word="Version", language_name="Deutsch"),
-    "es": dict(manual_title="Manual de Usuario", edition_name="Segunda Edición", version_word="Versión", language_name="Español"),
-    "pt": dict(manual_title="Manual do Utilizador", edition_name="Segunda Edição", version_word="Versão", language_name="Português"),
-    "ru": dict(manual_title="Руководство пользователя", edition_name="Второе издание", version_word="Версия", language_name="Русский"),
-    "zh-cn": dict(manual_title="用户手册", edition_name="第二版", version_word="版本", language_name="简体中文"),
 }
 
 # Coda di fallback per i glifi non latini (Cirillico coperto da Segoe UI/Arial;

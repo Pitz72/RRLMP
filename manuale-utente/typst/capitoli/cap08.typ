@@ -1,169 +1,157 @@
 #import "../lib/manuale-template.typ": *
 
-= Matériel, clavier et MIDI
-<chapitre-8-matériel-clavier-et-midi>
+= Hardware, tastiera e MIDI
 
-Runtime Live Machine Pro s'intègre au matériel déjà présent dans le
-studio sans exiger de configuration compliquée. Ce chapitre explique
-comment router la sortie audio, comment se servir du clavier de
-l'ordinateur comme contrôleur, et comment brancher des périphériques
-MIDI physiques pour un contrôle tactile de la régie.
+Runtime Live Machine Pro è progettato per integrarsi con l'hardware
+esistente nello studio senza richiedere configurazioni elaborate. Questo
+capitolo descrive come indirizzare l'uscita audio, come usare la
+tastiera del computer come controller e come collegare dispositivi MIDI
+fisici per un controllo tattile della regia.
 
-== 8.1 Routage audio
-=== Choisir le périphérique de sortie
-<choisir-le-périphérique-de-sortie>
-Par défaut, RLMP sort sur le périphérique audio par défaut du système
-d'exploitation. Dans un contexte professionnel ou semi-professionnel,
-avec mixeurs USB, cartes son externes ou systèmes multipistes, mieux
-vaut choisir explicitement la destination du signal.
+== 8.1 Routing audio
+=== Selezionare la periferica di uscita
+Per impostazione predefinita, RLMP esce sulla periferica audio
+predefinita del sistema operativo. In un contesto professionale o
+semiprofessionale, con mixer USB, schede audio esterne o sistemi
+multitraccia, è utile selezionare esplicitamente la destinazione del
+segnale.
 
-+ Ouvrez les #strong[Paramètres] depuis le menu Outils.
-+ Dans l'onglet #emph[Audio & Mix], ouvrez le menu du périphérique de
-  sortie~: vous y trouvez la liste des périphériques audio disponibles
-  sur le système.
-+ Sélectionnez le périphérique voulu.
++ Apri le #strong[Impostazioni] dal menu Strumenti.
++ Nella scheda #emph[Audio & Mix], apri il menu della periferica di
+  uscita: trovi l'elenco delle periferiche audio disponibili sul
+  sistema.
++ Seleziona la periferica desiderata.
 
-Si le périphérique choisi est déconnecté, RLMP se rabat automatiquement
-sur celui du système~: l'application surveille les connexions et réagit
-à chaque insertion ou retrait de périphérique USB.
+Se la periferica scelta viene scollegata, RLMP ripiega automaticamente
+su quella di sistema; l'app monitora le connessioni e reagisce
+all'inserimento o alla rimozione di dispositivi USB.
 
-=== Mixeurs USB et setup multicanal
-Les mixeurs USB comme le Rødecaster Pro, le RØDECaster Duo ou le
-Focusrite Scarlett exposent en général plusieurs canaux USB au système
-d'exploitation (Main Mix, Sounds/Chat, Monitor, etc.). RLMP apparaît
-comme une source stéréo unique \; à vous de choisir vers quel canal USB
-le diriger.
+=== Mixer USB e setup multicanale
+I mixer USB come il Rødecaster Pro, l'RØDECaster Duo o il Focusrite
+Scarlett espongono tipicamente più canali USB al sistema operativo (Main
+Mix, Sounds/Chat, Monitor, ecc.). RLMP appare come una singola sorgente
+stereo; la scelta del canale USB su cui dirigerlo è nelle tue mani.
 
-#strong[Setup conseillé avec mixeur USB.] Affectez RLMP à un canal
-secondaire du mixeur (par exemple «~Sounds~» sur le Rødecaster Pro),
-plutôt qu'au canal principal. Vous gagnez ainsi un fader physique dédié
-pour le volume de RLMP, une séparation nette d'avec le signal du micro,
-et la possibilité d'appliquer un traitement matériel à ce seul canal.
+#strong[Setup consigliato con mixer USB.] Assegna RLMP a un canale
+secondario del mixer (es. «Sounds» sul Rødecaster Pro) invece che al
+canale principale. In questo modo controlli il volume di RLMP con un
+fader fisico dedicato, lo separi dal segnale del microfono fisico e
+applichi eventuale processing hardware solo a quel canale.
 
-=== Latence et buffer
-RLMP utilise les API audio natives du système d'exploitation. La latence
-de sortie dépend du buffer du périphérique audio, pas du logiciel. Avec
-des cartes son professionnelles, elle se situe autour de quelques
-millisecondes, imperceptible en playout.
+=== Latenza e buffer
+RLMP utilizza le API audio native del sistema operativo. La latenza di
+uscita è determinata dal buffer della periferica audio, non dal
+software. Con schede audio professionali la latenza è nell'ordine di
+pochi millisecondi, non percepibile in un contesto di playout.
 
-Si vous constatez des artefacts audio (crépitements, dropouts), la
-valeur de buffer du périphérique est sans doute trop basse. Augmentez-la
-depuis le panneau de contrôle de la carte son, pas depuis RLMP qui ne
-gère pas directement le driver~: un buffer de 256 ou 512 échantillons
-offre un bon équilibre entre latence et stabilité.
+Se noti artefatti audio (crepitii, dropout), il valore di buffer della
+periferica è probabilmente troppo basso. Aumentalo dal pannello di
+controllo della scheda audio (non da RLMP, che non gestisce direttamente
+il driver): un buffer di 256 o 512 campioni è il punto di equilibrio
+ideale tra latenza e stabilità.
 
-== 8.2 Contrôle au clavier
-<contrôle-au-clavier>
-En direct, le clavier de l'ordinateur reste le contrôleur le plus
-rapide~: pas de coordination œil-main à gérer, fonctionne dans
-l'obscurité, toujours à portée de main. RLMP propose un jeu de
-raccourcis globaux et la possibilité d'attribuer une touche à chaque
-clip.
+== 8.2 Controllo da tastiera
+La tastiera del computer è il controller più rapido disponibile in
+diretta: non richiede coordinazione oculo-manuale, funziona al buio ed è
+sempre a portata di mano. RLMP prevede un insieme di scorciatoie globali
+e la possibilità di assegnare tasti alle singole clip.
 
-=== Raccourcis globaux
+=== Scorciatoie globali
 #figure(
   align(center)[#table(
     columns: (50%, 50%),
     align: (auto,auto,),
-    table.header([Touche], [Action],),
+    table.header([Tasto], [Azione],),
     table.hline(),
-    [#strong[Échap]], [STOP ALL --- arrête tous les clips actifs],
-    [#strong[Suppr / Backspace]], [Supprime les clips sélectionnés],
-    [#strong[Ctrl+Z]], [Annule la dernière modification de la conduite],
-    [#strong[Ctrl+Y] (ou #strong[Ctrl+Shift+Z])], [Répète la
-    modification annulée],
-    [#strong[Ctrl+Shift+D]], [Affiche/masque le Debug Overlay],
-    [#strong[Ctrl+Shift+M]], [Ouvre le simulateur MIDI (pour tester sans
-    contrôleur)],
+    [#strong[Esc]], [STOP ALL --- ferma tutte le clip attive],
+    [#strong[Canc / Backspace]], [Elimina le clip selezionate],
+    [#strong[Ctrl+Z]], [Annulla l'ultima modifica alla scaletta],
+    [#strong[Ctrl+Y] (o #strong[Ctrl+Shift+Z])], [Ripeti la modifica
+    annullata],
+    [#strong[Ctrl+Shift+D]], [Mostra/nascondi il Debug Overlay],
+    [#strong[Ctrl+Shift+M]], [Apri il simulatore MIDI (per test senza
+    controller)],
   )]
   , kind: table
   )
 
-`Échap` agit comme STOP ALL dès lors que RLMP est la fenêtre active,
-même si le curseur se trouve dans un champ de texte. Ce raccourci n'est
-pas enregistré au niveau du système d'exploitation~: si l'application
-tourne en arrière-plan, ramenez d'abord la fenêtre au premier plan.
+`Esc` agisce come STOP ALL quando RLMP è la finestra attiva, anche
+mentre il cursore è in un campo di testo. Non è più una scorciatoia
+registrata a livello di sistema operativo: se l'app è in background,
+riporta prima la finestra in primo piano.
 
 #nota[
-Il n'existe pas de touches de fonction (F1--F5)
-préaffectées au lancement des colonnes. Pour lancer rapidement un clip
-précis, attribuez-lui une touche dédiée, comme décrit ci-dessous.
+Non esistono tasti funzione (F1--F5) preassegnati al
+lancio delle colonne. Per lanciare rapidamente una clip specifica,
+assegnale un tasto dedicato, come descritto qui sotto.
 ]
 
-=== Touches personnalisées par clip
-<touches-personnalisées-par-clip>
-Chaque clip peut aussi recevoir une touche dédiée, en plus des
-raccourcis globaux. Le badge correspondant apparaît alors sur la carte.
+=== Tasti personalizzati per singola clip
+Oltre alle scorciatoie globali, ogni clip può avere un tasto dedicato.
+Il badge corrispondente compare sulla card.
 
-#strong[Pour attribuer une touche~:] 1. Ouvrez les paramètres du clip
-(clic droit sur la carte) ou la fenêtre #strong[Raccourcis & tableau
-MIDI] depuis le menu Outils. 2. Cliquez dans le champ de la touche. 3.
-Appuyez sur la touche voulue.
+#strong[Per assegnare un tasto:] 1. Apri le impostazioni della clip
+(tasto destro sulla card) oppure la finestra #strong[Keybinds] dal menu
+Strumenti. 2. Clicca nel campo del tasto. 3. Premi il tasto desiderato.
 
-#strong[Touches disponibles.] Pratiquement n'importe laquelle~: lettres
-(A--Z), chiffres (0--9), pavé numérique, barre d'espace, touches de
-fonction libres. Si la touche est déjà attribuée à un autre clip, le
-logiciel signale le conflit avant d'écraser quoi que ce soit, pour
-éviter les doublons invisibles.
+#strong[Tasti disponibili.] Quasi qualsiasi tasto: lettere (A--Z),
+numeri (0--9), tastierino numerico, barra spaziatrice, tasti funzione
+liberi. Se il tasto è già assegnato a un'altra clip, il software segnala
+il conflitto prima di sovrascrivere, così non crei doppioni invisibili.
 
-#strong[Sécurité pendant la saisie.] Les touches personnalisées se
-désactivent automatiquement dès que vous êtes en train de saisir du
-texte, par exemple pour renommer un clip ou écrire une note, ce qui
-évite les lancements accidentels pendant que vous tapez.
+#strong[Sicurezza durante la digitazione.] I tasti personalizzati
+vengono disabilitati automaticamente quando sei in modalità di
+inserimento testo (stai rinominando una clip o scrivendo una nota).
+Questo previene lanci accidentali mentre digiti.
 
-== 8.3 Contrôleurs MIDI
-<contrôleurs-midi>
-Le MIDI reste le choix professionnel pour un contrôle physique, tactile
-et fiable. RLMP prend en charge les contrôleurs USB-MIDI~: claviers,
-pads (par exemple Novation Launchpad), contrôleurs à faders (par exemple
-Korg nanoKONTROL2), surfaces de contrôle hybrides.
+== 8.3 Controller MIDI
+Il MIDI è la scelta professionale per un controllo fisico, tattile e
+affidabile. RLMP supporta i controller USB-MIDI: tastiere, pad (es.
+Novation Launchpad), controller a fader (es. Korg nanoKONTROL2),
+superfici di controllo ibride.
 
-=== Connexion
-Branchez le contrôleur USB à l'ordinateur, puis lancez RLMP. Le logiciel
-détecte les périphériques via la Web MIDI API du système et reconnaît en
-temps réel la connexion ou la déconnexion d'un contrôleur. La plupart
-des contrôleurs USB-MIDI sont #emph[class-compliant] et se passent de
-driver \; pour les surfaces professionnelles à driver propriétaire,
-installez ce dernier avant de brancher l'appareil.
+=== Collegamento
+Collega il controller USB al computer e avvia RLMP. Il software rileva i
+dispositivi tramite la Web MIDI API del sistema e riconosce in tempo
+reale la connessione e la disconnessione di un controller. La maggior
+parte dei controller USB-MIDI è #emph[class-compliant] e non richiede
+driver; per superfici professionali con driver proprietari, installa il
+driver prima di collegare il dispositivo.
 
 === MIDI Learn
-Nul besoin de connaître la numérotation des notes MIDI ni de configurer
-les messages à la main~: l'apprentissage se fait via le mode
-#strong[MIDI Learn], accessible depuis le menu Outils (ou depuis la
-fenêtre Raccourcis).
+RLMP non richiede di conoscere la numerazione delle note MIDI né di
+configurare i messaggi a mano. L'apprendimento avviene tramite la
+modalità #strong[MIDI Learn], dal menu Strumenti (o dalla finestra
+Keybinds).
 
-#strong[Pour mapper un clip à une touche/pad~:] 1. Activez MIDI Learn.
-Les cartes entrent en état d'attente. 2. Sélectionnez le clip (ou la
-cellule du pad FX) à mapper. 3. Jouez la note, appuyez sur le pad ou sur
-la touche du contrôleur. Le badge `M` avec le numéro de note apparaît
-sur la carte.
+#strong[Per mappare una clip a un tasto/pad:] 1. Attiva MIDI Learn. Le
+card entrano in stato di attesa. 2. Seleziona la clip (o la cella del
+pad FX) da mappare. 3. Suona la nota, premi il pad o il tasto sul
+controller. Il badge `M` con il numero di nota compare sulla card.
 
-#strong[Pour mapper les fonctions globales~:] - Sélectionnez
-#strong[STOP ALL] et appuyez sur une touche du contrôleur~: cette touche
-exécutera le Stop All. - Sélectionnez le #strong[Master Volume] et
-bougez un fader ou un potentiomètre~: cette commande gérera le volume
-master de façon continue.
+#strong[Per mappare le funzioni globali:] - Seleziona #strong[STOP ALL]
+e premi un tasto sul controller: quel tasto eseguirà lo Stop All. -
+Seleziona il #strong[Master Volume] e muovi un fader o una manopola:
+quel controllo gestirà il volume master in modo continuo.
 
-Une fois le mapping terminé, désactivez MIDI Learn pour revenir au mode
-opérationnel.
+Al termine, disattiva MIDI Learn per tornare alla modalità operativa.
 
-=== Types de messages pris en charge
-#strong[Note On] --- messages générés par des boutons, des pads et des
-touches. Parfaits pour le lancement des clips et des actions globales~:
-RLMP répond dès l'appui de la touche et reconnaît tous les canaux MIDI.
-Les messages Note Off, eux, sont ignorés.
+=== Tipi di messaggi supportati
+#strong[Note On] --- messaggi generati da pulsanti, pad e tasti. Ideali
+per il lancio delle clip e delle azioni globali; RLMP risponde alla
+pressione del tasto e riconosce tutti i canali MIDI. I messaggi Note Off
+vengono ignorati.
 
-#strong[Control Change (CC)] --- messages générés par des faders et des
-potentiomètres, avec une valeur continue de 0 à 127. Parfaits pour le
-Master Volume~: un fader physique mappé sur le master reste la façon la
-plus naturelle de contrôler le niveau de sortie.
+#strong[Control Change (CC)] --- messaggi generati da fader e
+potenziometri, con valore continuo da 0 a 127. Ideali per il Master
+Volume: un fader fisico mappato sul master offre il controllo più
+naturale del livello di uscita.
 
-=== Portabilité des mappings
-<portabilité-des-mappings>
-Les mappings MIDI des #strong[clips] sont enregistrés dans le fichier de
-projet `.lmp`~: transportez le projet sur un autre ordinateur équipé du
-même contrôleur, et ils fonctionnent sans reconfiguration. Les mappings
-des #strong[fonctions globales] (Stop All, Master Volume), en revanche,
-sont liés à l'ordinateur~: enregistrés dans les préférences locales de
-l'application, ils restent valables pour tous les projets de cette
-machine.
+=== Portabilità delle mappature
+<portabilità-delle-mappature>
+Le mappature MIDI delle #strong[clip] sono salvate nel file di progetto
+`.lmp`: portando il progetto su un altro computer con lo stesso
+controller, funzioneranno senza riconfigurazione. Le mappature delle
+#strong[funzioni globali] (Stop All, Master Volume) sono invece legate
+al computer, salvate nelle preferenze locali dell'applicazione, e
+restano valide per tutti i progetti su quella macchina.

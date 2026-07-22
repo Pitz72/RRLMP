@@ -1,265 +1,258 @@
 #import "../lib/manuale-template.typ": *
 
-= L'interface de travail
+= L'interfaccia di lavoro
 
-L'interface de Runtime Live Machine Pro a été pensée pour le contexte le
-plus exigeant qui soit~: le direct. Le thème sombre, le fort contraste,
-la taille des commandes --- chaque choix visuel répond à un besoin
-fonctionnel précis. Rien d'esthétique ici pour le seul plaisir des
-yeux~: tout sert l'ergonomie.
+L'interfaccia di Runtime Live Machine Pro è costruita per il contesto
+operativo più esigente: la diretta. Ogni scelta visiva --- il tema
+scuro, l'alto contrasto, le dimensioni dei controlli --- risponde a un
+requisito funzionale. Non è estetica per l'estetica, ma ergonomia.
 
-À l'ouverture d'un projet, l'écran se divise en deux zones~: la
-#strong[barre de contrôle], en haut, qui gère le projet et le système,
-et la #strong[grille de régie], au centre, où se joue le travail réel.
+Quando apri un progetto, lo schermo si divide in due zone distinte: la
+#strong[Barra di Controllo] in alto, che gestisce il progetto e il
+sistema, e la #strong[Griglia di Regia] centrale, dove si svolge il
+lavoro effettivo.
 
-== 3.1 La barre de contrôle (en-tête)
-<la-barre-de-contrôle-en-tête>
-L'en-tête occupe toute la largeur de l'écran. De gauche à droite se
-succèdent l'identité du logiciel, les commandes sur les fichiers, le
-monitoring et les commandes de transport, le menu des outils, puis les
-indicateurs de session.
+== 3.1 La Barra di Controllo (Header)
+L'header occupa l'intera larghezza dello schermo. Procedendo da sinistra
+a destra, raccoglie l'identità del software, i comandi sui file, il
+monitoraggio e i controlli di trasporto, il menu degli strumenti e gli
+indicatori di sessione.
 
-=== Identité
-<identité>
-#strong[Logo et badge PRO.] À gauche, le logo côtoie l'inscription
-#strong[RLM PRO], dont le mot «~PRO~» affiche un dégradé iridescent
-passant du cyan au vert, à l'ambre, puis au rouge. À côté, en caractères
-à chasse fixe, figure la version installée (`v1.15.10`). Survolez le
-logo à la souris~: le nom complet du logiciel apparaît avec son numéro
-de version.
+=== Identità
+<identità>
+#strong[Logo e badge PRO.] A sinistra, il logo affianca la scritta
+#strong[RLM PRO] --- la parola «PRO» è resa con un gradiente iridescente
+che passa dal ciano al verde, all'ambra, al rosso. Accanto, in caratteri
+monospazio, è riportata la versione installata (`v1.15.15`). Passando il
+mouse sul logo compare il nome completo del software con il numero di
+versione.
 
-=== Menu Fichier
-Le bouton #strong[FILE] ouvre un menu regroupant les opérations sur les
-projets~:
+=== Menu File
+Il pulsante #strong[FILE] apre un menu con le operazioni sui progetti:
 
-- #emph[Nouveau Projet] --- ouvre une session vide. En cas de
-  modifications non enregistrées, le logiciel demande confirmation.
-- #emph[Enregistrer le projet] --- enregistrement rapide sur le fichier
-  `.lmp` courant. L'entrée se met en jaune lorsqu'il y a des
-  modifications non enregistrées.
-- #emph[Enregistrer sous…] --- ouvre toujours la boîte de dialogue, pour
-  créer des versions progressives (ex. `Ep47_brouillon.lmp`,
-  `Ep47_final.lmp`).
-- #emph[Exporter le projet avec l'audio] --- consolide tout l'audio à
-  l'intérieur du projet (sous-dossier `audio/`) et y repointe les clips,
-  ce qui vous permet de supprimer les originaux en toute sécurité.
-  Décrit au Chapitre 10.
-- #emph[Charger un Projet] --- ouvre un projet `.lmp` depuis le disque.
-- #emph[Importer playlist M3U] --- importe une playlist au format M3U
-  comme séquence de clips.
+- #emph[Nuovo Progetto] --- apre una sessione vuota. Se ci sono
+  modifiche non salvate, il software chiede conferma.
+- #emph[Salva Progetto] --- salvataggio rapido sul file `.lmp` corrente.
+  La voce si evidenzia in giallo quando ci sono modifiche non salvate.
+- #emph[Salva Come…] --- apre sempre la finestra di dialogo, per creare
+  versioni progressive (es. `Ep47_bozza.lmp`, `Ep47_finale.lmp`).
+- #emph[Esporta progetto con audio] --- consolida tutto l'audio dentro
+  il progetto (sottocartella `audio/`) e vi ripunta le clip, così puoi
+  cancellare gli originali in sicurezza. Descritto nel Capitolo 10.
+- #emph[Carica Progetto] --- apre un progetto `.lmp` dal disco.
+- #emph[Importa M3U] --- importa una playlist in formato M3U come
+  sequenza di clip.
 
-=== Monitoring et transport
-#strong[VU meter stéréo (L/R).] Deux barres horizontales affichent le
-niveau audio réel en sortie, après le Master Volume. L'échelle
-chromatique parle d'elle-même~: vert jusqu'à environ 85 % du parcours,
-puis jaune, puis rouge en approchant du fond d'échelle. Un rouge qui
-persiste signale un écrêtage --- baissez le niveau.
+=== Monitoraggio e trasporto
+#strong[VU Meter stereo (L/R).] Due barre orizzontali mostrano il
+livello audio reale in uscita dopo il Master Volume. La scala cromatica
+è intuitiva: verde fino a circa l'85% del percorso, poi giallo, infine
+rosso in prossimità del fondo scala. Il rosso persistente segnala
+clipping: riduci il livello.
 
-#strong[Master Volume.] Ce fader contrôle le volume général de sortie,
-de 0 à 100 %. Ramené à zéro, plus aucun son ne sort, quel que soit
-l'état des clips individuels --- c'est un vrai fader master. Un petit
-badge signale l'attribution si vous avez mappé une commande MIDI dessus.
+#strong[Master Volume.] Il fader controlla il volume generale di uscita
+del software, da 0 a 100%. Agisce come un fader master: portato a zero,
+nessun suono esce, indipendentemente dallo stato delle singole clip. Se
+hai mappato un controllo MIDI sul Master Volume, un piccolo badge ne
+mostra l'assegnazione.
 
-#strong[STOP ALL (bouton rouge «~ALL~»).] Arrête instantanément tous les
-clips actifs et remet à zéro les fondus en cours~: c'est la commande
-d'urgence du système. La touche `Échap` fait exactement la même chose
-quand l'application est au premier plan, y compris pendant la saisie de
-texte dans un champ.
+#strong[STOP ALL (pulsante rosso «ALL»).] Ferma istantaneamente tutte le
+clip attive e azzera i fade in corso. È il comando di emergenza del
+sistema. Il tasto `Esc` sulla tastiera esegue la stessa funzione quando
+l'applicazione è a fuoco --- anche mentre stai scrivendo in un campo di
+testo.
 
 #nota[
-Contrairement aux versions précédentes, `Échap` n'est
-plus un raccourci global du système~: elle n'agit que si RLMP est la
-fenêtre active. Les boîtes de dialogue peuvent ainsi utiliser `Échap`
-pour se fermer sans interrompre le direct.
+A differenza delle versioni precedenti, `Esc` non è più
+registrato come scorciatoia globale di sistema: agisce quando RLMP è la
+finestra attiva. Questa scelta consente alle finestre di dialogo di
+usare `Esc` per chiudersi senza fermare la diretta.
 ]
 
-#strong[FX.] Ouvre et ferme le pad FX, la #emph[jingle machine] des
-effets (Chapitre 7). Un petit compteur indique le nombre d'effets en
-cours de lecture.
+#strong[FX.] Apre e chiude il pad FX, la #emph[jingle machine] degli
+effetti (Capitolo 7). Un piccolo contatore segnala quanti effetti sono
+in riproduzione in quel momento.
 
-#strong[MIX.] Ouvre et ferme la vue Automix, le deck dédié à la colonne
-Musique (Chapitre 7).
+#strong[MIX.] Apre e chiude la vista Automix, il deck dedicato alla
+colonna Musica (Capitolo 7).
 
-=== Outils
-Le menu #strong[Outils] (icône clé anglaise) regroupe~:
+=== Strumenti
+Il menu #strong[Strumenti] (icona a chiave inglese) raccoglie:
 
-- #emph[Annuler] et #emph[Répéter] --- l'historique des modifications
-  apportées à la conduite (`Ctrl+Z` / `Ctrl+Y`).
-- #emph[Apprentissage MIDI] --- active le mode d'apprentissage MIDI
-  (Chapitre 8).
-- #emph[Raccourcis & tableau MIDI] --- la fenêtre d'attribution des
-  touches aux clips.
-- #emph[Paramètres généraux] --- les préférences globales du logiciel
-  (Chapitre 13).
-- #emph[Infos & Mises à jour] --- version, crédits et vérification
-  manuelle des mises à jour.
+- #emph[Annulla] e #emph[Ripeti] --- la cronologia delle modifiche alla
+  scaletta (`Ctrl+Z` / `Ctrl+Y`).
+- #emph[MIDI Learn] --- attiva la modalità di apprendimento MIDI
+  (Capitolo 8).
+- #emph[Keybinds] --- la finestra di assegnazione dei tasti alle clip.
+- #emph[Impostazioni] --- le preferenze globali del software (Capitolo
+  13).
+- #emph[Info] --- versione, crediti e controllo manuale degli
+  aggiornamenti.
 
-Juste sous le menu, l'indicateur #emph[Auto-saved] apparaît brièvement
-pour confirmer l'enregistrement automatique du projet.
+Poco sotto il menu compare per qualche istante l'indicatore
+#emph[Auto-saved], a conferma che il progetto è stato salvato
+automaticamente.
 
-#figure(image("../screenshots-fr/barra-controllo.png", alt: "Figure 3.1 — La barre de contrôle et le menu Outils ouvert (Annuler/Répéter, Apprentissage MIDI, Raccourcis, Paramètres généraux, Infos)."),
+#figure(image("../screenshots/barra-controllo.png", alt: "Figura 3.1 — La Barra di Controllo e il menu Strumenti aperto (Annulla/Ripeti, MIDI Learn, Keybinds, Impostazioni Generali, Info)."),
   caption: [
-    Figure 3.1 --- La barre de contrôle et le menu Outils ouvert
-    (Annuler/Répéter, Apprentissage MIDI, Raccourcis, Paramètres
-    généraux, Infos).
+    Figura 3.1 --- La Barra di Controllo e il menu Strumenti aperto
+    (Annulla/Ripeti, MIDI Learn, Keybinds, Impostazioni Generali, Info).
   ]
 )
 
-=== Indicateurs de session
-À droite de l'en-tête se trouvent le bouton du #strong[Playout Log] (le
-registre chronologique des lancements, Chapitre 13), le bouton
-d'#strong[Enregistrement] (Chapitre 9), le #strong[minuteur On Air] (qui
-affiche `ON AIR HH:MM:SS` sur fond rouge une fois en direct) et
-l'#strong[horloge de studio] numérique au format 24 heures, calée sur
-l'horloge système.
+=== Indicatori di sessione
+Sul lato destro dell'header trovano posto il pulsante del
+#strong[Playout Log] (il registro cronologico dei lanci, Capitolo 13),
+il pulsante di #strong[Registrazione] (Capitolo 9), il #strong[Timer On
+Air] (che quando è in diretta mostra `ON AIR HH:MM:SS` su fondo rosso) e
+l'#strong[orologio di studio] digitale in formato 24 ore, sincronizzato
+con l'orologio di sistema.
 
-Des notifications discrètes (#strong[toast]) peuvent également
-apparaître dans l'en-tête pour signaler une opération terminée ou un
-avertissement système. À la différence des boîtes de dialogue
-bloquantes, elles disparaissent seules après quelques secondes sans
-interrompre la lecture.
+Nell'area dell'header possono comparire inoltre notifiche non intrusive
+(#strong[toast]) relative a operazioni completate o avvisi di sistema. A
+differenza dei dialog bloccanti, i toast scompaiono da soli dopo pochi
+secondi e non interrompono la riproduzione.
 
-== 3.2 La grille à six colonnes
-<la-grille-à-six-colonnes>
-#figure(image("../screenshots-fr/interfaccia-principale.png", alt: "Figure 3.2 — L’interface de travail : la grille à six colonnes avec les cartes audio."),
+== 3.2 La griglia a sei colonne
+#figure(image("../screenshots/interfaccia-principale.png", alt: "Figura 3.2 — L’interfaccia di lavoro: la griglia a sei colonne con le card audio."),
   caption: [
-    Figure 3.2 --- L'interface de travail~: la grille à six colonnes
-    avec les cartes audio.
+    Figura 3.2 --- L'interfaccia di lavoro: la griglia a sei colonne con
+    le card audio.
   ]
 )
 
-La grille est le centre opérationnel du logiciel~: six colonnes
-verticales côte à côte, chacune avec son en-tête coloré et sa propre
-logique de comportement audio. Les effets sonores n'y ont pas leur
-place~: ils vivent dans le pad FX (Chapitre 7).
+La griglia è il centro operativo del software: sei colonne verticali
+affiancate, ciascuna con una propria intestazione cromatica e una
+propria logica di comportamento audio. Gli effetti sonori non hanno una
+colonna in griglia: vivono nel pad FX (Capitolo 7).
 
-=== En-têtes de colonne
-<en-têtes-de-colonne>
-Chaque en-tête affiche le nom de la colonne, sa catégorie, et sert aussi
-d'indicateur d'état. En temps normal, il reste statique, coloré dans la
-teinte propre à la colonne. Mais si le clip en lecture est le dernier
-disponible, qu'il n'est pas en boucle et qu'il reste moins de #strong[20
-secondes] avant la fin, l'en-tête bascule en alerte #strong[DEAD AIR]~:
-il pulse, vire à l'ambre, affiche une icône d'avertissement et le badge
-#strong[END]. De quoi avoir le temps de préparer la piste suivante avant
-que le silence ne s'installe.
+=== Intestazioni di colonna
+Ogni intestazione riporta il nome della colonna, la sua tipologia e
+funge da indicatore di stato. In condizioni normali è statica e colorata
+nel tono caratteristico della colonna. Quando la clip in riproduzione è
+l'ultima disponibile della colonna, non è in loop e mancano meno di
+#strong[20 secondi] alla fine, l'intestazione entra in allarme
+#strong[DEAD AIR]: pulsa, vira all'ambra, mostra un'icona di avviso e il
+badge #strong[END]. È l'anticipo che ti dà il tempo di preparare la
+traccia successiva prima del silenzio.
 
-Chaque couleur de colonne se personnalise~: un clic sur la pastille
-colorée de l'en-tête ouvre une palette de #strong[30 teintes], et le
-choix est enregistré dans le fichier de projet.
+Il colore di ogni colonna è personalizzabile: clicca sul pallino
+colorato nell'intestazione per aprire una palette di #strong[30 tinte].
+La scelta viene salvata nel file di progetto.
 
-Lorsqu'une colonne contient au moins un clip, une icône de
-#strong[corbeille] apparaît dans son en-tête : la commande #strong[Vider
-la colonne] retire d'un seul coup tous les clips de cette colonne. Par
-sécurité, elle demande toujours confirmation en indiquant combien de
-clips seront retirés, et l'opération est réversible via #emph[Annuler]
-(`Ctrl+Z`). Sur les colonnes vides, l'icône n'apparaît pas.
+Quando una colonna contiene almeno una clip, nell'intestazione compare
+un'icona a #strong[cestino]: il comando #strong[Svuota colonna] rimuove
+in un colpo solo tutte le clip di quella colonna. Per sicurezza chiede
+sempre conferma, indicando quante clip verranno rimosse, e l'operazione
+è reversibile con #emph[Annulla] (`Ctrl+Z`). Sulle colonne vuote l'icona
+non appare.
 
-L'en-tête de la colonne #strong[Pré-émission] porte en plus un bouton de
-#strong[rotation]~: une fois activé, il insère automatiquement jingles
-et promos à intervalles réguliers dans la file d'attente d'avant-direct
-(Chapitre 13).
+Sull'intestazione della colonna #strong[Pre-Show] compare inoltre un
+pulsante di #strong[rotazione]: quando è attivo, la coda pre-diretta
+inserisce automaticamente jingle e promo a intervalli regolari (Capitolo
+13).
 
-=== Les six colonnes
-#strong[Show Assets (Vert)] Ce sont les éléments structurels de
-l'émission~: génériques, bases musicales, ambiances (#emph[bed]),
-stacchi institutionnels. Ils se comportent en éléments de second plan,
-cédant de l'espace dès qu'une voix ou un morceau arrive, mais gardent
-leur rotation interne tant qu'on ne les arrête pas.
+=== Le sei colonne
+#strong[Show Assets (Verde)] Gli elementi strutturali dello show: sigle,
+basi musicali, sottofondi (#emph[bed]), stacchi istituzionali. Si
+comportano come elementi di secondo piano: cedono spazio quando
+sopraggiungono voci o canzoni, ma mantengono la rotazione interna finché
+non vengono fermate.
 
-#strong[Jingle (Ambre)] et #strong[Promo (Cyan)] Ces deux colonnes
-accueillent respectivement les jingles identitaires et les promos ou
-autopromotions. Sur le plan audio, elles se comportent exactement comme
-les Show Assets, dont elles partagent la famille \; les séparer garde
-simplement la conduite lisible.
+#strong[Jingle (Ambra)] e #strong[Promo (Ciano)] Due colonne dedicate,
+rispettivamente, ai jingle identificativi e alle promo o autopromozioni.
+Sul piano audio si comportano esattamente come gli Show Assets
+(appartengono alla stessa famiglia), ma tenerle separate mantiene la
+scaletta ordinata e leggibile.
 
-#strong[Musiques de l'épisode (Rouge)] C'est la playlist musicale. Ses
-clips participent activement au mixage automatique~: baissés quand une
-voix intervient, ils font eux-mêmes taire les bases des Assets dès
-qu'ils entrent en lecture (Chapitre 6). Le logiciel détecte
-automatiquement leur #strong[BPM], affiché par un badge dédié.
+#strong[Canzoni dell'episodio (Rosso)] La playlist musicale. Le clip di
+questa colonna partecipano attivamente al mixaggio automatico: vengono
+abbassate quando suonano le voci e, a loro volta, silenziano le basi
+degli Assets quando entrano in riproduzione (Capitolo 6). Sulle clip
+musicali il software rileva automaticamente il #strong[BPM], mostrato
+con un apposito badge.
 
-#strong[Voix / Enregistrements (Orange)] Interviews, blocs parlés
-préenregistrés, messages vocaux~: cette colonne détient la
-#strong[priorité maximale] du système de mixage. Dès qu'un de ses clips
-joue, tous les autres signaux passent à un niveau d'arrière-plan.
+#strong[Voci / Preregistrazioni (Arancione)] Interviste, blocchi parlati
+preregistrati, messaggi vocali. Questa colonna ha la #strong[priorità
+massima] nel sistema di mixaggio: quando una clip qui è in riproduzione,
+tutti gli altri segnali vengono abbassati a un livello di sottofondo.
 
-#strong[Pré-émission (Violet)] C'est la playlist d'échauffement avant le
-direct, une file musicale autonome avec rotation optionnelle de jingles
-et de promos. Une fois le direct lancé, cette colonne est en général
-vidée ou désactivée.
+#strong[Pre-Show (Viola)] La playlist di riscaldamento pre-diretta.
+Funziona come una coda musicale autonoma, con rotazione opzionale di
+jingle e promo. Quando inizia la diretta vera e propria, questa colonna
+viene tipicamente svuotata o disattivata.
 
-== 3.3 La carte audio (clip)
-Chaque fichier audio importé prend la forme d'une #strong[carte]
-rectangulaire dans la grille. C'est l'unité opérationnelle du système~:
-on la voit, on la lance, on la configure, on la déplace.
+== 3.3 La Card Audio (Clip)
+Ogni file audio importato si materializza nella griglia come una
+#strong[card] rettangolare. La card è l'unità operativa del sistema: la
+vedi, la lanci, la configuri, la sposti.
 
-=== Anatomie d'une carte
-#strong[Titre et artiste.] C'est le nom du fichier, ou un nom
-personnalisé attribué dans les propriétés. Ce titre personnalisé ne
-change que l'étiquette affichée dans le logiciel~: le fichier original
-reste intact sur le disque. Sur les clips musicaux, le nom de l'artiste
-peut s'afficher sous le titre.
+=== Anatomia di una card
+#strong[Titolo e artista.] Il nome del file o il nome personalizzato
+assegnato nelle proprietà. Il titolo personalizzato cambia solo
+l'etichetta nel software; il file originale sul disco rimane intatto.
+Per le clip musicali, sotto il titolo può comparire il nome
+dell'artista.
 
-#strong[Minuteur.] À l'arrêt, il affiche la durée totale du clip au
-format `MM:SS`. Pendant la lecture, il bascule en #strong[compte à
-rebours] avec un signe négatif (ex. `−01:20`), puis passe au
-#strong[rouge] à moins de 15 secondes de la fin.
+#strong[Timer.] A riposo, mostra la durata totale della clip nel formato
+`MM:SS`. Durante la riproduzione passa al #strong[conto alla rovescia],
+con il prefisso negativo (es. `−01:20`). Quando mancano meno di 15
+secondi alla fine, il timer diventa #strong[rosso].
 
-#strong[Badges d'état.] De petites étiquettes communiquent immédiatement
-les propriétés configurées~:
+#strong[Badge di stato.] Piccole etichette comunicano in modo immediato
+le proprietà configurate:
 
-- #strong[STACCO] --- le clip est réglé pour se superposer aux autres
-  sans les arrêter.
-- #strong[LOOP] --- le clip repartira du début à la fin de la lecture.
-- #strong[NEXT] --- à la fin de ce clip, le suivant de la colonne
-  démarrera automatiquement.
-- #strong[▶ UP NEXT] --- met en évidence quel clip sera le prochain à
-  partir dans la séquence automatique.
-- #strong[\#\#\# BPM] --- le tempo détecté, sur les clips musicaux, sur
-  un badge jaune fluo à haute visibilité.
-- #strong[I \#\#s] --- le clip a un point d'Intro configuré (Chapitre 5)
-  : le badge, en cyan, en indique la durée en secondes et reste toujours
-  visible, même clip à l'arrêt.
-- #strong[TRIM…] --- analyse du silence en cours (Auto-Trim).
-- #strong[FADE OUT] --- apparaît sur le clip sortant pendant un
-  crossfade ou un fondu.
-- #strong[📋] --- le clip a une note associée dans la NoteBoard
-  (Chapitre 13).
+- #strong[LOOP] --- la clip ripartirà dall'inizio al termine della
+  riproduzione.
+- #strong[NEXT] --- al termine di questa clip partirà automaticamente la
+  successiva nella colonna.
+- #strong[▶ UP NEXT] --- evidenzia quale clip sarà la prossima a partire
+  nella sequenza automatica.
+- #strong[\#\#\# BPM] --- il tempo rilevato, sulle clip musicali, su un
+  badge giallo fluorescente ad alta visibilità.
+- #strong[I \#\#s] --- la clip ha un punto di Intro configurato
+  (Capitolo 5): il badge, in ciano, ne indica la durata in secondi ed è
+  sempre visibile, anche a clip ferma.
+- #strong[TRIM…] --- analisi del silenzio in corso (Auto-Trim).
+- #strong[FADE OUT] --- appare sulla clip uscente durante un crossfade o
+  una dissolvenza.
+- #strong[📋] --- la clip ha una nota associata nella NoteBoard
+  (Capitolo 13).
 
-#strong[Attributions.] Une touche assignée au clip affiche sa lettre
-dans un badge à la couleur de la colonne \; un binding MIDI affiche
-l'étiquette `M` suivie du numéro de note (ex. `M60`).
+#strong[Assegnazioni.] Se la clip ha un tasto della tastiera assegnato,
+la lettera compare in un badge dal colore della colonna; se ha un
+binding MIDI, compare l'etichetta `M` seguita dal numero di nota (es.
+`M60`).
 
-#strong[Repères de structure.] Une fois les marqueurs configurés, la
-lecture affiche les comptes à rebours `INTRO: −MM:SS` (en cyan) puis
-`OUTRO IN: −MM:SS` (en orange), jusqu'à l'avis `🚨 OUTRO` au début de la
-coda.
+#strong[Cue di struttura.] Se sono configurati i marker, durante la
+riproduzione compaiono i conti alla rovescia `INTRO: −MM:SS` (in ciano)
+e `OUTRO IN: −MM:SS` (in arancione), fino all'avviso `🚨 OUTRO` quando
+la coda è iniziata.
 
-#strong[Indicateur de lecture.] Un clip en lecture illumine sa carte~:
-bordure verte, halo lumineux en fond, pastille pulsante, titre mis en
-évidence. La barre de progression défile en arrière-plan de la carte.
+#strong[Indicatore di riproduzione.] Quando una clip è in play, la card
+si accende: bordo verde, sfondo con un alone luminoso, un pallino
+pulsante e il titolo evidenziato. La barra di avanzamento scorre sullo
+sfondo della card.
 
-=== Interaction avec les cartes
-- #strong[Clic gauche] --- lance le clip à l'arrêt, ou l'arrête (avec
-  fondu de sortie) s'il joue déjà.
-- #strong[Ctrl + clic] (Windows/Linux) ou #strong[Cmd + clic] (macOS)
-  --- sélectionne le clip sans le lancer. La bordure devient bleue.
-  Utile pour la sélection multiple et la suppression groupée.
-- #strong[Touche Suppr] (ou #emph[Delete] / #emph[Backspace]) ---
-  supprime les clips sélectionnés de la grille. Si plusieurs clips sont
-  sélectionnés, le logiciel demande confirmation.
-- #strong[Clic droit] --- ouvre les #strong[Paramètres du clip]~:
-  propriétés, éditeur de forme d'onde, notes (Chapitre 5).
-- #strong[Glisser-déposer] --- faites glisser une carte pour la
-  réorganiser dans la colonne ou la déplacer vers une autre. Un
-  indicateur lumineux bleu montre la position d'insertion pendant le
-  glissement.
+=== Interazione con le card
+- #strong[Click sinistro] --- avvia la clip se è ferma; la ferma (con
+  fade out) se è in riproduzione.
+- #strong[Ctrl + Click] (Windows/Linux) o #strong[Cmd + Click] (macOS)
+  --- seleziona la clip senza avviarla. Il bordo diventa blu. Utile per
+  la selezione multipla e la cancellazione in blocco.
+- #strong[Tasto Canc] (o #emph[Delete] / #emph[Backspace]) --- cancella
+  le clip selezionate dalla griglia. Se sono selezionate più clip, il
+  software chiede conferma.
+- #strong[Tasto destro] --- apre le #strong[Impostazioni della clip]:
+  proprietà, editor della forma d'onda, note (Capitolo 5).
+- #strong[Drag & Drop] --- trascina una card per riordinarla all'interno
+  della colonna o spostarla in un'altra. Un indicatore luminoso blu
+  mostra la posizione di inserimento durante il trascinamento.
 
-=== Carte en état d'erreur
-<carte-en-état-derreur>
-Une carte affichant #strong[FICHIER MANQUANT] avec une bordure rouge
-signale un fichier audio devenu inaccessible~: déplacé, renommé, ou
-situé sur un disque externe débranché. Le clip reste illisible tant que
-le fichier n'a pas retrouvé son chemin d'origine. La gestion de ces
-erreurs de chemin est détaillée au Chapitre 14.
+=== Card in stato di errore
+Una card con l'indicazione #strong[FILE MANCANTE] e il bordo rosso
+segnala che il file audio referenziato non è più raggiungibile: è stato
+spostato, rinominato o si trova su un disco esterno non collegato. La
+clip non è riproducibile finché il file non torna disponibile nel
+percorso originale. La gestione degli errori di percorso è trattata nel
+Capitolo 14.

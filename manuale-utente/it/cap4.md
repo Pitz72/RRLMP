@@ -63,9 +63,7 @@ Se alla clip è stato assegnato un tasto della tastiera (vedi Capitolo 8), quel 
 
 Nella maggior parte delle colonne, RLMP applica la regola **«una clip alla volta»**: se stai riproducendo il *Brano A* nella colonna Canzoni e clicchi sul *Brano B* nella stessa colonna, il *Brano A* si ferma (con fade out) e il *Brano B* parte. Non è necessario fermare manualmente la clip in corso prima di avviarne un'altra.
 
-Gli **effetti del pad FX** sono l'eccezione principale: si sovrappongono a tutto, inclusi altri effetti, e non interrompono ciò che sta suonando. Un applauso può partire mentre una canzone è in corso senza interromperne la riproduzione.
-
-Anche le clip con il comportamento **Stacco** (configurabile nelle proprietà, vedi Capitolo 5) si sovrappongono senza fermare le altre clip della colonna, indipendentemente da dove si trovano.
+Gli **effetti del pad FX** sono l'eccezione: si sovrappongono a tutto, inclusi altri effetti, e non interrompono ciò che sta suonando. Un applauso può partire mentre una canzone è in corso senza interromperne la riproduzione.
 
 ---
 

@@ -19,7 +19,7 @@ Quando una clip voce è in riproduzione, resta al proprio volume nominale e tutt
 Cedono spazio alle Voci, ma comandano sulle basi degli Assets. Quando entra una canzone, le basi musicali degli Assets si azzerano (non si fermano: continuano a girare in silenzio, pronte per il ritorno). È la Music Dominance, descritta più avanti.
 
 **Show Assets, Jingle e Promo — le basi di servizio.**
-Vengono abbassati dalle Voci e silenziati dalle Canzoni. Quando un asset è uno **Stacco**, però, diventa lui a comandare (vedi §6.4).
+Vengono abbassati dalle Voci e silenziati dalle Canzoni.
 
 **Effetti del pad FX.**
 Gli effetti sonori restano fuori dalla gerarchia: suonano al proprio volume, si sovrappongono a ciò che è in onda e non vengono silenziati. C'è una sola cortesia verso il parlato: quando una voce è attiva, gli effetti scendono a metà volume (50%) per non coprirla, poi risalgono da soli.
@@ -53,11 +53,15 @@ RLMP gestisce questo scenario con la **Music Dominance**.
 
 ---
 
-## 6.4 Stacchi: l'eccezione alla regola
+## 6.4 Emergere sopra la gerarchia: effetti e voci
 
-Il comportamento **Stacco** (configurabile nelle proprietà di ogni clip, vedi Capitolo 5) rovescia temporaneamente la gerarchia: la clip che lo porta diventa prioritaria. Silenzia gli altri asset della sua colonna e abbassa la musica, ma non ferma nulla. La dissolvenza applicata è più rapida di quella del ducking ordinario, per un ingresso più percussivo e netto.
+Se un elemento deve emergere sopra ciò che è in onda, le vie sono due, e dipendono da dove metti la clip.
 
-L'uso tipico è lo *station ID* vocale («Stai ascoltando…»): deve sentirsi chiaramente, mentre la base sotto continua a girare. Per un risultato più curato, abbina lo Stacco a un fade in breve (300–500 ms): l'ingresso sarà morbido, non brusco.
+Il **pad FX**: l'effetto suona a volume pieno sopra la musica e non ferma nulla — ideale per stinger e jingle brevi che devono «bucare» il mix senza toccarlo.
+
+La colonna **Voci**: la clip resta al volume nominale e tutto il resto si abbassa con il ducking — ideale per lo *station ID* vocale («Stai ascoltando…») che deve sentirsi chiaramente mentre la base sotto continua a girare. Per un ingresso più curato, abbina un fade in breve (300–500 ms): l'attacco sarà morbido, non brusco.
+
+Nelle versioni precedenti esisteva un comportamento per-clip chiamato «Stacco» che rovesciava la gerarchia. È stato rimosso: la posizione nella gerarchia dipende soltanto dalla colonna in cui la clip si trova, senza eccezioni nascoste nelle proprietà.
 
 ---
 

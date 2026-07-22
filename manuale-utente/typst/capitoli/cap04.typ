@@ -1,174 +1,169 @@
 #import "../lib/manuale-template.typ": *
 
-= Le workflow de base~: charger et diffuser
+= Il workflow base: caricare e riprodurre
 
-Le cycle de travail de Runtime Live Machine Pro tient en trois temps~:
-importer les fichiers audio, les organiser dans la grille, les diffuser
-en direct. Ce chapitre détaille chaque étape avec la précision voulue
-pour travailler sereinement, même sous pression.
+Il ciclo operativo fondamentale di Runtime Live Machine Pro si articola
+in tre fasi: importare i file audio, organizzarli nella griglia,
+riprodurli durante la diretta. Questo capitolo descrive ciascuna fase
+con la precisione necessaria per lavorare in modo sicuro anche sotto
+pressione.
 
-== 4.1 Importer les fichiers audio
-RLMP ne propose ni navigateur de fichiers interne ni bibliothèque
-centralisée. Tout passe par le #strong[glisser-déposer], directement
-depuis le gestionnaire de fichiers du système (Explorateur sous Windows,
-Finder sous macOS, Nautilus ou équivalent sous Linux). Le menu FILE
-permet aussi d'importer une playlist #strong[M3U] et de la convertir en
-séquence de clips.
+== 4.1 Importare i file audio
+RLMP non dispone di un browser interno né di una libreria centralizzata.
+L'importazione avviene tramite #strong[drag & drop] diretto dal file
+manager del sistema operativo (Esplora risorse su Windows, Finder su
+macOS, Nautilus o equivalenti su Linux). In alternativa, dal menu FILE
+puoi importare una playlist #strong[M3U] e trasformarla in una sequenza
+di clip.
 
-=== Le geste de base
-+ Ouvrez le dossier de votre ordinateur où se trouvent les fichiers
-  audio.
-+ Sélectionnez un ou plusieurs fichiers. Pour en sélectionner
-  plusieurs~: `Ctrl+clic` pour une sélection discontinue, `Shift+clic`
-  pour une sélection continue.
-+ Faites glisser les fichiers sélectionnés au-dessus de l'une des
-  colonnes de la grille et relâchez. Pour les effets sonores,
-  glissez-les directement sur le pad FX (Chapitre 7).
+=== Il gesto base
++ Apri la cartella del tuo computer dove si trovano i file audio.
++ Seleziona uno o più file. Per selezionare più file: `Ctrl+Click` per
+  selezione discontinua, `Shift+Click` per selezione continua.
++ Trascina i file selezionati sopra una delle colonne della griglia e
+  rilascia. Per gli effetti sonori, trascinali direttamente sul pad FX
+  (Capitolo 7).
 
-Chaque fichier génère une carte dans la colonne de destination. En cas
-de glissement multiple, les cartes se créent dans l'ordre d'apparition
-des fichiers dans le gestionnaire, de haut en bas.
+Ogni file genera una card nella colonna di destinazione. Se trascini più
+file contemporaneamente, le card vengono create nell'ordine in cui i
+file compaiono nel file manager, dall'alto verso il basso.
 
-#strong[Indicateur d'insertion.] Une ligne bleue lumineuse court le long
-de la colonne pendant le glissement et marque la position exacte
-d'insertion. Vous pouvez ainsi placer un nouveau clip en haut, en bas,
-ou à un endroit précis entre deux autres.
+#strong[Indicatore di inserimento.] Durante il trascinamento, una linea
+blu luminosa scorre lungo la colonna indicando la posizione esatta in
+cui le card verranno inserite. Puoi inserire nuove clip in cima, in
+fondo o in una posizione intermedia con precisione.
 
-=== Formats pris en charge
-Le moteur FFmpeg intégré garantit la compatibilité avec un large
-éventail de formats audio~:
+=== Formati supportati
+Il motore FFmpeg integrato garantisce compatibilità con un'ampia gamma
+di formati audio:
 
 #figure(
   align(center)[#table(
     columns: (33.33%, 33.33%, 33.33%),
     align: (auto,auto,auto,),
-    table.header([Format], [Extension], [Notes],),
+    table.header([Formato], [Estensione], [Note],),
     table.hline(),
-    [MP3], [`.mp3`], [Tous les bitrates],
-    [WAV], [`.wav`], [PCM non compressé, toute profondeur de bits],
-    [FLAC], [`.flac`], [Lossless, tout sample rate],
-    [AAC / M4A], [`.aac`, `.m4a`], [Inclut les fichiers d'iTunes/Apple
-    Music],
+    [MP3], [`.mp3`], [Tutti i bitrate],
+    [WAV], [`.wav`], [PCM non compresso, qualsiasi profondità di bit],
+    [FLAC], [`.flac`], [Lossless, qualsiasi sample rate],
+    [AAC / M4A], [`.aac`, `.m4a`], [Include file da iTunes/Apple Music],
     [OGG Vorbis], [`.ogg`], [],
     [Opus], [`.opus`], [],
     [WMA], [`.wma`], [Windows Media Audio],
-    [WebM / MP4], [`.webm`, `.mp4`], [Pistes audio contenues dans ces
-    conteneurs],
+    [WebM / MP4], [`.webm`, `.mp4`], [Tracce audio contenute in questi
+    container],
   )]
   , kind: table
   )
 
-#strong[Une remarque sur les performances.] Le protocole de streaming
-`media://` évite tout chargement des fichiers audio en mémoire vive au
-moment de l'importation. Un WAV non compressé de 2 Go se comporte
-exactement comme un MP3 de 5 Mo~: chargement instantané, impact
-négligeable sur la mémoire système. Le CPU n'est sollicité que pendant
-le décodage actif, autrement dit pendant la lecture.
+#strong[Una nota sulle prestazioni.] Il protocollo di streaming
+`media://` garantisce che i file audio non vengano caricati in memoria
+RAM al momento dell'importazione. Un file WAV non compresso da 2 GB si
+comporta esattamente come un MP3 da 5 MB: il caricamento è istantaneo e
+l'impatto sulla memoria di sistema è trascurabile. Le risorse della CPU
+vengono impegnate solo durante la decodifica attiva, cioè durante la
+riproduzione.
 
-=== Le chemin des fichiers
-RLMP mémorise le #strong[chemin absolu] du fichier sur le disque, pas
-une copie du fichier. Déplacez, renommez ou supprimez l'original, et la
-carte correspondante devient rouge, illisible. Pour travailler sur
-plusieurs ordinateurs ou créer des archives portables, la fonction
-#strong[Exporter le projet avec l'audio] (Chapitre 10) reste la
-meilleure option.
+=== Il percorso dei file
+RLMP memorizza il #strong[percorso assoluto] del file sul disco, non una
+copia del file stesso. Se sposti, rinomini o cancelli il file originale,
+la card corrispondente diventerà rossa e non sarà più riproducibile. Per
+consolidare l'audio nel progetto (e poter cancellare gli originali in
+sicurezza) o creare archivi portabili, utilizza la funzione
+#strong[Esporta progetto con audio] descritta nel Capitolo 10.
 
-== 4.2 Lecture~: lancer et arrêter les clips
-<lecture-lancer-et-arrêter-les-clips>
-=== Lancer un clip
-Un #strong[clic gauche] sur la carte suffit à lancer la lecture. Le
-retour est immédiat~: la carte s'allume en vert actif, le minuteur passe
-en compte à rebours, et les VU meter de l'en-tête reflètent aussitôt le
-signal de sortie.
+== 4.2 Riproduzione: avviare e fermare le clip
+=== Avviare una clip
+Un #strong[click sinistro] sulla card è sufficiente per avviare la
+riproduzione. Il feedback è immediato: la card si accende nel verde di
+stato attivo, il timer passa al conto alla rovescia e i VU meter
+nell'header riflettono il segnale in uscita.
 
-Si une touche du clavier a été attribuée au clip (voir Chapitre 8), elle
-fait aussi bien l'affaire que le clic. Pratique quand vous travaillez
-ailleurs dans l'interface et préférez ne pas quitter le clavier.
+Se alla clip è stato assegnato un tasto della tastiera (vedi Capitolo
+8), quel tasto funziona come alternativa al click --- utile quando stai
+operando su un'altra parte dell'interfaccia e non vuoi spostare il
+mouse.
 
-=== Arrêter un clip
-<arrêter-un-clip>
-#strong[Clic sur le clip actif] --- le clip entre en phase de
-#strong[fondu de sortie] et s'arrête dans le temps configuré dans ses
-propriétés (voir Chapitre 5).
+=== Fermare una clip
+#strong[Click sulla clip attiva] --- la clip entra nella fase di
+#strong[fade out] e si ferma entro il tempo configurato nelle sue
+proprietà (vedi Capitolo 5).
 
-#strong[Touche `Échap`] --- arrête instantanément tous les clips actifs.
-C'est la commande d'urgence, active dès que RLMP est la fenêtre au
-premier plan, même en pleine saisie dans un champ de texte.
+#strong[Tasto `Esc`] --- ferma tutte le clip attive istantaneamente. È
+il comando di emergenza. Funziona quando RLMP è la finestra attiva,
+anche mentre stai scrivendo in un campo di testo.
 
-#strong[Bouton STOP ALL] dans l'en-tête --- identique à `Échap`,
-accessible à la souris.
+#strong[Pulsante STOP ALL] nell'header --- identico a `Esc`, accessibile
+con il mouse.
 
-=== La logique d'exclusion par colonne
-Dans la plupart des colonnes, RLMP applique la règle #strong[«~un clip à
-la fois~»]~: diffusez le #emph[Morceau A] dans la colonne Musiques,
-cliquez sur le #emph[Morceau B] de la même colonne, et le premier
-s'arrête en fondu pendant que le second démarre. Inutile d'arrêter
-manuellement un clip avant d'en lancer un autre.
+=== La logica di esclusione per colonna
+Nella maggior parte delle colonne, RLMP applica la regola #strong[«una
+clip alla volta»]: se stai riproducendo il #emph[Brano A] nella colonna
+Canzoni e clicchi sul #emph[Brano B] nella stessa colonna, il
+#emph[Brano A] si ferma (con fade out) e il #emph[Brano B] parte. Non è
+necessario fermare manualmente la clip in corso prima di avviarne
+un'altra.
 
-Les #strong[effets du pad FX] échappent à cette règle~: ils se
-superposent à tout, effets compris, sans jamais interrompre ce qui joue
-déjà. Un applaudissement peut ainsi démarrer en plein milieu d'un
-morceau sans en couper la lecture.
+Gli #strong[effetti del pad FX] sono l'eccezione: si sovrappongono a
+tutto, inclusi altri effetti, e non interrompono ciò che sta suonando.
+Un applauso può partire mentre una canzone è in corso senza
+interromperne la riproduzione.
 
-Même logique pour les clips en mode #strong[Stacco] (configurable dans
-les propriétés, Chapitre 5)~: ils se superposent sans jamais arrêter les
-autres clips de leur colonne.
+== 4.3 Organizzare la scaletta
+=== Riordinare le clip
+Durante la preparazione dello show, o anche mentre lo show è in corso,
+puoi riorganizzare l'ordine delle clip in qualsiasi momento.
 
-== 4.3 Organiser la conduite
-=== Réorganiser les clips
-<réorganiser-les-clips>
-L'ordre des clips se réorganise à tout moment, que ce soit pendant la
-préparation de l'émission ou en plein direct.
+#strong[Trascinamento interno.] Clicca su una card, tieni premuto e
+trascinala verso l'alto o verso il basso nella stessa colonna. La linea
+guida blu indica la posizione di inserimento. La clip si inserisce nella
+nuova posizione senza interrompere le riproduzioni in corso.
 
-#strong[Glissement interne.] Cliquez sur une carte, maintenez, puis
-faites-la glisser vers le haut ou le bas dans la même colonne. La ligne
-guide bleue indique où elle s'insérera, sans jamais interrompre les
-lectures en cours.
+#strong[Spostamento tra colonne.] Puoi trascinare una clip da una
+colonna all'altra. Quando lo fai, la clip #strong[eredita le regole
+della colonna di destinazione]: una voce preregistrata spostata nella
+colonna Canzoni inizierà a subire il ducking esattamente come un brano
+musicale.
 
-#strong[Déplacement entre colonnes.] Un clip glissé d'une colonne à
-l'autre #strong[hérite des règles de sa nouvelle colonne]~: une voix
-préenregistrée déplacée vers la colonne Musiques subira le ducking
-exactement comme un morceau musical.
+Spostare le clip tra colonne è un'operazione potente e intenzionale. Usa
+la funzione in modo consapevole, specialmente durante la diretta.
 
-C'est une opération puissante, à réserver à des choix délibérés ---
-d'autant plus prudents pendant un direct.
+=== Selezione multipla e cancellazione
+Per rimuovere più clip dalla griglia in una sola operazione:
 
-=== Sélection multiple et suppression
-<sélection-multiple-et-suppression>
-Pour retirer plusieurs clips d'un coup~:
++ `Ctrl+Click` (Windows/Linux) o `Cmd+Click` (macOS) su ciascuna clip da
+  selezionare. Il bordo diventa blu.
++ Premi `Canc` o `Delete`. Il software chiede conferma se il numero di
+  clip selezionate è superiore a una.
 
-+ `Ctrl+clic` (Windows/Linux) ou `Cmd+clic` (macOS) sur chaque clip à
-  sélectionner~: la bordure devient bleue.
-+ Appuyez sur `Suppr` ou `Delete`. Au-delà d'un clip sélectionné, le
-  logiciel demande confirmation.
-
-Supprimer depuis la grille retire les clips du projet courant, pas les
-fichiers audio du disque. En cas d'erreur, `Ctrl+Z` rattrape le coup.
+La cancellazione dalla griglia rimuove le clip dal progetto corrente,
+non i file audio dal disco. Se sbagli, `Ctrl+Z` annulla l'operazione.
 
 #suggerimento[
-Le direct commencé, videz la colonne
-Pré-émission d'un coup, via une sélection multiple suivie de `Suppr`~:
-c'est le moyen le plus rapide de dégager l'interface et de basculer en
-mode opérationnel.
+A diretta iniziata, svuotare la colonna
+Pre-Show con una selezione multipla e `Canc` è il modo più rapido per
+liberare spazio visivo nell'interfaccia e passare alla modalità
+operativa.
 ]
 
-== 4.4 Repères de structure~: INTRO et OUTRO
-<repères-de-structure-intro-et-outro>
-Chaque clip peut recevoir deux #strong[marqueurs structurels],
-configurés dans l'éditeur de forme d'onde (Chapitre 5)~:
+== 4.4 Cue di struttura: INTRO e OUTRO
+Ogni clip può avere due #strong[marker strutturali] configurati
+nell'editor della forma d'onda (Capitolo 5):
 
-- #strong[Intro Marker] --- le moment où la mélodie principale entre
-  vraiment, après l'introduction instrumentale. Il indique précisément
-  quand commencer à parler par-dessus l'intro.
-- #strong[Outro Marker] --- le début de la coda finale, qui signale le
-  bon moment pour préparer la transition vers la piste suivante.
+- #strong[Intro Marker] --- il punto in cui la melodia principale del
+  brano entra effettivamente, dopo l'introduzione strumentale. Utile per
+  sapere esattamente quando iniziare a parlare sopra l'intro.
+- #strong[Outro Marker] --- il punto in cui inizia la coda finale del
+  brano. Segnala il momento giusto per preparare la transizione alla
+  traccia successiva.
 
-À l'approche de ces points, la carte affiche un avis visuel~:
+Quando la riproduzione di una clip si avvicina a questi punti, sulla
+card compare un avviso visivo:
 
-- #strong[INTRO: −MM:SS] --- compte à rebours jusqu'à l'Intro Marker.
-- #strong[OUTRO IN: −MM:SS] --- compte à rebours jusqu'à l'Outro Marker,
-  suivi de #strong[🚨 OUTRO] quand la coda a commencé.
+- #strong[INTRO: −MM:SS] --- conto alla rovescia all'Intro Marker.
+- #strong[OUTRO IN: −MM:SS] --- conto alla rovescia all'Outro Marker,
+  seguito da #strong[🚨 OUTRO] quando la coda è iniziata.
 
-Ces avis n'apparaissent que si les marqueurs ont été configurés. Sans
-marqueur, la carte se contente du compte à rebours standard vers la fin
-du morceau.
+Questi avvisi vengono visualizzati solo se i marker sono stati
+configurati. Sulle clip senza marker, la card mostra soltanto il conto
+alla rovescia standard al termine del brano.

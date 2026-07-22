@@ -1,5 +1,5 @@
 # Runtime Live Machine Pro — User Manual
-## Table of Contents — English Edition (v1.15.10, Second Edition)
+## Table of Contents — English Edition (v1.15.15, Second Edition)
 
 ---
 
@@ -16,7 +16,7 @@ The Control Bar: logo, On Air timer, studio clock, Master Volume, VU meter, STOP
 Importing by drag & drop. Supported formats. Playing and stopping. The per-column exclusion logic. Organizing the running order: reordering and multiple selection. Structure cues: Intro and Outro.
 
 **Chapter 5 — Clip properties and the Waveform Editor**
-Basic properties: name, colour, Gain. The waveform editor: navigation, zoom, playhead. The four handles. Auto-Trim and Smart Cues. Transition preview. Behaviours (Normal, Stacco). Next Action. Fade In and Fade Out. Assigning controls.
+Basic properties: name, colour, Gain. The waveform editor: navigation, zoom, playhead. The four handles. Auto-Trim and Smart Cues. Transition preview. Next Action. Fade In and Fade Out. Assigning controls.
 
 **Chapter 6 — The mixing engine**
 The audio hierarchy. Automatic ducking. Music Dominance. Stacchi: the exception to the rule. Volume levelling (loudness). Master Chain: HPF, multiband glue, limiter.

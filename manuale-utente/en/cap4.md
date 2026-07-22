@@ -63,9 +63,7 @@ If a keyboard key has been assigned to the clip (see Chapter 8), that key works 
 
 In most columns, RLMP applies the **“one clip at a time”** rule: if you are playing *Track A* in the Songs column and click *Track B* in the same column, *Track A* stops (with a fade out) and *Track B* starts. There’s no need to manually stop the current clip before starting another.
 
-The **pad FX effects** are the main exception: they overlap everything, including other effects, and don’t interrupt whatever is playing. A round of applause can start while a song is playing without cutting off its playback.
-
-Clips with the **Stacco** behaviour (configurable in the properties, see Chapter 5) also overlap without stopping the other clips in the column, wherever they are.
+The **pad FX effects** are the exception: they overlap everything, including other effects, and don’t interrupt whatever is playing. A round of applause can start while a song is playing without cutting off its playback.
 
 ---
 

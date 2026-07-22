@@ -27,7 +27,7 @@ A dedicated sound card is not required: RLMP works with any audio device recogni
 
 ## 2.2 Installation on Windows
 
-1. Download the file `Runtime-Live-Machine-Pro-1.15.10.exe` from the official distribution channel.
+1. Download the file `Runtime-Live-Machine-Pro-1.15.15.exe` from the official distribution channel.
 2. Double-click the executable. The NSIS installer starts and copies the files to the appropriate directories.
 3. When it finishes, a shortcut is created on the Desktop and in the Start menu.
 4. The application launches automatically once installation is complete.

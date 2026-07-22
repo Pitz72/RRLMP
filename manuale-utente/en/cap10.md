@@ -82,7 +82,7 @@ A few useful details:
 
 - The operation is **repeatable**: if you add new clips and export again, RLMP copies only the new files and realigns the project, without duplicating the ones already archived.
 - Repointing to the archive **does not enter the Undo/Redo history**: an *Undo* would send the clips back to the originals, which you may already have deleted.
-- The reference to the archive is an **absolute path**. As long as the project folder stays where it is, everything works; if you move it elsewhere, the paths must be regenerated with a new export from the new location.
+- The project folder (`.lmp` + `audio/`) can be **moved, renamed, zipped and taken to another computer**: on opening, any file that isn’t found at its old location is automatically searched for in the `audio/` folder next to the `.lmp` and relinked by itself. The project is marked as *modified*: the next save consolidates the new paths.
 
 > **Recommended practice.** Use *Export project with audio* at the end of preparing each show to consolidate the audio inside the project. You’ll have a compact, portable “master”, and you can free up space by deleting the scattered files you imported from.
 

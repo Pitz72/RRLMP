@@ -19,7 +19,7 @@ When a voice clip is playing, it stays at its nominal volume and everything else
 They yield space to Voice, but they rule over the Asset beds. When a song comes in, the Asset music beds go to zero (they don’t stop: they keep running in silence, ready to return). This is Music Dominance, described further on.
 
 **Show Assets, Jingle and Promo — the service beds.**
-They are lowered by Voice and silenced by Songs. When an asset is a **Stacco**, however, it becomes the one in command (see §6.4).
+They are lowered by Voice and silenced by Songs.
 
 **Pad FX effects.**
 Sound effects stay outside the hierarchy: they play at their own volume, overlap whatever is on air, and are never silenced. There is one courtesy toward speech: when a voice is active, the effects drop to half volume (50%) so as not to cover it, then rise again on their own.
@@ -53,11 +53,15 @@ RLMP handles this scenario with **Music Dominance**.
 
 ---
 
-## 6.4 Stacchi: the exception to the rule
+## 6.4 Rising above the hierarchy: effects and voices
 
-The **Stacco** behaviour (a *stinger*; configurable in every clip’s properties, see Chapter 5) temporarily reverses the hierarchy: the clip that carries it becomes the priority. It silences the other assets in its column and lowers the music, but stops nothing. The fade applied is faster than that of ordinary ducking, for a more percussive, clean entrance.
+If an element has to rise above what’s on air, there are two ways, and they depend on where you put the clip.
 
-The typical use is the spoken *station ID* (“You’re listening to…”): it has to be clearly audible while the bed underneath keeps running. For a more polished result, pair the Stacco with a short fade in (300–500 ms): the entrance will be soft, not abrupt.
+The **pad FX**: the effect plays at full volume over the music and stops nothing — ideal for stingers and short jingles that must “punch through” the mix without touching it.
+
+The **Voice** column: the clip stays at its nominal volume and everything else is lowered with ducking — ideal for the spoken *station ID* (“You’re listening to…”) that has to be clearly audible while the bed underneath keeps running. For a more polished entrance, pair it with a short fade in (300–500 ms): the attack will be soft, not abrupt.
+
+Previous versions had a per-clip behaviour called “Stacco” that reversed the hierarchy. It has been removed: a clip’s position in the hierarchy depends solely on the column it lives in, with no exceptions hidden in its properties.
 
 ---
 

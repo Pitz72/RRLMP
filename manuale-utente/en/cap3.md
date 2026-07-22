@@ -14,7 +14,7 @@ The header spans the full width of the screen. From left to right, it gathers th
 
 ### Identity
 
-**Logo and PRO badge.** On the left, the logo sits beside the wordmark **RLM PRO**, with the word “PRO” rendered in an iridescent gradient running from cyan to green, amber and red. Next to it, in monospaced type, is the installed version (`v1.15.10`). Hover over the logo to reveal the full software name and version number.
+**Logo and PRO badge.** On the left, the logo sits beside the wordmark **RLM PRO**, with the word “PRO” rendered in an iridescent gradient running from cyan to green, amber and red. Next to it, in monospaced type, is the installed version (`v1.15.15`). Hover over the logo to reveal the full software name and version number.
 
 ### File menu
 
@@ -114,7 +114,6 @@ Every imported audio file materializes in the grid as a rectangular **card**. Th
 
 **Status badges.** Small labels communicate the configured properties at a glance:
 
-- **STACCO** — the clip is set to overlap the others without stopping them.
 - **LOOP** — the clip will restart from the beginning when playback ends.
 - **NEXT** — when this clip ends, the next one in the column will start automatically.
 - **▶ UP NEXT** — highlights which clip will be next to start in the automatic sequence.

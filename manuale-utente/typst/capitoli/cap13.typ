@@ -1,143 +1,133 @@
 #import "../lib/manuale-template.typ": *
 
-= Fonctions avancées
-<chapitre-13-fonctions-avancées>
+= Funzioni avanzate
 
-Ce chapitre rassemble des fonctionnalités qui ne relèvent pas du flux de
-travail de base, mais qui, une fois découvertes, s'installent
-durablement dans les habitudes de ceux qui produisent leurs émissions
-avec soin~: la NoteBoard, la gestion des couleurs de colonnes, les
-transitions, les paramètres généraux, le registre des lancements et
-l'historique des modifications.
+Questo capitolo raccoglie le funzionalità che non appartengono al flusso
+di lavoro di base, ma che, una volta scoperte, entrano stabilmente nella
+prassi di chi produce show con cura e regolarità: la NoteBoard, la
+gestione cromatica delle colonne, le transizioni, le impostazioni
+generali, il registro dei lanci e la cronologia delle modifiche.
 
-== 13.1 NoteBoard~: le conducteur en régie
-<noteboard-le-conducteur-en-régie>
-La #strong[NoteBoard] est le système de notes intégrées aux clips. Elle
-permet d'associer à n'importe quel clip un texte, instructions
-opérationnelles, conduite, notes sur une interview ou texte complet d'un
-spot, et de le faire apparaître automatiquement à l'écran dès que ce
-clip entre en lecture.
+== 13.1 NoteBoard: il copione in regia
+La #strong[NoteBoard] è il sistema di note integrate alle clip. Consente
+di associare a qualsiasi clip un testo scritto (istruzioni operative,
+scalette, appunti su un'intervista, il testo completo di uno spot) e di
+farlo comparire automaticamente sullo schermo nel momento in cui quella
+clip entra in riproduzione.
 
-=== Saisir une note
-+ Ouvrez les paramètres du clip (clic droit sur la carte) et allez à la
-  section #emph[Notes].
-+ Écrivez le texte dans le champ libre. Il n'y a pas de limite de
-  longueur.
+=== Inserire una nota
++ Apri le impostazioni della clip (tasto destro sulla card) e vai alla
+  sezione #emph[Note].
++ Scrivi il testo nel campo libero. Non c'è limite di lunghezza.
 
-Les clips ayant une note affichent le badge 📋 sur la carte.
+Le clip con una nota mostrano il badge 📋 sulla card.
 
-=== Le panneau en direct
-Dès qu'un clip muni d'une note entre en lecture, le #strong[panneau
-NoteBoard] apparaît en bas de l'écran, avec le texte associé sous le nom
-et la couleur du clip. Il reste affiché pendant toute la lecture et se
-referme tout seul quand le clip se termine. Si plusieurs clips notés
-jouent en même temps, le panneau montre celui de priorité la plus haute.
+=== Il pannello in diretta
+Quando una clip con note entra in riproduzione, il #strong[pannello
+NoteBoard] appare nella parte inferiore dello schermo con il testo
+associato, intestato dal nome e dal colore della clip. Il pannello resta
+visibile per tutta la durata della riproduzione e si chiude da solo
+quando la clip termina. Se più clip con note suonano insieme, il
+pannello mostra quella con priorità più alta.
 
-=== Cas d'usage
-- #strong[Régie parlée.] Associez à chaque générique les premières
-  lignes du bloc parlé qui suit~: quand le générique part, le texte est
-  déjà sous les yeux.
-- #strong[Contenu à lire.] Un spot publicitaire avec le texte complet
-  dans la note~: dès qu'il part, on lit.
-- #strong[Instructions opérationnelles.] «~Baisser le retour~»,
-  «~Contrôler le niveau du casque invité~», «~Démarrer
-  l'enregistrement~».
-- #strong[Interviews.] Les questions pour l'invité restent visibles
-  pendant toute la durée du clip.
+=== Casi d'uso
+- #strong[Regia parlata.] Associa a ogni sigla le prime righe del blocco
+  parlato che segue: quando la sigla parte, il testo è già davanti agli
+  occhi.
+- #strong[Contenuto da leggere.] Uno spot pubblicitario con il testo
+  completo nella nota: appena parte, si legge.
+- #strong[Istruzioni operative.] «Abbassare il monitor», «Controllare il
+  livello cuffie ospite», «Avviare la registrazione».
+- #strong[Interviste.] Le domande per l'ospite restano visibili per
+  tutta la durata della clip.
 
-== 13.2 Personnalisation des couleurs de colonne
-Les couleurs par défaut suivent une convention établie, vert pour les
-Assets, rouge pour les Musiques, et ainsi de suite, mais chaque colonne
-reste personnalisable. Un clic sur la #strong[pastille colorée] de
-l'en-tête de colonne ouvre une palette de #strong[30 couleurs]~: sitôt
-le choix fait, la colonne entière (en-tête, cartes, indicateurs) adopte
-la nouvelle teinte, enregistrée dans le fichier de projet.
+== 13.2 Personalizzazione cromatica delle colonne
+I colori predefiniti hanno un significato consolidato (verde per gli
+Assets, rosso per le Canzoni, e così via), ma ogni colonna è
+personalizzabile. Clicca sul #strong[pallino colorato] nell'intestazione
+della colonna: si apre una palette di #strong[30 colori]. Scegline uno e
+la colonna (intestazione, card, indicatori) assume immediatamente il
+nuovo colore. La scelta è salvata nel file di progetto.
 
-Les cartes héritent dynamiquement de la couleur de leur colonne~:
-atténuée au repos, pleine en lecture. Chaque projet peut ainsi
-développer sa propre identité chromatique.
+Le card ereditano dinamicamente il colore della colonna: a riposo
+appaiono in una tinta attenuata, in riproduzione nel colore pieno. Ogni
+progetto può così avere una propria identità cromatica.
 
-== 13.3 Transitions entre clips
-Quand un clip est réglé sur #emph[Play Next], le passage au clip suivant
-de la colonne se fait selon le mode de transition configuré~:
+== 13.3 Transizioni tra clip
+Quando una clip è impostata su #emph[Play Next], il passaggio alla clip
+successiva della colonna avviene secondo la modalità di transizione
+configurata:
 
-- #strong[Crossfade.] Le clip sortant s'estompe pendant que l'entrant
-  monte, superposés. Durée par défaut~: 2 secondes.
-- #strong[Segue.] Le clip sortant s'estompe en sortie pendant que le
-  suivant démarre aussitôt à plein volume. Durée par défaut du fondu~:
-  0,8 seconde.
-- #strong[Gapless (coupe nette).] Le clip sortant s'arrête net et le
-  suivant démarre immédiatement, sans fondu.
+- #strong[Crossfade.] La clip uscente sfuma mentre la entrante sale,
+  sovrapposte. Durata predefinita: 2 secondi.
+- #strong[Segue.] La clip uscente sfuma in uscita mentre la successiva
+  parte subito a pieno volume. Durata predefinita della dissolvenza: 0,8
+  secondi.
+- #strong[Gapless (taglio netto).] La clip uscente si ferma di colpo e
+  la successiva parte immediatamente, senza dissolvenza.
 
-Vous pouvez régler la transition clip par clip, ou vous en remettre à
-#strong[Défaut global], qui applique le choix défini dans les
-Paramètres. La colonne Pré-émission utilise le crossfade par défaut.
-Tous les modes s'essaient sans passer à l'antenne, via le bouton «~Test
-→~» de l'éditeur (Chapitre 5).
+Puoi impostare una transizione a livello di singola clip oppure lasciare
+#strong[Default Globale], che applica la scelta generale definita nelle
+Impostazioni. La colonna Pre-Show usa il crossfade come impostazione
+predefinita. Tutte le modalità sono provabili senza andare in onda
+tramite il pulsante «Test →» nell'editor (Capitolo 5).
 
-== 13.4 La fenêtre Paramètres généraux
-<la-fenêtre-paramètres-généraux>
-Les #strong[Paramètres] (menu Outils) rassemblent les préférences
-globales du logiciel, organisées en onglets.
+== 13.4 La finestra Impostazioni generali
+Le #strong[Impostazioni] (menu Strumenti) raccolgono le preferenze
+globali del software, organizzate in schede.
 
-=== Généraux
-<généraux>
-- #strong[Langue.] Sélectionnez la langue de l'interface parmi les huit
-  disponibles. La modification est immédiate.
-- #strong[Contrôle à distance (Bêta).] Active la télécommande via
-  navigateur et affiche PIN, port et adresses (Chapitre 11).
-- #strong[Disposition régie.] Affiche ou masque individuellement les
-  colonnes de la grille. Masquer une colonne n'en supprime pas les
-  clips~: ils restent dans le projet. C'est une préférence globale,
-  valable pour tous les projets.
+=== Generali
+- #strong[Lingua.] Seleziona la lingua dell'interfaccia tra le otto
+  disponibili. La modifica è immediata.
+- #strong[Controllo Remoto (Beta).] Attiva il telecomando via browser e
+  mostra PIN, porta e indirizzi (Capitolo 11).
+- #strong[Layout regia.] Mostra o nasconde singolarmente le colonne
+  della griglia. Nascondere una colonna non ne elimina le clip: restano
+  nel progetto. È una preferenza globale, valida per tutti i progetti.
 
 === Audio & Mix
-- #strong[Périphérique de sortie.] La destination audio (Chapitre 8).
-- #strong[Intelligence de mixage.] L'ampleur du ducking (de combien la
-  musique descend quand une voix parle, par défaut 20 %) et sa rapidité
-  (par défaut 500 ms).
-- #strong[Transitions.] Le mode de transition par défaut et les durées
-  de crossfade et de segue.
+- #strong[Periferica di uscita.] La destinazione audio (Capitolo 8).
+- #strong[Intelligenza di mix.] L'entità del ducking (di quanto scende
+  la musica quando parla una voce, predefinito 20%) e la sua rapidità
+  (predefinito 500 ms).
+- #strong[Transizioni.] La modalità di transizione predefinita e le
+  durate di crossfade e segue.
 
-=== Enregistrement
-Récapitulatif du point de capture (après le limiter) et choix du format
-par défaut proposé à l'exportation (Chapitre 9).
+=== Registrazione
+Riepilogo del punto di cattura (dopo il limiter) e scelta del formato
+predefinito proposto in esportazione (Capitolo 9).
 
 === Master Chain
-- #strong[Homologation du volume.] Active/désactive la normalisation de
-  loudness et en définit la cible (par défaut −16 LUFS).
-- #strong[Master Chain.] Active ou bypasse toute la chaîne, et règle les
-  étages individuels~: fréquence de l'HPF, style du glue multibande,
-  seuil du limiter. Un bouton rétablit les valeurs par défaut (Chapitre
-  6).
+- #strong[Omologazione del volume.] Attiva/disattiva la normalizzazione
+  loudness e ne imposta l'obiettivo (predefinito −16 LUFS).
+- #strong[Master Chain.] Attiva o bypassa l'intera catena, e regola i
+  singoli stadi: frequenza dell'HPF, stile del glue multibanda, soglia
+  del limiter. Un pulsante ripristina i valori predefiniti (Capitolo 6).
 
 == 13.5 Playout Log
-Le #strong[Playout Log] (icône dans l'en-tête) est le registre
-chronologique des lancements~: il garde la trace de ce qui est passé à
-l'antenne, et quand, sur les derniers milliers d'événements. Utile pour
-reconstituer une conduite a posteriori, vérifier ce qui a été diffusé,
-ou compiler un compte rendu du direct.
+Il #strong[Playout Log] (icona nell'header) è il registro cronologico
+dei lanci: tiene traccia di ciò che è andato in onda e quando, fino alle
+ultime migliaia di eventi. È utile per ricostruire una scaletta a
+posteriori, verificare cosa è stato trasmesso o compilare un resoconto
+della diretta.
 
-== 13.6 Annuler et Répéter
-<annuler-et-répéter>
-Les modifications de la conduite, ajouts, déplacements, suppressions,
-sont réversibles. `Ctrl+Z` annule la dernière opération, `Ctrl+Y` (ou
-`Ctrl+Shift+Z`) la répète, avec un historique qui remonte sur plusieurs
-dizaines de pas. Ces mêmes commandes figurent aussi dans le menu
-Outils~: un vrai filet de sécurité pour les manipulations faites à la
-hâte pendant la préparation.
+== 13.6 Annulla e Ripeti
+Le modifiche alla scaletta (aggiunte, spostamenti, cancellazioni) sono
+reversibili. `Ctrl+Z` annulla l'ultima operazione, `Ctrl+Y` (o
+`Ctrl+Shift+Z`) la ripete, con una cronologia profonda diverse decine di
+passi. Le stesse voci sono disponibili nel menu Strumenti. È la rete di
+sicurezza per le operazioni fatte in fretta durante la preparazione.
 
-== 13.7 Système de notifications toast
-<système-de-notifications-toast>
-RLMP se garde d'utiliser des fenêtres bloquantes pour les communications
-de routine. Les notifications non critiques prennent la forme de
-#strong[toasts]~: de petits bandeaux discrets, dans un coin de l'écran,
-qui restent quelques secondes puis disparaissent d'eux-mêmes sans
-interrompre la lecture. Ils confirment un enregistrement, signalent la
-fin d'une exportation, une opération de MIDI Learn, ou avertissent de
-fichiers manquants.
+== 13.7 Sistema di notifiche toast
+RLMP non usa finestre bloccanti per le comunicazioni di routine. Le
+notifiche non critiche compaiono come #strong[toast]: piccoli banner non
+intrusivi in un angolo dello schermo, che restano per alcuni secondi e
+scompaiono da soli senza interrompere la riproduzione. Vengono usati per
+confermare un salvataggio, la fine di un'esportazione, un'operazione di
+MIDI Learn o per avvisare di file mancanti.
 
-Les #strong[fenêtres de confirmation], elles, s'imposent quand une
-action est irréversible, suppression de clips, fermeture d'un projet non
-enregistré~: modales, elles exigent une réponse, mais sans jamais couper
-la lecture en cours. L'audio continue pendant que vous décidez.
+Le #strong[finestre di conferma], necessarie quando un'azione è
+irreversibile (la cancellazione di clip, la chiusura di un progetto non
+salvato), sono invece modali e richiedono una risposta, ma sono
+progettate per non troncare la riproduzione in corso: l'audio continua
+mentre decidi.

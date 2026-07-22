@@ -1,96 +1,89 @@
 #import "../lib/manuale-template.typ": *
 
-= Contrôle à distance
-<chapitre-11-contrôle-à-distance>
+= Controllo Remoto
 
-L'animateur n'est pas toujours assis devant l'ordinateur. Il se trouve
-parfois à l'autre bout du studio, derrière une vitre, ou se déplace avec
-un invité. Le #strong[Contrôle à distance] de Runtime Live Machine Pro
-permet justement de piloter les passages essentiels de l'émission depuis
-un second appareil, tablette, téléphone ou portable, relié au même
-réseau local, simplement via le navigateur. Rien à installer sur
-l'appareil distant.
+Non sempre chi conduce sta seduto davanti al computer. A volte il
+conduttore è dall'altra parte dello studio, dietro un vetro, oppure si
+muove con un ospite. Il #strong[Controllo Remoto] di Runtime Live
+Machine Pro consente di comandare i passaggi essenziali dello show da un
+secondo dispositivo (un tablet, un telefono, un portatile) collegato
+alla stessa rete locale, usando semplicemente il browser. Non serve
+installare nulla sul dispositivo remoto.
 
-La fonction est pour l'instant marquée comme #strong[Bêta].
+La funzione è al momento contrassegnata come #strong[Beta].
 
-== 11.1 Comment ça marche
-<comment-ça-marche>
-Une fois activé, RLMP démarre en interne un petit #strong[serveur web
-local]. L'appareil distant s'y connecte en ouvrant une adresse dans le
-navigateur, ce qui affiche une page de contrôle reflétant l'état de la
-colonne Musique et permettant d'agir dessus.
+== 11.1 Come funziona
+Quando lo attivi, RLMP avvia al proprio interno un piccolo
+#strong[server web locale]. Il dispositivo remoto si connette a questo
+server aprendo un indirizzo nel browser: da lì compare una pagina di
+controllo che rispecchia lo stato della colonna Musica e permette di
+agire su di essa.
 
-Tout se passe #strong[à l'intérieur du réseau local]~: seuls les
-appareils connectés au même réseau Wi-Fi ou LAN que le studio peuvent
-atteindre le serveur, qui ne transite jamais par internet.
+Tutto avviene #strong[dentro la rete locale]: il server è raggiungibile
+dagli apparecchi connessi alla stessa rete Wi-Fi o LAN dello studio, e
+non passa da internet.
 
-== 11.2 Activation
-+ Ouvrez les #strong[Paramètres] depuis le menu Outils et allez à
-  l'onglet #emph[Généraux].
-+ Activez le toggle #strong[Contrôle à distance (Bêta)].
-+ Apparaissent un #strong[PIN à six chiffres], le #strong[port] du
-  serveur et les #strong[adresses réseau] auxquelles l'appareil distant
-  peut se connecter.
-+ Le bouton #strong[Copier le lien] copie dans le presse-papiers
-  l'adresse prête à l'emploi (sous la forme
-  `http://<adresse-de-l-ordinateur>:8787`).
+== 11.2 Attivazione
++ Apri le #strong[Impostazioni] dal menu Strumenti e vai alla scheda
+  #emph[Generali].
++ Attiva il toggle #strong[Controllo Remoto (Beta)].
++ Compaiono un #strong[PIN a sei cifre], la #strong[porta] del server e
+  gli #strong[indirizzi di rete] a cui il dispositivo remoto può
+  connettersi.
++ Il pulsante #strong[Copia link] copia negli appunti l'indirizzo pronto
+  all'uso (nella forma `http://<indirizzo-del-computer>:8787`).
 
-Le serveur écoute sur le port #strong[8787]. Le PIN est #strong[régénéré
-à chaque démarrage] de l'application et n'est pas mémorisé~: fermer et
-rouvrir RLMP produit un nouveau PIN. Le Contrôle à distance lui-même
-repart toujours éteint à chaque démarrage, à réactiver au besoin.
+Il server ascolta sulla porta #strong[8787]. Il PIN viene
+#strong[rigenerato a ogni avvio] dell'applicazione e non viene
+memorizzato: chiudere e riaprire RLMP produce un nuovo PIN. Anche il
+Controllo Remoto stesso riparte sempre spento a ogni avvio, da
+riattivare quando serve.
 
-== 11.3 Se connecter depuis l'appareil distant
-+ Sur la tablette ou le téléphone, ouvrez le navigateur et saisissez
-  l'adresse affichée dans les Paramètres (ou collez-la depuis le lien
-  copié).
-+ Une page avec un pavé numérique apparaît~: saisissez le #strong[PIN à
-  six chiffres].
-+ Une fois le PIN correct, la page affiche la liste des clips de la
-  colonne #strong[Musique], avec les commandes de lecture, et un bouton
-  #strong[Stop All]. Un bouton dédié passe la page en plein écran,
-  pratique sur tablette.
+== 11.3 Connettersi dal dispositivo remoto
++ Sul tablet o sul telefono, apri il browser e digita l'indirizzo
+  mostrato nelle Impostazioni (o incollalo dal link copiato).
++ Compare una pagina con un tastierino: inserisci il #strong[PIN a sei
+  cifre].
++ A PIN corretto, la pagina mostra l'elenco delle clip della colonna
+  #strong[Musica], con i comandi di riproduzione, e un pulsante
+  #strong[Stop All]. Un pulsante dedicato porta la pagina a tutto
+  schermo, comodo su tablet.
 
-De là, vous lancez et arrêtez les morceaux de la colonne Musique, et si
-besoin coupez tout d'un coup. L'état se met à jour en temps réel dans
-les deux sens~: ce qui démarre ou s'arrête sur l'ordinateur principal se
-reflète sur la page distante, et réciproquement.
+Da qui puoi far partire e fermare i brani della colonna Musica e, se
+serve, fermare tutto. Lo stato si aggiorna in tempo reale: ciò che parte
+o si ferma sul computer principale si riflette sulla pagina remota, e
+viceversa.
 
-== 11.4 Ce qui se pilote à distance
-<ce-qui-se-pilote-à-distance>
-Le Contrôle à distance est délibérément minimal. À distance, vous
-pouvez~:
+== 11.4 Cosa si controlla da remoto
+Il Controllo Remoto è deliberatamente essenziale. Da remoto puoi:
 
-- #strong[Lancer] un clip de la colonne Musique.
-- #strong[Arrêter] un clip de la colonne Musique.
-- Exécuter un #strong[Stop All].
+- #strong[Avviare] una clip della colonna Musica.
+- #strong[Fermare] una clip della colonna Musica.
+- Eseguire uno #strong[Stop All].
 
-Ce sont les seules actions autorisées. Le reste de la régie, les autres
-colonnes, le pad FX, l'éditeur, les paramètres, demeure sur l'ordinateur
-principal. Ce choix répond à un impératif de sécurité~: la télécommande
-sert à gérer le flux musical à distance, pas à remplacer le poste de
-régie.
+Sono le uniche azioni ammesse. Il resto della regia (le altre colonne,
+il pad FX, l'editor, le impostazioni) resta sul computer principale. È
+una scelta di sicurezza: il telecomando serve a gestire il flusso
+musicale a distanza, non a sostituire la postazione di regia.
 
-== 11.5 Sécurité et limites
-<sécurité-et-limites>
-- #strong[PIN obligatoire.] Aucun appareil ne peut envoyer de commandes
-  sans avoir passé la vérification du PIN à six chiffres.
-- #strong[Protection contre les tentatives.] Les tentatives de saisie du
-  PIN sont limitées dans le temps~: après quelques échecs rapprochés,
-  l'accès depuis cet appareil est temporairement bloqué.
-- #strong[Commandes en liste blanche.] Le serveur n'accepte que les
-  trois commandes prévues (lancer, arrêter, Stop All)~: toute autre
-  requête est ignorée.
-- #strong[Réseau local uniquement.] Le serveur est pensé pour le réseau
-  du studio. Si votre réseau Wi-Fi est ouvert ou partagé, évaluez avec
-  attention qui peut l'atteindre.
-- #strong[Aucune persistance.] Le PIN et l'état d'activation ne sont pas
-  enregistrés~: à chaque redémarrage, vous repartez d'une configuration
-  propre.
+== 11.5 Sicurezza e limiti
+- #strong[PIN obbligatorio.] Nessun dispositivo può inviare comandi
+  senza aver superato la verifica del PIN a sei cifre.
+- #strong[Protezione dai tentativi.] I tentativi di inserimento del PIN
+  sono limitati nel tempo: dopo alcuni tentativi falliti ravvicinati,
+  l'accesso da quell'apparecchio viene temporaneamente bloccato.
+- #strong[Comandi su lista bianca.] Il server accetta soltanto i tre
+  comandi previsti (avvia, ferma, Stop All): qualsiasi altra richiesta
+  viene ignorata.
+- #strong[Solo rete locale.] Il server è pensato per la rete dello
+  studio. Se la tua rete Wi-Fi è aperta o condivisa, valuta con
+  attenzione chi può raggiungerla.
+- #strong[Nessuna persistenza.] PIN e stato di attivazione non vengono
+  salvati: a ogni riavvio riparti da una configurazione pulita.
 
 #nota[
-Cette fonction étant en version Bêta, l'éventail des
-commandes disponibles pourra s'élargir dans les versions futures. Pour
-l'heure, elle vise le cas d'usage le plus courant~: gérer la musique à
-distance pendant l'animation.
+Trattandosi di una funzione in Beta, l'insieme dei
+comandi disponibili potrà ampliarsi nelle versioni future. Per ora è
+tarata sul caso d'uso più frequente: gestire la musica a distanza
+durante la conduzione.
 ]

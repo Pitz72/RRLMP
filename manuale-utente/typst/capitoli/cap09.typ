@@ -1,116 +1,110 @@
 #import "../lib/manuale-template.typ": *
 
-= Enregistrement de la session
+= Registrazione della sessione
 
-L'enregistrement de la session fait passer Runtime Live Machine Pro d'un
-simple outil de playout à un véritable outil de production. Plus besoin
-d'un logiciel d'enregistrement séparé ou d'une chaîne de routage
-virtuelle~: RLMP capture directement le #strong[master mix post-traité],
-c'est-à-dire tout ce qui sort de l'application, effets de la Master
-Chain compris, dans un fichier audio sur le disque.
+La registrazione della sessione trasforma Runtime Live Machine Pro da
+strumento di playout a strumento di produzione completa. Invece di
+richiedere un software di registrazione separato o una catena di routing
+virtuale, RLMP cattura direttamente il #strong[master mix
+post-processato], ovvero tutto ciò che esce dall'applicazione, inclusi
+gli effetti del Master Chain, in un file audio sul disco.
 
-== 9.1 Démarrer l'enregistrement
-<démarrer-lenregistrement>
-La commande d'enregistrement se trouve dans l'en-tête, repérable à son
-icône.
+== 9.1 Avviare la registrazione
+Il controllo della registrazione si trova nell'header, identificato
+dall'icona di registrazione.
 
-#strong[Démarrage.] Cliquez sur le bouton d'enregistrement. Un
-indicateur rouge et un compteur signalent que la capture est en cours \;
-l'enregistrement démarre aussitôt, et tout ce qui sort de l'application
-à partir de cet instant est capturé.
+#strong[Avvio.] Clicca sul pulsante di registrazione. Un indicatore
+rosso e un contatore mostrano che la cattura è in corso. La
+registrazione parte immediatamente: tutto ciò che esce dall'output del
+software da quel momento viene catturato.
 
-Aucun clip en lecture n'est nécessaire pour démarrer l'enregistrement~:
-vous pouvez lancer la capture avant même le début de l'émission, pour ne
-rien perdre des premières secondes en cas de départ anticipé.
+Non è necessario avere clip in riproduzione per avviare la
+registrazione: puoi avviare la cattura in anticipo rispetto all'inizio
+dello show, per non perdere i primi secondi in caso di partenza
+anticipata.
 
-#strong[Ce qui est enregistré.] Le signal capturé est le #strong[master
-après le limiter]~: il inclut le mix de tous les clips en lecture et le
-traitement complet de la Master Chain (HPF, glue multibande, limiter)
---- exactement le signal qui atteint le périphérique audio de sortie.
+#strong[Cosa viene registrato.] Il segnale catturato è il #strong[master
+dopo il limiter]: include il mix di tutte le clip in riproduzione e il
+processing dell'intero Master Chain (HPF, glue multibanda, limiter). È
+esattamente il segnale che raggiunge la periferica audio di uscita.
 
-#strong[Le format interne.] Pendant la capture, RLMP écrit un flux
-compressé Opus (en conteneur WebM) à 320 kbps, très léger sur le disque
-et transparent à l'écoute. L'enregistrement continu est plafonné, par
-sécurité, à environ #strong[quatre heures]~: au-delà, la capture
-s'arrête automatiquement pour ne pas saturer la mémoire.
+#strong[Il formato interno.] Durante la cattura, RLMP scrive un flusso
+compresso Opus (in container WebM) a 320 kbps: leggerissimo sul disco e
+trasparente all'ascolto. La registrazione continua ha un limite di
+sicurezza di circa #strong[quattro ore]\; oltre quella durata la cattura
+si ferma automaticamente per non saturare la memoria.
 
-#strong[Charge système.] La capture a lieu en aval du moteur audio, sans
-peser sur le Renderer~: vous pouvez enregistrer des sessions de
-plusieurs heures sans vous soucier de la consommation de ressources.
+#strong[Overhead di sistema.] La cattura avviene a valle del motore
+audio, senza gravare sul Renderer. Puoi registrare sessioni di ore senza
+preoccuparti del consumo di risorse.
 
-== 9.2 Arrêter l'enregistrement et choisir le format
-<arrêter-lenregistrement-et-choisir-le-format>
-Un second clic sur le bouton arrête l'enregistrement et ouvre la
-#strong[fenêtre d'exportation]~: c'est là que vous choisissez le format
-final du fichier, la conversion du flux interne étant confiée à FFmpeg.
+== 9.2 Fermare la registrazione e scegliere il formato
+Quando clicchi di nuovo sul pulsante per fermare la registrazione, si
+apre la #strong[finestra di esportazione]. È il momento in cui scegli in
+quale formato salvare il file: la conversione dal flusso interno al
+formato finale è affidata a FFmpeg.
 
-=== Formats disponibles
+=== Formati disponibili
 #figure(
   align(center)[#table(
     columns: (33.33%, 33.33%, 33.33%),
     align: (auto,auto,auto,),
-    table.header([Format], [Extension], [Caractéristiques],),
+    table.header([Formato], [Estensione], [Caratteristiche],),
     table.hline(),
-    [#strong[WAV]], [`.wav`], [Lossless non compressé. Qualité maximale,
-    fichiers volumineux. Idéal pour l'archivage et la post-production.],
-    [#strong[FLAC]], [`.flac`], [Lossless compressé. Même qualité que le
-    WAV, dimensions réduites. Idéal pour l'archivage.],
-    [#strong[MP3]], [`.mp3`], [Lossy. Bitrate sélectionnable. Idéal pour
-    la distribution et le podcast.],
-    [#strong[OGG]], [`.ogg`], [Lossy open-source. Bon rapport
-    qualité/taille.],
-    [#strong[WEBM]], [`.webm`], [Lossy, optimisé pour le web. Correspond
-    au format interne de capture.],
+    [#strong[WAV]], [`.wav`], [Lossless non compresso. Massima qualità,
+    file grandi. Ideale per archivio e post-produzione.],
+    [#strong[FLAC]], [`.flac`], [Lossless compresso. Stessa qualità del
+    WAV, dimensioni ridotte. Ideale per archivio.],
+    [#strong[MP3]], [`.mp3`], [Lossy. Bitrate selezionabile. Ideale per
+    distribuzione e podcast.],
+    [#strong[OGG]], [`.ogg`], [Lossy open-source. Buon rapporto
+    qualità/dimensione.],
+    [#strong[WEBM]], [`.webm`], [Lossy, ottimizzato per il web.
+    Corrisponde al formato interno di cattura.],
   )]
   , kind: table
   )
 
-=== Options de qualité
-<options-de-qualité>
-Pour les formats lossless (WAV et FLAC), la #strong[profondeur de bits]
-se choisit entre 16 bit (standard CD), 24 bit (standard professionnel
-broadcast, valeur par défaut) et 32 bit float, pour une précision
-maximale si l'enregistrement doit être masterisé par la suite.
+=== Opzioni di qualità
+<opzioni-di-qualità>
+Per i formati lossless (WAV e FLAC) puoi selezionare la
+#strong[profondità di bit]: 16 bit (standard CD), 24 bit (standard
+professionale broadcast, valore predefinito) o 32 bit float (massima
+precisione, se la registrazione verrà masterizzata in seguito).
 
-Pour les formats lossy (MP3, OGG, WEBM), le #strong[bitrate] se règle
-entre 128, 192, 256 et 320 kbps. Pour un podcast destiné à la
-distribution en ligne, comptez 192 kbps stéréo au minimum \; 256 kbps
-est aujourd'hui le standard pour une qualité dite «~transparente~».
+Per i formati lossy (MP3, OGG, WEBM) puoi selezionare il
+#strong[bitrate] tra 128, 192, 256 e 320 kbps. Per un podcast destinato
+alla distribuzione online, 192 kbps stereo è il minimo consigliato; 256
+kbps è lo standard corrente per la qualità «trasparente».
 
-=== Choix du chemin d'enregistrement
-Dans la fenêtre d'exportation, choisissez le dossier de destination et
-le nom du fichier. Sans nom précisé, RLMP en génère un à partir de la
-date et de l'heure de la session. Une fois la conversion terminée, un
-toast de confirmation affiche le chemin du fichier enregistré.
+=== Selezione del percorso di salvataggio
+Nella finestra di esportazione scegli la cartella di destinazione e il
+nome del file. Se non specifichi un nome, RLMP ne genera uno basato su
+data e ora della sessione. Al termine della conversione, un toast di
+conferma mostra il percorso del file salvato.
 
-== 9.3 Considérations pratiques
-<considérations-pratiques>
-=== Synchronisation avec l'émission
-<synchronisation-avec-lémission>
-L'enregistrement capture tout le temps écoulé entre Start et Stop,
-silences compris~: démarrer la capture 30 secondes avant le début
-effectif de l'émission, c'est retrouver ces 30 secondes dans le fichier
-final. Pour un résultat prêt à la distribution sans post-édition,
-démarrez l'enregistrement exactement au moment où commence l'émission.
+== 9.3 Considerazioni pratiche
+=== Sincronizzazione con lo show
+La registrazione cattura tutto il tempo trascorso tra Start e Stop,
+inclusi i silenzi. Se hai avviato la cattura 30 secondi prima
+dell'inizio effettivo dello show, il file risultante includerà quei 30
+secondi iniziali. Per un risultato pronto alla distribuzione senza
+post-editing, avvia la registrazione esattamente quando inizia lo show.
 
-=== Enregistrement et sauvegarde simultanés
-<enregistrement-et-sauvegarde-simultanés>
-Le système d'autosave du projet (voir Chapitre 10) et l'enregistrement
-de la session fonctionnent indépendamment l'un de l'autre~: vous pouvez
-enregistrer une émission pendant que l'autosave sauvegarde discrètement
-l'état du projet, sans que les deux opérations interfèrent.
+=== Registrazione e backup contemporanei
+Il sistema di autosave del progetto (vedi Capitolo 10) e la
+registrazione della sessione operano in modo indipendente. Puoi
+registrare uno show mentre l'autosave salva silenziosamente lo stato del
+progetto: le due operazioni non interferiscono.
 
-=== Format conseillé selon le contexte
-<format-conseillé-selon-le-contexte>
-#strong[Podcast] --- MP3 256 kbps stéréo ou FLAC 16 bit~: le premier
-pour une distribution directe du fichier, le second si vous comptez
-encore le retoucher.
+=== Formato consigliato per contesti diversi
+#strong[Podcast] --- MP3 256 kbps stereo o FLAC 16 bit. Il primo se
+distribuisci direttamente il file, il secondo se passerai per un editor.
 
-#strong[Archivage historique] --- WAV 24 bit ou FLAC 24 bit~: des
-fichiers volumineux, mais toute la souplesse voulue pour d'éventuels
-remasters futurs.
+#strong[Archivio storico] --- WAV 24 bit o FLAC 24 bit. Dimensioni
+generose, massima flessibilità per eventuali rimaster futuri.
 
-#strong[Radio / Streaming] --- vérifiez les exigences de votre
-plateforme~: la plupart acceptent le MP3 128--192 kbps, certaines
-demandent du WAV non compressé. RLMP couvre les formats les plus
-répandus, quel que soit le scénario.
+#strong[Radio / Streaming] --- verifica i requisiti della tua
+piattaforma. La maggior parte accetta MP3 128--192 kbps; alcune
+richiedono WAV non compresso. RLMP esporta nei formati più diffusi per
+coprire ogni scenario.
