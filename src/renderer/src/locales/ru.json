@@ -218,9 +218,6 @@
             "volumeGain": "Усиление громкости",
             "globalKeybind": "Глобальная клавиша",
             "recordKeyPlaceholder": "Кликните и нажмите клавишу...",
-            "behaviorLabel": "Поведение воспроизведения",
-            "behaviorNormal": "Обычный",
-            "behaviorStacco": "Джингл (отбивка)",
             "loopPlayback": "Воспроизведение по кругу",
             "autoplayNext": "Автопереход",
             "nextStop": "Стоп",
@@ -430,7 +427,6 @@
     "card": {
         "missingFile": "ФАЙЛ ОТСУТСТВУЕТ",
         "missingTitle": "⚠️ {{name}} (файл не найден)",
-        "staccoBadge": "ДЖИНГЛ",
         "loopBadge": "LOOP",
         "nextBadge": "NEXT",
         "upNextBadge": "▶ ДАЛЕЕ",

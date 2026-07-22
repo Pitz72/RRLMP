@@ -88,7 +88,7 @@ Zusätzlich zu den sechs Spalten bietet der Header zwei schnelle Werkzeuge:
 2. **Linksklick** auf die Karte, um die Wiedergabe zu starten.
 3. **Erneuter Klick** auf die aktive Karte stoppt sie mit Fade-out, oder drücken Sie `Esc` für einen sofortigen Notstopp aller Clips.
 
-In den meisten Spalten gilt die Regel „ein Clip nach dem anderen": Der Start eines neuen Clips stoppt automatisch den laufenden Clip in derselben Spalte. Das FX-Pad sowie Clips im Stacco-Modus bilden die Ausnahme und überlagern sich frei.
+In den meisten Spalten gilt die Regel „ein Clip nach dem anderen": Der Start eines neuen Clips stoppt automatisch den laufenden Clip in derselben Spalte. Das FX-Pad bildet die Ausnahme: Effekte überlagern sich frei.
 
 ---
 

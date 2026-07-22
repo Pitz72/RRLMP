@@ -88,7 +88,7 @@ En plus des six colonnes, l'en-tête propose deux outils rapides :
 2. **Clic gauche** sur la carte pour démarrer la lecture.
 3. **Cliquez à nouveau** sur la carte active pour l'arrêter avec un fondu de sortie, ou appuyez sur `Échap` pour un arrêt d'urgence immédiat de toutes les clips.
 
-Dans la plupart des colonnes, la règle est « une clip à la fois » : en démarrer une nouvelle arrête automatiquement celle en cours dans la même colonne. Le pad FX et les clips réglées en mode Stacco (Interruption) font exception et se superposent librement.
+Dans la plupart des colonnes, la règle est « une clip à la fois » : en démarrer une nouvelle arrête automatiquement celle en cours dans la même colonne. Le pad FX fait exception : les effets se superposent librement.
 
 ---
 

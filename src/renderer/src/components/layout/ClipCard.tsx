@@ -146,7 +146,6 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
 
             {/* Visual Tags Overlay (Top Left) */}
             <div className="clip-row clip-badges">
-                {clip.behavior === 'stacco' && <span className="badge b-stacco">{t('card.staccoBadge', 'STACCO')}</span>}
                 {clip.isLooping && <span className="badge b-loop">{t('card.loopBadge', 'LOOP')}</span>}
                 {clip.nextAction === 'play_next' && !isNextUp && <span className="badge b-next">{t('card.nextBadge', 'NEXT')}</span>}
                 {isNextUp && <span className="badge b-upnext animate-pulse">{t('card.upNextBadge', '▶ UP NEXT')}</span>}

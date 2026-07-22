@@ -218,9 +218,6 @@
             "volumeGain": "Ganho de volume",
             "globalKeybind": "Atalho global",
             "recordKeyPlaceholder": "Clique e pressione uma tecla...",
-            "behaviorLabel": "Comportamento de reprodução",
-            "behaviorNormal": "Normal",
-            "behaviorStacco": "Jingle (vinheta)",
             "loopPlayback": "Reprodução em loop",
             "autoplayNext": "Avanço automático",
             "nextStop": "Parar",
@@ -430,7 +427,6 @@
     "card": {
         "missingFile": "FICHEIRO EM FALTA",
         "missingTitle": "⚠️ {{name}} (Ficheiro Não Encontrado)",
-        "staccoBadge": "VINHETA",
         "loopBadge": "LOOP",
         "nextBadge": "NEXT",
         "upNextBadge": "▶ UP NEXT",

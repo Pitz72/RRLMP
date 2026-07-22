@@ -88,7 +88,7 @@ Además de las seis columnas, la cabecera ofrece dos herramientas rápidas:
 2. **Clic izquierdo** sobre la tarjeta para iniciar la reproducción.
 3. **Vuelve a hacer clic** sobre la tarjeta activa para detenerla con fundido de salida, o pulsa `Esc` para un stop de emergencia inmediato de todos los clips.
 
-En la mayoría de las columnas rige la regla de "un clip a la vez": al iniciar uno nuevo se detiene automáticamente el que esté en curso en esa misma columna. El pad FX y los clips en modo Stacco (Interrupción) son la excepción y se superponen libremente.
+En la mayoría de las columnas rige la regla de "un clip a la vez": al iniciar uno nuevo se detiene automáticamente el que esté en curso en esa misma columna. El pad FX es la excepción: los efectos se superponen libremente.
 
 ---
 

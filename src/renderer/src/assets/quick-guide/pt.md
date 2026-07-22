@@ -88,7 +88,7 @@ Além das seis colunas, o cabeçalho oferece duas ferramentas rápidas:
 2. **Clique com o botão esquerdo** no cartão para iniciar a reprodução.
 3. **Clique novamente** no cartão ativo para o parar com fade out, ou prima `Esc` para uma paragem de emergência imediata de todos os clips.
 
-Na maioria das colunas vale a regra "um clip de cada vez": iniciar um novo para automaticamente o que está a decorrer na mesma coluna. O pad FX e os clips em modo Stacco (Interrupção) são a exceção e sobrepõem-se livremente.
+Na maioria das colunas vale a regra "um clip de cada vez": iniciar um novo para automaticamente o que está a decorrer na mesma coluna. O pad FX é a exceção: os efeitos sobrepõem-se livremente.
 
 ---
 

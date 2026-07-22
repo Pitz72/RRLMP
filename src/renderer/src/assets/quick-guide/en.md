@@ -88,7 +88,7 @@ Besides the six columns, the header offers two quick tools:
 2. **Left-click** the card to start playback.
 3. **Click again** on the active card to stop it with a fade out, or press `Esc` for an immediate emergency stop of all clips.
 
-In most columns the rule is "one clip at a time": starting a new one automatically stops whatever else is playing in that column. The FX pad and clips set to Stacco (Break) mode are the exception and overlay freely.
+In most columns the rule is "one clip at a time": starting a new one automatically stops whatever else is playing in that column. The FX pad is the exception: effects overlay freely.
 
 ---
 

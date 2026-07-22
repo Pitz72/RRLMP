@@ -218,9 +218,6 @@
             "volumeGain": "Ganancia de volumen",
             "globalKeybind": "Atajo global",
             "recordKeyPlaceholder": "Haz clic y pulsa una tecla...",
-            "behaviorLabel": "Comportamiento de reproducción",
-            "behaviorNormal": "Normal",
-            "behaviorStacco": "Jingle (ráfaga)",
             "loopPlayback": "Reproducción en bucle",
             "autoplayNext": "Avance automático",
             "nextStop": "Detener",
@@ -430,7 +427,6 @@
     "card": {
         "missingFile": "ARCHIVO AUSENTE",
         "missingTitle": "⚠️ {{name}} (Archivo No Encontrado)",
-        "staccoBadge": "JINGLE",
         "loopBadge": "LOOP",
         "nextBadge": "NEXT",
         "upNextBadge": "▶ UP NEXT",

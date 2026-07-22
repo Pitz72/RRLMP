@@ -32,7 +32,7 @@ Appena trascini un file nella colonna, la clip nasce con questi **valori di defa
 | Parametro | Valore di default | Significato |
 |---|---|---|
 | `nextAction` | **`stop`** | A fine riproduzione si ferma. **NON** fa partire la clip successiva. |
-| `behavior` | **`normal`** | Mixer normale (non è uno "stacco"). |
+| `behavior` | **`normal`** | Campo LEGACY: dal v1.15.15 il motore lo ignora (vedi §4). Resta nel `.lmp` per compatibilità. |
 | `duckingRole` | **`none`** | Non abbassa nessuno e non viene abbassata *per ruolo* (vedi §4 per le eccezioni di mix). |
 | `isLooping` | **`false`** | Non va in loop (può essere attivato a mano → diventa un "sottofondo/bed"). |
 | `fadeIn` | **0 ms** | Parte secca, senza dissolvenza in entrata. |
@@ -92,26 +92,24 @@ Anche fuori dal take-over, lanciare una clip Assets **ferma le clip della PRE-SH
 
 Mentre suona, il volume reale di una clip Assets è deciso dinamicamente in base a cosa c'è in onda. Le regole sono applicate **in quest'ordine** (la prima che si verifica vince):
 
-1. **Auto-preservazione** — se *questa* clip è lo "stacco" attivo → resta a **volume pieno**.
-2. **Soppressione da stacco** — se è attivo **un altro** stacco → questa clip va a **muto**.
-3. **Dominanza della musica** — se è attiva una clip Musica → gli asset/bed vanno a **muto** (per non "impastare" il suono).
-3b. **Sottofondo sotto jingle/sigla** — se *questa* clip è un **sottofondo in loop** ed è in onda un **asset/jingle/promo NON in loop** → va a **muto**, e **torna** al suo volume con rialzo sfumato appena quello finisce (decisione A3, 2026-06-30).
-4. **Ducking voce** — se è attiva una Voce (o il microfono Smart) → questa clip si **abbassa** (ducking).
-5. **Normale** — in tutti gli altri casi → **volume pieno**.
+1. **Dominanza della musica** — se è attiva una clip Musica → gli asset/bed vanno a **muto** (per non "impastare" il suono).
+1b. **Sottofondo sotto jingle/sigla** — se *questa* clip è un **sottofondo in loop** ed è in onda un **asset/jingle/promo NON in loop** → va a **muto**, e **torna** al suo volume con rialzo sfumato appena quello finisce (decisione A3, 2026-06-30).
+2. **Ducking voce** — se è attiva una Voce (o il microfono Smart) → questa clip si **abbassa** (ducking).
+3. **Normale** — in tutti gli altri casi → **volume pieno**.
 
 > Codice: ramo `clip.type === 'asset'` in `evaluateMix`, `useAudioStore.ts`.
 
-### I due comportamenti (`behavior`)
-- **`normal`** (default): segue le regole di mix qui sopra.
-- **`stacco`**: la clip è uno "stacco". Mentre suona, **abbassa (duck) la musica e la PRE-SHOW** e **azzera gli altri asset**. Lei resta a volume pieno (regola 1).
+### ⚠️ RIMOSSO in v1.15.15: il comportamento `stacco`
+Fino alla v1.15.14 una clip poteva essere marcata `behavior: 'stacco'` (auto-preservazione a volume pieno, ducking su musica/PRE-SHOW, azzeramento degli altri asset). Dal modello **take-over + regole-per-colonna** (2026-06-30) quel flag era diventato ridondante e fuorviante: **lo scopo della clip lo determina la colonna in cui sta**, non un flag per-clip.
 
-> Lo "stacco" è un asset usato come iniezione netta sopra la musica (es. un breve jingle/effetto che deve emergere). Si imposta dal `behavior` della clip.
+- Per uno "stacchetto **sopra** la musica" → mettilo nella colonna **FX** (esente dalla dominanza musica) o **VOCE** (in più ducka tutto il resto).
+- Il campo `behavior` resta nel modello dati solo per compatibilità `.lmp` (come `duckingRole`): il motore lo **ignora** e la UI non lo mostra più.
 
 ---
 
 ## 5. Riepilogo in una frase
 
-> Una clip degli **Assets** nasce come **stacco/sigla one-shot**: parte secca, sfuma in 500 ms, si ferma da sola. Lanciata **a mano** prende il comando della regia (**take-over**) fermando tutto tranne gli **SFX** (inclusi i sottofondi in loop, che vengono chiusi). Nel mix cede il passo alla musica e si abbassa sotto la voce, a meno che non sia lei lo "stacco" attivo.
+> Una clip degli **Assets** nasce come **sigla one-shot**: parte secca, sfuma in 500 ms, si ferma da sola. Lanciata **a mano** prende il comando della regia (**take-over**) fermando tutto tranne gli **SFX** (inclusi i sottofondi in loop, che vengono chiusi). Nel mix cede il passo alla musica e si abbassa sotto la voce.
 
 ---
 

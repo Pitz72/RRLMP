@@ -43,8 +43,9 @@
 Una clip Musica è un **`target` di ducking**: si abbassa quando emerge qualcosa di più prioritario.
 
 - **Voce attiva** (clip voice o microfono Smart) → la musica si **abbassa** (ducking, `volume × duckingFactor`).
-- **Stacco attivo** (un asset con `behavior: stacco`) → la musica si **abbassa**.
 - Altrimenti → **volume pieno**.
+
+> *(v1.15.15: rimosso il caso "stacco attivo" — il comportamento per-clip `behavior: stacco` non esiste più, vedi [01-ASSETS.md](01-ASSETS.md) §4.)*
 
 > Codice: ramo `clip.type === 'music' || clip.type === 'preshow'` in `evaluateMix`.
 

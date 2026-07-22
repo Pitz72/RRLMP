@@ -151,8 +151,10 @@ export interface AudioClip {
     // Behavioral Logic
     /** Sequencer action after completion. Default: 'stop' */
     nextAction: 'stop' | 'play_next' | 'loop'; 
-    /** Mixer behavior. 'stacco' triggers ducking on other clips. Default: 'normal' */
-    behavior: 'normal' | 'stacco'; 
+    /** LEGACY (v1.15.15): il motore ignora questo campo — lo scopo della clip lo
+     *  determina la colonna (take-over + regole-per-colonna). Mantenuto solo per
+     *  compatibilità .lmp, come duckingRole. Default: 'normal' */
+    behavior: 'normal' | 'stacco';
 
     // Regole di ingaggio
     /** Ducking priority. Default: 'none' */

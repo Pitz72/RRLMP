@@ -26,7 +26,7 @@
 |---|---|---|
 | `nextAction` | **`play_next`** | **UNICA colonna** che concatena: a fine clip parte la successiva → playlist automatica. |
 | `behavior` | **`normal`** | — |
-| `duckingRole` | **`target`** | Si abbassa sotto voce/stacco (vedi ⚠️ A1). |
+| `duckingRole` | **`target`** | Si abbassa sotto la voce (vedi ⚠️ A1). |
 | `isLooping` | **`false`** | — |
 | `fadeIn` | **0 ms** | — |
 | `fadeOut` | **0 ms** | **Gapless** di default (attacca senza buco). |
@@ -62,7 +62,7 @@ La PRE-SHOW è l'unico punto in cui esiste un automatismo di inserimento: ogni X
 
 ## 5. Comportamento nel mix
 
-La PRE-SHOW è trattata **come la musica**: si abbassa (ducking) quando c'è voce o uno stacco attivo; altrimenti volume pieno.
+La PRE-SHOW è trattata **come la musica**: si abbassa (ducking) quando c'è voce attiva; altrimenti volume pieno. *(v1.15.15: rimosso il caso "stacco attivo", vedi [01-ASSETS.md](01-ASSETS.md) §4.)*
 
 > Sottigliezza: una clip PRE-SHOW in onda **non** attiva la "Music Dominance" sugli asset (quel controllo guarda solo `type === 'music'`). Quindi sotto la PRE-SHOW un asset/bed non viene mutato come accade sotto una canzone.
 

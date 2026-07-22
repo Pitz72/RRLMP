@@ -218,9 +218,6 @@
             "volumeGain": "Gain de volume",
             "globalKeybind": "Raccourci global",
             "recordKeyPlaceholder": "Cliquez et appuyez sur une touche...",
-            "behaviorLabel": "Comportement de lecture",
-            "behaviorNormal": "Normal",
-            "behaviorStacco": "Jingle (virgule)",
             "loopPlayback": "Lecture en boucle",
             "autoplayNext": "Enchaînement automatique",
             "nextStop": "Stop",
@@ -430,7 +427,6 @@
     "card": {
         "missingFile": "FICHIER MANQUANT",
         "missingTitle": "⚠️ {{name}} (fichier introuvable)",
-        "staccoBadge": "JINGLE",
         "loopBadge": "LOOP",
         "nextBadge": "NEXT",
         "upNextBadge": "▶ UP NEXT",

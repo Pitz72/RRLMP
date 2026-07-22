@@ -41,7 +41,7 @@
 Gli SFX sono "indipendenti": il mix li tocca poco.
 
 - **Voce attiva** → l'SFX si abbassa **a metà** (×0.5). *(Nota: è un fattore fisso 0.5, diverso dal `duckingFactor` usato per musica/asset.)*
-- **Musica o stacco attivi** → **nessun effetto**: l'SFX resta a volume pieno (non viene mutato dalla Music Dominance).
+- **Musica attiva** → **nessun effetto**: l'SFX resta a volume pieno (non viene mutato dalla Music Dominance).
 - Altrimenti → volume pieno.
 
 > Codice: ramo "else" (SFX/Others) in `evaluateMix`.
@@ -54,7 +54,7 @@ La colonna SFX è l'**unica eccezione** al take-over. Quando l'operatore lancia 
 
 > Codice: `getColumnForClip(...) === 'col-sfx'` esclusa dal ciclo `isTakeover` in `playClip`.
 
-Rationale: gli effetti (jingle corti, stinger, applausi) devono poter coprire una sigla o uno stacco senza essere tagliati.
+Rationale: gli effetti (jingle corti, stinger, applausi) devono poter coprire una sigla senza essere tagliati. È anche la via ufficiale per lo "stacchetto sopra la musica" (v1.15.15, vedi [01-ASSETS.md](01-ASSETS.md) §4).
 
 ---
 

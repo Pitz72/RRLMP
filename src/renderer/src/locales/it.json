@@ -218,9 +218,6 @@
             "volumeGain": "Guadagno Volume",
             "globalKeybind": "Scorciatoia Globale",
             "recordKeyPlaceholder": "Clicca e premi un tasto...",
-            "behaviorLabel": "Comportamento di Riproduzione",
-            "behaviorNormal": "Normale",
-            "behaviorStacco": "Stacco (Jingle)",
             "loopPlayback": "Riproduzione in Loop",
             "autoplayNext": "Avanzamento Automatico",
             "nextStop": "Stop",
@@ -447,7 +444,6 @@
     "card": {
         "missingFile": "FILE MANCANTE",
         "missingTitle": "⚠️ {{name}} (File Non Trovato)",
-        "staccoBadge": "STACCO",
         "loopBadge": "LOOP",
         "nextBadge": "NEXT",
         "upNextBadge": "▶ UP NEXT",

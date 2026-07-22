@@ -218,9 +218,6 @@
             "volumeGain": "Lautstärke-Gain",
             "globalKeybind": "Globale Tastenbelegung",
             "recordKeyPlaceholder": "Klicken und Taste drücken...",
-            "behaviorLabel": "Wiedergabeverhalten",
-            "behaviorNormal": "Normal",
-            "behaviorStacco": "Jingle (Stinger)",
             "loopPlayback": "Loop-Wiedergabe",
             "autoplayNext": "Automatisch weiter",
             "nextStop": "Stopp",
@@ -430,7 +427,6 @@
     "card": {
         "missingFile": "DATEI FEHLT",
         "missingTitle": "⚠️ {{name}} (Datei nicht gefunden)",
-        "staccoBadge": "JINGLE",
         "loopBadge": "LOOP",
         "nextBadge": "NEXT",
         "upNextBadge": "▶ UP NEXT",

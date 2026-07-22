@@ -6,7 +6,7 @@ import { IAudioPlayer } from '../../engine/AudioPlayer.interface';
 import { AudioClip } from '../../types';
 import { makeClip, makeColumn, makeMockPlayer, MockPlayer } from './fixtures';
 
-// Blocco 3 (v1.4.5) — evaluateMix: il "cervello" del mix (ducking/stacco).
+// Blocco 3 (v1.4.5) — evaluateMix: il "cervello" del mix (ducking).
 // Dipendenze controllate: _duckingFactor/_duckingDuration via useSettingsStore (subscribe
 // live), appartenenza colonna via useProjectStore (getColumnForClip), stato mic via
 // setMicActive. evaluateMix chiama player.fadeTo(volume, duration): asseriamo su quello.
@@ -14,8 +14,8 @@ import { makeClip, makeColumn, makeMockPlayer, MockPlayer } from './fixtures';
 const DUCK = 0.2;
 const DUR = 500;
 
-// Costruisce la mappa activeClips e registra le clip asset/stacco in col-assets
-// (serve a getColumnForClip per la rule asset e per la rilevazione dello stacco).
+// Costruisce la mappa activeClips e registra le clip asset in col-assets
+// (serve a getColumnForClip per la rule asset).
 const buildActive = (clips: AudioClip[]) => {
     const players = new Map<string, MockPlayer>();
     const active: Record<string, { player: IAudioPlayer; isPlaying: boolean; progress: number; clip: AudioClip }> = {};
@@ -69,7 +69,7 @@ describe('evaluateMix — MUSIC ducking', () => {
         expect(players.get(music.id)!.last()!.volume).toBeCloseTo(DUCK, 6);
     });
 
-    it('la musica resta piena se non c\'e\' voce/stacco', () => {
+    it('la musica resta piena se non c\'e\' voce', () => {
         const music = makeClip({ type: 'music', volume: 0.7 });
         const { active, players } = buildActive([music]);
         evaluateMix(active);
@@ -85,16 +85,20 @@ describe('evaluateMix — MUSIC ducking', () => {
     });
 });
 
-describe('evaluateMix — ASSET (beds/jingle/stacco)', () => {
-    it('lo stacco attivo resta pieno, gli altri asset vanno a 0, la musica ducka', () => {
-        const stacco = makeClip({ type: 'asset', behavior: 'stacco', volume: 1.0 });
+describe('evaluateMix — ASSET (beds/jingle)', () => {
+    // v1.15.15: behavior 'stacco' è LEGACY e il motore lo ignora — una clip
+    // marcata stacco è un asset come gli altri (music dominance la azzera,
+    // la musica NON ducka). Le vie di regia per "stacchetto sopra la musica"
+    // sono le colonne FX (esente da dominance) e VOICE (ducka tutto).
+    it('behavior stacco legacy IGNORATO: asset azzerato dalla musica, musica piena', () => {
+        const legacyStacco = makeClip({ type: 'asset', behavior: 'stacco', volume: 1.0 });
         const otherAsset = makeClip({ type: 'asset', volume: 0.9 });
         const music = makeClip({ type: 'music', volume: 1.0 });
-        const { active, players } = buildActive([stacco, otherAsset, music]);
+        const { active, players } = buildActive([legacyStacco, otherAsset, music]);
         evaluateMix(active);
-        expect(players.get(stacco.id)!.last()!.volume).toBeCloseTo(1.0, 6);   // self-preservation
-        expect(players.get(otherAsset.id)!.last()!.volume).toBe(0);            // stacco suppression
-        expect(players.get(music.id)!.last()!.volume).toBeCloseTo(DUCK, 6);    // music ducks su stacco
+        expect(players.get(legacyStacco.id)!.last()!.volume).toBe(0);       // music dominance
+        expect(players.get(otherAsset.id)!.last()!.volume).toBe(0);          // music dominance
+        expect(players.get(music.id)!.last()!.volume).toBeCloseTo(1.0, 6);   // nessun ducking da stacco
     });
 
     it('un asset si azzera quando la musica e\' attiva (music dominance)', () => {
@@ -105,7 +109,7 @@ describe('evaluateMix — ASSET (beds/jingle/stacco)', () => {
         expect(players.get(asset.id)!.last()!.volume).toBe(0);
     });
 
-    it('un asset ducka quando c\'e\' voce (no musica, no stacco)', () => {
+    it('un asset ducka quando c\'e\' voce (no musica)', () => {
         const asset = makeClip({ type: 'asset', volume: 1.0 });
         const voice = makeClip({ type: 'voice', volume: 1.0 });
         const { active, players } = buildActive([asset, voice]);
@@ -184,7 +188,9 @@ describe('evaluateMix — clip in transizione e clip soppresse', () => {
         useAudioStore.setState({ fadingClipIds: [] });
     });
 
-    it('tiene a 0 le clip soppresse da uno stacco anche fuori da col-assets', () => {
+    // v1.15.15: il motore non SCRIVE più suppressedClips (ramo stacco rimosso da
+    // playClip), ma il meccanismo di lettura resta onorato (legacy/difensivo).
+    it('tiene a 0 le clip presenti in suppressedClips (meccanismo legacy)', () => {
         const suppressedClip = makeClip({ type: 'music', volume: 0.9 });
         const { active, players } = buildActive([suppressedClip]);
         evaluateMix(active, undefined, undefined, {

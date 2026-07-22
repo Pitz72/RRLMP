@@ -218,9 +218,6 @@
             "volumeGain": "音量增益",
             "globalKeybind": "全局快捷键",
             "recordKeyPlaceholder": "点击并按下按键...",
-            "behaviorLabel": "播放行为",
-            "behaviorNormal": "普通",
-            "behaviorStacco": "片花（Jingle）",
             "loopPlayback": "循环播放",
             "autoplayNext": "自动播放下一个",
             "nextStop": "停止",
@@ -430,7 +427,6 @@
     "card": {
         "missingFile": "文件缺失",
         "missingTitle": "⚠️ {{name}}（未找到文件）",
-        "staccoBadge": "片花",
         "loopBadge": "循环",
         "nextBadge": "接续",
         "upNextBadge": "▶ 即将播放",

@@ -321,26 +321,12 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                             </div>
 
                             {/* RIGHT COLUMN: Behavior & Mixing */}
+                            {/* v1.15.15: toggle "Stacco (Jingle)" RIMOSSO — dal modello
+                                take-over + regole-per-colonna (2026-06-30) lo scopo della
+                                clip lo determina la colonna, non un flag per-clip. Il campo
+                                `behavior` resta nel modello per compat .lmp (passthrough
+                                nel save, come duckingRole) ma il motore lo ignora. */}
                             <div className="space-y-6">
-                                {/* BEHAVIOR */}
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">{t('modal.clip.behaviorLabel', 'Comportamento di Riproduzione')}</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <button
-                                            onClick={() => setBehavior('normal')}
-                                            className={`seg ${behavior === 'normal' ? 'on' : ''}`}
-                                        >
-                                            {t('modal.clip.behaviorNormal', 'Normale')}
-                                        </button>
-                                        <button
-                                            onClick={() => setBehavior('stacco')}
-                                            className={`seg ${behavior === 'stacco' ? 'on-violet' : ''}`}
-                                        >
-                                            {t('modal.clip.behaviorStacco', 'Stacco (Jingle)')}
-                                        </button>
-                                    </div>
-                                </div>
-
                                 {/* TOGGLES */}
                                 <div className="card space-y-3">
                                     <label className="flex items-center justify-between cursor-pointer group">

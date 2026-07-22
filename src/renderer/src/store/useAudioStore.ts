@@ -7,7 +7,6 @@ import AudioContextManager from '../engine/AudioContextManager';
 import { debugLog } from './useDebugStore';
 import { useProjectStore } from './useProjectStore';
 import { useSettingsStore } from './useSettingsStore';
-import * as AUDIO_CONST from '../constants/audioConstants';
 import i18n from '../i18n';
 
 // v1.2.19 (NEW-GR-04): cap FIFO sul playoutLog per evitare degrado progressivo
@@ -95,9 +94,9 @@ const getBusForType = (type: string) => {
  * 
  * Logic follows a hierarchy of priority:
  * 1. VOICE: Always 100% volume.
- * 2. STACCO: High priority jingles that mute other assets and duck music.
- * 3. MUSIC: Standard background, ducks when Voice or Stacco is active.
- * 4. ASSETS: Beds/Jingles that duck on voice or mute on music dominance.
+ * 2. MUSIC: Standard background, ducks when Voice is active.
+ * 3. ASSETS: Beds/Jingles that duck on voice or mute on music dominance.
+ * (v1.15.15: il livello "STACCO" è stato rimosso — vedi commento in evaluateMix.)
  */
 /**
  * newClipId (opzionale) — ID della clip appena avviata.
@@ -128,17 +127,19 @@ export const evaluateMix = (
     // v0.17.0: isMicActive (Smart Mic) ha la stessa priorità di una clip voice
     const isVoiceActive = activeValues.some(c => c.clip.type === 'voice') || _isMicActiveGlobal;
     const isMusicActive = activeValues.some(c => c.clip.type === 'music');
-    // Active Stacco defined as: An asset that is playing and has behavior 'stacco'
-    const activeStacco = activeValues.find(c =>
-        getColumnForClip(c.clip.id) === 'col-assets' && c.clip.behavior === 'stacco'
-    );
+    // v1.15.15: rimosso il concetto di "stacco attivo" (clip col-assets con
+    // behavior 'stacco' che si auto-preservava, duckava musica/PRE-SHOW e azzerava
+    // gli altri asset). Dal modello take-over + regole-per-colonna (2026-06-30) lo
+    // scopo lo determina la colonna: "stacchetto sopra la musica" = colonna FX
+    // (esente da Music Dominance) o VOICE (ducka tutto). Il campo clip.behavior
+    // resta nel modello per compat .lmp ma il motore lo ignora.
     // 2026-06-30 (A3): è in onda un asset/jingle/promo NON in loop (= sigla, jingle, spot)?
     // Un sottofondo in LOOP deve abbassarsi a zero sotto di esso e poi tornare (rialzo
     // sfumato) quando finisce. Il rientro è automatico: a fine jingle stopClip richiama
     // evaluateMix, qui questa flag torna false e il bed risale al suo volume.
     const isNonLoopAssetActive = activeValues.some(c => c.clip.type === 'asset' && !c.clip.isLooping);
 
-    debugLog(`MIX EVAL: MusicActive=${isMusicActive}, VoiceActive=${isVoiceActive}, Stacco=${activeStacco ? activeStacco.clip.name : 'None'}`, 'info');
+    debugLog(`MIX EVAL: MusicActive=${isMusicActive}, VoiceActive=${isVoiceActive}`, 'info');
 
     activeValues.forEach(ac => {
         const { clip, player } = ac;
@@ -156,25 +157,17 @@ export const evaluateMix = (
             targetVolume = clip.volume;
         }
         else if (clip.type === 'music' || clip.type === 'preshow') {
-            // MUSIC: Ducks if Voice or Stacco is active
-            if (isVoiceActive || activeStacco) {
+            // MUSIC: Ducks if Voice is active
+            if (isVoiceActive) {
                 targetVolume = clip.volume * duckingFactor;
             } else {
                 targetVolume = clip.volume;
             }
         }
         else if (clip.type === 'asset' || getColumnForClip(clip.id) === 'col-assets') {
-            // ASSETS (Beds, Jingles, Stacchi)
-            // Rule 1: Self-Preservation (If I am the active Stacco, I stay full)
-            if (activeStacco && activeStacco.clip.id === clip.id) {
-                targetVolume = clip.volume;
-            }
-            // Rule 2: Stacco Suppression (If another Stacco is active, I mute)
-            else if (activeStacco) {
-                targetVolume = 0;
-            }
+            // ASSETS (Beds, Jingles)
             // Rule 3: Music Dominance (If Music active, assets/beds mute to avoid mud)
-            else if (isMusicActive) {
+            if (isMusicActive) {
                 targetVolume = 0;
             }
             // Rule 3b (A3, 2026-06-30): un SOTTOFONDO in LOOP si azzera quando è in onda
@@ -798,29 +791,16 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     return acColId === columnId && ac.clip.id !== freshClip.id;
                 });
 
-                if (freshClip.behavior === 'stacco') {
-                    // DUCK existing clips, don't stop them
-                    sameColumnClips.forEach(ac => {
-                        debugLog(`AudioStore: Suppressing ${ac.clip.name} for Stacco`, 'info');
-                        // Store original volume if not already suppressed
-                        const isAlreadySuppressed = currentStore.suppressedClips[ac.clip.id] !== undefined;
-                        if (!isAlreadySuppressed) {
-                            set(state => ({
-                                suppressedClips: { ...state.suppressedClips, [ac.clip.id]: ac.clip.volume }
-                            }));
-                        }
-                        ac.player.fadeTo(0, AUDIO_CONST.STACCO_FADE_DURATION); // Fast fade to silence
+                // v1.15.15: rimosso il ramo `behavior === 'stacco'` (sopprimeva-e-ripristinava
+                // le clip della stessa colonna invece di fermarle). Il motore ignora il flag:
+                // il conflitto intra-colonna ferma sempre le altre clip.
+                // v0.13.2: le clip in transizione (crossfade/segue) vengono saltate —
+                // il loro fade-out e stopClip sono già schedulati dal transition handler.
+                sameColumnClips
+                    .filter(ac => !get().fadingClipIds.includes(ac.clip.id))
+                    .forEach(ac => {
+                        currentStore.stopClip(ac.clip.id);
                     });
-                } else {
-                    // NORMAL behavior: Stop others in same column.
-                    // v0.13.2: le clip in transizione (crossfade/segue) vengono saltate —
-                    // il loro fade-out e stopClip sono già schedulati dal transition handler.
-                    sameColumnClips
-                        .filter(ac => !get().fadingClipIds.includes(ac.clip.id))
-                        .forEach(ac => {
-                            currentStore.stopClip(ac.clip.id);
-                        });
-                }
             }
 
             // GR-02 Fix: registra run-ID univoco prima del load asincrono.
@@ -1324,16 +1304,13 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     delete newActiveClips[clipId];
 
                     // G4 Fix: gestione di suppressedClips.
-                    // Se la clip fermata era uno STACCO, svuotiamo completamente
-                    // suppressedClips così evaluateMix può ripristinare liberamente
-                    // i volumi di tutte le clip rimaste attive.
-                    // Se era una clip normale soppressa, rimuoviamo solo la sua entry.
-                    const wasStacco = active.clip.behavior === 'stacco';
-                    const newSuppressedClips = wasStacco
-                        ? {}
-                        : Object.fromEntries(
-                            Object.entries(state.suppressedClips).filter(([id]) => id !== clipId)
-                        );
+                    // v1.15.15: il motore non SCRIVE più suppressedClips (rimosso il ramo
+                    // stacco in playClip) — la mappa resta nello stato come meccanismo
+                    // legacy/inerte letto da evaluateMix; qui puliamo solo l'entry della
+                    // clip fermata (difensivo, in pratica la mappa è sempre vuota).
+                    const newSuppressedClips = Object.fromEntries(
+                        Object.entries(state.suppressedClips).filter(([id]) => id !== clipId)
+                    );
 
                     // v1.4.6 (#1/#22): passa lo stato POST-update — dentro set() getState()
                     // vedrebbe ancora la vecchia mappa suppressed/fading.

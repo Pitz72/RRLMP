@@ -88,7 +88,7 @@ Oltre alle sei colonne, l'header offre due strumenti rapidi:
 2. **Click sinistro** sulla card per avviare la riproduzione.
 3. **Click di nuovo** sulla card attiva per fermarla con fade out, oppure premi `Esc` per uno stop di emergenza immediato su tutte le clip.
 
-Nella maggior parte delle colonne vale la regola "una clip alla volta": avviarne una nuova ferma automaticamente quella in corso nella stessa colonna. Il pad FX e le clip in modalità Stacco fanno eccezione e si sovrappongono liberamente.
+Nella maggior parte delle colonne vale la regola "una clip alla volta": avviarne una nuova ferma automaticamente quella in corso nella stessa colonna. Il pad FX fa eccezione: gli effetti si sovrappongono liberamente.
 
 ---
 
