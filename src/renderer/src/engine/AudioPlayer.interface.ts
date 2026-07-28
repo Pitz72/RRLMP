@@ -25,6 +25,13 @@ export interface IAudioPlayer {
     onPlaybackError?(callback: (clipId: string) => void): void;
     updateSettings(clip: AudioClip): void;
     fadeTo(volume: number, duration: number): void;
+    // v1.15.16 (G1): true mentre è in corso la dissolvenza FINALE della clip
+    // (quella armata da StreamPlayer.ontimeupdate quando mancano fadeOut ms alla
+    // fine). evaluateMix deve saltare questi player: riapplicare un volume
+    // cancellerebbe la rampa verso 0 e riporterebbe la clip a volume pieno
+    // nell'ultimo tratto. Opzionale — un player che non lo implementa si comporta
+    // come prima (nessuna protezione, ma nessuna rottura).
+    isFadingOut?(): boolean;
     // v1.10.23 (Automix Fase C2): tempo-match dell'entrante. Opzionali — solo
     // StreamPlayer li implementa; il controller automix degrada senza (optional
     // chaining), nessun altro percorso dell'app li usa.

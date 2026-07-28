@@ -272,6 +272,15 @@ export class StreamPlayer implements IAudioPlayer {
         }
     }
 
+    // v1.15.16 (G1): espone lo stato della dissolvenza finale al mixer.
+    // `setVolume` era già protetto da questo flag (vedi sotto); `fadeTo` — che è
+    // la via usata da evaluateMix — non lo era, quindi qualunque play/stop
+    // concorrente negli ultimi `fadeOut` ms annullava la rampa verso 0 e
+    // riportava la clip a volume pieno prima del taglio finale.
+    isFadingOut(): boolean {
+        return this.fadeOutTriggered;
+    }
+
     getCurrentTime(): number {
         return this.audioElement.currentTime;
     }

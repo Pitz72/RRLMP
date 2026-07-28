@@ -38,16 +38,20 @@ export const makeColumn = (id: string, type: ClipType, clips: AudioClip[], rotat
 });
 
 // Player finto per evaluateMix: registra le chiamate a fadeTo.
+// v1.15.16 (G1): `fadingOut` simula una clip nella dissolvenza finale armata dal
+// player stesso (StreamPlayer.isFadingOut). evaluateMix deve lasciarla in pace.
 export interface MockPlayer {
     fadeTo: (volume: number, duration: number) => void;
+    isFadingOut(): boolean;
     calls: Array<{ volume: number; duration: number }>;
     last(): { volume: number; duration: number } | undefined;
 }
-export const makeMockPlayer = (): MockPlayer => {
+export const makeMockPlayer = (fadingOut = false): MockPlayer => {
     const calls: Array<{ volume: number; duration: number }> = [];
     return {
         calls,
         fadeTo(volume: number, duration: number) { calls.push({ volume, duration }); },
+        isFadingOut() { return fadingOut; },
         last() { return calls[calls.length - 1]; },
     };
 };

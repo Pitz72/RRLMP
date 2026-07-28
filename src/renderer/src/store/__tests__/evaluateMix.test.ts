@@ -208,6 +208,52 @@ describe('evaluateMix — clip in transizione e clip soppresse', () => {
     });
 });
 
+// v1.15.16 (G1) — dissolvenza FINALE della clip (armata dal player, NON dallo store):
+// non finisce in fadingClipIds, quindi prima di questa guardia qualunque play/stop
+// concorrente negli ultimi secondi riportava il brano a volume pieno.
+describe('evaluateMix — dissolvenza finale della clip', () => {
+    // Variante di buildActive che marca alcune clip come "in dissolvenza finale".
+    const buildActiveWithFading = (clips: AudioClip[], fadingIds: string[]) => {
+        const players = new Map<string, MockPlayer>();
+        const active: Record<string, { player: IAudioPlayer; isPlaying: boolean; progress: number; clip: AudioClip }> = {};
+        for (const clip of clips) {
+            const p = makeMockPlayer(fadingIds.includes(clip.id));
+            players.set(clip.id, p);
+            active[clip.id] = { player: p as unknown as IAudioPlayer, isPlaying: true, progress: 0, clip };
+        }
+        useProjectStore.setState({ columns: [makeColumn('col-assets', 'asset', clips.filter(c => c.type === 'asset'))] });
+        return { active, players };
+    };
+
+    it('non tocca una clip nella dissolvenza finale quando parte una voce', () => {
+        const music = makeClip({ type: 'music', volume: 1.0 });
+        const voice = makeClip({ type: 'voice', volume: 1.0 });
+        const { active, players } = buildActiveWithFading([music, voice], [music.id]);
+        evaluateMix(active, voice.id);
+        // Prima del fix la musica riceveva fadeTo(1.0 * DUCK) e la rampa verso 0 veniva
+        // cancellata: nessuna chiamata deve arrivare al player in dissolvenza.
+        expect(players.get(music.id)!.calls).toHaveLength(0);
+        expect(players.get(voice.id)!.last()!.volume).toBeCloseTo(1.0, 6);
+    });
+
+    it('non tocca una clip nella dissolvenza finale nemmeno quando il mix tornerebbe a volume pieno', () => {
+        const music = makeClip({ type: 'music', volume: 1.0 });
+        const { active, players } = buildActiveWithFading([music], [music.id]);
+        evaluateMix(active);
+        expect(players.get(music.id)!.calls).toHaveLength(0);
+    });
+
+    it('continua a mixare normalmente le clip NON in dissolvenza', () => {
+        const fading = makeClip({ type: 'music', volume: 1.0 });
+        const normal = makeClip({ type: 'music', volume: 0.8 });
+        const voice = makeClip({ type: 'voice', volume: 1.0 });
+        const { active, players } = buildActiveWithFading([fading, normal, voice], [fading.id]);
+        evaluateMix(active);
+        expect(players.get(fading.id)!.calls).toHaveLength(0);
+        expect(players.get(normal.id)!.last()!.volume).toBeCloseTo(0.8 * DUCK, 6);
+    });
+});
+
 describe('evaluateMix — durata di applicazione', () => {
     it('applica duration 0 alla clip appena avviata (newClipId), duckingDuration alle altre', () => {
         const a = makeClip({ type: 'music', volume: 1.0 });

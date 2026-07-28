@@ -150,6 +150,17 @@ export const evaluateMix = (
         // udibilmente a volume pieno prima del taglio. Non toccare.
         if (fadingIds.includes(clip.id)) return;
 
+        // v1.15.16 (G1): stessa ragione, per la dissolvenza FINALE della clip —
+        // quella che StreamPlayer arma da solo quando mancano `fadeOut` ms alla fine
+        // (ontimeupdate, punto 3). Quella clip NON è in fadingClipIds: lì finiscono
+        // solo le transizioni orchestrate dallo store (crossfade/segue/automix).
+        // Senza questa guardia, un qualunque play/stop concorrente negli ultimi
+        // secondi di un brano (lanciare una voce, un jingle, fermare un FX) faceva
+        // risalire il brano al volume nominale in duckingDuration ms, per poi
+        // troncarlo di netto a fine file. `setVolume` era già protetto dallo stesso
+        // flag; `fadeTo`, la via che usa il mixer, non lo era.
+        if (player.isFadingOut?.()) return;
+
         let targetVolume = clip.volume; // Start with nominal volume set by user
 
         if (clip.type === 'voice') {
