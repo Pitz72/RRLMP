@@ -98,6 +98,7 @@
             "remoteControlDesc": "Serveur local en réseau (LAN) pour piloter l'application depuis une tablette ou un PC secondaire : STOP ALL et lecture/arrêt de la colonne Music.",
             "remoteToggleOn": "Actif",
             "remoteToggleOff": "Éteint",
+            "remoteFailed": "Le contrôle à distance n'a pas démarré : {{err}}",
             "remotePinLabel": "PIN",
             "remotePortLabel": "Port",
             "remoteLanAddresses": "Adresses LAN",

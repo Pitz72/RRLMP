@@ -54,6 +54,9 @@ declare global {
             remoteControlStop: () => Promise<RemoteControlStatus>;
             remoteControlStatus: () => Promise<RemoteControlStatus>;
             onRemoteCommand: (callback: (data: { name: string; clipId?: string }) => void) => () => void;
+            /** v1.15.25: il server di controllo remoto è caduto dopo l'avvio (porta
+             *  occupata, permessi di rete). L'interfaccia deve tornare a "spento". */
+            onRemoteControlFailed?: (callback: (data: { message: string }) => void) => () => void;
             publishRemoteState: (clips: Array<{ id: string; name: string; isPlaying: boolean }>) => void;
             checkFilesExist: (paths: string[]) => Promise<{ missing: string[] }>;
             restoreDefaultSfx: () => Promise<{ success: boolean; sounds?: Array<{ title: string; path: string }>; error?: string }>;

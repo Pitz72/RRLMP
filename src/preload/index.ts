@@ -44,6 +44,13 @@ if (process.contextIsolated) {
                 ipcRenderer.on('remote-command', subscription);
                 return () => ipcRenderer.removeListener('remote-command', subscription);
             },
+            // v1.15.25 (M8): il server è caduto dopo l'avvio (tipico: porta occupata).
+            // Senza questo canale l'interfaccia restava accesa su un server morto.
+            onRemoteControlFailed: (callback: (data: { message: string }) => void) => {
+                const subscription = (_event: IpcRendererEvent, data: { message: string }) => callback(data);
+                ipcRenderer.on('remote-control:failed', subscription);
+                return () => ipcRenderer.removeListener('remote-control:failed', subscription);
+            },
             publishRemoteState: (clips: Array<{ id: string; name: string; isPlaying: boolean }>) =>
                 ipcRenderer.send('remote-control:publish-state', clips),
             checkFilesExist: (paths: string[]) => ipcRenderer.invoke('check-files-exist', paths),

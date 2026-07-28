@@ -121,6 +121,7 @@
             "remoteControlDesc": "Local network (LAN) server to control the app from a tablet or secondary PC: STOP ALL and play/stop of the Music column.",
             "remoteToggleOn": "Active",
             "remoteToggleOff": "Off",
+            "remoteFailed": "Remote Control did not start: {{err}}",
             "remotePinLabel": "PIN",
             "remotePortLabel": "Port",
             "remoteLanAddresses": "LAN Addresses",

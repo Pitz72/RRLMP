@@ -48,6 +48,10 @@ let wss: WebSocketServer | null = null;
 let currentPin: string | null = null;
 let pinLimiter = createPinRateLimiter();
 let onRemoteCommand: ((name: RemoteCommandName, clipId?: string) => void) | null = null;
+// v1.15.25 (M8): notifica al chiamante che il server è caduto DOPO l'avvio (tipico:
+// porta occupata — `listen` fallisce in modo asincrono, quando startRemoteControlServer
+// ha già restituito "running"). Senza, l'interfaccia restava accesa su un server morto.
+let onServerFailure: ((message: string) => void) | null = null;
 let musicState: RemoteClipState[] = [];
 const authenticatedClients = new Set<WebSocket>();
 
@@ -155,12 +159,16 @@ export function getRemoteControlStatus(): RemoteControlStatus {
  *   chiamante (main/index.ts) inoltra al renderer via webContents.send, stesso
  *   pattern del canale 'open-file'.
  */
-export function startRemoteControlServer(handleCommand: (name: RemoteCommandName, clipId?: string) => void): RemoteControlStatus {
+export function startRemoteControlServer(
+    handleCommand: (name: RemoteCommandName, clipId?: string) => void,
+    handleFailure?: (message: string) => void
+): RemoteControlStatus {
     if (server) return getRemoteControlStatus(); // già avviato, idempotente
 
     currentPin = generatePin();
     pinLimiter = createPinRateLimiter(); // stato pulito ad ogni avvio, nessun residuo dalla sessione precedente
     onRemoteCommand = handleCommand;
+    onServerFailure = handleFailure ?? null; // v1.15.25 (M8)
 
     const srv = http.createServer((req, res) => {
         if (req.method === 'GET' && req.url === '/health') {
@@ -209,9 +217,23 @@ export function startRemoteControlServer(handleCommand: (name: RemoteCommandName
     });
 
     srv.on('error', (err: Error) => {
+        // v1.15.25 (M8): l'errore più comune è "porta 8787 già occupata" (una
+        // seconda istanza, un altro programma). Prima si azzeravano solo `server` e
+        // `currentPin`: il WebSocketServer restava attaccato a un server morto e
+        // `stopRemoteControlServer` usciva subito sul controllo `if (!server)`,
+        // lasciandolo orfano. In più il renderer non veniva avvisato di nulla e in
+        // Impostazioni il controllo remoto risultava acceso senza esserlo.
         logger.error(`[RemoteControlServer] Errore: ${err.message}`);
+        try { wss?.clients.forEach((c) => c.terminate()); } catch { /* già chiuso */ }
+        try { wss?.close(); } catch { /* già chiuso */ }
+        wss = null;
+        authenticatedClients.clear();
+        onRemoteCommand = null;
+        musicState = [];
+        try { srv.close(); } catch { /* mai messosi in ascolto */ }
         server = null;
         currentPin = null;
+        onServerFailure?.(err.message);
     });
 
     const socketServer = new WebSocketServer({ server: srv, path: '/ws' });
@@ -282,6 +304,7 @@ export function stopRemoteControlServer(): void {
     wss?.close();
     wss = null;
     onRemoteCommand = null;
+    onServerFailure = null; // v1.15.25 (M8)
     authenticatedClients.clear();
     musicState = [];
     server.close();

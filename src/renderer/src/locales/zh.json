@@ -98,6 +98,7 @@
             "remoteControlDesc": "在局域网（LAN）中的本地服务器，用于从平板电脑/副PC操控应用：STOP ALL 以及 Music 列的播放/停止。",
             "remoteToggleOn": "已启用",
             "remoteToggleOff": "已关闭",
+            "remoteFailed": "远程控制未能启动：{{err}}",
             "remotePinLabel": "PIN",
             "remotePortLabel": "端口",
             "remoteLanAddresses": "LAN 地址",

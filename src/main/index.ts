@@ -276,7 +276,15 @@ function forwardRemoteCommandToRenderer(name: RemoteCommandName, clipId?: string
         mainWindowRef.webContents.send('remote-command', { name, clipId });
     }
 }
-ipcMain.handle('remote-control:start', () => startRemoteControlServer(forwardRemoteCommandToRenderer));
+// v1.15.25 (M8): `listen` può fallire DOPO che l'handler ha già risposto "running"
+// (tipico: porta 8787 occupata). Il server si ripulisce da solo; qui avvisiamo il
+// renderer, che altrimenti mostrerebbe il controllo remoto acceso senza esserlo.
+function notifyRemoteControlFailure(message: string): void {
+    if (mainWindowRef && !mainWindowRef.isDestroyed()) {
+        mainWindowRef.webContents.send('remote-control:failed', { message });
+    }
+}
+ipcMain.handle('remote-control:start', () => startRemoteControlServer(forwardRemoteCommandToRenderer, notifyRemoteControlFailure));
 ipcMain.handle('remote-control:stop', () => { stopRemoteControlServer(); return getRemoteControlStatus(); });
 ipcMain.handle('remote-control:status', () => getRemoteControlStatus());
 // Step 4/N — verso opposto: il renderer pubblica lo stato della colonna Music

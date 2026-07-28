@@ -7,6 +7,7 @@ import { DEFAULT_MASTER_CHAIN } from '../../engine/AudioContextManager';
 import { FlagIcon } from '../ui/FlagIcon';
 import { RemoteControlStatus } from '../../types';
 import { MIC_ARM_ENABLED } from '../../utils/featureFlags';
+import { toast } from '../../store/useToastStore';
 
 interface Props {
     isOpen: boolean;
@@ -100,6 +101,20 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
         if (!isOpen || !window.electron?.remoteControlStatus) return;
         window.electron.remoteControlStatus().then(setRemoteStatus).catch(() => {});
     }, [isOpen]);
+
+    // v1.15.25 (M8): `listen` fallisce in modo ASINCRONO — la porta occupata da una
+    // seconda istanza o da un altro programma si scopre dopo che l'avvio ha già
+    // risposto "acceso". Senza questo canale il toggle restava acceso su un server
+    // morto, senza alcun messaggio: si provava a collegare il tablet e non funzionava
+    // niente, senza capire perché.
+    useEffect(() => {
+        if (!window.electron?.onRemoteControlFailed) return;
+        return window.electron.onRemoteControlFailed(({ message }) => {
+            setRemoteStatus({ running: false });
+            setRemoteToggleBusy(false);
+            toast(t('modal.settings.remoteFailed', 'Controllo Remoto non avviato: {{err}}', { err: message }), 'error', 8000);
+        });
+    }, [t]);
 
     // Copia l'URL del server remoto (es. per incollarlo in Telegram e aprirlo dal
     // tablet con un tap). Stesso pattern robusto del COPY del Debug Overlay

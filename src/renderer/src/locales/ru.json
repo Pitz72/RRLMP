@@ -98,6 +98,7 @@
             "remoteControlDesc": "Локальный сетевой сервер (LAN) для управления приложением с планшета или дополнительного ПК: STOP ALL и воспроизведение/стоп колонки Music.",
             "remoteToggleOn": "Включено",
             "remoteToggleOff": "Выключено",
+            "remoteFailed": "Не удалось запустить дистанционное управление: {{err}}",
             "remotePinLabel": "PIN",
             "remotePortLabel": "Порт",
             "remoteLanAddresses": "Адреса LAN",

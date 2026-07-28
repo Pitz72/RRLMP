@@ -98,6 +98,7 @@
             "remoteControlDesc": "Lokaler Server im Netzwerk (LAN), um die App von einem Tablet/Zweit-PC zu steuern: STOP ALL sowie Play/Stop der Spalte Music.",
             "remoteToggleOn": "Aktiv",
             "remoteToggleOff": "Aus",
+            "remoteFailed": "Fernsteuerung nicht gestartet: {{err}}",
             "remotePinLabel": "PIN",
             "remotePortLabel": "Port",
             "remoteLanAddresses": "LAN-Adressen",
