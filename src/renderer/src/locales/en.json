@@ -52,6 +52,7 @@
         "exportNeedsSave": "Save the project first: the audio archive is created next to the save file.",
         "exportCopied": "{{count}} copied",
         "exportPruned": "{{count}} removed",
+        "exportKept": "{{count}} files already in audio/ are not part of the project and were left untouched. From the next export on, RRLMP will manage this folder: move elsewhere anything you want to keep.",
         "exportSynced": "Audio archive synced — {{parts}} in:\n{{path}}\\audio",
         "exportRepointSaveFailed": "Archive created, but saving the new references failed: {{err}}",
         "exportError": "Export error: {{err}}",

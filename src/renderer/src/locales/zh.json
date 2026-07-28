@@ -52,6 +52,7 @@
         "exportNeedsSave": "请先保存项目：音频存档会创建在保存文件旁边。",
         "exportCopied": "已复制 {{count}} 个",
         "exportPruned": "已移除 {{count}} 个",
+        "exportKept": "audio/ 中已有 {{count}} 个文件不属于本项目，已原样保留。从下次导出起，此文件夹将由 RRLMP 管理：请将需要保留的内容移至别处。",
         "exportSynced": "音频存档已同步 — {{parts}}，位于：\n{{path}}\\audio",
         "exportRepointSaveFailed": "存档已创建，但保存新引用失败：{{err}}",
         "exportError": "导出出错：{{err}}",

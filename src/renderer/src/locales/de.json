@@ -52,6 +52,7 @@
         "exportNeedsSave": "Speichern Sie zuerst das Projekt: Das Audio-Archiv wird neben der Speicherdatei angelegt.",
         "exportCopied": "{{count}} kopiert",
         "exportPruned": "{{count}} entfernt",
+        "exportKept": "{{count}} Dateien in audio/ gehören nicht zum Projekt und wurden unangetastet gelassen. Ab dem nächsten Export verwaltet RRLMP diesen Ordner: Verschieben Sie alles, was Sie behalten möchten, an einen anderen Ort.",
         "exportSynced": "Audio-Archiv synchronisiert — {{parts}} in:\n{{path}}\\audio",
         "exportRepointSaveFailed": "Archiv erstellt, aber das Speichern der neuen Verweise ist fehlgeschlagen: {{err}}",
         "exportError": "Exportfehler: {{err}}",

@@ -558,6 +558,15 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 const parts = [t('controls.exportCopied', '{{count}} copiati', { count: s?.copied || 0 })];
                 if (s?.pruned) parts.push(t('controls.exportPruned', '{{count}} rimossi', { count: s.pruned }));
                 toast(t('controls.exportSynced', 'Archivio audio sincronizzato — {{parts}} in:\n{{path}}\\audio', { parts: parts.join(', '), path: result.path }), 'success', 7000);
+                // v1.15.17 (G2): la cartella audio/ esisteva già e non era un archivio
+                // dell'app — i file estranei sono stati lasciati intatti. Va detto:
+                // dal prossimo export quella cartella sarà considerata nostra e
+                // ripulita, quindi l'operatore deve sapere che cosa c'è dentro.
+                if (s?.kept) {
+                    toast(t('controls.exportKept',
+                        '{{count}} file già presenti in audio/ non fanno parte del progetto e sono stati lasciati intatti. Dalla prossima esportazione questa cartella sarà gestita da RRLMP: sposta altrove ciò che vuoi conservare.',
+                        { count: s.kept }), 'error', 12000);
+                }
             } else {
                 if (result.error) toast(t('controls.exportError', 'Errore esportazione: {{err}}', { err: result.error }), 'error');
             }

@@ -545,11 +545,28 @@ ipcMain.handle('export-project', async (event, projectJsonString: string, lmpPat
         writeLmpCopy = true;
     }
     const audioDir = join(exportDir, 'audio');
+    // v1.15.17 (G2): marcatore di proprietà della cartella archivio.
+    // Il pruning qui sotto cancella i file non più referenziati dal progetto: è il
+    // comportamento voluto SE la cartella `audio/` l'ha creata l'export. Ma la
+    // cartella vive accanto al .lmp scelto dall'operatore, che può benissimo avere
+    // già una propria sottocartella `audio/` con materiale suo — e in quel caso il
+    // primo export la svuotava, senza conferma e senza passare dal cestino.
+    // Da qui in poi si cancella solo dentro una cartella che porta il nostro
+    // marcatore (o che abbiamo appena creato noi).
+    const ARCHIVE_MARKER = '.rrlmp-archive';
+    const markerPath = join(audioDir, ARCHIVE_MARKER);
 
     try {
-        if (!fs.existsSync(audioDir)) {
+        const audioDirExisted = fs.existsSync(audioDir);
+        if (!audioDirExisted) {
             fs.mkdirSync(audioDir, { recursive: true });
         }
+        // Pruning consentito se la cartella l'abbiamo creata ora, oppure se un
+        // export precedente ci ha già lasciato il marcatore. Una cartella
+        // preesistente e non marcata (materiale dell'utente, o archivio creato da
+        // versioni ≤1.15.16) viene marcata a fine export ma NON ripulita in questo
+        // giro: dal prossimo export il pruning riprende a funzionare come prima.
+        const pruningAllowed = !audioDirExisted || fs.existsSync(markerPath);
 
         const projectData = JSON.parse(projectJsonString);
         // SYNC (audit 2026-05-29): guard sulla struttura — un .lmp leggermente corrotto
@@ -558,7 +575,9 @@ ipcMain.handle('export-project', async (event, projectJsonString: string, lmpPat
             return { success: false, error: tMain('err.invalidProjectStructure') };
         }
         const { columns } = projectData.project;
-        let successParams = { copied: 0, skipped: 0, pruned: 0 };
+        // v1.15.17 (G2): `kept` = file estranei trovati nella cartella archivio e NON
+        // rimossi perché la cartella non è (ancora) riconosciuta come nostra.
+        let successParams = { copied: 0, skipped: 0, pruned: 0, kept: 0 };
         // v1.15.9: mappa id-clip → path relativo archiviato. Il renderer la usa per
         // ripuntare le clip alle copie in `audio/` (path assoluto) dopo l'export, così
         // cancellare gli originali diventa sicuro (l'archivio è il riferimento).
@@ -639,22 +658,52 @@ ipcMain.handle('export-project', async (event, projectJsonString: string, lmpPat
         // SYNC (audit 2026-05-29): pruning — la cartella audio deve rispecchiare lo stato reale
         // del progetto. Rimuove i file non più referenziati (clip eliminate, rinominate o sostituite)
         // invece di lasciarli accumulare.
+        // v1.15.17 (G2): si esegue SOLO dentro una cartella archivio riconosciuta come
+        // nostra (marcatore .rrlmp-archive o cartella appena creata). Altrimenti i file
+        // estranei vengono contati e riportati al renderer, ma lasciati intatti.
         try {
             for (const f of fs.readdirSync(audioDir)) {
+                if (f === ARCHIVE_MARKER) continue; // il marcatore non è un orfano
                 if (!usedDestNames.has(f.toLowerCase())) {
                     const full = join(audioDir, f);
                     try {
-                        if (fs.statSync(full).isFile()) {
-                            fs.unlinkSync(full);
-                            successParams.pruned++;
+                        if (!fs.statSync(full).isFile()) continue;
+                        if (!pruningAllowed) {
+                            successParams.kept++;
+                            continue;
                         }
+                        fs.unlinkSync(full);
+                        successParams.pruned++;
                     } catch (e) {
                         logger.warn(`[Main] Export prune: impossibile rimuovere ${f}: ${e instanceof Error ? e.message : String(e)}`);
                     }
                 }
             }
+            if (successParams.kept > 0) {
+                logger.warn(`[Main] Export prune saltato: ${successParams.kept} file non riconosciuti in una cartella audio/ preesistente e non marcata — lasciati intatti`);
+            }
         } catch (e) {
             logger.warn(`[Main] Export prune: lettura cartella audio fallita: ${e instanceof Error ? e.message : String(e)}`);
+        }
+
+        // v1.15.17 (G2): marca la cartella come archivio dell'app. Da qui in poi il
+        // pruning è autorizzato: la cartella è nostra e il suo contenuto rispecchia
+        // il progetto. Il fallimento della scrittura non è fatale (l'export è già
+        // riuscito): al massimo il prossimo export salterà di nuovo il pruning.
+        try {
+            if (!fs.existsSync(markerPath)) {
+                fs.writeFileSync(
+                    markerPath,
+                    'Cartella archivio di Runtime Live Machine Pro.\r\n'
+                    + 'Il contenuto rispecchia le clip del progetto .lmp adiacente: i file non piu\r\n'
+                    + 'referenziati vengono rimossi automaticamente a ogni esportazione.\r\n'
+                    + 'Non conservare qui materiale proprio. Rimuovendo questo file, RRLMP smette\r\n'
+                    + 'di considerare la cartella come propria e non cancellera piu nulla.\r\n',
+                    'utf-8'
+                );
+            }
+        } catch (e) {
+            logger.warn(`[Main] Export: impossibile scrivere il marcatore archivio: ${e instanceof Error ? e.message : String(e)}`);
         }
 
         // v1.4.14 (#4a): scrive il project.lmp SOLO nell'export "libero" (selettore
