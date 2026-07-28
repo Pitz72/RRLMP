@@ -66,6 +66,24 @@ export function validateLmpProjectData(raw: unknown): { columns: Column[] } {
             cl.fadeIn      = finiteOrDefault(cl.fadeIn,      0,   0,   60_000);
             cl.fadeOut     = finiteOrDefault(cl.fadeOut,     0,   0,   60_000);
 
+            // v1.15.24 (M7): trim incoerenti con la durata → azzerati entrambi.
+            // `finiteOrDefault` garantiva solo `>= 0`: un .lmp con `trimEnd >= duration`
+            // (dato corrotto, editing manuale, durata cambiata sotto i piedi) lasciava
+            // `effectiveDuration = 0` in StreamPlayer.ontimeupdate. Conseguenze: la clip
+            // finiva all'istante e — se in LOOP — restartLoop() veniva richiamato a ogni
+            // ontimeupdate, cioè un ciclo di riavvii continui con l'audio impazzito.
+            // Stesso spirito del controllo su outroMarker qui sotto: un dato incoerente
+            // si azzera, il progetto resta caricabile.
+            {
+                const durV = cl.duration as number;
+                const tStart = cl.trimStart as number;
+                const tEnd = cl.trimEnd as number;
+                if (durV > 0 && (tStart + tEnd) >= durV) {
+                    cl.trimStart = 0;
+                    cl.trimEnd = 0;
+                }
+            }
+
             // v1.4.10 (#16): outroMarker incoerente con trim/durata → azzerato (mai
             // raggiunto se oltre la fine effettiva; scatterebbe all'avvio se ≤ trimStart).
             {
