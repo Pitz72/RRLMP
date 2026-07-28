@@ -116,6 +116,7 @@
             "transitionSegue": "Segue / Cold Start（立即满音量，前一首淡出）",
             "transitionGapless": "Gapless（硬切 / 无淡化）",
             "transitionHelp": "通过 play_next 在连续片段之间自动过渡。",
+            "micHardwareNote": "适用于直接连接电脑的 USB 麦克风。如果麦克风经过 USB 调音台，输入设备会同时带入正在播出的音乐，检测会自行触发：这种情况下请保持此功能关闭。",
             "smartMicTitle": "Smart Mic — Auto-Ducking",
             "micEnabledOn": "已启用",
             "micEnabledOff": "关闭",

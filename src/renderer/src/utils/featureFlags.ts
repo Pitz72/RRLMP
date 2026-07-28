@@ -23,7 +23,21 @@
  * La feature resta utile SOLO con microfoni USB diretti → decisione utente
  * (2026-07-02): nasconderla finché non esiste la cattura nativa multicanale
  * (PortAudio/cpal, naturale col salto 2.0.0/Tauri — vedi memoria di progetto
- * "feature_mic_channel_mapping"). Per riattivare la UI: mettere a true.
+ * "feature_mic_channel_mapping").
+ *
+ * ---------------------------------------------------------------------------
+ * v1.15.30 — RIATTIVATA. Il caso che l'aveva fatta nascondere era il MIXER USB;
+ * il caso per cui era nata — il MICROFONO USB DIRETTO — non è mai stato in
+ * discussione, ed è esattamente la postazione di chi trasmette da casa senza
+ * banco: lì il device espone solo la voce e il rilevamento è pulito.
+ *
+ * Riaccendere questo flag NON cambia il comportamento di nessuno: rende di
+ * nuovo visibili la tab Microfono e il pulsante ARM, ma `micEnabled` e
+ * `micMixEnabled` restano `false` di default (useSettingsStore) — il microfono
+ * si arma solo con un gesto esplicito dell'operatore.
+ * Il limite sui mixer resta vero ed è ora scritto anche nella UI, non solo qui.
+ * ---------------------------------------------------------------------------
+ *
  * Restano intatti: MicManager, ducking mic in evaluateMix, routing recording bus.
  */
-export const MIC_ARM_ENABLED = false;
+export const MIC_ARM_ENABLED = true;

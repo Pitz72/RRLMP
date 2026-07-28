@@ -1,6 +1,6 @@
 # RRLMP — Roadmap & Backlog
 
-**Versione corrente:** 1.15.29 (⚠️ **non ancora rilasciata** — l'ultima pubblicata su RRLMP-Releases è la 1.15.15)
+**Versione corrente:** 1.15.30 (⚠️ **non ancora rilasciata** — l'ultima pubblicata su RRLMP-Releases è la 1.15.15)
 **Ultimo aggiornamento:** 2026-07-28 — dopo la [revisione totale del codice](./technical/REVISIONE-CODICE-2026-07-28.md) e la chiusura di tutti i suoi reperti
 
 Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio). Nessuna automazione 24h. L'unica eccezione controllata è la rotazione PRE-SHOW — vedi [VISION.md](./VISION.md).
@@ -15,7 +15,7 @@ Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio)
 | Test Vitest | **224/224 verdi** (23 file) — erano 172 prima della revisione |
 | Build di produzione | `vite build` verde |
 | Criticità aperte del codice | **nessuna** — i 22 reperti della [revisione 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md) sono chiusi nelle versioni 1.15.16 → 1.15.29 |
-| Ultima release **pubblicata** | v1.15.15 — le 14 versioni successive sono committate ma **non ancora rilasciate** |
+| Ultima release **pubblicata** | v1.15.15 — le 15 versioni successive sono committate ma **non ancora rilasciate** |
 | Auto-updater | operativo (nativo su Windows/Linux-AppImage, fallback browser su macOS/.deb) |
 | Distribuzione Gumroad | pacchetti fermi alla 1.15.10 — scelta deliberata: gli utenti si aggiornano dall'updater |
 
@@ -23,7 +23,7 @@ Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio)
 
 ## 🔴 Priorità 1 — Prima del prossimo rilascio
 
-Le correzioni 1.15.16 → 1.15.29 sono in `master` ma non sono ancora arrivate a nessuno.
+Le versioni 1.15.16 → 1.15.30 sono in `master` ma non sono ancora arrivate a nessuno.
 
 1. **Verificare in dev/regia** i punti non verificabili con i test automatici (elenco sotto).
 2. **Changelog cumulativo** per la versione che si rilascia: deve includere tutte le novità dalla 1.15.16 in poi, altrimenti chi aggiorna dalla 1.15.15 non le vede mai (pattern già usato per 1.15.13 e 1.15.15).
@@ -36,6 +36,61 @@ Le correzioni 1.15.16 → 1.15.29 sono in `master` ma non sono ancora arrivate a
 - **Tasti F1–F6** (1.15.26): F6 ora lancia PRE-SHOW; nascondendo una colonna i tasti si rimappano.
 - **Esportazione su cartella `audio/` preesistente** (1.15.17): al primo export deve comparire l'avviso e nessun file estraneo deve sparire.
 - **"Riavvia e installa" con progetto sporco** (1.15.19): deve chiedere Salva / Non salvare / Annulla.
+- **Smart Mic con microfono USB** (1.15.30): armare il microfono e verificare che la musica scenda parlando e risalga smettendo.
+
+---
+
+## 🎙️ Filone aperto — Voce in diretta e integrazione con StreamFlow
+
+Aperto il **2026-07-28** partendo da un problema reale in onda: una speaker con microfono USB e senza mixer, il cui sottofondo musicale ondeggiava da solo sullo stream. La diagnosi ha toccato tre software e ha aperto un percorso.
+
+### Come è nato
+
+Misure su una registrazione reale di 17'30" (FFmpeg, EBU R128 + inviluppo a bande):
+- il sottofondo **non si abbassa** quando la speaker parla (differenza 1,4 dB → nessun ducking da nessuna parte);
+- loudness **−22,3 LUFS** contro un target di −16 → 6 dB sotto gli altri streamer;
+- escursione **16,2 LU**, non compressa → il file analizzato è a monte di AzuraCast.
+
+Causa individuata in **StreamFlow**: `getDisplayMedia({ audio: true })` senza vincoli faceva applicare a Chromium il proprio *auto gain control* all'audio di sistema. Concausa a valle: arrivando 6 dB sotto, il compressore di AzuraCast lavorava molto su quella sorgente e ne amplificava l'ondeggiamento. **Corretto in StreamFlow 0.8.1–0.8.3** (AGC spento, limitatore, livello a −16 LUFS).
+
+> Ricaduta su RRLMP da verificare: l'agente di StreamFlow ha **misurato** che il `DynamicsCompressorNode` di Chromium applica un makeup implicito di ~0,57 dB per ogni dB di soglia, e che con soglia −1 dBFS e ratio 20 **il tetto non regge** (uscita sopra 0 dBFS già a +6 dB di sovraccarico). Il limiter della master chain di RRLMP ha esattamente quei parametri: **rifare la stessa sonda dentro RRLMP** e, se confermato, correggere.
+
+### Passo 1 — Microfono in RRLMP ✅ avviato (v1.15.30)
+
+Smart Mic riattivata. Restano da fare, in ordine:
+
+1. **Interruttore ducking on/off** — oggi armare il microfono implica l'abbassamento automatico della musica; vanno separate le due cose.
+2. **Compressore sulla voce** — `DynamicsCompressorNode` con trim di compensazione del makeup implicito (vedi nota sopra: va misurato, non stimato).
+3. **Equalizzatore** — tre `BiquadFilter` in cascata: taglio del rumble, controllo del corpo, presenza sui 3–4 kHz.
+4. **Riduzione rumore** — partire dall'expander costruito sul gate già presente in `MicManager` (copre ventola, fruscio, riverbero di stanza). Il `noiseSuppression` di Chromium è gratis ma fa artefatti sulla voce radiofonica; RNNoise via WebAssembly è la strada di qualità, ma è una dipendenza nuova.
+
+⚠️ Nodo architetturale da sciogliere prima del punto 2: oggi `MicManager` **analizza** il microfono ma non lo instrada all'audio. Comprimere ed equalizzare ha senso solo se la voce processata esce da qualche parte — cioè solo insieme al passo 3.
+
+### Passo 2 — `stream-core`: motore di streaming condiviso
+
+I moduli di streaming di StreamFlow (`ffmpeg-manager`, `metadata-manager`, `connection-diagnostic`, `zmq-command`, `credentials`) sono **1.389 righe già disaccoppiate**: importano solo builtin di Node, `electron`, `ffmpeg-static` e se stessi — **zero dipendenze dal renderer, dallo store o da React**. Unico aggancio da sciogliere: `BrowserWindow` usato dentro `ffmpeg-manager` per notificare lo stato, da sostituire con una callback iniettata.
+
+Il confine è già nel punto giusto: in MIX MODE FFmpeg riceve il PCM da `pipe:0`, quindi il motore **non sa già oggi** da dove arriva l'audio.
+
+Forma proposta: repo dedicato + dipendenza git con tag (`"stream-core": "github:Ecosystem-Runtime/stream-core#v1.0.0"`). Nessun registry, nessun monorepo, e **ogni app adotta la versione quando vuole** — una diretta non dipende dai lavori sull'altro prodotto.
+
+### Passo 3 — LIVE dentro RRLMP (integrazione, non fusione)
+
+**Decisione dell'utente (2026-07-28): StreamFlow resta un prodotto autonomo** per chi non usa Live Machine. Quella che entra in RRLMP è un'integrazione, non un assorbimento.
+
+Forma richiesta:
+- un **pulsante LIVE** nella barra in alto;
+- un **pannello di configurazione della diretta** (server, credenziali, bitrate, metadati);
+- **MIX MODE non va portato**: in RRLMP non serve. Il segnale è già interno.
+
+Il punto di prelievo esiste già: il **`recordingBus`** della master chain (tap dopo il limitatore, oggi usato da `AudioRecorder`). Si collega lì lo stesso AudioWorklet di StreamFlow e si manda il PCM al main via IPC — meccanismo identico a quello già collaudato.
+
+Cosa si guadagna:
+- **niente cattura di sistema** → l'AGC di Chromium non può più esistere, e le notifiche di Windows non finiscono più in onda;
+- **un solo microfono**, processato una volta: ducka la musica in modo nativo e va allo stream (è ciò che dà senso al passo 1);
+- **"now playing" automatico**: StreamFlow ha il metadata manager ma non sa cosa suona; RRLMP conosce titolo e artista di ogni clip.
+
+⚠️ Contro da governare: oggi sono due processi separati, e se RRLMP si pianta la connessione allo stream resta viva (non si perde lo slot su AzuraCast). Integrando, un crash porta giù anche la diretta. Mitigazione: encoder e connessione nel **main process**, che sopravvive a un crash del renderer.
 
 ---
 

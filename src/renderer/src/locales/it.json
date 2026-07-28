@@ -139,6 +139,7 @@
             "transitionSegue": "Segue / Cold Start (Subito Pieno, Prec. Sfuma)",
             "transitionGapless": "Gapless (Taglio Netto / No Fade)",
             "transitionHelp": "Transizione automatica tra clip consecutive con play_next.",
+            "micHardwareNote": "Pensato per microfoni USB collegati direttamente al computer. Se il microfono passa da un mixer USB, il dispositivo di ingresso porta anche la musica in onda e il rilevamento scatta da solo: in quel caso lascia questa funzione disattivata.",
             "smartMicTitle": "Smart Mic — Auto-Ducking",
             "micEnabledOn": "Abilitato",
             "micEnabledOff": "Off",

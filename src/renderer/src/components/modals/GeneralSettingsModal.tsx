@@ -431,6 +431,15 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     {activeTab === 'mic' && (
                         <div className="p-6 space-y-6">
 
+                            {/* v1.15.30: la funzione torna visibile dopo essere stata nascosta nella
+                                v1.11.1. Il limite che l'aveva fatta nascondere è reale e va detto qui,
+                                dove lo legge chi la sta accendendo: con un mixer USB il device di input
+                                porta il mix di programma, non la sola voce, e il rilevamento scatta da
+                                solo sulla musica. Con un microfono USB diretto il problema non esiste. */}
+                            <div className="text-[11px] text-amber-300/90 bg-amber-500/10 border border-amber-500/30 rounded px-3 py-2 leading-relaxed">
+                                {t('modal.settings.micHardwareNote', 'Pensato per microfoni USB collegati direttamente al computer. Se il microfono passa da un mixer USB, il dispositivo di ingresso porta anche la musica in onda e il rilevamento scatta da solo: in quel caso lascia questa funzione disattivata.')}
+                            </div>
+
                             {/* Task 1 (v1.10.15): due colonne — ducking | canale mix, opzioni indipendenti */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 items-start">
                             {/* SMART MIC — DUCKING */}
