@@ -777,6 +777,10 @@ let currentTempRecordingPath: string | null = null;
 // USB scollegata). Senza handler 'error' un evento non gestito può terminare il main process
 // e far perdere la diretta. Lo memorizziamo e lo restituiamo al renderer al chunk successivo.
 let recordingStreamError: string | null = null;
+// v1.15.21 (M2): tetto all'attesa di 'drain' su un supporto lento. 30s sono
+// abbondanti per qualunque disco o chiavetta funzionante; oltre, il supporto è da
+// considerarsi perso e la sessione va chiusa in modo pulito invece di restare appesa.
+const RECORDING_DRAIN_TIMEOUT_MS = 30_000;
 
 ipcMain.handle('start-recording', async (_event) => {
     try {
@@ -819,12 +823,40 @@ ipcMain.handle('append-record-chunk', async (_event, arrayBuffer: ArrayBuffer) =
         const ok = recordingWriteStream.write(buffer);
         // STAB: backpressure — se il buffer interno è pieno (disco/USB lento), attendi 'drain'
         // prima di accettare altri chunk, così la RAM non cresce senza limite su sessioni lunghe.
+        // v1.15.21 (M2): l'attesa non può essere incondizionata. Se il supporto muore
+        // PROPRIO mentre il buffer è pieno (chiavetta staccata, disco pieno), l'evento
+        // 'drain' non arriverà mai: la promise non si risolveva più e la chiamata dal
+        // renderer restava appesa per sempre — la sessione non poteva nemmeno essere
+        // fermata in modo pulito. Ora si esce anche su errore/chiusura dello stream o
+        // per timeout, riportando l'anomalia al renderer (che sa già fermare la
+        // registrazione salvando quanto raccolto).
         if (!ok) {
-            await new Promise<void>((resolve) => {
-                const stream = recordingWriteStream;
-                if (!stream) return resolve();
-                stream.once('drain', resolve);
-            });
+            const stream = recordingWriteStream;
+            if (stream) {
+                const drainOutcome = await new Promise<'drained' | 'closed' | 'timeout'>((resolve) => {
+                    const finish = (outcome: 'drained' | 'closed' | 'timeout') => {
+                        clearTimeout(timer);
+                        stream.removeListener('drain', onDrain);
+                        stream.removeListener('error', onClosed);
+                        stream.removeListener('close', onClosed);
+                        resolve(outcome);
+                    };
+                    const onDrain = () => finish('drained');
+                    const onClosed = () => finish('closed');
+                    const timer = setTimeout(() => finish('timeout'), RECORDING_DRAIN_TIMEOUT_MS);
+                    stream.once('drain', onDrain);
+                    stream.once('error', onClosed);
+                    stream.once('close', onClosed);
+                });
+                if (drainOutcome !== 'drained') {
+                    const reason = recordingStreamError
+                        ?? (drainOutcome === 'timeout'
+                            ? `scrittura bloccata per oltre ${RECORDING_DRAIN_TIMEOUT_MS / 1000}s`
+                            : 'stream di registrazione chiuso');
+                    logger.error(`[Main] Recording backpressure interrotta: ${reason}`);
+                    return { success: false, error: reason };
+                }
+            }
         }
         return { success: true };
     } catch (error) {
