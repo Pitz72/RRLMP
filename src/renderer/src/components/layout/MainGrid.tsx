@@ -171,7 +171,7 @@ export const MainGrid: React.FC = () => {
         let optimized = 0;
 
         unanalyzed.forEach(clip => {
-            updateClip('col-music', clip.id, { isAnalyzing: true });
+            updateClip('col-music', clip.id, { isAnalyzing: true }, { runtime: true });
             window.electron.detectSilence(clip.path).then(result => {
                 const r = classifySilenceResult(result);
                 if (r.checked) {
@@ -179,10 +179,10 @@ export const MainGrid: React.FC = () => {
                         ...(r.trimStart !== undefined ? { trimStart: r.trimStart, trimEnd: r.trimEnd } : {}),
                         isAnalyzing: false,
                         silenceCheckedV2: true
-                    });
+                    }, { runtime: true });
                     if (r.trimStart !== undefined) optimized++;
                 } else {
-                    updateClip('col-music', clip.id, { isAnalyzing: false });
+                    updateClip('col-music', clip.id, { isAnalyzing: false }, { runtime: true });
                     debugLog(`AutoSilence[music]: analisi fallita per "${clip.name}" (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');
                 }
                 processed++;
@@ -191,7 +191,7 @@ export const MainGrid: React.FC = () => {
                     toast(t('grid.silenceRemovedSongs', 'Silenzio rimosso automaticamente da {{count}} canzoni.', { count: optimized }), 'success');
                 }
             }).catch((err) => {
-                updateClip('col-music', clip.id, { isAnalyzing: false });
+                updateClip('col-music', clip.id, { isAnalyzing: false }, { runtime: true });
                 debugLog(`AutoSilence[music]: eccezione per "${clip.name}": ${err}`, 'error');
                 processed++;
                 setMusicAnalyzingCount(n => Math.max(0, n - 1));
@@ -222,7 +222,7 @@ export const MainGrid: React.FC = () => {
         let optimized = 0;
 
         unanalyzed.forEach(clip => {
-            updateClip('col-preshow', clip.id, { isAnalyzing: true });
+            updateClip('col-preshow', clip.id, { isAnalyzing: true }, { runtime: true });
             window.electron.detectSilence(clip.path).then(result => {
                 const r = classifySilenceResult(result);
                 if (r.checked) {
@@ -230,10 +230,10 @@ export const MainGrid: React.FC = () => {
                         ...(r.trimStart !== undefined ? { trimStart: r.trimStart, trimEnd: r.trimEnd } : {}),
                         isAnalyzing: false,
                         silenceCheckedV2: true
-                    });
+                    }, { runtime: true });
                     if (r.trimStart !== undefined) optimized++;
                 } else {
-                    updateClip('col-preshow', clip.id, { isAnalyzing: false });
+                    updateClip('col-preshow', clip.id, { isAnalyzing: false }, { runtime: true });
                     debugLog(`AutoSilence[preshow]: analisi fallita per "${clip.name}" (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');
                 }
                 processed++;
@@ -242,7 +242,7 @@ export const MainGrid: React.FC = () => {
                     toast(t('grid.silenceRemovedPreshow', 'Silenzio rimosso automaticamente da {{count}} clip PRE-SHOW.', { count: optimized }), 'success');
                 }
             }).catch((err) => {
-                updateClip('col-preshow', clip.id, { isAnalyzing: false });
+                updateClip('col-preshow', clip.id, { isAnalyzing: false }, { runtime: true });
                 debugLog(`AutoSilence[preshow]: eccezione per "${clip.name}": ${err}`, 'error');
                 processed++;
                 setPreshowAnalyzingCount(n => Math.max(0, n - 1));
@@ -275,7 +275,7 @@ export const MainGrid: React.FC = () => {
                         ...(r.beatOffsetSec !== undefined ? { beatOffsetSec: r.beatOffsetSec } : {}),
                         ...(r.confidence !== undefined ? { bpmConfidence: r.confidence } : {}),
                         bpmCheckedV2: true
-                    });
+                    }, { runtime: true });
                     // v1.10.18 (Fase A, supporto A3): esito nel Debug Overlay — servono i
                     // numeri (BPM, confidence, offset) per la validazione su musica reale.
                     debugLog(`AutoBpm[music]: "${clip.name}" → ${r.bpm !== undefined
@@ -362,7 +362,7 @@ export const MainGrid: React.FC = () => {
                 const col = columns.find(c => c.id === colId);
                 if ((col?.type === 'preshow' || col?.type === 'music') && window.electron?.detectSilence) {
                     const isPreshow = col.type === 'preshow';
-                    updateClip(colId, newClip.id, { isAnalyzing: true });
+                    updateClip(colId, newClip.id, { isAnalyzing: true }, { runtime: true });
                     if (isPreshow) setPreshowAnalyzingCount(n => n + 1);
                     else setMusicAnalyzingCount(n => n + 1);
                     window.electron.detectSilence(newClip.path).then(result => {
@@ -372,14 +372,14 @@ export const MainGrid: React.FC = () => {
                                 ...(r.trimStart !== undefined ? { trimStart: r.trimStart, trimEnd: r.trimEnd } : {}),
                                 isAnalyzing: false,
                                 silenceCheckedV2: true
-                            });
+                            }, { runtime: true });
                             if (r.trimStart !== undefined) debugLog(`AutoSilence [${newClip.name}]: trimStart=${r.trimStart}s, trimEnd=${r.trimEnd}s`, 'info');
                         } else {
-                            updateClip(colId, newClip.id, { isAnalyzing: false });
+                            updateClip(colId, newClip.id, { isAnalyzing: false }, { runtime: true });
                             debugLog(`AutoSilence [${newClip.name}]: analisi fallita (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');
                         }
                     }).catch((err) => {
-                        updateClip(colId, newClip.id, { isAnalyzing: false });
+                        updateClip(colId, newClip.id, { isAnalyzing: false }, { runtime: true });
                         debugLog(`AutoSilence [${newClip.name}]: eccezione: ${err}`, 'error');
                     }).finally(() => {
                         if (isPreshow) setPreshowAnalyzingCount(n => Math.max(0, n - 1));
@@ -399,7 +399,7 @@ export const MainGrid: React.FC = () => {
                                 ...(r.beatOffsetSec !== undefined ? { beatOffsetSec: r.beatOffsetSec } : {}),
                                 ...(r.confidence !== undefined ? { bpmConfidence: r.confidence } : {}),
                                 bpmCheckedV2: true
-                            });
+                            }, { runtime: true });
                             // v1.10.18: stesso log del batch (validazione A3 dal Debug Overlay)
                             debugLog(`AutoBpm [${newClip.name}]: ${r.bpm !== undefined
                                 ? `${r.bpm} BPM (conf ${result.data?.confidence ?? '?'}${r.beatOffsetSec !== undefined ? `, primo beat a ${r.beatOffsetSec}s` : ', offset non stimabile'})`

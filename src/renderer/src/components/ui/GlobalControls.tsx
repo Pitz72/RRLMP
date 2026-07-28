@@ -488,7 +488,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 // Auto-silence detection (v1.7.1: vedi classifySilenceResult —
                 // un fallimento/rate-limit NON viene più segnato come "controllato")
                 if (window.electron?.detectSilence) {
-                    updateClip(preshowColId, newClip.id, { isAnalyzing: true });
+                    updateClip(preshowColId, newClip.id, { isAnalyzing: true }, { runtime: true });
                     window.electron.detectSilence(filePath).then(r => {
                         const c = classifySilenceResult(r);
                         if (c.checked) {
@@ -496,11 +496,11 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                                 ...(c.trimStart !== undefined ? { trimStart: c.trimStart, trimEnd: c.trimEnd } : {}),
                                 isAnalyzing: false,
                                 silenceCheckedV2: true
-                            });
+                            }, { runtime: true });
                         } else {
-                            updateClip(preshowColId, newClip.id, { isAnalyzing: false });
+                            updateClip(preshowColId, newClip.id, { isAnalyzing: false }, { runtime: true });
                         }
-                    }).catch(() => updateClip(preshowColId, newClip.id, { isAnalyzing: false }));
+                    }).catch(() => updateClip(preshowColId, newClip.id, { isAnalyzing: false }, { runtime: true }));
                 }
             }
         }

@@ -219,7 +219,10 @@ interface ProjectState {
     removeClip: (columnId: string, clipId: string) => void;
     /** v1.15.9: svuota completamente una colonna (rimuove tutte le clip). No-op se già vuota. */
     clearColumn: (columnId: string) => void;
-    updateClip: (columnId: string, clipId: string, updates: Partial<AudioClip>) => void;
+    /** v1.15.18: `opts.runtime` per le scritture che NON sono modifiche dell'operatore
+     *  (analisi silenzio/BPM, misura loudness, metadati ID3, `hasPlayed`, `isAnalyzing`).
+     *  Quelle non devono marcare il progetto come "da salvare": vedi commento su isDirty. */
+    updateClip: (columnId: string, clipId: string, updates: Partial<AudioClip>, opts?: { runtime?: boolean }) => void;
     loadProject: (data: { columns: Column[] }, filePath?: string, opts?: { preserveUiState?: boolean }) => void;
     moveClip: (sourceColId: string, destColId: string, oldIndex: number, newIndex: number) => void;
 
@@ -456,8 +459,18 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         }));
     },
 
-    updateClip: (columnId, clipId, updates) => set((state) => ({
-        isDirty: true,
+    // v1.15.18: le scritture di RUNTIME non sporcano più il progetto.
+    // Analisi silenzio, misura loudness, rilevamento BPM, metadati ID3, `hasPlayed`
+    // e `isAnalyzing` avvengono da sole all'apertura di un progetto: marcavano
+    // `isDirty` anche se l'operatore non aveva toccato nulla. Conseguenze: il prompt
+    // "modifiche non salvate" alla chiusura compariva sempre, l'autosave da 5 minuti
+    // girava sempre, e — soprattutto — un aggiornamento installato con "Riavvia e
+    // installa" trovava sempre un progetto "sporco" (vedi v1.15.19).
+    // L'undo era già immune: queste vie non passano da `_snapshot`.
+    // Il default resta `isDirty: true`: un chiamante nuovo che dimentica il flag si
+    // comporta come prima, cioè in modo conservativo.
+    updateClip: (columnId, clipId, updates, opts) => set((state) => ({
+        isDirty: opts?.runtime ? state.isDirty : true,
         columns: state.columns.map((col) =>
             col.id === columnId
                 ? {

@@ -72,4 +72,46 @@ describe('Undo/Redo playlist', () => {
         useProjectStore.getState().updateClip('col-music', 'm1', { isAnalyzing: true, hasPlayed: true });
         expect(useProjectStore.getState().undoStack.length).toBe(0);
     });
+
+    // v1.15.18 — le scritture di runtime non marcano più il progetto come "da salvare".
+    it('updateClip con { runtime: true } non sporca isDirty', () => {
+        useProjectStore.setState({
+            columns: [makeColumn('col-music', 'music', [
+                { id: 'm1', name: 'x', path: 'x', type: 'music', color: '#000', volume: 1, pan: 0,
+                  isLooping: false, isPlaying: false, duration: 0, currentTime: 0,
+                  nextAction: 'stop', behavior: 'normal', duckingRole: 'none', fadeIn: 0, fadeOut: 0 },
+            ])],
+            isDirty: false,
+        });
+        useProjectStore.getState().updateClip('col-music', 'm1', { silenceCheckedV2: true, trimStart: 1.2 }, { runtime: true });
+        expect(useProjectStore.getState().isDirty).toBe(false);
+        // ...e il dato è stato comunque scritto.
+        expect(useProjectStore.getState().columns[0].clips[0].trimStart).toBe(1.2);
+    });
+
+    it('updateClip senza opts continua a sporcare isDirty (default conservativo)', () => {
+        useProjectStore.setState({
+            columns: [makeColumn('col-music', 'music', [
+                { id: 'm1', name: 'x', path: 'x', type: 'music', color: '#000', volume: 1, pan: 0,
+                  isLooping: false, isPlaying: false, duration: 0, currentTime: 0,
+                  nextAction: 'stop', behavior: 'normal', duckingRole: 'none', fadeIn: 0, fadeOut: 0 },
+            ])],
+            isDirty: false,
+        });
+        useProjectStore.getState().updateClip('col-music', 'm1', { volume: 0.5 });
+        expect(useProjectStore.getState().isDirty).toBe(true);
+    });
+
+    it('una modifica utente precedente non viene cancellata da una scrittura runtime', () => {
+        useProjectStore.setState({
+            columns: [makeColumn('col-music', 'music', [
+                { id: 'm1', name: 'x', path: 'x', type: 'music', color: '#000', volume: 1, pan: 0,
+                  isLooping: false, isPlaying: false, duration: 0, currentTime: 0,
+                  nextAction: 'stop', behavior: 'normal', duckingRole: 'none', fadeIn: 0, fadeOut: 0 },
+            ])],
+            isDirty: true,
+        });
+        useProjectStore.getState().updateClip('col-music', 'm1', { bpm: 120 }, { runtime: true });
+        expect(useProjectStore.getState().isDirty).toBe(true);
+    });
 });

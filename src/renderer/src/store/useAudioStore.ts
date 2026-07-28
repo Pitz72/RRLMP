@@ -307,7 +307,8 @@ const ensureLoudnessMeasured = async (clip: AudioClip): Promise<void> => {
         if (res.success && res.data && isFinite(res.data.integratedLufs)) {
             const colId = getColumnForClip(clip.id);
             if (colId) {
-                useProjectStore.getState().updateClip(colId, clip.id, { loudnessLufs: res.data.integratedLufs });
+                // v1.15.18: misura automatica → non marca il progetto come da salvare.
+                useProjectStore.getState().updateClip(colId, clip.id, { loudnessLufs: res.data.integratedLufs }, { runtime: true });
                 debugLog(`AudioStore: Loudness ${clip.name} = ${res.data.integratedLufs.toFixed(1)} LUFS`, 'info');
             }
         }
@@ -1242,7 +1243,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 useProjectStore.getState().updateClip(
                     clip.type === 'asset' ? 'col-assets' : `col-${clip.type}`,
                     clip.id,
-                    { duration, trimStart, trimEnd, ...(artist !== undefined ? { artist } : {}), ...(title !== undefined ? { title } : {}) }
+                    { duration, trimStart, trimEnd, ...(artist !== undefined ? { artist } : {}), ...(title !== undefined ? { title } : {}) },
+                    { runtime: true } // v1.15.18: durata e tag ID3 letti dal file, non modifiche dell'operatore
                 );
                 player.cleanup();
                 // v1.4.3 — misura loudness in background per omologazione (non blocca l'aggiunta clip)
@@ -1336,7 +1338,8 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     if (active.clip.type === 'preshow' && !isPreviewClip) {
                         const colId = getColumnForClip(clipId);
                         if (colId) {
-                            useProjectStore.getState().updateClip(colId, clipId, { hasPlayed: true });
+                            // v1.15.18: "già suonata" è stato di sessione, non una modifica al progetto.
+                            useProjectStore.getState().updateClip(colId, clipId, { hasPlayed: true }, { runtime: true });
                         }
                     }
 
