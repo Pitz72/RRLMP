@@ -1,31 +1,9 @@
 # RRLMP — Roadmap & Backlog
 
-**Versione corrente:** 1.4.1
-**Ultimo aggiornamento:** 2026-06-05 (priorità ridefinite dall'utente dopo v1.4.1)
+**Versione corrente:** 1.15.29 (⚠️ **non ancora rilasciata** — l'ultima pubblicata su RRLMP-Releases è la 1.15.15)
+**Ultimo aggiornamento:** 2026-07-28 — dopo la [revisione totale del codice](./technical/REVISIONE-CODICE-2026-07-28.md) e la chiusura di tutti i suoi reperti
 
----
-
-## 🎯 PRIORITÀ DECISE DALL'UTENTE (2026-06-05)
-
-### 🔴 Da fare subito (ordine indicato)
-1. **Verifica qualità audio + Test motore audio** — *priorità assoluta*. Dubbio dell'utente: in alcuni casi l'audio in onda pare **ricompresso/degradato**. Indagare la pipeline `media://` → Web Audio → Master Chain → output. + copertura test (Vitest) su `useAudioStore`/`evaluateMix`.
-2. **Undo/Redo playlist** (F-11) — "assolutamente subito".
-3. **Compressore multibanda sul master** (evoluzione di F-06) — non solo loudness uniforme: deve dare anche **spunta e calore**, se fattibile in Web Audio (crossover + N compressori).
-4. **Modalità "solo controllo" da tablet touch / laptop** (evoluzione di F-25/OSC) — comandare l'app da un secondo dispositivo touch, UX più intuitiva senza mouse.
-5. **BPM Detection** (F-13) — sì.
-
-### 🟡 Sessione dedicata / da analizzare
-- **Rødecaster II + Device/Routing + Mic Ducking** — sessione di discussione a sé (né subito, né rimandata, né sospesa).
-- **"Now Playing" streaming** (F-07) — rimandata, da definire (cosa mostrare quando si torna al sottofondo parlato dello show?).
-- **Soundboard** (F-04) — rimandata: ha senso ma va ripensata l'interfaccia.
-
-### 🟢 Futuro
-- **Layout regia configurabile** — focus: attivare/disattivare le colonne esistenti secondo necessità dello speaker; aggiungerne solo se con funzione preconfigurata.
-
-### ⏸️ Sospeso
-- **Voice Tracking** (F-12) — sospeso: l'utente non è convinto serva (non è regia automatizzata).
-
-> Fonte canonica della roadmap attiva: la tabella in `relazione.md` (sezione "FEATURE IN SCOPE"). Questo documento la riassume e la contestualizza. La filosofia di prodotto è in `VISION.md`.
+Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio). Nessuna automazione 24h. L'unica eccezione controllata è la rotazione PRE-SHOW — vedi [VISION.md](./VISION.md).
 
 ---
 
@@ -33,67 +11,109 @@
 
 | Area | Stato |
 |------|-------|
-| Criticità aperte | **0** (32+ fix dal 2026-05-16; audit globale 2026-05-29 chiuso a blocchi v1.3.9→1.3.16) |
-| Typecheck (main/preload/renderer) | **0 errori** (baseline 0) |
-| Ultima versione | 1.3.18 (fix drop colonna SHOW ASSETS) |
+| Typecheck (renderer/main/preload) | **0 errori** su tutti e 3 |
+| Test Vitest | **224/224 verdi** (23 file) — erano 172 prima della revisione |
+| Build di produzione | `vite build` verde |
+| Criticità aperte del codice | **nessuna** — i 22 reperti della [revisione 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md) sono chiusi nelle versioni 1.15.16 → 1.15.29 |
+| Ultima release **pubblicata** | v1.15.15 — le 14 versioni successive sono committate ma **non ancora rilasciate** |
+| Auto-updater | operativo (nativo su Windows/Linux-AppImage, fallback browser su macOS/.deb) |
+| Distribuzione Gumroad | pacchetti fermi alla 1.15.10 — scelta deliberata: gli utenti si aggiornano dall'updater |
 
 ---
 
-## 🚀 Roadmap attiva (feature in scope)
+## 🔴 Priorità 1 — Prima del prossimo rilascio
 
-Scope: **regia umana per show finiti** (podcast, eventi, web radio). Nessuna automazione 24h. Vedi `VISION.md` per i confini di scopo e l'eccezione PRE-SHOW.
+Le correzioni 1.15.16 → 1.15.29 sono in `master` ma non sono ancora arrivate a nessuno.
 
-### TIER 1 — Utili al flusso di lavoro
-| ID | Effort | Descrizione |
-|----|--------|-------------|
-| F-06 | Basso | **Loudness Normalization LUFS per clip** — analisi FFmpeg offline (EBU R128) per coerenza di volume tra clip di fonti diverse. Solo un IPC `loudnorm` aggiuntivo. |
-| F-04 | Basso | **Soundboard rapida Jingle/Stinger** — pannello one-shot sempre visibile (F1–F12/numpad). Da valutare se la colonna Assets + keybind basta. |
-| F-07 | Medio | **Metadata streaming (Icecast/Shoutcast)** — "Now Playing" via HTTP al mount point. ID3 già estratti, manca configurazione URL + HTTP. |
-| F-12 | Alto | **Voice Tracking / Jingle Recording** — registrazione inserti voce con pre/post-roll delle clip adiacenti; file standalone pronti per la board. |
-| F-25 | Medio | **OSC Integration** — controllo remoto (TouchOSC, surface controller) complementare al MIDI Learn. |
+1. **Verificare in dev/regia** i punti non verificabili con i test automatici (elenco sotto).
+2. **Changelog cumulativo** per la versione che si rilascia: deve includere tutte le novità dalla 1.15.16 in poi, altrimenti chi aggiorna dalla 1.15.15 non le vede mai (pattern già usato per 1.15.13 e 1.15.15).
+3. Ciclo di rilascio abituale: eliminare la release precedente, poi `gh workflow run build.yml -f publish_release=true`.
 
-### TIER 2 — Qualità d'uso
-| ID | Effort | Descrizione |
-|----|--------|-------------|
-| F-11 | Medio | **Undo/Redo playlist** — stack 20–30 operazioni (snapshot immutabili colonne Zustand). Riduce errori in setup pre-show. |
-| F-13 | Medio | **BPM Detection automatica** — via FFmpeg, per crossfade beat-aligned. Utile per show musicali. |
+### Verifiche sul campo aperte da queste correzioni
+
+- **Share di rete reale** (1.15.20): riprodurre un brano che sta su NAS/cartella condivisa. Coperto da 34 test sulla costruzione dei percorsi, ma la lettura vera da rete non è simulabile.
+- **Distacco di un supporto durante la registrazione** (1.15.21): la sessione deve chiudersi salvando quanto raccolto, non restare bloccata.
+- **Tasti F1–F6** (1.15.26): F6 ora lancia PRE-SHOW; nascondendo una colonna i tasti si rimappano.
+- **Esportazione su cartella `audio/` preesistente** (1.15.17): al primo export deve comparire l'avviso e nessun file estraneo deve sparire.
+- **"Riavvia e installa" con progetto sporco** (1.15.19): deve chiedere Salva / Non salvare / Annulla.
 
 ---
 
-## 🏗️ Lavori strutturali da progettare (sessioni dedicate)
+## 🟡 Priorità 2 — Debito tecnico annotato
 
-### PRE-SHOW: colonne Jingle/Promo + rotazione controllata
-Richiesta utente (2026-06-05). **Confinata alla sola colonna PRE-SHOW** (la fase di attesa prima che lo speaker faccia partire la sigla) → coerente con la filosofia (vedi `VISION.md`).
-- Colonna/e dedicata/e **Jingle&Promo** (eventualmente Jingle e Promo separate). La colonna tipo `asset` dà già default tipo-jingle (`nextAction:'stop'`, `behavior:'normal'`, `duckingRole:'none'`, `fadeOut:500ms`).
-- **Motore di rotazione su PRE-SHOW** in stile AzuraCast "once per X songs" (intervallo continuo): ogni X brani della playlist di attesa, pesca a caso 1 clip da Jingle&Promo. Parte **a fine brano** seguendo le regole di transizione, **mai sovrapposto**. Variante: due contatori distinti (ogni X un jingle, ogni Y un promo).
-- Impatti: modello dati colonna, persistenza `.lmp` (possibile migrazione), UI configurazione (modale su PRE-SHOW), motore di scheduling. Nota: 2 colonne extra restringono la leggibilità → da sistemare nel layout.
-- Collegato a **F-04** (soundboard) e a "Layout Regia 5.0" (colonne configurabili/rinominabili).
-
-### Device/Routing audio + Mic Ducking (test hardware + cross-platform)
-- **Problema noto**: con mic muto sul mixer il ducking percepisce comunque suono, perché l'ingresso USB del Rødecaster presenta a Windows il **mix principale** (non il solo microfono); `getUserMedia` legge quel device → l'analyser RMS rileva il programma in onda. È un limite di **routing del device**, non un bug software puro.
-- **Hardware di riferimento**:
-  - **Rødecaster Pro (modello I)** — una sola fonte USB, NON multitraccia: **escluso dalla compatibilità piena**. Usabile solo manualmente (ducking mic OFF, registrazione software OFF; mixaggio a mano dal banco).
-  - **Rødecaster Pro II** — mixer **di riferimento**: volendo multitraccia, **2 canali input USB** (forse anche output). Su questo va costruita la gestione avanzata. ⚠️ Quando si affronta: **verificare via ricerca web tecnica** le specifiche reali (canali USB in/out, isolamento mic dal mix, multitraccia su Win/Linux/Mac).
-- **Direzioni**: selezione di un input isolato/mix-minus dal banco; combinare il livello hardware con lo **stato interno del mix** (`evaluateMix` sa già quali clip sono attive) per ridurre i falsi positivi; ridefinizione gestione periferiche tenendo conto di **Win/Linux/Mac**.
-- Comprende anche **Output Device multi-routing** (uscite separate Main/Cue/Monitor/Recording, scheda multitraccia, hot-swap USB) — area già marcata come da-fare-con-test-hardware.
-
-### Test Audio Engine (debito tecnico)
-Copertura Vitest per `useAudioStore`/`evaluateMix` (resa possibile da `destroyAudioStoreLoop()`). Nessun test automatizzato sull'engine ad oggi.
+- **`music-metadata` / `file-type`** — vulnerabilità di gravità alta (ciclo infinito nel parser ASF su file `.wma`/`.asf` malformati). La correzione richiede il salto major `7.14 → 11.x`, con interfaccia completamente diversa: **sessione dedicata**, con verifica su file reali. Attenuazione già presente: la lettura dei tag gira sotto `withIpcTimeout(10s)`.
+- **`uuid`** — vulnerabilità media che riguarda modalità non usate dall'app (gli identificatori vengono da `crypto.randomUUID`). Da sistemare quando capiterà un aggiornamento major delle dipendenze.
+- **Aggiornamento generale delle dipendenze** — `npm audit fix` automatico tocca decine di pacchetti dell'ambiente di sviluppo: da fare e verificare per conto suo, mai insieme a delle correzioni.
 
 ---
 
-## 🔎 Enhancement minori (note)
-- **Export progetto**: il sync (copia in `audio/` + pruning orfani) è **già implementato e corretto** (`export-project`, v1.3.8). Possibile miglioramento: **ricordare la cartella di export** legata al progetto, così la ri-esportazione sincronizza sempre la stessa senza richiederla ogni volta.
+## 🟠 Priorità 3 — Verifiche sul campo di feature precedenti
+
+Cose implementate e non ancora validate nell'uso reale:
+
+- **v1.15.15 in diretta vera** — l'utente ha verificato in regia il 2026-07-22 (progetto spostato di cartella, sigla, FX, voce, sottofondo: tutto ok, nessuna regressione dalla rimozione dello Stacco). Resta l'osservazione durante una diretta reale completa.
+- **Preset Glue Multibanda non-neutri** (rock/jazz/elettronico, v1.7.0) — valori di partenza plausibili ma **mai misurati** con il rigore del preset `neutro`. Richiedono ascolto critico.
+- **I 10 suoni FX di default** (v1.10.8) — curati via metadata Wikimedia (solo CC0/Public Domain), **mai ascoltati**.
+- **Automix beat-match su musica reale** — il motore puro è coperto da 26 test, l'orchestrazione live no.
+- **Plausibilità BPM su musica reale** — validato su toni sintetici a ritmo perfetto.
 
 ---
 
-## ✅ Archivio sintetico
-- **v1.3.18** — fix drop file colonna SHOW ASSETS (regressione DND-04 v1.3.4).
-- **v1.3.17** — Simulatore MIDI (test tool) + fix script `dev`.
-- **v1.3.9–1.3.16** — audit globale 2026-05-29 chiuso a blocchi (MEDIE/LIEVI + cleanup + types).
-- **v1.3.0** — Milestone Zero Criticità (18 criticità 2026-05-16 chiuse in v1.2.17–v1.2.27).
-- **v1.2.0** — Session Recording completo · UI redesign · colori dinamici.
-- **v1.0.0** — i18n 8 lingue · Master Chain · Smart Mic · Waveform Editor.
+## 🟢 Priorità 4 — Feature aperte
+
+| ID | Effort | Descrizione | Nota |
+|----|--------|-------------|------|
+| F-04 | Basso | Soundboard rapida jingle/stinger | **CHIUSA**: i pad FX (v1.9.7) coprono il caso d'uso |
+| F-06 | — | Loudness normalization LUFS per clip | **FATTA** (v1.4.3) |
+| F-11 | — | Undo/Redo playlist | **FATTA** (v1.5.0) |
+| F-13 | — | BPM detection automatica | **FATTA** (v1.8.0), usata dall'Automix dalla v1.10.21 |
+| F-25 | Medio | Controllo remoto da tablet | **FATTO** in forma HTTP+WS+PIN (v1.11.3). OSC/TouchOSC resta un'ipotesi non pianificata |
+| F-07 | Medio | Metadata streaming Icecast/Shoutcast ("Now Playing") | **SOSPESO** — da definire cosa mostrare quando si torna al parlato |
+| F-12 | Alto | Voice Tracking / registrazione inserti | **SOSPESO** — l'utente non è convinto che serva (non è regia automatizzata) |
+
+### Miglioramenti minori annotati
+- **Zoom del Waveform Editor** — oggi è cosmetico (stira le 200 barre senza aggiungere risoluzione). Evoluzione possibile: generare più punti e aggregarli lato renderer in base allo zoom.
+- **Decongestione topbar** — parzialmente affrontata (brand compattato in v1.9.7, menu FILE raggruppato in v1.10.19).
+- **Pulizia `hiddenColumnIds` orfani** — innocui, deliberatamente non fatta.
 
 ---
-*Documento aggiornato il 2026-06-05 — allineato a v1.3.18. Roadmap attiva sincronizzata con `relazione.md`.*
+
+## ⏸️ Sospeso con motivazione
+
+- **Ducking mic-only sui mixer esterni** — indagine chiusa il 2026-07-02: l'ingresso USB del Rødecaster presenta a Windows il **mix principale**, non il solo microfono; tutte le vie Chromium sono risultate senza uscita. L'ARM è nascosto dietro `MIC_ARM_ENABLED=false` (`utils/featureFlags.ts`), la logica resta intatta. Ritorno previsto con la cattura nativa (cpal) nella 2.0.0/Tauri.
+- **Output device multi-routing** (Main/Cue/Monitor separati) — richiede hardware e test cross-platform.
+- **Migrazione Tauri/Rust 2.0.0** — rimandata. È il punto naturale per resettare la percezione del numero di versione.
+
+---
+
+## 🏛️ Decisioni consolidate da non rimettere in discussione
+
+- **Il take-over e le regole di mix li determina la COLONNA**, non un flag per-clip. Il behavior `Stacco` è stato rimosso nella v1.15.15 proprio perché ridondante e fuorviante (il campo resta nel modello solo per compatibilità `.lmp`, come `duckingRole`).
+- **Manuale utente: solo IT + EN.** Interfaccia dell'app e guida rapida in-app restano a 8 lingue.
+- **Ciclo di rilascio**: si elimina la release precedente prima di pubblicare la nuova; il changelog della versione **è** il corpo della release.
+- **La CI non usa più lo storage artifact in modalità release** (bozza → upload diretto → publish finale): la quota GitHub piena bloccava i rilasci.
+- **Nessun ricarico su Gumroad a ogni patch** — gli utenti si aggiornano dall'updater.
+
+---
+
+## ✅ Archivio sintetico delle milestone
+
+| Versione | Contenuto |
+|---|---|
+| **1.15.16-29** | **Chiusura della revisione totale del codice**: 4 gravi, 8 medie, 10 lievi — una patch atomica per reperto |
+| **1.15.14-15** | Portabilità dei progetti esportati (riparazione path via `audio/`) · rimozione del behavior Stacco |
+| **1.15.11-13** | Fader percettivo (curva cubica) · waveform fedele · VU meter rifatto (scala dB + peak-hold) |
+| **1.15.9-10** | L'archivio export **diventa** il riferimento · fix critico della chiusura durante l'update |
+| **1.15.6** | Localizzazione integrale: 461 chiavi × 8 lingue, main process incluso |
+| **1.11.5** | Auto-updater reale (electron-updater + RRLMP-Releases) |
+| **1.11.3** | Controllo remoto HTTP+WS+PIN da tablet |
+| **1.10.x** | Automix (fasi A-D) · pad FX · libreria FX di default · layout colonne configurabile |
+| **1.8.0** | BPM detection |
+| **1.6.0** | Restyling "Spectrum Live" |
+| **1.5.0** | Undo/Redo playlist |
+| **1.4.x** | Revisione regia (33 reperti) · loudness EBU R128 · Glue multibanda · rotazione PRE-SHOW |
+| **1.3.0** | Milestone "Zero Criticità" |
+| **1.0.0** | i18n · Master Chain · Smart Mic · Waveform Editor |
+
+---
+*Roadmap allineata alla v1.15.15. Lo storico fix versione per versione è in [`relazione.md`](../relazione.md); le criticità aperte del codice nella [revisione 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md).*
