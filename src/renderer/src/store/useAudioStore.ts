@@ -27,12 +27,6 @@ interface ActiveClipState {
 
 interface AudioStore {
     activeClips: Record<string, ActiveClipState>;
-    // v1.4.11 (#29): mappa ID → volume al momento della soppressione. Il valore è di
-    // fatto un FLAG: il ripristino post-stacco usa sempre il clip.volume CORRENTE
-    // (scelta deliberata — se l'operatore cambia il volume durante la soppressione,
-    // vince il valore nuovo). Dal v1.4.6 evaluateMix tiene a 0 le clip presenti qui.
-    suppressedClips: Record<string, number>; // ID -> Original Volume
-
     // v0.14.5 — Timer On Air
     onAirStartTime: number | null; // timestamp ms del primo play, null quando idle
 
@@ -106,23 +100,27 @@ const getBusForType = (type: string) => {
  * Per tutte le altre clip già in play si usa duckingDuration (smooth).
  */
 // v1.4.5: esportato per i test unitari (Vitest). Nessun cambio di logica.
-// v1.4.6 (revisione 2026-06-10, #1/#22): quarto parametro opzionale `mixState` —
-// le clip in fade-out di transizione NON vanno toccate (riapplicare il volume nominale
+// v1.4.6 (revisione 2026-06-10, #1): quarto parametro opzionale `mixState` — le clip
+// in fade-out di transizione NON vanno toccate (riapplicare il volume nominale
 // cancellerebbe la rampa verso 0 e le riporterebbe a volume pieno, distruggendo
-// crossfade/segue); le clip soppresse da uno stacco restano a 0 finché la soppressione
-// è attiva. Se non passati, i valori vengono letti dallo store (i chiamanti dentro
-// set() devono passarli esplicitamente quando li stanno modificando nello stesso set).
+// crossfade/segue). Se non passato, il valore viene letto dallo store (i chiamanti
+// dentro set() devono passarlo esplicitamente quando lo stanno modificando nello
+// stesso set).
+// v1.15.28: rimossa la mappa `suppressedClips`, insieme al parametro corrispondente.
+// Era il residuo del behavior 'Stacco' tolto nella v1.15.15: dopo quella versione
+// nessuno la scriveva più, restava letta a ogni giro del mixer e compariva ancora
+// nell'interfaccia dello store, in playClip, stopClip e stopAll. Codice morto che
+// somigliava a codice vivo, nel file più delicato del progetto.
 export const evaluateMix = (
     activeClips: Record<string, ActiveClipState>,
     newClipId?: string,
     overrideDuration?: number,
-    mixState?: { fadingClipIds?: string[]; suppressedClips?: Record<string, number> }
+    mixState?: { fadingClipIds?: string[] }
 ) => {
     const activeValues = Object.values(activeClips);
     const duckingFactor = _duckingFactor;
     const duckingDuration = _duckingDuration;
     const fadingIds = mixState?.fadingClipIds ?? useAudioStore.getState().fadingClipIds;
-    const suppressed = mixState?.suppressedClips ?? useAudioStore.getState().suppressedClips;
 
     // 1. ANALYSIS: Scan for high-priority types currently playing
     // v0.17.0: isMicActive (Smart Mic) ha la stessa priorità di una clip voice
@@ -201,11 +199,6 @@ export const evaluateMix = (
             // SFX / Others: Default behavior (duck half-way on voice)
             if (isVoiceActive) targetVolume = clip.volume * 0.5;
         }
-
-        // v1.4.6 (#22): una clip soppressa da uno stacco (anche fuori da col-assets)
-        // resta a 0 finché la soppressione è attiva — prima il primo evaluateMix
-        // successivo la riportava al volume nominale ("rimbalzo" udibile di ~500ms).
-        if (suppressed[clip.id] !== undefined) targetVolume = 0;
 
         // APPLY: istantaneo per la clip appena avviata (evita glitch ducking),
         // smooth per le clip già in play. overrideDuration usato per mic-ducking rapido.
@@ -636,7 +629,6 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
     return {
         activeClips: {},
-        suppressedClips: {},
         onAirStartTime: null,
         fadingClipIds: [],
         previewingClipIds: [],
@@ -1166,11 +1158,6 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 set((state) => {
                     // v0.14.5: avvia il timer On Air al primo play dopo idle
                     const wasIdle = Object.keys(state.activeClips).length === 0;
-                    // v1.4.6 (#22): l'avvio di una clip ne annulla una eventuale
-                    // soppressione da stacco precedente (non deve ripartire muta).
-                    const newSuppressed = state.suppressedClips[freshClip.id] !== undefined
-                        ? Object.fromEntries(Object.entries(state.suppressedClips).filter(([id]) => id !== freshClip.id))
-                        : state.suppressedClips;
                     const newState = {
                         activeClips: {
                             ...state.activeClips,
@@ -1181,15 +1168,13 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                                 clip: effectiveClip
                             }
                         },
-                        suppressedClips: newSuppressed,
                         onAirStartTime: wasIdle ? Date.now() : state.onAirStartTime,
                         playoutLog: capPlayoutLog([...state.playoutLog, logEntry]),
                     };
-                    // v1.4.6 (#1/#22): passa fading/suppressed correnti — dentro set()
+                    // v1.4.6 (#1): passa la lista fading corrente — dentro set()
                     // getState() vedrebbe lo stato precedente a questo update.
                     evaluateMix(newState.activeClips, freshClip.id, undefined, {
                         fadingClipIds: state.fadingClipIds,
-                        suppressedClips: newSuppressed,
                     });
                     return newState;
                 });
@@ -1328,20 +1313,10 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     const newActiveClips = { ...state.activeClips };
                     delete newActiveClips[clipId];
 
-                    // G4 Fix: gestione di suppressedClips.
-                    // v1.15.15: il motore non SCRIVE più suppressedClips (rimosso il ramo
-                    // stacco in playClip) — la mappa resta nello stato come meccanismo
-                    // legacy/inerte letto da evaluateMix; qui puliamo solo l'entry della
-                    // clip fermata (difensivo, in pratica la mappa è sempre vuota).
-                    const newSuppressedClips = Object.fromEntries(
-                        Object.entries(state.suppressedClips).filter(([id]) => id !== clipId)
-                    );
-
-                    // v1.4.6 (#1/#22): passa lo stato POST-update — dentro set() getState()
-                    // vedrebbe ancora la vecchia mappa suppressed/fading.
+                    // v1.4.6 (#1): passa lo stato POST-update — dentro set() getState()
+                    // vedrebbe ancora la vecchia lista delle clip in dissolvenza.
                     evaluateMix(newActiveClips, undefined, undefined, {
                         fadingClipIds: newFadingClipIds,
-                        suppressedClips: newSuppressedClips,
                     });
 
                     // v0.14.12: marca come suonata le clip PRE-SHOW a fine riproduzione
@@ -1372,7 +1347,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                         ? null
                         : state.onAirStartTime;
 
-                    return { activeClips: newActiveClips, suppressedClips: newSuppressedClips, previewingClipIds: newPreviewingClipIds, playoutLog: newPlayoutLog, fadingClipIds: newFadingClipIds, onAirStartTime: newOnAirStartTime };
+                    return { activeClips: newActiveClips, previewingClipIds: newPreviewingClipIds, playoutLog: newPlayoutLog, fadingClipIds: newFadingClipIds, onAirStartTime: newOnAirStartTime };
                 }
                 // v1.4.6 (#2): anche se la clip non è (più) attiva, ripulisci un eventuale
                 // residuo in fadingClipIds (stop arrivato dopo la fine naturale).
@@ -1406,7 +1381,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     ac.player.cleanup();
                 });
                 // Reset completo: mix, timer, preview e fading orphans
-                return { activeClips: {}, suppressedClips: {}, onAirStartTime: null, fadingClipIds: [], previewingClipIds: [] };
+                return { activeClips: {}, onAirStartTime: null, fadingClipIds: [], previewingClipIds: [] };
             });
         },
 
@@ -1628,7 +1603,6 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 const newActive = { ...state.activeClips, [clipId]: { ...cur, clip: effectiveClip } };
                 evaluateMix(newActive, undefined, undefined, {
                     fadingClipIds: state.fadingClipIds,
-                    suppressedClips: state.suppressedClips,
                 });
                 return { activeClips: newActive };
             });

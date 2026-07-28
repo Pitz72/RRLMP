@@ -168,13 +168,16 @@ describe('evaluateMix — guardia safeVolume', () => {
     });
 });
 
-// v1.4.6 (revisione 2026-06-10, reperti #1/#22)
-describe('evaluateMix — clip in transizione e clip soppresse', () => {
+// v1.4.6 (revisione 2026-06-10, reperto #1)
+// v1.15.28: tolti i due test sul meccanismo `suppressedClips`, rimosso insieme al
+// codice che leggeva quella mappa (era il residuo del behavior 'Stacco' della v1.15.15:
+// nessuno la scriveva più).
+describe('evaluateMix — clip in transizione', () => {
     it('NON tocca le clip in fadingClipIds (il fade-out di transizione non va cancellato)', () => {
         const fading = makeClip({ type: 'preshow', volume: 1.0 });
         const entering = makeClip({ type: 'preshow', volume: 0.8 });
         const { active, players } = buildActive([fading, entering]);
-        evaluateMix(active, entering.id, undefined, { fadingClipIds: [fading.id], suppressedClips: {} });
+        evaluateMix(active, entering.id, undefined, { fadingClipIds: [fading.id] });
         expect(players.get(fading.id)!.last()).toBeUndefined();              // mai chiamata fadeTo
         expect(players.get(entering.id)!.last()!.volume).toBeCloseTo(0.8, 6); // l'entrante sì
     });
@@ -188,22 +191,10 @@ describe('evaluateMix — clip in transizione e clip soppresse', () => {
         useAudioStore.setState({ fadingClipIds: [] });
     });
 
-    // v1.15.15: il motore non SCRIVE più suppressedClips (ramo stacco rimosso da
-    // playClip), ma il meccanismo di lettura resta onorato (legacy/difensivo).
-    it('tiene a 0 le clip presenti in suppressedClips (meccanismo legacy)', () => {
-        const suppressedClip = makeClip({ type: 'music', volume: 0.9 });
-        const { active, players } = buildActive([suppressedClip]);
-        evaluateMix(active, undefined, undefined, {
-            fadingClipIds: [],
-            suppressedClips: { [suppressedClip.id]: 0.9 },
-        });
-        expect(players.get(suppressedClip.id)!.last()!.volume).toBe(0);
-    });
-
-    it('ripristina il volume quando la soppressione viene rimossa', () => {
+    it('mixa normalmente quando nessuna clip è in transizione', () => {
         const clip = makeClip({ type: 'music', volume: 0.9 });
         const { active, players } = buildActive([clip]);
-        evaluateMix(active, undefined, undefined, { fadingClipIds: [], suppressedClips: {} });
+        evaluateMix(active, undefined, undefined, { fadingClipIds: [] });
         expect(players.get(clip.id)!.last()!.volume).toBeCloseTo(0.9, 6);
     });
 });
