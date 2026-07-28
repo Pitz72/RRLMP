@@ -69,6 +69,21 @@ describe('audioFallbackCandidate', () => {
         expect(audioFallbackCandidate('C:\\Users\\x\\proj\\audio\\a.mp3', '/Users/collega/proj/show.lmp'))
             .toBe('/Users/collega/proj/audio/a.mp3');
     });
+    // v1.15.20: con i percorsi di rete finalmente riproducibili, un progetto che
+    // pesca dal NAS diventa un caso normale — e va condiviso come tutti gli altri.
+    it('share di rete Windows → archivio esportato aperto su Linux', () => {
+        expect(audioFallbackCandidate('\\\\NAS\\musica\\brano.mp3', '/home/collega/Progetti/show.lmp'))
+            .toBe('/home/collega/Progetti/audio/brano.mp3');
+    });
+    it('share di rete Windows → archivio riaperto su un altro PC Windows', () => {
+        expect(audioFallbackCandidate('\\\\NAS-Studio\\Archivio\\brano.mp3', 'E:\\Ricevuti\\show.lmp'))
+            .toBe('E:\\Ricevuti\\audio\\brano.mp3');
+    });
+    it('archivio prodotto su Linux e riaperto su Windows', () => {
+        expect(audioFallbackCandidate('/home/simone/Progetti/Show/audio/brano.mp3', 'C:\\Ricevuti\\show.lmp'))
+            .toBe('C:\\Ricevuti\\audio\\brano.mp3');
+    });
+
     it('null se il candidato coincide col path già rotto (case-insensitive)', () => {
         expect(audioFallbackCandidate('D:\\proj\\audio\\a.mp3', 'D:\\proj\\show.lmp')).toBe(null);
         expect(audioFallbackCandidate('d:\\proj\\AUDIO\\A.mp3', 'D:\\proj\\show.lmp')).toBe(null);

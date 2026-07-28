@@ -6,6 +6,7 @@ import { logger } from './logger';
 import { startRemoteControlServer, stopRemoteControlServer, getRemoteControlStatus, updateRemoteMusicState, RemoteCommandName } from './RemoteControlServer';
 import { initUpdateManager, checkForUpdates, downloadUpdate, quitAndInstall } from './updateManager';
 import { setMainLanguage, tMain } from './i18nMain';
+import { mediaUrlToFilePath } from './mediaPath';
 
 // GR-03 Fix: timeout wrapper per IPC handler asincroni che invocano FFmpeg.
 // Evita hang permanenti dell'app se FFmpeg si blocca o il file è illeggibile.
@@ -1145,28 +1146,16 @@ app.whenReady().then(() => {
     protocol.handle('media', (request) => {
         try {
             const requestUrl = request.url;
-            // G6 Fix: Robust URI parsing for media:// protocol.
-            // Strip protocol prefix, leaving the raw path component.
-            let pathName = requestUrl.replace(/^media:\/\/+/, '');
-
-            let filePath = decodeURIComponent(pathName);
-
-            if (process.platform === 'win32') {
-                // Windows: remove any accidental leading slash before drive letter (C:/)
-                // media:///C:/... → after strip → /C:/... → remove leading /
-                if (filePath.match(/^\/[A-Za-z]:\//)) {
-                    filePath = filePath.slice(1);
-                }
-                filePath = filePath.replace(/\//g, '\\');
-            } else {
-                // macOS / Linux: paths are absolute and start with /
-                // media:///Users/... → after strip → /Users/...
-                // media:///home/... → /home/...
-                // Ensure the leading slash is present (it should be, but guard against edge cases)
-                if (!filePath.startsWith('/')) {
-                    filePath = '/' + filePath;
-                }
+            // v1.15.20 (G4): parsing spostato nel modulo puro `mediaPath.ts` (testato).
+            // Il vecchio `replace(/^media:\/\/+/, '')` tagliava tutti gli slash iniziali
+            // e sui percorsi di rete UNC lasciava un path RELATIVO → 403, con la clip
+            // che in griglia appariva sana e semplicemente non partiva.
+            const decodedPath = mediaUrlToFilePath(requestUrl, process.platform);
+            if (decodedPath === null) {
+                logger.warn(`[Media] Blocked unresolvable URL: ${requestUrl}`);
+                return new Response('Forbidden', { status: 403 });
             }
+            let filePath = decodedPath;
 
             // GR-04 Fix: valida path prima di servire il file.
             // normalize() risolve i segmenti ".." per prevenire path traversal.
