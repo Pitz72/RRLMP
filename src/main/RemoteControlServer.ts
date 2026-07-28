@@ -21,6 +21,7 @@
 import * as http from 'http';
 import * as os from 'os';
 import * as fs from 'fs';
+import * as crypto from 'crypto';
 import { join } from 'path';
 import { WebSocketServer, WebSocket } from 'ws';
 import { logger } from './logger';
@@ -88,9 +89,40 @@ function readJsonBody(req: http.IncomingMessage): Promise<unknown> {
     });
 }
 
-/** PIN numerico a 6 cifre, rigenerato a ogni avvio del server. */
+/** PIN numerico a 6 cifre, rigenerato a ogni avvio del server.
+ *  v1.15.23: generato con il PRNG crittografico. `Math.random()` non è pensato per
+ *  produrre segreti — il suo stato interno è ricostruibile osservandone l'output —
+ *  e questo PIN è l'unica credenziale del canale che comanda l'audio in onda. */
 export function generatePin(): string {
-    return String(Math.floor(100000 + Math.random() * 900000));
+    return String(crypto.randomInt(100000, 1000000));
+}
+
+/** v1.15.23: confronto a tempo costante, così la durata della risposta non lascia
+ *  trapelare quante cifre iniziali erano corrette. Le stringhe di lunghezza diversa
+ *  escono subito: la lunghezza del PIN è pubblica, non è un segreto da proteggere. */
+function pinMatches(submitted: string, expected: string | null): boolean {
+    if (!expected || submitted.length !== expected.length) return false;
+    return crypto.timingSafeEqual(Buffer.from(submitted, 'utf8'), Buffer.from(expected, 'utf8'));
+}
+
+/**
+ * v1.15.23: le connessioni WebSocket NON sono soggette alla same-origin policy —
+ * una pagina web qualsiasi, aperta su un dispositivo della stessa rete, può aprire
+ * un socket verso la regia e mettersi a tentare il PIN. Il rate-limiter rende il
+ * tentativo a forza bruta impraticabile, ma il controllo dell'origine è la difesa
+ * che mancava. Un client legittimo è la nostra pagina servita da questo stesso
+ * server: o non manda `Origin` (WebSocket da app non-browser), oppure manda
+ * l'origine di questo server. Qualunque altra origine è una pagina di terzi.
+ */
+export function isAllowedWsOrigin(origin: string | undefined, port: number): boolean {
+    if (!origin) return true; // client non-browser: nessun Origin da falsificare
+    try {
+        const u = new URL(origin);
+        if (u.protocol !== 'http:' && u.protocol !== 'https:') return false;
+        return u.port === String(port);
+    } catch {
+        return false;
+    }
 }
 
 /** Indirizzi IPv4 non-loopback delle interfacce di rete locali (per mostrare all'utente l'URL da digitare sul tablet). */
@@ -161,7 +193,7 @@ export function startRemoteControlServer(handleCommand: (name: RemoteCommandName
             }
             readJsonBody(req).then((body) => {
                 const submittedPin = typeof body === 'object' && body !== null && 'pin' in body ? String((body as { pin: unknown }).pin) : '';
-                const ok = currentPin !== null && submittedPin === currentPin;
+                const ok = pinMatches(submittedPin, currentPin);
                 if (ok) pinLimiter.reset(clientKey); // PIN corretto: non penalizzare i tentativi successivi legittimi
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ ok }));
@@ -187,6 +219,14 @@ export function startRemoteControlServer(handleCommand: (name: RemoteCommandName
         let authenticated = false;
         const clientKey = req.socket.remoteAddress || 'unknown';
 
+        // v1.15.23 (M6): rifiuta le connessioni che arrivano da una pagina web di
+        // terzi. Vedi isAllowedWsOrigin — i WebSocket ignorano la same-origin policy.
+        if (!isAllowedWsOrigin(req.headers.origin, PORT)) {
+            logger.warn(`[RemoteControlServer] Connessione WS rifiutata, origine non consentita: ${req.headers.origin}`);
+            ws.close();
+            return;
+        }
+
         const authTimeout = setTimeout(() => {
             if (!authenticated) ws.close();
         }, AUTH_TIMEOUT_MS);
@@ -204,7 +244,7 @@ export function startRemoteControlServer(handleCommand: (name: RemoteCommandName
                     ws.close();
                     return;
                 }
-                const ok = currentPin !== null && String(m.pin) === currentPin;
+                const ok = pinMatches(String(m.pin), currentPin); // v1.15.23: confronto a tempo costante
                 ws.send(JSON.stringify({ type: 'auth-result', ok }));
                 if (!ok) { ws.close(); return; }
                 authenticated = true;
