@@ -54,7 +54,8 @@ interface AudioStore {
     // operatore — solo i gesti operatore possono annullare un load in volo (toggle).
     playClip: (clip: AudioClip, velocityGain?: number, opts?: { machine?: boolean }) => Promise<void>;
     loadClip: (clip: AudioClip) => Promise<void>;
-    playColumn: (colIndex: number) => Promise<void>;
+    /** v1.15.26: identificata per ID di colonna (prima: indice nell'array completo). */
+    playColumn: (columnId: string) => Promise<void>;
     updateOutputDevice: (deviceId: string) => void;
     stopClip: (clipId: string) => void;
     previewTransition: (clip: AudioClip) => Promise<void>;
@@ -1257,11 +1258,15 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             }
         },
 
-        playColumn: async (colIndex: number) => {
+        // v1.15.26 (M1): identificata per ID, non più per indice nell'array completo
+        // delle colonne. L'indice era ambiguo da quando le colonne sono 7 e la griglia
+        // ne mostra un sottoinsieme (FX in pad separato, più le nascoste dalle
+        // preferenze): il tasto colonna e la colonna vista sotto il dito potevano
+        // riferirsi a due cose diverse.
+        playColumn: async (columnId: string) => {
             const { columns } = useProjectStore.getState();
-            if (colIndex < 0 || colIndex >= columns.length) return;
-
-            const targetCol = columns[colIndex];
+            const targetCol = columns.find(c => c.id === columnId);
+            if (!targetCol) return;
             const currentStore = get();
 
             // Find first available clip (not currently playing)
@@ -1272,7 +1277,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             if (availableClip) {
                 await get().playClip(availableClip);
             } else if (targetCol.clips.length > 0) {
-                debugLog(`AudioStore: playColumn(${colIndex}) -> All clips in column are already playing`, 'info');
+                debugLog(`AudioStore: playColumn(${columnId}) -> All clips in column are already playing`, 'info');
             }
         },
 

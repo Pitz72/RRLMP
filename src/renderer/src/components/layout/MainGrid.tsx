@@ -138,18 +138,29 @@ export const MainGrid: React.FC = () => {
                 return;
             }
 
+            // v1.15.26 (M1): F1..Fn seguono le colonne EFFETTIVAMENTE VISIBILI, nello
+            // stesso ordine in cui si vedono. Prima erano indici fissi 1..5 sull'array
+            // completo: da quando le colonne sono 7 (v1.3.21) PRE-SHOW e FX non erano
+            // raggiungibili, e nascondere una colonna dalle preferenze (v1.9.8) non
+            // rimappava nulla — il tasto e la colonna sotto il dito divergevano.
+            // Nota deliberata: F1 resta la prima colonna, di norma SHOW ASSETS, il cui
+            // lancio è un take-over (ferma tutto tranne gli FX). È coerente con il click
+            // sulla stessa colonna; il tasto ora almeno corrisponde a ciò che si vede.
             if (e.key.startsWith('F')) {
                 const fKey = parseInt(e.key.substring(1));
-                if (!isNaN(fKey) && fKey >= 1 && fKey <= 5) {
+                const cols = useProjectStore.getState().columns;
+                const hidden = useSettingsStore.getState().hiddenColumnIds;
+                const visible = cols.filter((c) => c.type !== 'sfx' && !hidden.includes(c.id));
+                if (!isNaN(fKey) && fKey >= 1 && fKey <= visible.length) {
                     e.preventDefault();
-                    playColumn(fKey - 1);
+                    playColumn(visible[fKey - 1].id);
                 }
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [editingClip, playColumn]); // columns letto via getState(); stopAll non usato qui
+    }, [editingClip, playColumn]); // columns/hiddenColumnIds letti via getState(); stopAll non usato qui
 
     // AUTO-SILENCE DETECTION BATCH — colonna Music al caricamento progetto
     useEffect(() => {
