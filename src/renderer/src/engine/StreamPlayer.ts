@@ -236,6 +236,12 @@ export class StreamPlayer implements IAudioPlayer {
     }
 
     seek(time: number): void {
+        // v1.15.27 (L3): riporta indietro anche i marcatori "già raggiunti". Dopo un
+        // salto all'indietro (preview di transizione, riascolto di un punto) intro e
+        // outro restavano marcati come passati e non scattavano più fino alla fine
+        // della clip. Si riallineano al punto in cui ci si è spostati.
+        if (time < this.introMarker) this.introReached = false;
+        if (this.outroMarker > 0 && time < this.outroMarker) this.outroReached = false;
         this.audioElement.currentTime = time;
     }
 

@@ -39,6 +39,12 @@ export function validateLmpProjectData(raw: unknown): { columns: Column[] } {
         const c = col as Record<string, unknown>;
         if (typeof c.id !== 'string') throw new Error(`colonna[${i}].id non è una stringa`);
         if (!VALID_CLIP_TYPES.has(c.type as ClipType)) throw new Error(`colonna[${i}].type non valido: "${c.type}"`);
+        // v1.15.27 (L8): un titolo mancante o non testuale lasciava l'intestazione di
+        // colonna vuota in griglia. Non è un motivo per rifiutare il progetto: si
+        // ripiega sull'etichetta predefinita del tipo, rinominabile come sempre.
+        if (typeof c.title !== 'string' || c.title.trim() === '') {
+            c.title = i18n.t(`columns.${String(c.id).replace(/^col-/, '')}`, String(c.type).toUpperCase());
+        }
         if (!Array.isArray(c.clips)) throw new Error(`colonna[${i}].clips non è un array`);
 
         for (let j = 0; j < c.clips.length; j++) {

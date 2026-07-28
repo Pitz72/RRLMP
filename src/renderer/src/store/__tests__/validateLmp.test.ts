@@ -53,6 +53,29 @@ describe('validateLmpProjectData — trim incoerenti', () => {
     });
 });
 
+describe('validateLmpProjectData — titolo di colonna', () => {
+    // v1.15.27 (L8): un titolo mancante lasciava l'intestazione vuota in griglia.
+    const titleOf = (raw: unknown) => validateLmpProjectData(raw).columns[0].title;
+
+    it('ripiega su un\'etichetta quando il titolo manca', () => {
+        const t = titleOf({ columns: [{ id: 'col-music', type: 'music', clips: [] }] });
+        expect(typeof t).toBe('string');
+        expect(t.trim().length).toBeGreaterThan(0);
+    });
+
+    it('ripiega anche su titolo vuoto o non testuale', () => {
+        expect(titleOf({ columns: [{ id: 'col-voice', title: '   ', type: 'voice', clips: [] }] }).trim().length)
+            .toBeGreaterThan(0);
+        expect(titleOf({ columns: [{ id: 'col-sfx', title: 42, type: 'sfx', clips: [] }] }).trim().length)
+            .toBeGreaterThan(0);
+    });
+
+    it('non tocca un titolo rinominato dall\'operatore', () => {
+        expect(titleOf({ columns: [{ id: 'col-music', title: 'BRANI DELLA SERATA', type: 'music', clips: [] }] }))
+            .toBe('BRANI DELLA SERATA');
+    });
+});
+
 describe('validateLmpProjectData — struttura', () => {
     it('rifiuta una radice che non è un progetto', () => {
         expect(() => validateLmpProjectData(null)).toThrow();

@@ -214,7 +214,12 @@ function createWindow(initialFilePath?: string): void {
             "font-src 'self' data:; " +
             "img-src 'self' data: blob:; " +
             "worker-src 'self' blob:; " +
-            "connect-src 'self' media: blob: ws: https://www.runtimeradio.it https://runtimeradio.it https://www.runtimeradio.com https://runtimeradio.com;"
+            // v1.15.27 (L5): `ws:` era senza host, quindi autorizzava WebSocket verso
+            // QUALUNQUE destinazione. Il renderer non ne apre nessuno (il server del
+            // controllo remoto vive nel main); serve solo al canale di aggiornamento a
+            // caldo di Vite, in sviluppo. In produzione la voce sparisce.
+            (isDev ? "connect-src 'self' media: blob: ws://localhost:* ws://127.0.0.1:* " : "connect-src 'self' media: blob: ") +
+            "https://www.runtimeradio.it https://runtimeradio.it https://www.runtimeradio.com https://runtimeradio.com;"
         ];
 
         callback({
@@ -797,6 +802,14 @@ ipcMain.handle('start-recording', async (_event) => {
         if (recordingWriteStream) {
             try { recordingWriteStream.end(); } catch { /* ignore */ }
             recordingWriteStream = null;
+            // v1.15.27 (L6): il file temporaneo di quella sessione monca restava in
+            // %TEMP% per sempre. Nessuno lo avrebbe più letto: si rimuove subito.
+            if (currentTempRecordingPath && isTempRecordingPath(currentTempRecordingPath)) {
+                try {
+                    fs.unlinkSync(currentTempRecordingPath);
+                    logger.info(`[Main] Rimosso temp di registrazione orfano: ${currentTempRecordingPath}`);
+                } catch { /* file già rimosso o in uso: non è fatale */ }
+            }
         }
         recordingStreamError = null;
 
@@ -985,24 +998,16 @@ ipcMain.handle('save-recording-buffer', async (_event, arrayBuffer: ArrayBuffer)
 // Impedisce eliminazione di file arbitrari via IPC compromesso (path traversal o path random).
 ipcMain.handle('delete-temp-recording', async (_event, filePath: string) => {
     try {
-        if (typeof filePath !== 'string' || !filePath) {
-            return { success: false, error: 'Invalid path' };
-        }
-        const tempDir = fs.realpathSync(app.getPath('temp'));
-        let resolved: string;
-        try {
-            resolved = fs.realpathSync(filePath);
-        } catch {
-            resolved = require('path').resolve(filePath);
-        }
-        const relative = require('path').relative(tempDir, resolved);
-        const insideTemp = relative && !relative.startsWith('..') && !require('path').isAbsolute(relative);
-        const baseName = require('path').basename(resolved);
-        const allowedPattern = /^rrlmp_temp_\d+\.webm$/;
-        if (!insideTemp || !allowedPattern.test(baseName)) {
-            logger.warn(`[Main] delete-temp-recording rifiutato (path non sicuro): ${filePath}`);
+        // v1.15.27 (L7): la stessa identica validazione viveva qui e in
+        // `isTempRecordingPath` (usata da convert-recording). Due copie della regola
+        // che decide quali file l'app può cancellare sono una in più: ora la fonte è
+        // una sola, e un domani si irrigidisce in un punto solo.
+        if (!isTempRecordingPath(filePath)) {
+            logger.warn(`[Main] delete-temp-recording rifiutato (path non sicuro): ${String(filePath)}`);
             return { success: false, error: 'Path not allowed' };
         }
+        let resolved: string;
+        try { resolved = fs.realpathSync(filePath); } catch { resolved = require('path').resolve(filePath); }
         if (fs.existsSync(resolved)) {
             fs.unlinkSync(resolved);
             return { success: true };

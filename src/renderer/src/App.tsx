@@ -324,6 +324,17 @@ function App() {
                 return;
             }
 
+            // v1.15.27 (L1): guardia sui modali aperti. L'Input Guard qui sopra copre
+            // solo i campi di testo: con una modale aperta e il fuoco su un menu a
+            // tendina o su un pulsante, Ctrl+Z faceva comunque un passo indietro sulla
+            // scaletta e Canc chiedeva di eliminare le clip selezionate sotto la modale.
+            // Gesti scollegati da quello che si sta facendo, e sorprendenti.
+            // ESC resta fuori da questa guardia (è sopra): l'Emergency Stop deve
+            // funzionare sempre, e i modali lo intercettano già per chiudersi.
+            if (document.querySelector('.ov')) {
+                return;
+            }
+
             // v1.5.0: Undo / Redo playlist. Dopo l'Input Guard, così l'undo nativo
             // dei campi di testo non viene intercettato. Ctrl/Cmd+Z = undo;
             // Ctrl/Cmd+Y oppure Ctrl/Cmd+Shift+Z = redo.

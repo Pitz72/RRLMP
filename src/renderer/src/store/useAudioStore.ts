@@ -1303,6 +1303,13 @@ export const useAudioStore = create<AudioStore>((set, get) => {
             // dell'await load() il run-ID non corrisponde più e l'avvio viene scartato.
             // Prima lo stop NON toccava playRunIds: la clip partiva DOPO lo stop.
             playRunIds.delete(clipId);
+            // v1.15.27 (L2): se la clip fermata era quella che aveva chiesto il preload
+            // del brano successivo, quel player resta caricato in memoria senza più uno
+            // scopo — nessuno lo userà, e veniva liberato solo al preload successivo o
+            // a STOP ALL. Lo si rilascia subito.
+            if (_preloadedNext && getNextClipInColumn(clipId)?.id === _preloadedNext.clipId) {
+                discardPreloadedNext();
+            }
             set((state) => {
                 // v1.4.6 (#2): rimuovi SEMPRE la clip da fadingClipIds. Prima l'unica
                 // pulizia era nel timeout di transizione, ma stopClip stesso lo cancella
