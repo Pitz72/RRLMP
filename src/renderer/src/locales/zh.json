@@ -474,6 +474,7 @@
     },
     "app": {
         "unsavedBeforeOpen": "有未保存的更改。在打开新项目之前，您希望如何处理？",
+        "unsavedBeforeUpdate": "更新将关闭 RRLMP，且有未保存的更改。您想怎么做？",
         "saveFailed": "保存失败：{{err}}",
         "canceled": "已取消",
         "invalidLmp": "LMP 文件无效：{{err}}",

@@ -474,6 +474,7 @@
     },
     "app": {
         "unsavedBeforeOpen": "Des modifications ne sont pas enregistrées. Que voulez-vous faire avant d’ouvrir le nouveau projet ?",
+        "unsavedBeforeUpdate": "La mise à jour va fermer RRLMP et des modifications ne sont pas enregistrées. Que voulez-vous faire ?",
         "saveFailed": "Échec de l’enregistrement : {{err}}",
         "canceled": "annulé",
         "invalidLmp": "Fichier LMP invalide : {{err}}",

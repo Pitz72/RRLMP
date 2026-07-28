@@ -239,6 +239,55 @@ function App() {
         void window.electron.checkForUpdates();
     };
 
+    // v1.15.19 (G3): gate di salvataggio prima di "Riavvia e installa".
+    // L'handler IPC `quit-and-install` (main/index.ts) distrugge le finestre con
+    // `destroy()` — deve farlo, altrimenti il `beforeunload` del renderer annulla
+    // la chiusura e l'installer resta appeso dietro l'app aperta (bug v1.15.10).
+    // Ma `destroy()` non passa da `close` né da `beforeunload`, quindi NESSUNA
+    // protezione sulle modifiche non salvate poteva più scattare: il progetto
+    // aperto veniva perso senza un avviso. Il gate va quindi messo QUI, prima di
+    // avviare la procedura. Stessa scelta a tre vie della chiusura normale.
+    // Ritorna true se si può procedere con l'installazione.
+    const confirmSaveBeforeUpdate = async (): Promise<boolean> => {
+        const state = useProjectStore.getState();
+        if (!state.isDirty) return true;
+
+        const response = await confirmThree(
+            i18n.t('app.unsavedBeforeUpdate', "L'aggiornamento chiuderà RRLMP e ci sono modifiche non salvate. Cosa vuoi fare?"),
+            i18n.t('modal.dialog.save', 'Salva'),
+            i18n.t('modal.dialog.discard', 'Non Salvare'),
+            i18n.t('modal.dialog.cancel', 'Annulla')
+        );
+        if (response === 'cancel') return false;
+
+        if (response === 'confirm') {
+            const projectData = {
+                version: __APP_VERSION__,
+                timestamp: Date.now(),
+                project: { columns: state.columns }
+            };
+            const json = JSON.stringify(projectData, null, 2);
+            const saveRes = state.currentFilePath
+                ? await window.electron.saveProjectDirect(json, state.currentFilePath)
+                : await window.electron.saveProject(json);
+            // Salvataggio fallito o dialog annullato: NON si procede, l'aggiornamento
+            // può sempre aspettare — il progetto no.
+            if (!saveRes.success) {
+                toast(i18n.t('app.saveFailed', 'Salvataggio non riuscito: {{err}}', { err: saveRes.error ?? i18n.t('app.canceled', 'annullato') }), 'error');
+                return false;
+            }
+            useProjectStore.getState().setDirty(false);
+        }
+        // 'third' (Non Salvare) → si procede scartando le modifiche, scelta esplicita
+        return true;
+    };
+
+    const handleInstallUpdate = async () => {
+        if (await confirmSaveBeforeUpdate()) {
+            void window.electron.quitAndInstall();
+        }
+    };
+
     useEffect(() => {
         const handleDrag = (e: DragEvent) => {
             e.preventDefault();
@@ -471,7 +520,7 @@ function App() {
                 currentVersion={__APP_VERSION__}
                 onClose={() => setShowUpdateModal(false)}
                 onDownload={() => void window.electron.downloadUpdate()}
-                onInstall={() => void window.electron.quitAndInstall()}
+                onInstall={() => void handleInstallUpdate()}
             />
 
             {showWelcome && (

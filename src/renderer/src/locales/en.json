@@ -474,6 +474,7 @@
     },
     "app": {
         "unsavedBeforeOpen": "There are unsaved changes. What do you want to do before opening the new project?",
+        "unsavedBeforeUpdate": "Updating will close RRLMP and there are unsaved changes. What do you want to do?",
         "saveFailed": "Save failed: {{err}}",
         "canceled": "canceled",
         "invalidLmp": "Invalid LMP file: {{err}}",

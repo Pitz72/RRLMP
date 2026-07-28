@@ -474,6 +474,7 @@
     },
     "app": {
         "unsavedBeforeOpen": "Es gibt ungespeicherte Änderungen. Was möchten Sie tun, bevor das neue Projekt geöffnet wird?",
+        "unsavedBeforeUpdate": "Das Update schließt RRLMP, und es gibt ungespeicherte Änderungen. Was möchten Sie tun?",
         "saveFailed": "Speichern fehlgeschlagen: {{err}}",
         "canceled": "abgebrochen",
         "invalidLmp": "Ungültige LMP-Datei: {{err}}",
