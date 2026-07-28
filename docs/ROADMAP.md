@@ -78,6 +78,8 @@ Forma proposta: repo dedicato + dipendenza git con tag (`"stream-core": "github:
 
 **Decisione dell'utente (2026-07-28): StreamFlow resta un prodotto autonomo** per chi non usa Live Machine. Quella che entra in RRLMP è un'integrazione, non un assorbimento.
 
+> ⚠️ **Premessa da chiarire prima di progettare il passo 2.** A fine sessione l'utente ha precisato che StreamFlow **è pensato per il solo team di Runtime Radio**, non per una distribuzione ampia. Questo cambia il peso dei vincoli: se il pubblico è interno e noto, la condivisione del codice può essere più diretta di quanto ipotizzato sopra (il `stream-core` versionato con tag serve a proteggere due prodotti indipendenti in mani diverse — con un solo team la disciplina può essere più leggera). **Discuterne all'apertura della prossima sessione**, prima di scrivere una riga del passo 2.
+
 Forma richiesta:
 - un **pulsante LIVE** nella barra in alto;
 - un **pannello di configurazione della diretta** (server, credenziali, bitrate, metadati);
