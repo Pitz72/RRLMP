@@ -102,6 +102,29 @@ describe('Undo/Redo playlist', () => {
         expect(useProjectStore.getState().isDirty).toBe(true);
     });
 
+    // v1.15.22 — "Salva con nome" registra il percorso e nient'altro.
+    it('setCurrentFilePath aggiorna il percorso senza toccare le clip', () => {
+        useProjectStore.setState({
+            columns: [makeColumn('col-music', 'music', [
+                { id: 'm1', name: 'x', path: 'C:\\assente\\x.mp3', type: 'music', color: '#000', volume: 1, pan: 0,
+                  isLooping: false, isPlaying: false, duration: 0, currentTime: 0,
+                  nextAction: 'stop', behavior: 'normal', duckingRole: 'none', fadeIn: 0, fadeOut: 0,
+                  isMissing: true, silenceCheckedV2: true },
+            ])],
+            currentFilePath: null,
+            undoStack: [], redoStack: [],
+        });
+        useProjectStore.getState().setCurrentFilePath('D:\\Progetti\\show.lmp');
+
+        const st = useProjectStore.getState();
+        expect(st.currentFilePath).toBe('D:\\Progetti\\show.lmp');
+        // Il badge "file mancante" deve restare: prima il salvataggio passava da
+        // loadProject e lo azzerava, facendo sembrare sane clip che non suonano.
+        expect(st.columns[0].clips[0].isMissing).toBe(true);
+        expect(st.columns[0].clips[0].silenceCheckedV2).toBe(true);
+        expect(st.undoStack.length).toBe(0);
+    });
+
     it('una modifica utente precedente non viene cancellata da una scrittura runtime', () => {
         useProjectStore.setState({
             columns: [makeColumn('col-music', 'music', [

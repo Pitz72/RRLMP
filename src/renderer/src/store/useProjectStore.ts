@@ -224,6 +224,11 @@ interface ProjectState {
      *  Quelle non devono marcare il progetto come "da salvare": vedi commento su isDirty. */
     updateClip: (columnId: string, clipId: string, updates: Partial<AudioClip>, opts?: { runtime?: boolean }) => void;
     loadProject: (data: { columns: Column[] }, filePath?: string, opts?: { preserveUiState?: boolean }) => void;
+    /** v1.15.22: aggiorna SOLO il percorso del progetto corrente, dopo un "Salva con
+     *  nome". Prima si riusava `loadProject(..., { preserveUiState: true })`, che è un
+     *  CARICAMENTO: azzerava `isMissing` su tutte le clip e reimpostava le colonne da
+     *  uno snapshot potenzialmente vecchio. Vedi commento sull'implementazione. */
+    setCurrentFilePath: (filePath: string) => void;
     moveClip: (sourceColId: string, destColId: string, oldIndex: number, newIndex: number) => void;
 
     setColumnColor: (columnId: string, color: string) => void;
@@ -514,6 +519,18 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
             ...uiReset
         });
     },
+
+    // v1.15.22: dopo "Salva con nome" serve solo registrare il nuovo percorso.
+    // Prima si riusava `loadProject(cols, path, { preserveUiState: true })`, ma quella
+    // è l'azione di CARICAMENTO e faceva due cose indesiderate:
+    //  1. forzava `isMissing: false` su OGNI clip → i badge rossi dei file mancanti
+    //     sparivano al primo salvataggio e non tornavano fino al successivo controllo
+    //     di integrità: in regia si vedeva "tutto a posto" su clip che non suonano;
+    //  2. riscriveva le colonne con lo snapshot catturato PRIMA del dialog di
+    //     salvataggio, buttando via le analisi (silenzio, loudness, BPM) completate
+    //     nel frattempo.
+    // Qui non si tocca nulla se non il percorso.
+    setCurrentFilePath: (filePath) => set({ currentFilePath: filePath }),
 
     // Integrity Check (v0.14.2)
     // v1.15.14 (portabilità): prima di marcare isMissing, per ogni file assente si

@@ -43,7 +43,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
     const { t } = useTranslation();
     const { stopAll } = useAudioStore();
     const loadClip = useAudioStore((s) => s.loadClip);
-    const { columns, isDirty, setDirty, loadProject, resetProject, currentFilePath, isMidiLearnMode, setIsMidiLearnMode, runIntegrityCheck, updateClip, addClipFromPath, applyArchivedPaths } = useProjectStore();
+    const { columns, isDirty, setDirty, loadProject, resetProject, currentFilePath, isMidiLearnMode, setIsMidiLearnMode, runIntegrityCheck, updateClip, addClipFromPath, applyArchivedPaths, setCurrentFilePath } = useProjectStore();
     const { globalMidiBinds, setGlobalMidiBind, masterVolume, setMasterVolume: setStoredVolume,
         micInputDeviceId, micThresholdDb, micActivationHoldMs, micReleaseHoldMs, micEnabled, micMixEnabled, micVolume, micBypassProcessing, setMicSettings } = useSettingsStore();
     const setMicActive = useAudioStore(s => s.setMicActive);
@@ -409,12 +409,13 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
 
         if (result.success) {
             setDirty(false);
+            // v1.15.22: salvato con dialog → registra il nuovo percorso, e basta.
+            // Prima si passava da loadProject(preserveUiState), che è l'azione di
+            // CARICAMENTO: azzerava isMissing su tutte le clip (badge rossi spariti
+            // dopo un salvataggio) e reimpostava le colonne da uno snapshot anteriore
+            // al dialog, perdendo le analisi completate nel frattempo.
             if (result.filePath) {
-                // If we did a saveProject (dialog), update path.
-                // Direct save preserves path, so no change needed unless we want to be safe.
-                // But loadProject signature is clumsy.
-                // IF result.filePath is returned, update it.
-                loadProject({ columns }, result.filePath, { preserveUiState: true });
+                setCurrentFilePath(result.filePath);
             }
         } else {
             if (result.error) toast(t('controls.saveFailed', 'Salvataggio fallito: {{err}}', { err: result.error }), 'error');
@@ -432,7 +433,7 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
 
         if (result.success && result.filePath) {
             setDirty(false);
-            loadProject({ columns }, result.filePath, { preserveUiState: true });
+            setCurrentFilePath(result.filePath); // v1.15.22, vedi handleSaveProject
         }
     };
 
