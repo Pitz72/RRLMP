@@ -1,5 +1,7 @@
 # RRLMP — Documento di Visione Tecnica
-**Versione**: 1.3.18 | **Data**: 2026-06-05
+**Software alla versione**: 1.15.15 | **Documento rivisto**: 2026-07-28 (scritto per la 1.3.18 il 2026-06-05)
+
+> Contenuto **verificato e tuttora valido**: la filosofia "nessuna automazione dello show, eccezione controllata sulla sola PRE-SHOW" continua a governare le decisioni di prodotto (è la ragione per cui il behavior `Stacco` è stato rimosso nella 1.15.15 e per cui il Voice Tracking resta sospeso). Per la mappa dei sottosistemi aggiunti dopo la 1.3 vedi [ARCHITECTURE.md](./ARCHITECTURE.md); per lo stato dei lavori [ROADMAP.md](./ROADMAP.md).
 
 Questo documento sintetizza la filosofia di **Runtime Live Machine Pro (RRLMP)**, le scelte architettoniche fondamentali e la visione a lungo termine del progetto.
 

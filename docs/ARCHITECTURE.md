@@ -1,6 +1,35 @@
-# Architecture & Development Reference (v1.2.2)
+# Architecture & Development Reference
 
-Ultimo aggiornamento: 2026-04-11
+> ## ⚠️ Stato del documento (verificato il 2026-07-28)
+>
+> **Il corpo di questo documento descrive la v1.2.2** (scritto il 2026-04-11). Le fondamenta che racconta — modello dei processi, strategia "Main-Side-Heavy", separazione degli store Zustand, `StreamPlayer` con `<audio>` + GainNode, protocollo `media://` — sono state **verificate e sono tuttora accurate** sulla 1.15.15.
+>
+> Quello che **manca** è tutto ciò che è arrivato dopo. Mappa dei sottosistemi introdotti fra la 1.3 e la 1.15, con i file dove vivono:
+>
+> | Sottosistema | Da | File di riferimento |
+> |---|---|---|
+> | Colonne JINGLE e PROMO (7 colonne totali, non 5) | 1.3.21 | `store/useProjectStore.ts` (`getDefaultColumns`, migrazione in `validateLmpProjectData`) |
+> | Rotazione PRE-SHOW ("once per X songs") | 1.3.21 | `store/useAudioStore.ts` (`resolvePreshowNext`, `pickRandomFromColumn`, stato `_pendingInserts`) |
+> | **Take-over**: asset/jingle/promo non-loop lanciati a mano fermano tutto tranne FX | 1.4.14 | `store/useAudioStore.ts` (`isTakeover` in `playClip`) — regole in [`regole-colonne/`](./regole-colonne/) |
+> | Loudness EBU R128 per clip | 1.4.3 | `computeLoudnessGain` + IPC `measure-loudness` |
+> | Glue Multibanda + limiter brickwall (crossover LR4, 3 bande, wet/dry) | 1.4.2 / 1.7.0 | `engine/AudioContextManager.ts` — topologia documentata nel file |
+> | Undo/Redo playlist (snapshot colonne, limite 50) | 1.5.0 | `store/useProjectStore.ts` (`_snapshot`/`undo`/`redo`) |
+> | BPM detection | 1.8.0 | `main/bpmDetection.ts` + IPC `detect-bpm` |
+> | Pad FX flottante — `col-sfx` **filtrata dalla griglia** ma presente nel modello dati | 1.9.7 | `components/ui/FxPadOverlay.tsx`, `MainGrid.tsx` |
+> | Colonne nascondibili (preferenza globale, non nel `.lmp`) | 1.9.8 | `store/useSettingsStore.ts` (`hiddenColumnIds`) |
+> | Automix beat-match (motore puro + orchestrazione) | 1.10.21-26 | `engine/automixEngine.ts` (puro, 26 test) + `automixTransition` nello store |
+> | Controllo remoto LAN (HTTP + WebSocket + PIN) | 1.11.3 | `main/RemoteControlServer.ts`, `main/pinRateLimiter.ts`, `main/remoteClipState.ts` |
+> | Auto-updater (nativo Win/AppImage, fallback browser macOS/.deb) | 1.11.5 | `main/updateManager.ts` |
+> | i18n integrale, **processo main incluso** | 1.15.6 | `renderer/src/i18n.ts` + `main/i18nMain.ts` (IPC `i18n:set-language`) |
+> | Export "l'archivio diventa il riferimento" + portabilità | 1.15.9 / 1.15.14 | IPC `export-project`, `applyArchivedPaths`, `utils/pathPortability.ts` |
+> | Curva volume percettiva · waveform peaks streaming · scala VU in dB | 1.15.11-13 | `utils/volumeTaper.ts`, `main/waveformPeaks.ts`, `utils/meterScale.ts` |
+> | **Rimozione** del behavior `Stacco` (lo scopo lo determina la colonna) | 1.15.15 | il campo `behavior` resta nel modello solo per compatibilità `.lmp` |
+>
+> **Rettifiche puntuali al testo che segue:**
+> - `useSettingsStore.preshowTransitionType` oggi si chiama **`defaultPreshowTransition`**.
+> - `evaluateMix` ha un **quarto parametro** `mixState` (`fadingClipIds`/`suppressedClips`), necessario quando la si chiama dentro un `set()`.
+> - `suppressedClips` è **codice morto dalla 1.15.15** (mai più scritto): vedi L4 nella [revisione](./technical/REVISIONE-CODICE-2026-07-28.md).
+> - Le criticità architetturali aperte sono elencate nella [revisione del 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md).
 
 ---
 
