@@ -178,7 +178,10 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
 
             <div className="clip-row clip-head">
                 <div className="clip-id">
-                    {isPlaying && <span className="clip-live-dot animate-pulse" />}
+                    {/* Il pallino occupa sempre il suo spazio (invisibile da ferma):
+                        altrimenti all'avvio della clip il titolo scatta a destra. */}
+                    <span className={`clip-live-dot ${isPlaying ? 'animate-pulse' : 'idle'}`} />
+
                     <span
                         className="clip-title"
                         style={clip.isMissing ? { color: '#ef4444' } : undefined}

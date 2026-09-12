@@ -7,6 +7,11 @@ import { AudioClip } from '../../types';
 // Hero "IN ONDA" — banner ON AIR del tema Spectrum.
 // SOLA LETTURA dello stato esistente (activeClips dello store): non modifica nulla,
 // non avvia/ferma clip. Replica fedele del markup .hero del prototipo.
+//
+// v1.15.31 — hero FISSA: resta sempre montata (a riposo in stato OFF AIR) e ogni
+// sua zona ha un ingombro costante. Prima compariva/spariva con la clip in onda
+// e spingeva giù le colonne; cue OUTRO, UP NEXT e titoli di lunghezza diversa ne
+// cambiavano altezza e larghezza durante il brano.
 
 const fmt = (s: number): string => {
     if (!isFinite(s) || s < 0) s = 0;
@@ -21,6 +26,13 @@ const fmt = (s: number): string => {
 // riscontro visivo è il pad acceso + il badge sul toggle FX.
 const TYPE_PRIORITY = ['music', 'preshow', 'voice', 'asset'];
 
+// Tra la fine di un brano e l'avvio del successivo (play_next con load asincrono)
+// activeClips può restare vuoto per un istante: la hero tiene l'ultimo brano per
+// questo tempo invece di lampeggiare su OFF AIR.
+const IDLE_HOLD_MS = 600;
+
+type ActiveEntry = ReturnType<typeof useAudioStore.getState>['activeClips'][string];
+
 export const NowPlayingHero: React.FC = () => {
     const { t } = useTranslation();
     const activeClips = useAudioStore((s) => s.activeClips);
@@ -29,16 +41,25 @@ export const NowPlayingHero: React.FC = () => {
     // Esclusi gli FX anche dal fallback "prima clip attiva".
     const actives = Object.values(activeClips).filter((a) => a.clip.type !== 'sfx');
     // Scegli la clip da mostrare: music > preshow > voice > altro; fallback alla prima attiva.
-    let onAir: typeof actives[number] | null = null;
+    let current: ActiveEntry | null = null;
     for (const type of TYPE_PRIORITY) {
         const found = actives.find((a) => a.clip.type === type);
-        if (found) { onAir = found; break; }
+        if (found) { current = found; break; }
     }
-    if (!onAir && actives.length > 0) onAir = actives[0];
+    if (!current && actives.length > 0) current = actives[0];
 
-    // Niente in onda → l'hero non si mostra (recupera spazio per le colonne).
-    if (!onAir) return null;
+    // Tenuta anti-lampeggio (vedi IDLE_HOLD_MS).
+    const heldRef = React.useRef<ActiveEntry | null>(null);
+    const [, forceRender] = React.useReducer((x: number) => x + 1, 0);
+    if (current) heldRef.current = current;
+    const hasCurrent = !!current;
+    React.useEffect(() => {
+        if (hasCurrent || !heldRef.current) return;
+        const id = setTimeout(() => { heldRef.current = null; forceRender(); }, IDLE_HOLD_MS);
+        return () => clearTimeout(id);
+    }, [hasCurrent]);
 
+    const onAir = current ?? heldRef.current;
     const clip = onAir?.clip;
     const col = clip ? columns.find((c) => c.clips.some((cl) => cl.id === clip.id)) : undefined;
 
@@ -61,7 +82,7 @@ export const NowPlayingHero: React.FC = () => {
     const introT = clip?.introMarker || 0;
     const outroT = clip?.outroMarker || 0;
     // Cue OUTRO: come in ClipCard, nelle battute prima del marker di outro.
-    const inOutroPre = outroT > 0 && elapsed < outroT && (outroT - elapsed) <= 15;
+    const inOutroPre = !!clip && outroT > 0 && elapsed < outroT && (outroT - elapsed) <= 15;
 
     // Timer a fasi (solo visualizzazione):
     //  - intro (azzurro): conto alla rovescia alla FINE dell'intro;
@@ -69,10 +90,13 @@ export const NowPlayingHero: React.FC = () => {
     //  - outro (arancione): dal marker di outro in poi;
     //  - ultimi 10s (rosso lampeggiante) hanno priorità.
     const rem = remaining ?? 0;
-    const final10 = !loop && rem <= 10;
+    const final10 = !!clip && !loop && rem <= 10;
     let timerColor = '#ffffff';
     let timerText: string;
-    if (loop) {
+    if (!clip) {
+        timerColor = '#52525b';
+        timerText = '--:--';
+    } else if (loop) {
         timerText = 'LOOP';
     } else if (introT > 0 && elapsed < introT) {
         timerColor = '#22d3ee';
@@ -105,9 +129,9 @@ export const NowPlayingHero: React.FC = () => {
     );
 
     return (
-        <div className="hero">
+        <div className={`hero ${clip ? '' : 'idle'}`}>
             <div className="hero-onair">
-                <span className={`dot ${clip ? 'pulse' : ''}`} style={clip ? undefined : { background: '#52525b', boxShadow: 'none' }} />
+                <span className={`dot ${clip ? 'pulse' : ''}`} />
                 <span>{t('nowPlaying.onAir', 'ON AIR')}</span>
             </div>
 
@@ -125,17 +149,17 @@ export const NowPlayingHero: React.FC = () => {
                 <div className={`hero-count ${final10 ? 'pulse' : ''}`} style={{ color: timerColor }}>
                     {timerText}
                 </div>
-                {inOutroPre && (
-                    <div className="hero-cue pulse">{t('nowPlaying.outroIn', 'OUTRO IN {{time}}', { time: fmt(outroT - elapsed) })}</div>
-                )}
+                {/* Slot della cue sempre presente: comparendo non allunga la hero. */}
+                <div className={`hero-cue ${inOutroPre ? 'pulse' : 'off'}`} aria-hidden={!inOutroPre}>
+                    {t('nowPlaying.outroIn', 'OUTRO IN {{time}}', { time: fmt(Math.max(0, outroT - elapsed)) })}
+                </div>
             </div>
 
-            {nextClip && (
-                <div className="hero-next">
-                    <span className="nlbl">{t('nowPlaying.upNext', 'UP NEXT')}</span>
-                    <span className="ntitle">{nextClip.title || nextClip.name}</span>
-                </div>
-            )}
+            {/* Slot UP NEXT sempre presente e a larghezza fissa: comparendo non stringe l'onda. */}
+            <div className={`hero-next ${nextClip ? '' : 'off'}`}>
+                <span className="nlbl">{t('nowPlaying.upNext', 'UP NEXT')}</span>
+                <span className="ntitle">{nextClip ? (nextClip.title || nextClip.name) : '—'}</span>
+            </div>
         </div>
     );
 };
