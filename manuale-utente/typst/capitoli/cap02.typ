@@ -1,161 +1,168 @@
 #import "../lib/manuale-template.typ": *
 
-= Installation and first launch
+= Installazione e primo avvio
 
-Installing Runtime Live Machine Pro is designed to require the least
-possible interaction: a few clicks, no manual configuration, no
-prerequisites to install separately. The audio engine (FFmpeg) is
-bundled into the installation package and requires nothing from you.
+L'installazione di Runtime Live Machine Pro è progettata per richiedere
+il minimo di interazione: pochi click, nessuna configurazione manuale,
+nessun prerequisito da installare separatamente. Il motore audio
+(FFmpeg) è integrato nel pacchetto di installazione e non richiede alcun
+intervento da parte tua.
 
-== 2.1 System requirements
-Before proceeding, check that your computer meets the minimum
-requirements. The recommended specifications ensure the best experience
-during long sessions or with many clips loaded at once.
+== 2.1 Requisiti di sistema
+Prima di procedere, verifica che il tuo computer soddisfi i requisiti
+minimi. Le specifiche consigliate garantiscono la migliore esperienza
+durante sessioni lunghe o con molte clip caricate simultaneamente.
 
 #figure(
   align(center)[#table(
     columns: (33.33%, 33.33%, 33.33%),
     align: (auto,auto,auto,),
-    table.header([], [Minimum], [Recommended],),
+    table.header([], [Minimo], [Consigliato],),
     table.hline(),
-    [#strong[Operating system (Windows)]], [Windows 10 64-bit], [Windows
-    11 64-bit],
-    [#strong[Operating system (macOS)]], [macOS 11 Big Sur, building
-    from source], [macOS 13 Ventura or later],
-    [#strong[Operating system (Linux)]], [Ubuntu 20.04 / Debian
+    [#strong[Sistema operativo (Windows)]], [Windows 10
+    64-bit], [Windows 11 64-bit],
+    [#strong[Sistema operativo (macOS)]], [macOS 11 Big Sur, compilando
+    dal sorgente], [macOS 13 Ventura o successivi],
+    [#strong[Sistema operativo (Linux)]], [Ubuntu 20.04 / Debian
     11], [Ubuntu 22.04 LTS],
-    [#strong[RAM]], [4 GB], [8 GB or more],
-    [#strong[Disk space]], [300 MB (application)], [1 GB + space for
-    audio files],
-    [#strong[CPU]], [Any modern dual-core], [Quad-core or better],
+    [#strong[RAM]], [4 GB], [8 GB o più],
+    [#strong[Spazio su disco]], [300 MB (applicazione)], [1 GB + spazio
+    per i file audio],
+    [#strong[CPU]], [Qualsiasi dual-core moderno], [Quad-core o
+    superiore],
   )]
   , kind: table
   )
 
-Ready-made packages are available for Windows and Linux. There is no
-official installer for macOS: the program is built from source (section
-2.3).
+Per Windows e Linux sono disponibili pacchetti pronti. Su macOS non
+esiste un installer ufficiale: il programma si compila dal sorgente
+(paragrafo 2.3).
 
-A dedicated sound card is not required: RLMP works with any audio device
-recognized by the operating system, from the built-in sound card up to
-professional USB mixers such as the Rødecaster Pro or the RØDECaster
-Duo.
+Non è richiesta una scheda audio dedicata: RLMP funziona con qualsiasi
+periferica audio riconosciuta dal sistema operativo, dalla scheda audio
+integrata ai mixer USB professionali come il Rødecaster Pro o
+l'RØDECaster Duo.
 
-== 2.2 Installation on Windows
-+ Download the file `Runtime-Live-Machine-Pro-1.15.32.exe` from the
-  project's #strong[Releases] page on GitHub
+== 2.2 Installazione su Windows
++ Scarica il file `Runtime-Live-Machine-Pro-1.15.33.exe` dalla pagina
+  #strong[Releases] del progetto su GitHub
   (`github.com/Pitz72/RRLMP/releases`).
-+ Double-click the executable. The NSIS installer starts and copies the
-  files to the appropriate directories.
-+ When it finishes, a shortcut is created on the Desktop and in the
-  Start menu.
-+ The application launches automatically once installation is complete.
++ Fai doppio click sull'eseguibile. L'installer NSIS si avvierà e
+  copierà i file nelle directory appropriate.
++ Al termine, un collegamento verrà creato sul Desktop e nel menu Start.
++ L'applicazione si avvia automaticamente al completamento
+  dell'installazione.
 
-#strong[A note on Windows SmartScreen.] The installers are not signed
-with a commercial certificate, so SmartScreen doesn't recognize them
-automatically. If the warning "Windows protected your PC" appears, click
-#emph[More info] and then #emph[Run anyway]. The software is free of
-malware; the official installers are published exclusively on the
-project's Releases page, and the source code is public.
+#strong[Nota su Windows SmartScreen.] Gli installer non sono firmati con
+un certificato commerciale, quindi SmartScreen non li riconosce in
+automatico. Se compare l'avviso «Il PC è stato protetto da Windows»,
+clicca su #emph[Ulteriori informazioni] e poi su #emph[Esegui comunque].
+Il software è privo di malware; gli installer ufficiali sono pubblicati
+esclusivamente nella pagina Releases del progetto, e il codice sorgente
+è pubblico.
 
-== 2.3 macOS: building from source
-There is no official installer for macOS. Runtime Live Machine Pro is
-free software: if you have a Mac, you can download the source code and
-build the program on your own computer.
+== 2.3 macOS: compilare dal sorgente
+Per macOS non esiste un installer ufficiale. Runtime Live Machine Pro è
+software libero: chi ha un Mac può scaricare il codice sorgente e
+compilare il programma sul proprio computer.
 
-+ Install #strong[Node.js 20] (and git, if you want to clone the
-  repository).
-+ Download the code from `github.com/Pitz72/RRLMP`, with the #emph[Code]
-  button or with `git clone`.
-+ In the project folder run, in order: `npm ci`, `npm run build:main`,
-  `npm run build:preload`, `npx vite build` and
++ Installa #strong[Node.js 20] (e git, se vuoi clonare il repository).
++ Scarica il codice da `github.com/Pitz72/RRLMP`, con il pulsante
+  #emph[Code] oppure con `git clone`.
++ Nella cartella del progetto esegui, in ordine: `npm ci`,
+  `npm run build:main`, `npm run build:preload`, `npx vite build` e
   `npx electron-builder --mac --publish never`.
-+ The `.dmg` file is in the `builds/` folder: open it and drag the
-  application into #emph[Applications].
++ Il file `.dmg` si trova nella cartella `builds/`: aprilo e trascina
+  l'applicazione in #emph[Applicazioni].
 
-A package built this way is not signed: on first launch macOS shows a
-Gatekeeper warning. Right-click the application and choose #emph[Open],
-or allow it from #emph[System Settings] → #emph[Privacy & Security], in
-the #emph[Security] section. Always up-to-date instructions are in the
-project's `CONTRIBUTING.md` file.
+Il pacchetto compilato così non è firmato: al primo avvio macOS mostra
+un avviso Gatekeeper. Fai clic destro sull'applicazione e scegli
+#emph[Apri], oppure consenti l'apertura da #emph[Impostazioni di
+Sistema] → #emph[Privacy e sicurezza], nella sezione #emph[Sicurezza].
+Le istruzioni sempre aggiornate stanno nel file `CONTRIBUTING.md` del
+progetto.
 
 #nota[
-An application you build yourself reports new versions
-but can't install them: to update, download the updated code and build
-again (Chapter 12). `.lmp` projects stay compatible.
+Un'applicazione compilata da sé segnala le nuove versioni
+ma non può installarle: per aggiornare si scarica il codice aggiornato e
+si ricompila (Capitolo 12). I progetti `.lmp` restano compatibili.
 ]
 
-== 2.4 Installation on Linux
-Two distribution formats are available:
+== 2.4 Installazione su Linux
+Sono disponibili due formati di distribuzione:
 
-- #strong[AppImage] --- a portable executable, no installation required.
-  Make the file executable (`chmod +x`) and launch it directly.
-- #strong[\.deb package] --- for Debian/Ubuntu/Mint distributions.
-  Install with `sudo dpkg -i filename.deb` or open it with the graphical
-  package manager.
+- #strong[AppImage] --- eseguibile portabile, non richiede
+  installazione. Rendi il file eseguibile (`chmod +x`) e avvialo
+  direttamente.
+- #strong[Pacchetto \.deb] --- per distribuzioni Debian/Ubuntu/Mint.
+  Installa con `sudo dpkg -i nomefile.deb` oppure aprilo con il gestore
+  pacchetti grafico.
 
-On some distributions you may need to install the `libasound2` package
-for ALSA audio support. Consult your distribution's documentation if the
-application won't start.
+Su alcune distribuzioni potrebbe essere necessario installare il
+pacchetto `libasound2` per il supporto audio ALSA. Consulta la
+documentazione della tua distribuzione se l'applicazione non si avvia.
 
-== 2.5 The welcome screen
-#figure(image("../screenshots-en/schermata-benvenuto.png", alt: "Figure 2.1 — The welcome screen: software identity, update status, main actions and the language drop-down in the top-right corner."),
+== 2.5 La schermata di benvenuto
+#figure(image("../screenshots/schermata-benvenuto.png", alt: "Figura 2.1 — La schermata di benvenuto: identità del software, stato dell’aggiornamento, azioni principali e tendina della lingua in alto a destra."),
   caption: [
-    Figure 2.1 --- The welcome screen: software identity, update status,
-    main actions and the language drop-down in the top-right corner.
+    Figura 2.1 --- La schermata di benvenuto: identità del software,
+    stato dell'aggiornamento, azioni principali e tendina della lingua
+    in alto a destra.
   ]
 )
 
-On first launch --- and at every subsequent launch, until you open a
-project --- RLMP presents the #strong[welcome screen], the gateway to
-all preliminary operations. In the centre you find the software identity
-and actions; in the top-right corner, the language drop-down.
+Al primo avvio --- e a ogni avvio successivo, finché non apri un
+progetto --- RLMP presenta la #strong[schermata di benvenuto], il punto
+di accesso a tutte le operazioni preliminari. Al centro trovi identità
+del software e azioni; in alto a destra, la tendina della lingua.
 
-#strong[Identity and actions.] The software logo (the bars of a VU meter
-with the play symbol) identifies the Pro edition. Below the title and
-slogan is the installed version number, accompanied by the status of the
-update system:
+#strong[Identità e azioni.] Il logo del software (le barre di un VU
+meter con il simbolo di play) identifica la versione Pro. Sotto il
+titolo e lo slogan compare il numero di versione installata,
+accompagnato dallo stato del sistema di aggiornamento:
 
-- #strong["Latest Version"] (green) --- you are running the most recent
-  version available.
-- #strong["Update Available"] (amber, flashing) --- this is a button:
-  click it to open the update window (Chapter 12).
-- #strong["OFFLINE"] (dim red) --- the update service could not be
-  reached; the software works all the same.
+- #strong[«Aggiornato»] (verde) --- stai usando l'ultima versione
+  disponibile.
+- #strong[«Aggiornamento disponibile»] (ambra, lampeggiante) --- è un
+  pulsante: cliccalo per aprire la finestra di aggiornamento (Capitolo
+  12).
+- #strong[«OFFLINE»] (rosso tenue) --- non è stato possibile contattare
+  il servizio di aggiornamento; il software funziona ugualmente.
 
-Below that are the main actions:
+Sotto trovi le azioni principali:
 
-- #emph[New Project] --- creates an empty session with the columns ready
-  to load.
-- #emph[Load Project] --- opens an existing `.lmp` file. Before making
-  it operational, RLMP runs an #strong[integrity check]: it verifies
-  that every referenced audio file still exists at the stored path.
-  Missing files are flagged immediately with a red border on their clip.
-- #emph[User Manual] --- opens this manual as a PDF in the browser, in
-  the interface language (English or Italian). An internet connection is
-  required.
-- #emph[Quick Guide] --- a short getting-started guide that opens inside
-  the software and can be read offline too.
+- #emph[Nuovo Progetto] --- crea una sessione vuota con le colonne
+  pronte al caricamento.
+- #emph[Carica Progetto] --- apre un file `.lmp` esistente. Prima di
+  renderlo operativo, RLMP esegue un #strong[controllo di integrità]:
+  verifica che ogni file audio referenziato esista ancora nel percorso
+  memorizzato. I file mancanti vengono immediatamente segnalati con un
+  bordo rosso sulla rispettiva clip.
+- #emph[Manuale Utente] --- apre nel browser questo manuale in PDF,
+  nella lingua dell'interfaccia (italiano o inglese). Serve una
+  connessione a internet.
+- #emph[Guida Rapida] --- una guida sintetica per iniziare, che si apre
+  dentro il software e si consulta anche offline.
 
-#strong[Language (top-right corner).] RLMP supports two interface
-languages: English and Italian. The drop-down in the top-right corner
-shows the flag and name of the active language: click it and pick the
-other one. The selection takes effect immediately and is remembered from
-one session to the next.
+#strong[Lingua (in alto a destra).] RLMP supporta due lingue
+dell'interfaccia: Inglese e Italiano. La tendina in alto a destra mostra
+bandiera e nome della lingua attiva: cliccala e scegli l'altra. La
+selezione ha effetto immediato e viene memorizzata tra una sessione e
+l'altra.
 
-== 2.6 The first launch: what to expect
-When you first open a project, you'll notice in the header the logo with
-the #strong[PRO] badge and its iridescent gradient. Behind the
-interface, opening the project starts the audio engine in the
-background: FFmpeg is initialized and the `media://` streaming protocol
-begins listening, ready to serve files from disk without loading them
-into memory.
+== 2.6 Il primo avvio: cosa aspettarsi
+Alla prima apertura di un progetto, noterai nell'header il logo con il
+badge #strong[PRO] dal gradiente iridescente. Dietro l'interfaccia,
+l'apertura del progetto avvia il motore audio in background: FFmpeg
+viene inizializzato e il protocollo di streaming `media://` si mette in
+ascolto, pronto a servire i file dal disco senza caricarli in memoria.
 
-The software starts preferably in full-screen mode. If the window opens
-resized, press `F11` (Windows/Linux) or `Ctrl+Cmd+F` (macOS) to bring it
-full screen --- the ideal condition for production work.
+Il software si avvia preferibilmente in modalità a tutto schermo. Se la
+finestra dovesse aprirsi ridimensionata, premi `F11` (Windows/Linux) o
+`Ctrl+Cmd+F` (macOS) per portarla a schermo intero --- condizione
+ottimale per il lavoro di regia.
 
-The #strong[On Air timer] in the header stays at `--:--:--` until the
-first clip of the session is launched. From that moment it starts
-counting the time elapsed on air: a useful reference for anyone working
-with fixed-time running orders.
+Il #strong[Timer On Air] nell'header rimarrà a `--:--:--` finché non
+viene lanciata la prima clip della sessione. Da quel momento inizierà a
+contare il tempo trascorso in diretta: un riferimento utile per chi
+lavora con scalette a tempo fisso.

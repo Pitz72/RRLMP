@@ -1,15 +1,18 @@
 // Auto-Updater (2026-07-02) — sostituisce il vecchio updateChecker.ts lato
 // renderer (fetch verso ecosystem.mruntimeradio.com, mai installazione
-// automatica) con electron-updater reale puntato sulla repo pubblica
-// Ecosystem-Runtime/RRLMP-Releases (provider GitHub, config in
-// package.json#build.publish).
+// automatica) con electron-updater reale puntato sulle release GitHub del
+// progetto (provider GitHub, config in package.json#build.publish).
+//
+// v1.15.33 (apertura del sorgente): le release stanno su Pitz72/RRLMP, lo stesso
+// repository del codice. Fino alla 1.15.32 erano su Ecosystem-Runtime/RRLMP-Releases,
+// dove la 1.15.33 è pubblicata anche come release ponte.
 //
 // Due percorsi, in base a cosa la piattaforma può davvero auto-installare:
 // - NATIVO (Windows NSIS, Linux AppImage in esecuzione): electron-updater
 //   reale — check/download/quitAndInstall, `autoDownload:false` così il
 //   download parte solo quando l'utente preme "Scarica" nel popup (mai
 //   in automatico, come richiesto).
-// - FALLBACK (macOS non firmato, Linux .deb — electron-updater non può
+// - FALLBACK (macOS compilato dal sorgente, Linux .deb — electron-updater non può
 //   installare in modo affidabile): confronto versione via GitHub Releases
 //   API + apertura pagina di download nel browser, stesso comportamento
 //   "manuale" che aveva il vecchio sistema.
@@ -19,7 +22,7 @@ import { app, shell, BrowserWindow } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { logger } from './logger';
 
-const RELEASES_API = 'https://api.github.com/repos/Ecosystem-Runtime/RRLMP-Releases/releases/latest';
+const RELEASES_API = 'https://api.github.com/repos/Pitz72/RRLMP/releases/latest';
 const STARTUP_CHECK_DELAY_MS = 3000; // stesso valore collaudato in FeedDownloader — lascia respirare il render iniziale
 
 export type UpdaterStatusPayload =
@@ -144,8 +147,11 @@ async function fallbackCheck(): Promise<void> {
             emit({ type: 'not-available' });
             return;
         }
-        const ext = process.platform === 'darwin' ? '.dmg' : '.deb';
-        const asset = (data.assets || []).find((a) => a.name.endsWith(ext));
+        // Dalla 1.15.33 non esiste più un .dmg ufficiale: su macOS nessun asset
+        // corrisponde e si apre la pagina della release (codice sorgente).
+        const asset = process.platform === 'linux'
+            ? (data.assets || []).find((a) => a.name.endsWith('.deb'))
+            : undefined;
         const downloadUrl = asset?.browser_download_url || data.html_url;
         emit({
             type: 'available',

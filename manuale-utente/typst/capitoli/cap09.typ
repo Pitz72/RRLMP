@@ -1,105 +1,110 @@
 #import "../lib/manuale-template.typ": *
 
-= Session recording
+= Registrazione della sessione
 
-Session recording turns Runtime Live Machine Pro from a playout tool
-into a complete production tool. You don't need separate recording
-software or a virtual routing chain. RLMP captures the
-#strong[post-processed master mix] directly, everything that leaves the
-application (including the Master Chain effects), into an audio file on
-disk.
+La registrazione della sessione trasforma Runtime Live Machine Pro da
+strumento di playout a strumento di produzione completa. Invece di
+richiedere un software di registrazione separato o una catena di routing
+virtuale, RLMP cattura direttamente il #strong[master mix
+post-processato], ovvero tutto ciò che esce dall'applicazione, inclusi
+gli effetti del Master Chain, in un file audio sul disco.
 
-== 9.1 Starting the recording
-The recording control is in the header, identified by the record icon.
+== 9.1 Avviare la registrazione
+Il controllo della registrazione si trova nell'header, identificato
+dall'icona di registrazione.
 
-#strong[Start.] Click the record button. A red indicator and a counter
-show that capture is under way. Recording starts immediately: everything
-that leaves the software's output from that moment on is captured.
+#strong[Avvio.] Clicca sul pulsante di registrazione. Un indicatore
+rosso e un contatore mostrano che la cattura è in corso. La
+registrazione parte immediatamente: tutto ciò che esce dall'output del
+software da quel momento viene catturato.
 
-You don't need clips playing to start recording: you can begin capture
-ahead of the show's start, so you don't lose the first few seconds in
-case of an early start.
+Non è necessario avere clip in riproduzione per avviare la
+registrazione: puoi avviare la cattura in anticipo rispetto all'inizio
+dello show, per non perdere i primi secondi in caso di partenza
+anticipata.
 
-#strong[What gets recorded.] The captured signal is the #strong[master
-after the limiter]: it includes the mix of all playing clips and the
-processing of the entire Master Chain (HPF, multiband glue, limiter). It
-is exactly the signal that reaches the audio output device.
+#strong[Cosa viene registrato.] Il segnale catturato è il #strong[master
+dopo il limiter]: include il mix di tutte le clip in riproduzione e il
+processing dell'intero Master Chain (HPF, glue multibanda, limiter). È
+esattamente il segnale che raggiunge la periferica audio di uscita.
 
-#strong[The internal format.] During capture, RLMP writes a compressed
-Opus stream (in a WebM container) at 320 kbps: very light on disk and
-transparent to the ear. Continuous recording has a safety limit of about
-#strong[four hours]\; beyond that duration the capture stops
-automatically so as not to saturate memory.
+#strong[Il formato interno.] Durante la cattura, RLMP scrive un flusso
+compresso Opus (in container WebM) a 320 kbps: leggerissimo sul disco e
+trasparente all'ascolto. La registrazione continua ha un limite di
+sicurezza di circa #strong[quattro ore]\; oltre quella durata la cattura
+si ferma automaticamente per non saturare la memoria.
 
-#strong[System overhead.] Capture happens downstream of the audio
-engine, without burdening the Renderer. You can record sessions hours
-long without worrying about resource consumption.
+#strong[Overhead di sistema.] La cattura avviene a valle del motore
+audio, senza gravare sul Renderer. Puoi registrare sessioni di ore senza
+preoccuparti del consumo di risorse.
 
-== 9.2 Stopping the recording and choosing the format
-When you click the button again to stop the recording, the
-#strong[export window] opens. This is where you choose which format to
-save the file in: converting from the internal stream to the final
-format is handled by FFmpeg.
+== 9.2 Fermare la registrazione e scegliere il formato
+Quando clicchi di nuovo sul pulsante per fermare la registrazione, si
+apre la #strong[finestra di esportazione]. È il momento in cui scegli in
+quale formato salvare il file: la conversione dal flusso interno al
+formato finale è affidata a FFmpeg.
 
-=== Available formats
+=== Formati disponibili
 #figure(
   align(center)[#table(
     columns: (33.33%, 33.33%, 33.33%),
     align: (auto,auto,auto,),
-    table.header([Format], [Extension], [Characteristics],),
+    table.header([Formato], [Estensione], [Caratteristiche],),
     table.hline(),
-    [#strong[WAV]], [`.wav`], [Uncompressed lossless. Maximum quality,
-    large files. Ideal for archiving and post-production.],
-    [#strong[FLAC]], [`.flac`], [Compressed lossless. Same quality as
-    WAV, smaller size. Ideal for archiving.],
-    [#strong[MP3]], [`.mp3`], [Lossy. Selectable bitrate. Ideal for
-    distribution and podcasts.],
-    [#strong[OGG]], [`.ogg`], [Open-source lossy. Good quality-to-size
-    ratio.],
-    [#strong[WEBM]], [`.webm`], [Lossy, optimized for the web. Matches
-    the internal capture format.],
+    [#strong[WAV]], [`.wav`], [Lossless non compresso. Massima qualità,
+    file grandi. Ideale per archivio e post-produzione.],
+    [#strong[FLAC]], [`.flac`], [Lossless compresso. Stessa qualità del
+    WAV, dimensioni ridotte. Ideale per archivio.],
+    [#strong[MP3]], [`.mp3`], [Lossy. Bitrate selezionabile. Ideale per
+    distribuzione e podcast.],
+    [#strong[OGG]], [`.ogg`], [Lossy open-source. Buon rapporto
+    qualità/dimensione.],
+    [#strong[WEBM]], [`.webm`], [Lossy, ottimizzato per il web.
+    Corrisponde al formato interno di cattura.],
   )]
   , kind: table
   )
 
-=== Quality options
-For the lossless formats (WAV and FLAC) you can select the #strong[bit
-depth]: 16-bit (CD standard), 24-bit (professional broadcast standard,
-the default) or 32-bit float (maximum precision, if the recording will
-be mastered later).
+=== Opzioni di qualità
+<opzioni-di-qualità>
+Per i formati lossless (WAV e FLAC) puoi selezionare la
+#strong[profondità di bit]: 16 bit (standard CD), 24 bit (standard
+professionale broadcast, valore predefinito) o 32 bit float (massima
+precisione, se la registrazione verrà masterizzata in seguito).
 
-For the lossy formats (MP3, OGG, WEBM) you can select the
-#strong[bitrate] among 128, 192, 256 and 320 kbps. For a podcast
-intended for online distribution, 192 kbps stereo is the recommended
-minimum; 256 kbps is the current standard for "transparent" quality.
+Per i formati lossy (MP3, OGG, WEBM) puoi selezionare il
+#strong[bitrate] tra 128, 192, 256 e 320 kbps. Per un podcast destinato
+alla distribuzione online, 192 kbps stereo è il minimo consigliato; 256
+kbps è lo standard corrente per la qualità «trasparente».
 
-=== Choosing the save location
-In the export window you choose the destination folder and the file
-name. If you don't specify a name, RLMP generates one based on the
-session's date and time. When the conversion finishes, a confirmation
-toast shows the path of the saved file.
+=== Selezione del percorso di salvataggio
+Nella finestra di esportazione scegli la cartella di destinazione e il
+nome del file. Se non specifichi un nome, RLMP ne genera uno basato su
+data e ora della sessione. Al termine della conversione, un toast di
+conferma mostra il percorso del file salvato.
 
-== 9.3 Practical considerations
-=== Synchronizing with the show
-The recording captures all the time elapsed between Start and Stop,
-including the silences. If you started capture 30 seconds before the
-show's actual start, the resulting file will include those first 30
-seconds. For a distribution-ready result without post-editing, start the
-recording exactly when the show begins.
+== 9.3 Considerazioni pratiche
+=== Sincronizzazione con lo show
+La registrazione cattura tutto il tempo trascorso tra Start e Stop,
+inclusi i silenzi. Se hai avviato la cattura 30 secondi prima
+dell'inizio effettivo dello show, il file risultante includerà quei 30
+secondi iniziali. Per un risultato pronto alla distribuzione senza
+post-editing, avvia la registrazione esattamente quando inizia lo show.
 
-=== Recording and backup at the same time
-The project's autosave system (see Chapter 10) and session recording
-operate independently. You can record a show while the autosave silently
-saves the project state: the two operations don't interfere.
+=== Registrazione e backup contemporanei
+Il sistema di autosave del progetto (vedi Capitolo 10) e la
+registrazione della sessione operano in modo indipendente. Puoi
+registrare uno show mentre l'autosave salva silenziosamente lo stato del
+progetto: le due operazioni non interferiscono.
 
-=== Recommended format for different contexts
-#strong[Podcast] --- MP3 256 kbps stereo or FLAC 16-bit. The first if
-you distribute the file directly, the second if it will pass through an
-editor.
+=== Formato consigliato per contesti diversi
+#strong[Podcast] --- MP3 256 kbps stereo o FLAC 16 bit. Il primo se
+distribuisci direttamente il file, il secondo se passerai per un editor.
 
-#strong[Long-term archive] --- WAV 24-bit or FLAC 24-bit. Generous
-sizes, maximum flexibility for any future remasters.
+#strong[Archivio storico] --- WAV 24 bit o FLAC 24 bit. Dimensioni
+generose, massima flessibilità per eventuali rimaster futuri.
 
-#strong[Radio / Streaming] --- check your platform's requirements. Most
-accept MP3 128--192 kbps; some require uncompressed WAV. RLMP exports in
-the most common formats to cover every scenario.
+#strong[Radio / Streaming] --- verifica i requisiti della tua
+piattaforma. La maggior parte accetta MP3 128--192 kbps; alcune
+richiedono WAV non compresso. RLMP esporta nei formati più diffusi per
+coprire ogni scenario.

@@ -97,7 +97,7 @@ No. RLMP is designed for live production: shows attended by an operator. It has 
 **Can I use RLMP on an iPad or on mobile devices?**
 Not as the main application: RLMP is desktop software for Windows and Linux, and can also be built on macOS. A tablet or a phone can, however, act as a **remote** via the browser, through Remote Control (Chapter 11).
 
-**Are `.lmp` files from earlier versions compatible with 1.15.32?**
+**Are `.lmp` files from earlier versions compatible with 1.15.33?**
 Yes. When you open a project created with an earlier version, RLMP automatically updates its structure, including the columns added in the meantime, without modifying the file until you perform a save.
 
 **How do I update RLMP to a new version?**

@@ -1,6 +1,6 @@
 {
   "name": "runtime-live-machine-pro",
-  "version": "1.15.32",
+  "version": "1.15.33",
   "description": "Professional Broadcast Audio Architecture",
   "homepage": "https://github.com/Pitz72/RRLMP",
   "repository": {
@@ -30,8 +30,8 @@
     },
     "publish": {
       "provider": "github",
-      "owner": "Ecosystem-Runtime",
-      "repo": "RRLMP-Releases",
+      "owner": "Pitz72",
+      "repo": "RRLMP",
       "releaseType": "release"
     },
     "files": [

@@ -10,7 +10,11 @@ describe('isAllowedExternalUrl', () => {
         expect(isAllowedExternalUrl('https://www.paypal.com/paypalme/runtimeradio')).toBe(true);
     });
 
-    it('accetta ancora i manuali pubblicati su RRLMP-Releases (link delle versioni attuali)', () => {
+    it('accetta l\'indirizzo reale dei manuali (manualLinks.ts)', () => {
+        expect(isAllowedExternalUrl('https://raw.githubusercontent.com/Pitz72/RRLMP/master/manuale-utente/typst/User-Manual-EN.pdf')).toBe(true);
+    });
+
+    it('accetta ancora i manuali pubblicati su RRLMP-Releases (link delle versioni ≤ 1.15.32)', () => {
         expect(isAllowedExternalUrl('https://raw.githubusercontent.com/Ecosystem-Runtime/RRLMP-Releases/master/manuals/User-Manual-EN.pdf')).toBe(true);
     });
 

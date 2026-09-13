@@ -1,91 +1,97 @@
 #import "../lib/manuale-template.typ": *
 
-= Remote Control
+= Controllo Remoto
 
-The person presenting isn't always seated at the computer. Sometimes the
-host is on the other side of the studio, behind glass, or moving around
-with a guest. The #strong[Remote Control] in Runtime Live Machine Pro
-lets you drive the show's essential moves from a second device (a
-tablet, a phone, a laptop) connected to the same local network, straight
-from the browser. Nothing needs to be installed on the remote device.
+Non sempre chi conduce sta seduto davanti al computer. A volte il
+conduttore è dall'altra parte dello studio, dietro un vetro, oppure si
+muove con un ospite. Il #strong[Controllo Remoto] di Runtime Live
+Machine Pro consente di comandare i passaggi essenziali dello show da un
+secondo dispositivo (un tablet, un telefono, un portatile) collegato
+alla stessa rete locale, usando semplicemente il browser. Non serve
+installare nulla sul dispositivo remoto.
 
-The feature is currently marked as #strong[Beta].
+La funzione è al momento contrassegnata come #strong[Beta].
 
-== 11.1 How it works
-When you enable it, RLMP starts a small #strong[local web server] inside
-itself. The remote device connects to this server by opening an address
-in the browser: from there a control page appears that mirrors the state
-of the Music column and lets you act on it.
+== 11.1 Come funziona
+Quando lo attivi, RLMP avvia al proprio interno un piccolo
+#strong[server web locale]. Il dispositivo remoto si connette a questo
+server aprendo un indirizzo nel browser: da lì compare una pagina di
+controllo che rispecchia lo stato della colonna Musica e permette di
+agire su di essa.
 
-Everything happens #strong[inside the local network]: the server is
-reachable from devices connected to the studio's same Wi-Fi or LAN, and
-it doesn't go through the internet.
+Tutto avviene #strong[dentro la rete locale]: il server è raggiungibile
+dagli apparecchi connessi alla stessa rete Wi-Fi o LAN dello studio, e
+non passa da internet.
 
-== 11.2 Activation
-+ Open the #strong[Settings] from the Tools menu and go to the
-  #emph[General] tab.
-+ Turn on the #strong[Remote Control (Beta)] toggle.
-+ A #strong[six-digit PIN], the server #strong[port] and the
-  #strong[network addresses] the remote device can connect to appear.
-+ The #strong[Copy link] button copies the ready-to-use address to the
-  clipboard (in the form `http://<computer-address>:8787`).
+== 11.2 Attivazione
++ Apri le #strong[Impostazioni] dal menu Strumenti e vai alla scheda
+  #emph[Generali].
++ Attiva il toggle #strong[Controllo Remoto (Beta)].
++ Compaiono un #strong[PIN a sei cifre], la #strong[porta] del server e
+  gli #strong[indirizzi di rete] a cui il dispositivo remoto può
+  connettersi.
++ Il pulsante #strong[Copia link] copia negli appunti l'indirizzo pronto
+  all'uso (nella forma `http://<indirizzo-del-computer>:8787`).
 
-The server listens on port #strong[8787]. The PIN is #strong[regenerated
-on every launch] of the application and is not stored: closing and
-reopening RLMP produces a new PIN. Remote Control itself also always
-starts off at every launch, to be re-enabled when needed.
+Il server ascolta sulla porta #strong[8787]. Il PIN viene
+#strong[rigenerato a ogni avvio] dell'applicazione e non viene
+memorizzato: chiudere e riaprire RLMP produce un nuovo PIN. Anche il
+Controllo Remoto stesso riparte sempre spento a ogni avvio, da
+riattivare quando serve.
 
-If startup fails, typically because port 8787 is already taken (by
-another copy of RLMP left open or by another program), the switch turns
-back off and a message shows the reason.
+Se l'avvio non riesce, tipicamente perché la porta 8787 è già occupata
+(da un'altra copia di RLMP rimasta aperta o da un altro programma),
+l'interruttore torna su spento e compare un messaggio con il motivo.
 
-== 11.3 Connecting from the remote device
-+ On the tablet or phone, open the browser and type the address shown in
-  the Settings (or paste it from the copied link).
-+ A page with a keypad appears: enter the #strong[six-digit PIN].
-+ Once the PIN is correct, the page shows the list of clips in the
-  #strong[Music] column, with the playback controls, and a #strong[Stop
-  All] button. A dedicated button takes the page full screen, handy on a
-  tablet.
+== 11.3 Connettersi dal dispositivo remoto
++ Sul tablet o sul telefono, apri il browser e digita l'indirizzo
+  mostrato nelle Impostazioni (o incollalo dal link copiato).
++ Compare una pagina con un tastierino: inserisci il #strong[PIN a sei
+  cifre].
++ A PIN corretto, la pagina mostra l'elenco delle clip della colonna
+  #strong[Musica], con i comandi di riproduzione, e un pulsante
+  #strong[Stop All]. Un pulsante dedicato porta la pagina a tutto
+  schermo, comodo su tablet.
 
-From here you can start and stop the tracks in the Music column and, if
-needed, stop everything. The state updates in real time: whatever starts
-or stops on the main computer is reflected on the remote page, and vice
-versa.
+Da qui puoi far partire e fermare i brani della colonna Musica e, se
+serve, fermare tutto. Lo stato si aggiorna in tempo reale: ciò che parte
+o si ferma sul computer principale si riflette sulla pagina remota, e
+viceversa.
 
-== 11.4 What you control remotely
-Remote Control is deliberately minimal. From the remote device you can:
+== 11.4 Cosa si controlla da remoto
+Il Controllo Remoto è deliberatamente essenziale. Da remoto puoi:
 
-- #strong[Start] a clip in the Music column.
-- #strong[Stop] a clip in the Music column.
-- Perform a #strong[Stop All].
+- #strong[Avviare] una clip della colonna Musica.
+- #strong[Fermare] una clip della colonna Musica.
+- Eseguire uno #strong[Stop All].
 
-These are the only actions allowed. The rest of the production (the
-other columns, the pad FX, the editor, the settings) stays on the main
-computer. It's a safety choice: the remote is there to manage the music
-flow from a distance, not to replace the production desk.
+Sono le uniche azioni ammesse. Il resto della regia (le altre colonne,
+il pad FX, l'editor, le impostazioni) resta sul computer principale. È
+una scelta di sicurezza: il telecomando serve a gestire il flusso
+musicale a distanza, non a sostituire la postazione di regia.
 
-== 11.5 Security and limits
-- #strong[PIN required.] No device can send commands without passing the
-  six-digit PIN check.
-- #strong[Only from the remote control page.] The server accepts
-  connections only from the page it serves itself: a web page from
-  another site, opened on a device on the same network, is rejected
-  before it can even ask for the PIN.
-- #strong[Attempt protection.] PIN entry attempts are rate-limited:
-  after several failed attempts in quick succession, access from that
-  device is temporarily blocked.
-- #strong[Whitelisted commands.] The server accepts only the three
-  intended commands (start, stop, Stop All): any other request is
-  ignored.
-- #strong[Local network only.] The server is meant for the studio
-  network. If your Wi-Fi is open or shared, consider carefully who can
-  reach it.
-- #strong[No persistence.] The PIN and the activation state are not
-  saved: at every restart you begin from a clean configuration.
+== 11.5 Sicurezza e limiti
+- #strong[PIN obbligatorio.] Nessun dispositivo può inviare comandi
+  senza aver superato la verifica del PIN a sei cifre.
+- #strong[Solo dalla pagina del controllo remoto.] Il server accetta
+  connessioni soltanto dalla pagina che serve lui stesso: una pagina web
+  di un altro sito, aperta su un dispositivo della stessa rete, viene
+  respinta prima ancora di poter chiedere il PIN.
+- #strong[Protezione dai tentativi.] I tentativi di inserimento del PIN
+  sono limitati nel tempo: dopo alcuni tentativi falliti ravvicinati,
+  l'accesso da quell'apparecchio viene temporaneamente bloccato.
+- #strong[Comandi su lista bianca.] Il server accetta soltanto i tre
+  comandi previsti (avvia, ferma, Stop All): qualsiasi altra richiesta
+  viene ignorata.
+- #strong[Solo rete locale.] Il server è pensato per la rete dello
+  studio. Se la tua rete Wi-Fi è aperta o condivisa, valuta con
+  attenzione chi può raggiungerla.
+- #strong[Nessuna persistenza.] PIN e stato di attivazione non vengono
+  salvati: a ogni riavvio riparti da una configurazione pulita.
 
 #nota[
-As a Beta feature, the set of available commands may
-expand in future versions. For now it is tuned to the most frequent use
-case: managing the music from a distance during hosting.
+Trattandosi di una funzione in Beta, l'insieme dei
+comandi disponibili potrà ampliarsi nelle versioni future. Per ora è
+tarata sul caso d'uso più frequente: gestire la musica a distanza
+durante la conduzione.
 ]

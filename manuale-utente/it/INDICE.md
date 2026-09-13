@@ -1,5 +1,5 @@
 # Runtime Live Machine Pro — Manuale Utente
-## Indice generale — Edizione Italiana (v1.15.32, Seconda Edizione)
+## Indice generale — Edizione Italiana (v1.15.33, Seconda Edizione)
 
 ---
 

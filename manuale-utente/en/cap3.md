@@ -14,7 +14,7 @@ The header spans the full width of the screen. From left to right, it gathers th
 
 ### Identity
 
-**Logo and PRO badge.** On the left, the logo sits beside the wordmark **RLM PRO**, with the word “PRO” rendered in an iridescent gradient running from cyan to green, amber and red. Next to it, in monospaced type, is the installed version (`v1.15.32`). Hover over the logo to reveal the full software name and version number.
+**Logo and PRO badge.** On the left, the logo sits beside the wordmark **RLM PRO**, with the word “PRO” rendered in an iridescent gradient running from cyan to green, amber and red. Next to it, in monospaced type, is the installed version (`v1.15.33`). Hover over the logo to reveal the full software name and version number.
 
 ### File menu
 

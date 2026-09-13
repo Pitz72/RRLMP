@@ -1,170 +1,178 @@
 #import "../lib/manuale-template.typ": *
 
-= The mixing engine
+= Il motore di mixaggio
 
-The underlying problem of manual radio production is the multiplication
-of simultaneous actions: start a track, lower the music, speak into the
-microphone, prepare the next clip, keep an eye on the clock. Every extra
-operation is an opportunity for error, in a setting where the error is
-public and immediate.
+Il problema di fondo della regia radiofonica manuale è la
+moltiplicazione delle azioni simultanee: avviare un brano, abbassare la
+musica, parlare al microfono, preparare la clip successiva, tenere
+d'occhio l'orologio. Ogni operazione in più è un'opportunità di errore,
+in un contesto in cui l'errore è pubblico e immediato.
 
-Runtime Live Machine Pro's mixing engine eliminates most of these
-intermediate actions by delegating them to the software. It doesn't do
-things behind your back. It automates the rules you would apply yourself
-if you had enough hands to carry them all out.
+Il motore di mixaggio di Runtime Live Machine Pro elimina la maggior
+parte di queste azioni intermedie delegandole al software. Non si tratta
+di automazione nel senso di «il software fa le cose al posto tuo senza
+che tu lo sappia», ma di automazione delle regole che tu stesso
+definiresti se avessi abbastanza mani per eseguirle tutte.
 
-== 6.1 The audio hierarchy
-The automatic mixing system is based on a #strong[priority hierarchy]
-among the types of clip. The easiest way to grasp it is to picture it as
-a scale of "the right to speak".
+== 6.1 La gerarchia audio
+Il sistema di mixaggio automatico si basa su una #strong[gerarchia di
+priorità] tra i tipi di clip. Il modo più immediato per capirla è
+immaginarla come una scala di «diritto di parola».
 
-#strong[Voice / Recordings --- absolute priority.] When a voice clip is
-playing, it stays at its nominal volume and everything else drops. No
-other signal can override this rule.
+#strong[Voci / Preregistrazioni --- priorità assoluta.] Quando una clip
+voce è in riproduzione, resta al proprio volume nominale e tutto il
+resto si abbassa. Nessun altro segnale può sovrascrivere questa regola.
 
-#strong[Episode Songs.] They yield space to Voice, but they rule over
-the Asset beds. When a song comes in, the Asset music beds go to zero
-(they don't stop: they keep running in silence, ready to return). This
-is Music Dominance, described further on.
+#strong[Canzoni dell'episodio.] Cedono spazio alle Voci, ma comandano
+sulle basi degli Assets. Quando entra una canzone, le basi musicali
+degli Assets si azzerano (non si fermano: continuano a girare in
+silenzio, pronte per il ritorno). È la Music Dominance, descritta più
+avanti.
 
-#strong[Show Assets, Jingle and Promo --- the service beds.] They are
-lowered by Voice and silenced by Songs.
+#strong[Show Assets, Jingle e Promo --- le basi di servizio.] Vengono
+abbassati dalle Voci e silenziati dalle Canzoni.
 
-#strong[Pad FX effects.] Sound effects stay outside the hierarchy: they
-play at their own volume, overlap whatever is on air, and are never
-silenced. There is one courtesy toward speech: when a voice is active,
-the effects drop to half volume (50%) so as not to cover it, then rise
-again on their own.
+#strong[Effetti del pad FX.] Gli effetti sonori restano fuori dalla
+gerarchia: suonano al proprio volume, si sovrappongono a ciò che è in
+onda e non vengono silenziati. C'è una sola cortesia verso il parlato:
+quando una voce è attiva, gli effetti scendono a metà volume (50%) per
+non coprirla, poi risalgono da soli.
 
-== 6.2 Automatic ducking
-#strong[Ducking] is the mechanism by which a signal is lowered when a
-higher-priority signal starts playing.
+== 6.2 Ducking automatico
+Il #strong[ducking] è il meccanismo con cui un segnale viene abbassato
+quando un segnale di priorità superiore entra in riproduzione.
 
-The most common case: a song is playing at full dynamics; you launch a
-pre-recorded interview from the Voice column. At that moment RLMP brings
-the song to about #strong[20% of its volume] (a reduction of roughly 14
-dB) with a soft half-second fade, so the voice occupies the sonic space
-intelligibly. As soon as the interview ends, the song rises back to its
-original volume with an equally smooth fade in.
+Il caso più comune: una canzone sta suonando in piena dinamica; lanci
+un'intervista preregistrata dalla colonna Voci. In quel momento RLMP
+porta la canzone a circa il #strong[20% del volume] (una riduzione di
+circa 14 dB) con una dissolvenza morbida di mezzo secondo, così che la
+voce occupi lo spazio sonoro in modo intellegibile. Appena l'intervista
+termina, la canzone risale al volume originale con un fade in
+altrettanto fluido.
 
-The operator touches nothing. The gesture performed was a single click:
-starting the interview. The amount of the reduction and its speed are
-adjustable in the Settings (Chapter 13).
+L'operatore non tocca nulla. Il gesto eseguito è stato un solo click:
+avviare l'intervista. L'entità della riduzione e la sua rapidità sono
+regolabili nelle Impostazioni (Capitolo 13).
 
-=== Smart Mic: the microphone that lowers the music
-Ducking can also be triggered by your voice, without launching any clip.
-With #strong[Smart Mic], RLMP listens to the microphone and, when you
-speak, automatically lowers the music; when you stop, it brings it back
-up.
+=== Smart Mic: il microfono che abbassa la musica
+Il ducking può partire anche dalla tua voce, senza lanciare nessuna
+clip. Con lo #strong[Smart Mic] RLMP ascolta il microfono e, quando
+parli, abbassa automaticamente la musica; quando smetti, la riporta su.
 
-+ In the Settings, #emph[Microphone] tab, enable #strong[Smart Mic] and
-  choose the input device (Chapter 13).
-+ In the Control Bar, press #strong[ARM]: the button turns red and the
-  small VU next to it shows the microphone level.
-+ Speak: when your voice goes above the threshold, ARM lights up and the
-  music drops; shortly after you stop, it comes back up.
++ Nelle Impostazioni, scheda #emph[Microfono], abilita #strong[Smart
+  Mic] e scegli il dispositivo di input (Capitolo 13).
++ Nella Barra di Controllo premi #strong[ARM]: il pulsante diventa rosso
+  e il piccolo VU accanto mostra il livello del microfono.
++ Parla: quando la voce supera la soglia, ARM si accende e la musica
+  scende; poco dopo che hai smesso, risale.
 
 #attenzione[
-Smart Mic is designed for a #strong[USB microphone
-connected directly to the computer]. If the microphone goes through a
-USB mixer (Rødecaster, Zoom LiveTrak and the like), the computer's input
-also carries the music on air: detection mistakes it for your voice and
-triggers by itself. In that case leave Smart Mic off and let the mixer
-handle the ducking.
+Lo Smart Mic è pensato per un #strong[microfono USB
+collegato direttamente al computer]. Se il microfono passa da un mixer
+USB (Rødecaster, Zoom LiveTrak e simili), l'ingresso del computer porta
+anche la musica in onda: il rilevamento la scambia per la tua voce e
+scatta da solo. In quel caso lascia lo Smart Mic disattivato e affida il
+ducking al mixer.
 ]
 
-Smart Mic is off by default and the microphone stays disarmed until you
-press ARM: if you don't use the feature, nothing changes.
+Lo Smart Mic è disattivato di serie e il microfono resta disarmato
+finché non premi ARM: chi non usa la funzione non nota alcuna
+differenza.
 
-== 6.3 Music Dominance: intelligent management of beds
-A classic sonic mistake is the moment when a song and a music bed
-overlap: two rhythmic elements colliding, two kick drums that don't line
-up, and the result is muddled.
+== 6.3 Music Dominance: gestione intelligente delle basi
+Un errore sonoro classico è il momento in cui una canzone e una base
+musicale (#emph[bed]) si sovrappongono: due elementi ritmici che si
+scontrano, due kick drum che non coincidono, il risultato è confuso.
 
-RLMP handles this scenario with #strong[Music Dominance].
+RLMP gestisce questo scenario con la #strong[Music Dominance].
 
-#strong[The typical scenario.] A bed is looping in the Assets column,
-under the host's voice. The host launches a track from the Songs column.
+#strong[Lo scenario tipo.] Una base sta girando in loop nella colonna
+Assets, sotto la voce del conduttore. Il conduttore lancia un brano
+dalla colonna Canzoni.
 
-#strong[What RLMP does.] It doesn't stop the bed, because stopping it
-would then require restarting it by hand. Instead it silently brings it
-to #strong[zero volume], keeping it playing "as a ghost": the file keeps
-running, the loop continues, but nothing is heard.
+#strong[Cosa fa RLMP.] Non ferma la base, perché fermarla richiederebbe
+poi di riavviarla a mano. La porta invece silenziosamente a
+#strong[volume zero], mantenendola in riproduzione «in fantasma»: il
+file continua a scorrere, il loop continua, ma non si sente nulla.
 
-#strong[The sonic result.] Only the song is heard. The bed has vanished
-without the operator doing anything.
+#strong[Il risultato sonoro.] Si sente solo la canzone. La base è
+scomparsa senza che l'operatore abbia fatto nulla.
 
-#strong[The return.] When the song ends, the bed re-emerges with an
-automatic fade in, resuming from the point it had reached in the loop.
-The flow (bed → song → bed) happens without a single extra click.
+#strong[Il ritorno.] Quando la canzone termina, la base riemerge con un
+fade in automatico, riprendendo dal punto in cui si trovava nel loop. Il
+flusso (base → canzone → base) avviene senza un singolo click
+aggiuntivo.
 
-== 6.4 Rising above the hierarchy: effects and voices
-If an element has to rise above what's on air, there are two ways, and
-they depend on where you put the clip.
+== 6.4 Emergere sopra la gerarchia: effetti e voci
+Se un elemento deve emergere sopra ciò che è in onda, le vie sono due, e
+dipendono da dove metti la clip.
 
-The #strong[pad FX]: the effect plays at full volume over the music and
-stops nothing --- ideal for stingers and short jingles that must "punch
-through" the mix without touching it.
+Il #strong[pad FX]: l'effetto suona a volume pieno sopra la musica e non
+ferma nulla --- ideale per stinger e jingle brevi che devono «bucare» il
+mix senza toccarlo.
 
-The #strong[Voice] column: the clip stays at its nominal volume and
-everything else is lowered with ducking --- ideal for the spoken
-#emph[station ID] ("You're listening to…") that has to be clearly
-audible while the bed underneath keeps running. For a more polished
-entrance, pair it with a short fade in (300--500 ms): the attack will be
-soft, not abrupt.
+La colonna #strong[Voci]: la clip resta al volume nominale e tutto il
+resto si abbassa con il ducking --- ideale per lo #emph[station ID]
+vocale («Stai ascoltando…») che deve sentirsi chiaramente mentre la base
+sotto continua a girare. Per un ingresso più curato, abbina un fade in
+breve (300--500 ms): l'attacco sarà morbido, non brusco.
 
-Previous versions had a per-clip behaviour called "Stacco" that reversed
-the hierarchy. It has been removed: a clip's position in the hierarchy
-depends solely on the column it lives in, with no exceptions hidden in
-its properties.
+Nelle versioni precedenti esisteva un comportamento per-clip chiamato
+«Stacco» che rovesciava la gerarchia. È stato rimosso: la posizione
+nella gerarchia dipende soltanto dalla colonna in cui la clip si trova,
+senza eccezioni nascoste nelle proprietà.
 
-== 6.5 Volume levelling (loudness)
-Clips from different sources almost always arrive at different levels: a
-properly mastered ident, a quietly recorded phone voice, a track
-downloaded at its own volume. To avoid constant manual Gain adjustments,
-RLMP applies by default a #strong[volume levelling] based on the EBU
-R128 loudness standard, with a target of #strong[−16 LUFS].
+== 6.5 Omologazione del volume (loudness)
+Clip di provenienza diversa arrivano quasi sempre con livelli diversi:
+una sigla masterizzata a dovere, un vocale telefonico registrato piano,
+un brano scaricato a un volume tutto suo. Per evitare continui
+aggiustamenti manuali del Gain, RLMP applica di default
+un'#strong[omologazione del volume] basata sullo standard di loudness
+EBU R128, con un obiettivo di #strong[−16 LUFS].
 
-In practice, the software evaluates the perceived loudness of each clip
-and brings it closer to a common reference, so that songs, voices and
-beds start out on a coherent footing. The feature is enabled by default
-and the target value is adjustable in Settings → Master Chain.
+In pratica, il software valuta la sonorità percepita di ciascuna clip e
+la avvicina a un riferimento comune, così che canzoni, voci e basi
+partano già su un piano coerente. La funzione è attiva per impostazione
+predefinita e il valore obiettivo è regolabile nelle Impostazioni →
+Master Chain.
 
-== 6.6 Master Chain: the processor chain on the master bus
-#figure(image("../screenshots-en/impostazioni-master-chain.png", alt: "Figure 6.1 — The Master Chain: volume levelling (−16 LUFS), HPF at 30 Hz, multiband glue and brickwall limiter."),
+== 6.6 Master Chain: la catena di processori sul master bus
+#figure(image("../screenshots/impostazioni-master-chain.png", alt: "Figura 6.1 — La Master Chain: omologazione del volume (−16 LUFS), HPF a 30 Hz, glue multibanda e limiter brickwall."),
   caption: [
-    Figure 6.1 --- The Master Chain: volume levelling (−16 LUFS), HPF at
-    30 Hz, multiband glue and brickwall limiter.
+    Figura 6.1 --- La Master Chain: omologazione del volume (−16 LUFS),
+    HPF a 30 Hz, glue multibanda e limiter brickwall.
   ]
 )
 
-The combined signal of all playing clips, after the Master Volume,
-passes through a #strong[processor chain] on the master bus before
-reaching the output device. The chain is enabled by default and designed
-for a broadcast-grade sound without requiring advanced configuration.
+Il segnale combinato di tutte le clip in riproduzione, dopo il Master
+Volume, attraversa una #strong[catena di processori] sul bus master
+prima di raggiungere la periferica di uscita. La catena è attiva per
+impostazione predefinita e progettata per un suono broadcast-grade senza
+richiedere configurazione avanzata.
 
-It comprises three stages in series.
+Comprende tre stadi in serie.
 
-#strong[High-Pass Filter (HPF) at 30 Hz.] Removes the useless sub-bass
-frequencies that eat up headroom and can muddy playback systems, with a
-gentle slope. The cutoff frequency is adjustable (20--200 Hz). When
-disabled, the stage becomes completely transparent.
+#strong[High-Pass Filter (HPF) a 30 Hz.] Elimina le frequenze sub-bass
+inutili che consumano headroom e possono sporcare i sistemi di
+diffusione, con una pendenza morbida. La frequenza di taglio è
+regolabile (20--200 Hz). Quando disattivato, lo stadio diventa
+completamente trasparente.
 
-#strong[Multiband glue.] Not a single compressor, but three "gentle"
-compressors working in parallel across three frequency bands (lows,
-mids, highs), separated by a crossover. Each band has thresholds and
-ratios calibrated to "glue" the mix without crushing it, and to hold the
-dynamic variance between clips of different levels in check. The style
-is selectable among a few presets (Neutral, Rock, Jazz, Electronic); the
-default preset is Neutral.
+#strong[Glue multibanda.] Non un singolo compressore, ma tre compressori
+«gentili» che lavorano in parallelo su tre bande di frequenza (bassi,
+medi, alti), separate da un crossover. Ogni banda ha soglie e rapporti
+calibrati per «incollare» il mix senza schiacciarlo, e contenere la
+varianza dinamica tra clip di livello diverso. Lo stile è selezionabile
+tra alcuni preset (Neutro, Rock, Jazz, Elettronico); il preset
+predefinito è Neutro.
 
-#strong[Brickwall limiter.] Threshold at −1 dBFS, with a high limiting
-ratio and a very fast reaction. It guarantees the signal never exceeds
-the maximum allowed level, preventing digital distortion (clipping)
-whatever happens upstream.
+#strong[Limiter a brickwall.] Soglia a −1 dBFS, con rapporto di
+limitazione elevato e reazione rapidissima. Garantisce che il segnale
+non superi mai il livello massimo consentito, prevenendo la distorsione
+digitale (clipping) qualunque cosa accada a monte.
 
-The whole chain, and each individual stage, is configurable and can be
-disabled from Settings → Master Chain, where you'll also find a button
-to restore the defaults. In a context where the signal is already
-processed by a hardware mixer or an external chain, you can disable it
-to avoid double processing.
+L'intera catena, e ogni singolo stadio, è configurabile e disattivabile
+dalle Impostazioni → Master Chain, dove trovi anche un pulsante per
+ripristinare i valori predefiniti. In un contesto dove il segnale viene
+già processato da un mixer hardware o da una catena esterna, puoi
+disattivarla per evitare processazioni doppie.

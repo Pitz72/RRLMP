@@ -14,7 +14,7 @@ L'header occupa l'intera larghezza dello schermo. Procedendo da sinistra a destr
 
 ### Identità
 
-**Logo e badge PRO.** A sinistra, il logo affianca la scritta **RLM PRO** — la parola «PRO» è resa con un gradiente iridescente che passa dal ciano al verde, all'ambra, al rosso. Accanto, in caratteri monospazio, è riportata la versione installata (`v1.15.32`). Passando il mouse sul logo compare il nome completo del software con il numero di versione.
+**Logo e badge PRO.** A sinistra, il logo affianca la scritta **RLM PRO** — la parola «PRO» è resa con un gradiente iridescente che passa dal ciano al verde, all'ambra, al rosso. Accanto, in caratteri monospazio, è riportata la versione installata (`v1.15.33`). Passando il mouse sul logo compare il nome completo del software con il numero di versione.
 
 ### Menu File
 

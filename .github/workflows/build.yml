@@ -3,23 +3,26 @@ name: Build and Release
 # Build e pubblicazione solo manuali (workflow_dispatch). Su pull request verso
 # master gira soltanto il job `verify` (typecheck + test): nessuna build e nessuna
 # pubblicazione può partire da una PR di terzi (apertura del sorgente, Fase 1).
-# La build gira sempre; la pubblicazione sulla repo pubblica RRLMP-Releases
-# è una decisione esplicita separata (input publish_release).
 #
-# 2026-07-22 — RISTRUTTURATO senza storage artifact in modalità release:
-# lo storage artifact GitHub (quota 2GB, ricalcolata ogni 6-12h) bloccava le
-# release quando pieno. Ora, con publish_release=true:
-#   1. create-release crea la release in BOZZA su RRLMP-Releases (note = changelog);
-#   2. ogni job di build carica i propri asset DIRETTAMENTE sulla bozza (gh release upload);
+# v1.15.33 (apertura del sorgente, Fase 3): le release si pubblicano su QUESTO
+# repository (Pitz72/RRLMP) con il GITHUB_TOKEN integrato — nessun PAT. Il job
+# macOS è stato tolto: chi ha un Mac compila dal sorgente (CONTRIBUTING.md).
+# La repo ponte Ecosystem-Runtime/RRLMP-Releases non è più toccata dalla CI: la
+# release traghetto per le installazioni ≤ 1.15.32 si ricarica lì a mano, con
+# gli stessi binari (docs/PIANO-APERTURA.md, Fase 3).
+#
+# Con publish_release=true:
+#   1. create-release crea la release in BOZZA (note = changelog IT + EN);
+#   2. ogni job di build carica i propri asset direttamente sulla bozza;
 #   3. finalize-release la pubblica solo a build complete (niente release monca
 #      visibile all'auto-updater se una piattaforma fallisce).
-# Con publish_release=false i job caricano gli artifact come prima (build di test).
+# Con publish_release=false i job caricano gli artifact (build di test, 7 giorni).
 
 on:
   workflow_dispatch:
     inputs:
       publish_release:
-        description: 'Publish release to Ecosystem-Runtime/RRLMP-Releases after build'
+        description: 'Publish the release on this repository after build'
         required: false
         default: 'false'
         type: choice
@@ -27,15 +30,14 @@ on:
   pull_request:
     branches: [master]
 
-# Minimo privilegio: nessun job scrive su questo repository (la pubblicazione
-# usa il PAT RELEASE_TOKEN verso RRLMP-Releases).
+# Minimo privilegio: sola lettura di default. Solo i job che creano, riempiono e
+# pubblicano la release si alzano a `contents: write`, e girano solo su dispatch.
 permissions:
   contents: read
 
 jobs:
-  # Quality gate (apertura del sorgente, Fase 1): typecheck dei quattro progetti
-  # TypeScript e suite Vitest. Gira su ogni pull request verso master e prima di
-  # ogni build manuale. Non produce installer e non pubblica nulla.
+  # Quality gate: typecheck dei quattro progetti TypeScript e suite Vitest. Gira
+  # su ogni pull request verso master e prima di ogni build manuale.
   verify:
     name: Verify (typecheck + test)
     runs-on: ubuntu-latest
@@ -65,6 +67,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [verify]
     if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.publish_release == 'true' }}
+    permissions:
+      contents: write
     outputs:
       tag: ${{ steps.version.outputs.tag }}
     steps:
@@ -74,11 +78,9 @@ jobs:
         id: version
         run: echo "tag=v$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
-      # v1.15.10: le note di rilascio = changelog della versione (docs/changelogs/current/<ver>.md)
-      # + tabella download. Così il popup di aggiornamento in-app mostra le novità reali,
-      # non solo la tabella generica dei file.
-      # v1.15.31: note BILINGUI italiano + inglese — dopo l'italiano si accoda
-      # <ver>.en.md se presente (stessa scelta di lingue del manuale utente).
+      # Note di rilascio = changelog della versione, italiano (<ver>.md) poi inglese
+      # (<ver>.en.md), + tabella download. È il testo che il popup di aggiornamento
+      # in-app mostra agli utenti.
       - name: Prepare release notes
         run: |
           NUM="$(node -p "require('./package.json').version")"
@@ -96,20 +98,21 @@ jobs:
             echo "::warning::Manca $CHANGELOG_EN — note di rilascio solo in italiano"
           fi
           printf '### Download\n\n' >> RELEASE_NOTES.md
-          printf '%s\n' '| Piattaforma / Platform | File |' '|----------|------|' '| **Windows** | `*.exe` |' '| **macOS** | `*.dmg` |' '| **Linux (AppImage)** | `*.AppImage` |' '| **Linux (deb)** | `*.deb` |' '' >> RELEASE_NOTES.md
-          printf '%s\n' '> macOS: build non firmata — al primo avvio tasto destro -> Apri per bypassare Gatekeeper.' '> Aggiornamento automatico su Windows e Linux (AppImage); su macOS e Linux (deb) si apre questa pagina.' '>' '> macOS: unsigned build — on first launch right-click -> Open to bypass Gatekeeper.' '> Automatic updates on Windows and Linux (AppImage); on macOS and Linux (deb) this page opens.' >> RELEASE_NOTES.md
+          printf '%s\n' '| Piattaforma / Platform | File |' '|----------|------|' '| **Windows** | `*.exe` |' '| **Linux (AppImage)** | `*.AppImage` |' '| **Linux (deb)** | `*.deb` |' '' >> RELEASE_NOTES.md
+          printf '%s\n' '> Aggiornamento automatico su Windows e Linux (AppImage); con il pacchetto .deb si apre questa pagina. macOS: nessun installer ufficiale, si compila dal sorgente (CONTRIBUTING.md).' '>' '> Automatic updates on Windows and Linux (AppImage); with the .deb package this page opens. macOS: no official installer, build from source (CONTRIBUTING.md).' >> RELEASE_NOTES.md
           echo '----- RELEASE_NOTES.md -----'; cat RELEASE_NOTES.md
 
-      - name: Create draft release on RRLMP-Releases
+      - name: Create draft release
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${{ steps.version.outputs.tag }}"
-          REPO="Ecosystem-Runtime/RRLMP-Releases"
+          REPO="${{ github.repository }}"
           if gh release view "$TAG" --repo "$REPO" >/dev/null 2>&1; then
             echo "Release $TAG già esistente su $REPO: riuso (gli upload usano --clobber)."
           else
             gh release create "$TAG" --repo "$REPO" --draft \
+              --target "${{ github.sha }}" \
               --title "Runtime Live Machine Pro $TAG" \
               --notes-file RELEASE_NOTES.md
           fi
@@ -119,6 +122,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [verify, create-release]
     if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && needs.verify.result == 'success' && needs.create-release.result != 'failure' }}
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -140,10 +145,10 @@ jobs:
         if: ${{ github.event.inputs.publish_release == 'true' }}
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="v$(node -p "require('./package.json').version")"
-          gh release upload "$TAG" --repo Ecosystem-Runtime/RRLMP-Releases --clobber \
+          gh release upload "$TAG" --repo "${{ github.repository }}" --clobber \
             builds/v*/*.AppImage builds/v*/*.deb builds/v*/latest-linux.yml
 
       - name: Upload Linux Artifacts (test build)
@@ -162,6 +167,8 @@ jobs:
     runs-on: windows-latest
     needs: [verify, create-release]
     if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && needs.verify.result == 'success' && needs.create-release.result != 'failure' }}
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -182,10 +189,10 @@ jobs:
         if: ${{ github.event.inputs.publish_release == 'true' }}
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="v$(node -p "require('./package.json').version")"
-          gh release upload "$TAG" --repo Ecosystem-Runtime/RRLMP-Releases --clobber \
+          gh release upload "$TAG" --repo "${{ github.repository }}" --clobber \
             builds/v*/*.exe builds/v*/*.exe.blockmap builds/v*/latest.yml
 
       - name: Upload Windows Artifacts (test build)
@@ -199,57 +206,18 @@ jobs:
             builds/v*/latest.yml
           retention-days: 7
 
-  build-macos:
-    name: Build (macOS)
-    runs-on: macos-latest
-    needs: [verify, create-release]
-    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && needs.verify.result == 'success' && needs.create-release.result != 'failure' }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Build Application
-        run: npm run build
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CSC_IDENTITY_AUTO_DISCOVERY: false
-
-      - name: Upload assets to release
-        if: ${{ github.event.inputs.publish_release == 'true' }}
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        run: |
-          TAG="v$(node -p "require('./package.json').version")"
-          gh release upload "$TAG" --repo Ecosystem-Runtime/RRLMP-Releases --clobber \
-            builds/v*/*.dmg
-
-      - name: Upload macOS Artifacts (test build)
-        if: ${{ github.event.inputs.publish_release != 'true' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-artifacts
-          path: |
-            builds/v*/*.dmg
-          retention-days: 7
-
   finalize-release:
-    name: Publish to RRLMP-Releases
+    name: Publish release
     runs-on: ubuntu-latest
-    needs: [create-release, build-linux, build-windows, build-macos]
+    needs: [create-release, build-linux, build-windows]
     if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.publish_release == 'true' }}
+    permissions:
+      contents: write
     steps:
       - name: Publish draft release
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${{ needs.create-release.outputs.tag }}"
-          gh release edit "$TAG" --repo Ecosystem-Runtime/RRLMP-Releases --draft=false --latest
-          gh release view "$TAG" --repo Ecosystem-Runtime/RRLMP-Releases
+          gh release edit "$TAG" --repo "${{ github.repository }}" --draft=false --latest
+          gh release view "$TAG" --repo "${{ github.repository }}"

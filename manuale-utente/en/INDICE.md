@@ -1,5 +1,5 @@
 # Runtime Live Machine Pro — User Manual
-## Table of Contents — English Edition (v1.15.32, Second Edition)
+## Table of Contents — English Edition (v1.15.33, Second Edition)
 
 ---
 

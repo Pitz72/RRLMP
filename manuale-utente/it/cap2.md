@@ -27,7 +27,7 @@ Non è richiesta una scheda audio dedicata: RLMP funziona con qualsiasi periferi
 
 ## 2.2 Installazione su Windows
 
-1. Scarica il file `Runtime-Live-Machine-Pro-1.15.32.exe` dalla pagina **Releases** del progetto su GitHub (`github.com/Pitz72/RRLMP/releases`).
+1. Scarica il file `Runtime-Live-Machine-Pro-1.15.33.exe` dalla pagina **Releases** del progetto su GitHub (`github.com/Pitz72/RRLMP/releases`).
 2. Fai doppio click sull'eseguibile. L'installer NSIS si avvierà e copierà i file nelle directory appropriate.
 3. Al termine, un collegamento verrà creato sul Desktop e nel menu Start.
 4. L'applicazione si avvia automaticamente al completamento dell'installazione.

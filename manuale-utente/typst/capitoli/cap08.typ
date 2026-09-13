@@ -1,166 +1,174 @@
 #import "../lib/manuale-template.typ": *
 
-= Hardware, keyboard and MIDI
+= Hardware, tastiera e MIDI
 
-Runtime Live Machine Pro is designed to integrate with the hardware
-already in the studio without requiring elaborate configurations. This
-chapter describes how to route the audio output, how to use the computer
-keyboard as a controller, and how to connect physical MIDI devices for
-tactile control of the production.
+Runtime Live Machine Pro è progettato per integrarsi con l'hardware
+esistente nello studio senza richiedere configurazioni elaborate. Questo
+capitolo descrive come indirizzare l'uscita audio, come usare la
+tastiera del computer come controller e come collegare dispositivi MIDI
+fisici per un controllo tattile della regia.
 
-== 8.1 Audio routing
-=== Selecting the output device
-By default, RLMP outputs to the operating system's default audio device.
-In a professional or semi-professional setting, with USB mixers,
-external sound cards or multitrack systems, it's useful to select the
-signal destination explicitly.
+== 8.1 Routing audio
+=== Selezionare la periferica di uscita
+Per impostazione predefinita, RLMP esce sulla periferica audio
+predefinita del sistema operativo. In un contesto professionale o
+semiprofessionale, con mixer USB, schede audio esterne o sistemi
+multitraccia, è utile selezionare esplicitamente la destinazione del
+segnale.
 
-+ Open the #strong[Settings] from the Tools menu.
-+ On the #emph[Audio & Mix] tab, open the output-device menu: you'll
-  find the list of audio devices available on the system.
-+ Select the device you want.
++ Apri le #strong[Impostazioni] dal menu Strumenti.
++ Nella scheda #emph[Audio & Mix], apri il menu della periferica di
+  uscita: trovi l'elenco delle periferiche audio disponibili sul
+  sistema.
++ Seleziona la periferica desiderata.
 
-If the chosen device is unplugged, RLMP falls back automatically to the
-system default; the app monitors connections and reacts to the insertion
-or removal of USB devices.
+Se la periferica scelta viene scollegata, RLMP ripiega automaticamente
+su quella di sistema; l'app monitora le connessioni e reagisce
+all'inserimento o alla rimozione di dispositivi USB.
 
-=== USB mixers and multichannel setups
-USB mixers such as the Rødecaster Pro, the RØDECaster Duo or the
-Focusrite Scarlett typically expose several USB channels to the
-operating system (Main Mix, Sounds/Chat, Monitor, and so on). RLMP
-appears as a single stereo source; the choice of which USB channel to
-route it to is in your hands.
+=== Mixer USB e setup multicanale
+I mixer USB come il Rødecaster Pro, l'RØDECaster Duo o il Focusrite
+Scarlett espongono tipicamente più canali USB al sistema operativo (Main
+Mix, Sounds/Chat, Monitor, ecc.). RLMP appare come una singola sorgente
+stereo; la scelta del canale USB su cui dirigerlo è nelle tue mani.
 
-#strong[Recommended setup with a USB mixer.] Assign RLMP to a secondary
-channel of the mixer (e.g.~"Sounds" on the Rødecaster Pro) rather than
-to the main channel. This way you control RLMP's volume with a dedicated
-physical fader, keep it separate from the physical microphone signal,
-and apply any hardware processing to that channel only.
+#strong[Setup consigliato con mixer USB.] Assegna RLMP a un canale
+secondario del mixer (es. «Sounds» sul Rødecaster Pro) invece che al
+canale principale. In questo modo controlli il volume di RLMP con un
+fader fisico dedicato, lo separi dal segnale del microfono fisico e
+applichi eventuale processing hardware solo a quel canale.
 
-=== Latency and buffer
-RLMP uses the operating system's native audio APIs. The output latency
-is determined by the audio device's buffer, not by the software. With
-professional sound cards the latency is in the order of a few
-milliseconds, imperceptible in a playout context.
+=== Latenza e buffer
+RLMP utilizza le API audio native del sistema operativo. La latenza di
+uscita è determinata dal buffer della periferica audio, non dal
+software. Con schede audio professionali la latenza è nell'ordine di
+pochi millisecondi, non percepibile in un contesto di playout.
 
-If you notice audio artefacts (crackles, dropouts), the device's buffer
-value is probably too low. Raise it from the sound card's control panel
-(not from RLMP, which doesn't manage the driver directly): a buffer of
-256 or 512 samples is the ideal balance between latency and stability.
+Se noti artefatti audio (crepitii, dropout), il valore di buffer della
+periferica è probabilmente troppo basso. Aumentalo dal pannello di
+controllo della scheda audio (non da RLMP, che non gestisce direttamente
+il driver): un buffer di 256 o 512 campioni è il punto di equilibrio
+ideale tra latenza e stabilità.
 
-== 8.2 Keyboard control
-The computer keyboard is the fastest controller available on air: it
-works in the dark and is always within reach. RLMP provides a set of
-global shortcuts and lets you assign keys to individual clips.
+== 8.2 Controllo da tastiera
+La tastiera del computer è il controller più rapido disponibile in
+diretta: non richiede coordinazione oculo-manuale, funziona al buio ed è
+sempre a portata di mano. RLMP prevede un insieme di scorciatoie globali
+e la possibilità di assegnare tasti alle singole clip.
 
-=== Global shortcuts
+=== Scorciatoie globali
 #figure(
   align(center)[#table(
     columns: (50%, 50%),
     align: (auto,auto,),
-    table.header([Key], [Action],),
+    table.header([Tasto], [Azione],),
     table.hline(),
-    [#strong[Esc]], [STOP ALL --- stops all active clips],
-    [#strong[Delete / Backspace]], [Delete the selected clips],
-    [#strong[Ctrl+Z]], [Undo the last change to the running order],
-    [#strong[Ctrl+Y] (or #strong[Ctrl+Shift+Z])], [Redo the undone
-    change],
-    [#strong[Ctrl+Shift+D]], [Show/hide the Debug Overlay],
-    [#strong[Ctrl+Shift+M]], [Open the MIDI simulator (for testing
-    without a controller)],
-    [#strong[F1, F2, F3…]], [Launch the matching column, counting the
-    visible columns from the left],
+    [#strong[Esc]], [STOP ALL --- ferma tutte le clip attive],
+    [#strong[Canc / Backspace]], [Elimina le clip selezionate],
+    [#strong[Ctrl+Z]], [Annulla l'ultima modifica alla scaletta],
+    [#strong[Ctrl+Y] (o #strong[Ctrl+Shift+Z])], [Ripeti la modifica
+    annullata],
+    [#strong[Ctrl+Shift+D]], [Mostra/nascondi il Debug Overlay],
+    [#strong[Ctrl+Shift+M]], [Apri il simulatore MIDI (per test senza
+    controller)],
+    [#strong[F1, F2, F3…]], [Lancia la colonna corrispondente, contando
+    le colonne visibili da sinistra],
   )]
   , kind: table
   )
 
-`Esc` acts as STOP ALL when RLMP is the active window, even while the
-cursor is in a text field. It is no longer a shortcut registered at the
-operating-system level: if the app is in the background, bring the
-window to the foreground first.
+`Esc` agisce come STOP ALL quando RLMP è la finestra attiva, anche
+mentre il cursore è in un campo di testo. Non è più una scorciatoia
+registrata a livello di sistema operativo: se l'app è in background,
+riporta prima la finestra in primo piano.
 
-The other shortcuts are suspended while a window is open (Settings, the
-clip editor and the like), so `Ctrl+Z` or `Delete` don't touch the
-running order while you work elsewhere. With a window open, `Esc` closes
-it without stopping the live show.
+Le altre scorciatoie restano sospese finché è aperta una finestra
+(Impostazioni, editor della clip e simili): così `Ctrl+Z` o `Canc` non
+toccano la scaletta mentre lavori altrove. `Esc`, con una finestra
+aperta, la chiude senza fermare la diretta.
 
-=== Function keys: one column per key
-The #strong[F1], #strong[F2], #strong[F3]… keys launch the first
-available clip of the columns #strong[visible] in the grid, in the order
-you see them from left to right. With the default layout: F1 Show Assets
-· F2 Jingle · F3 Promo · F4 Episode Songs · F5 Voice · F6 Pre-Show. If
-you hide a column from the Settings (Chapter 13), the keys shift
-accordingly: F1 is always the first column you see. If you have assigned
-a function key to a specific clip, that assignment takes precedence.
+=== Tasti funzione: una colonna per tasto
+I tasti #strong[F1], #strong[F2], #strong[F3]… lanciano la prima clip
+disponibile delle colonne #strong[visibili] in griglia, nell'ordine in
+cui le vedi da sinistra a destra. Con la disposizione predefinita: F1
+Show Assets · F2 Jingle · F3 Promo · F4 Canzoni · F5 Voci · F6 Pre-Show.
+Se nascondi una colonna dalle Impostazioni (Capitolo 13), i tasti si
+spostano di conseguenza: F1 è sempre la prima colonna che vedi. Se hai
+assegnato un tasto funzione a una clip specifica, quell'assegnazione ha
+la precedenza.
 
 #attenzione[
-F1 normally launches Show Assets, and a clip from that
-column launched by hand stops everything on air except the pad FX
-effects, exactly like clicking the same clip.
+F1 lancia di norma Show Assets, e una clip di
+quella colonna lanciata a mano ferma tutto ciò che è in onda tranne gli
+effetti del pad FX, esattamente come il click sulla stessa clip.
 ]
 
-=== Custom keys per clip
-In addition to the global shortcuts, every clip can have a dedicated
-key. The corresponding badge appears on the card.
+=== Tasti personalizzati per singola clip
+Oltre alle scorciatoie globali, ogni clip può avere un tasto dedicato.
+Il badge corrispondente compare sulla card.
 
-#strong[To assign a key:] 1. Open the clip settings (right-click the
-card) or the #strong[Keybinds] window from the Tools menu. 2. Click in
-the key field. 3. Press the key you want.
+#strong[Per assegnare un tasto:] 1. Apri le impostazioni della clip
+(tasto destro sulla card) oppure la finestra #strong[Keybinds] dal menu
+Strumenti. 2. Clicca nel campo del tasto. 3. Premi il tasto desiderato.
 
-#strong[Available keys.] Almost any key: letters (A--Z), numbers (0--9),
-numeric keypad, spacebar, unused function keys. If the key is already
-assigned to another clip, the software reports the conflict before
-overwriting, so you don't create invisible duplicates.
+#strong[Tasti disponibili.] Quasi qualsiasi tasto: lettere (A--Z),
+numeri (0--9), tastierino numerico, barra spaziatrice, tasti funzione
+liberi. Se il tasto è già assegnato a un'altra clip, il software segnala
+il conflitto prima di sovrascrivere, così non crei doppioni invisibili.
 
-#strong[Safety while typing.] Custom keys are disabled automatically
-when you're in text-entry mode (renaming a clip or writing a note). This
-prevents accidental launches while you type.
+#strong[Sicurezza durante la digitazione.] I tasti personalizzati
+vengono disabilitati automaticamente quando sei in modalità di
+inserimento testo (stai rinominando una clip o scrivendo una nota).
+Questo previene lanci accidentali mentre digiti.
 
-== 8.3 MIDI controllers
-MIDI is the professional choice when you want physical, reliable control
-under your fingers. RLMP supports USB-MIDI controllers: keyboards, pads
-(e.g.~Novation Launchpad), fader controllers (e.g.~Korg nanoKONTROL2),
-hybrid control surfaces.
+== 8.3 Controller MIDI
+Il MIDI è la scelta professionale per un controllo fisico, tattile e
+affidabile. RLMP supporta i controller USB-MIDI: tastiere, pad (es.
+Novation Launchpad), controller a fader (es. Korg nanoKONTROL2),
+superfici di controllo ibride.
 
-=== Connecting
-Connect the USB controller to the computer and start RLMP. The software
-detects devices through the system's Web MIDI API and recognizes the
-connection and disconnection of a controller in real time. Most USB-MIDI
-controllers are #emph[class-compliant] and need no driver; for
-professional surfaces with proprietary drivers, install the driver
-before connecting the device.
+=== Collegamento
+Collega il controller USB al computer e avvia RLMP. Il software rileva i
+dispositivi tramite la Web MIDI API del sistema e riconosce in tempo
+reale la connessione e la disconnessione di un controller. La maggior
+parte dei controller USB-MIDI è #emph[class-compliant] e non richiede
+driver; per superfici professionali con driver proprietari, installa il
+driver prima di collegare il dispositivo.
 
 === MIDI Learn
-RLMP doesn't require you to know MIDI note numbering or to configure
-messages by hand. Learning is done through #strong[MIDI Learn] mode,
-from the Tools menu (or from the Keybinds window).
+RLMP non richiede di conoscere la numerazione delle note MIDI né di
+configurare i messaggi a mano. L'apprendimento avviene tramite la
+modalità #strong[MIDI Learn], dal menu Strumenti (o dalla finestra
+Keybinds).
 
-#strong[To map a clip to a key/pad:] 1. Enable MIDI Learn. The cards
-enter a waiting state. 2. Select the clip (or the pad FX cell) to map.
-\3. Play the note, press the pad or the key on the controller. The `M`
-badge with the note number appears on the card.
+#strong[Per mappare una clip a un tasto/pad:] 1. Attiva MIDI Learn. Le
+card entrano in stato di attesa. 2. Seleziona la clip (o la cella del
+pad FX) da mappare. 3. Suona la nota, premi il pad o il tasto sul
+controller. Il badge `M` con il numero di nota compare sulla card.
 
-#strong[To map the global functions:] - Select #strong[STOP ALL] and
-press a key on the controller: that key will perform the Stop All. -
-Select the #strong[Master Volume] and move a fader or a knob: that
-control will manage the master volume continuously.
+#strong[Per mappare le funzioni globali:] - Seleziona #strong[STOP ALL]
+e premi un tasto sul controller: quel tasto eseguirà lo Stop All. -
+Seleziona il #strong[Master Volume] e muovi un fader o una manopola:
+quel controllo gestirà il volume master in modo continuo.
 
-When finished, disable MIDI Learn to return to operating mode.
+Al termine, disattiva MIDI Learn per tornare alla modalità operativa.
 
-=== Supported message types
-#strong[Note On] --- messages generated by buttons, pads and keys. Ideal
-for launching clips and global actions; RLMP responds to the key press
-and recognizes all MIDI channels. Note Off messages are ignored.
+=== Tipi di messaggi supportati
+#strong[Note On] --- messaggi generati da pulsanti, pad e tasti. Ideali
+per il lancio delle clip e delle azioni globali; RLMP risponde alla
+pressione del tasto e riconosce tutti i canali MIDI. I messaggi Note Off
+vengono ignorati.
 
-#strong[Control Change (CC)] --- messages generated by faders and
-potentiometers, with a continuous value from 0 to 127. Ideal for the
-Master Volume: a physical fader mapped to the master offers the most
-natural control of the output level.
+#strong[Control Change (CC)] --- messaggi generati da fader e
+potenziometri, con valore continuo da 0 a 127. Ideali per il Master
+Volume: un fader fisico mappato sul master offre il controllo più
+naturale del livello di uscita.
 
-=== Portability of the mappings
-The MIDI mappings of the #strong[clips] are saved in the `.lmp` project
-file: carry the project to another computer with the same controller and
-they will work without reconfiguration. The mappings of the
-#strong[global functions] (Stop All, Master Volume) are instead tied to
-the computer, saved in the application's local preferences, and remain
-valid for all projects on that machine.
+=== Portabilità delle mappature
+<portabilità-delle-mappature>
+Le mappature MIDI delle #strong[clip] sono salvate nel file di progetto
+`.lmp`: portando il progetto su un altro computer con lo stesso
+controller, funzioneranno senza riconfigurazione. Le mappature delle
+#strong[funzioni globali] (Stop All, Master Volume) sono invece legate
+al computer, salvate nelle preferenze locali dell'applicazione, e
+restano valide per tutti i progetti su quella macchina.

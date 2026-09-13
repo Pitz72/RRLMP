@@ -12,7 +12,7 @@ ROOT = pathlib.Path(r"C:\Users\Utente\Documents\GitHub\RRLMP")
 LOGO = ROOT / "src" / "renderer" / "src" / "assets" / "logo.png"
 OUT_DIR = ROOT / "branding" / "covers"
 
-VERSION = "1.15.32"
+VERSION = "1.15.33"
 
 # Specchio di lib/strings.typ (manual-title, edition-name, version-word, language-name).
 # 2026-07-22: manuale mantenuto SOLO in it/en (decisione utente).
