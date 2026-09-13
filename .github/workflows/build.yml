@@ -43,18 +43,27 @@ jobs:
       # v1.15.10: le note di rilascio = changelog della versione (docs/changelogs/current/<ver>.md)
       # + tabella download. Così il popup di aggiornamento in-app mostra le novità reali,
       # non solo la tabella generica dei file.
+      # v1.15.31: note BILINGUI italiano + inglese — dopo l'italiano si accoda
+      # <ver>.en.md se presente (stessa scelta di lingue del manuale utente).
       - name: Prepare release notes
         run: |
           NUM="$(node -p "require('./package.json').version")"
           CHANGELOG="docs/changelogs/current/${NUM}.md"
+          CHANGELOG_EN="docs/changelogs/current/${NUM}.en.md"
           : > RELEASE_NOTES.md
           if [ -f "$CHANGELOG" ]; then
             cat "$CHANGELOG" >> RELEASE_NOTES.md
             printf '\n\n---\n\n' >> RELEASE_NOTES.md
           fi
+          if [ -f "$CHANGELOG_EN" ]; then
+            cat "$CHANGELOG_EN" >> RELEASE_NOTES.md
+            printf '\n\n---\n\n' >> RELEASE_NOTES.md
+          else
+            echo "::warning::Manca $CHANGELOG_EN — note di rilascio solo in italiano"
+          fi
           printf '### Download\n\n' >> RELEASE_NOTES.md
-          printf '%s\n' '| Piattaforma | File |' '|----------|------|' '| **Windows** | `*.exe` |' '| **macOS** | `*.dmg` |' '| **Linux (AppImage)** | `*.AppImage` |' '| **Linux (deb)** | `*.deb` |' '' >> RELEASE_NOTES.md
-          printf '%s\n' '> macOS: build non firmata — al primo avvio tasto destro -> Apri per bypassare Gatekeeper.' '> Aggiornamento automatico su Windows e Linux (AppImage); su macOS e Linux (deb) si apre questa pagina.' >> RELEASE_NOTES.md
+          printf '%s\n' '| Piattaforma / Platform | File |' '|----------|------|' '| **Windows** | `*.exe` |' '| **macOS** | `*.dmg` |' '| **Linux (AppImage)** | `*.AppImage` |' '| **Linux (deb)** | `*.deb` |' '' >> RELEASE_NOTES.md
+          printf '%s\n' '> macOS: build non firmata — al primo avvio tasto destro -> Apri per bypassare Gatekeeper.' '> Aggiornamento automatico su Windows e Linux (AppImage); su macOS e Linux (deb) si apre questa pagina.' '>' '> macOS: unsigned build — on first launch right-click -> Open to bypass Gatekeeper.' '> Automatic updates on Windows and Linux (AppImage); on macOS and Linux (deb) this page opens.' >> RELEASE_NOTES.md
           echo '----- RELEASE_NOTES.md -----'; cat RELEASE_NOTES.md
 
       - name: Create draft release on RRLMP-Releases

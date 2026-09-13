@@ -33,6 +33,7 @@ Conseguenze pratiche:
 ## Come si scrive un changelog nuovo
 
 1. Creare `current/<nuova-versione>.md` (stesso formato dei file recenti: titolo, sezioni per fix/feature, "File modificati").
+   **Dalla 1.15.31 le note di rilascio sono bilingui:** creare anche `current/<nuova-versione>.en.md`, traduzione inglese dello stesso file. La CI la accoda dopo l'italiano; se manca, la release esce solo in italiano con un warning nel log.
 2. Aggiungere la riga corrispondente nella tabella storica di [`relazione.md`](../../relazione.md).
 3. Aggiornare `package.json` **prima** della build (mai due build di test con lo stesso numero).
 
