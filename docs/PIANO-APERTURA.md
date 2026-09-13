@@ -3,7 +3,7 @@
 **Aperto:** 13 settembre 2026 · **Decisioni prese:** 13 settembre 2026
 **Obiettivo:** ritirare Runtime Live Machine Pro dalla vendita, portarlo su `Pitz72/RRLMP` come
 repository pubblico sotto licenza MIT, con le release pubblicate nello stesso repository.
-**Stato:** decisioni prese · **FASI 1-4 CHIUSE** (13/09) · aggiornamento automatico verificato sul campo · **FASE 5 quasi chiusa**: Gumroad chiuso, sito Ecosystem aggiornato (v0.6.10). Restano solo la cancellazione dei due repository Ecosystem-Runtime, con **promemoria il 13 ottobre 2026**, e l'aggiornamento dello standard di distribuzione.
+**Stato:** decisioni prese · **FASI 1-4 CHIUSE** (13/09) · aggiornamento automatico verificato sul campo · **FASE 5 quasi chiusa**: Gumroad chiuso, sito Ecosystem aggiornato (v0.6.10-0.6.11), standard di distribuzione alla 2.0. **Resta solo la cancellazione dei due repository Ecosystem-Runtime**, con promemoria il 13 ottobre 2026.
 
 > **Il modello è doppio.** Questa procedura ricalca i piani già eseguiti con successo da
 > *Runtime TelegramBot Desktop Titan Edition* (12–13 agosto 2026) e *Runtime FeedDownloader Pro*
@@ -322,8 +322,11 @@ già puntare alla destinazione definitiva): rispettato.
       `pubblico` (`Pitz72/RRLMP`).
 - [x] Riferimenti residui a indirizzi vecchi: `.claude/PROJECT_STATE.md` rimosso e `compilazione-mac.txt`
       archiviato già nella Fase 2.
-- [ ] Aggiornare lo standard `RUNTIME-DESKTOP-DISTRIBUTION-STANDARD.md` (Live Machine Pro è ora open source,
-      release sullo stesso repository, niente macOS). Memorie di progetto aggiornate il 13/09.
+- [x] **Standard `RUNTIME-DESKTOP-DISTRIBUTION-STANDARD.md` portato alla 2.0** (13/09, `Documents/GitHub`, fuori da git):
+      un repository pubblico per app con release incluse e `GITHUB_TOKEN`, file del progetto aperto, niente
+      macOS né Gumroad, procedura della release ponte, note cumulative, manuali nel repository, backup in
+      `F:\Backup`; tabella di adozione con le tre app (per Live Machine Pro restano da allineare «Novità»
+      post-update, `electron-builder.yml` dedicato e icona di famiglia). Memorie di progetto aggiornate il 13/09.
 - [x] **Backup** — tutti in `F:\Backup\` per regola dell'utente (13/09); spostato lì anche un doppione
       `Documents/GitHub/_backup-apertura-RRLMP-2026-09-13` creato durante un turno interrotto (fsck e ref
       verificati prima di rimuovere l'originale).
