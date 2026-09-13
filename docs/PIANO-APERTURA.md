@@ -308,9 +308,9 @@ già puntare alla destinazione definitiva): rispettato.
       Verificato online: pagina 200, JSON-LD prezzo 0 + MIT, `og:image` sul banner nuovo, media nuovi 200,
       nessun link Gumroad nei bundle serviti. Sul server rimossi 56 file residui (vecchi bundle JS, tra cui le
       vecchie landing con Gumroad, e i media LMP sostituiti); resta solo `favicon.gif`, estraneo a questa modifica.
-      ⚠️ Difetto **preesistente** notato in verifica, non corretto: sulle landing (LMP, FeedDownloader, Titan) la
-      barra fissa per mobile resta visibile anche su desktop, perché lo stile inline `display: 'flex'` scavalca
-      la classe `md:hidden`.
+      Difetto **preesistente** notato in verifica e poi **corretto su richiesta dell'utente nella v0.6.11 del sito**:
+      sulle landing la barra fissa per mobile restava visibile anche su desktop (lo stile inline `display: 'flex'`
+      scavalcava `md:hidden`); ora `flex` è una classe.
 - [x] Fatti scaduti sul sito corretti (vedi sopra).
 - [ ] ⛔ **Repo ponte `RRLMP-Releases`** — da cancellare dopo la finestra di migrazione di un mese.
       **Promemoria programmato per il 13 ottobre 2026 alle 9:30** (attività pianificata
