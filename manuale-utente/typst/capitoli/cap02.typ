@@ -43,7 +43,7 @@ integrata ai mixer USB professionali come il Rødecaster Pro o
 l'RØDECaster Duo.
 
 == 2.2 Installazione su Windows
-+ Scarica il file `Runtime-Live-Machine-Pro-1.15.15.exe` dal canale di
++ Scarica il file `Runtime-Live-Machine-Pro-1.15.32.exe` dal canale di
   distribuzione ufficiale.
 + Fai doppio click sull'eseguibile. L'installer NSIS si avvierà e
   copierà i file nelle directory appropriate.
@@ -95,21 +95,22 @@ pacchetto `libasound2` per il supporto audio ALSA. Consulta la
 documentazione della tua distribuzione se l'applicazione non si avvia.
 
 == 2.5 La schermata di benvenuto
-#figure(image("../screenshots/schermata-benvenuto.png", alt: "Figura 2.1 — La schermata di benvenuto: identità del software, stato dell’aggiornamento, azioni principali e selettore di lingua."),
+#figure(image("../screenshots/schermata-benvenuto.png", alt: "Figura 2.1 — La schermata di benvenuto: identità del software, stato dell’aggiornamento, azioni principali e tendina della lingua in alto a destra."),
   caption: [
     Figura 2.1 --- La schermata di benvenuto: identità del software,
-    stato dell'aggiornamento, azioni principali e selettore di lingua.
+    stato dell'aggiornamento, azioni principali e tendina della lingua
+    in alto a destra.
   ]
 )
 
 Al primo avvio --- e a ogni avvio successivo, finché non apri un
 progetto --- RLMP presenta la #strong[schermata di benvenuto], il punto
-di accesso a tutte le operazioni preliminari. Il pannello è diviso in
-due zone.
+di accesso a tutte le operazioni preliminari. Al centro trovi identità
+del software e azioni; in alto a destra, la tendina della lingua.
 
-#strong[Zona sinistra --- Identità e azioni.] Il logo del software (le
-barre di un VU meter con il simbolo di play) identifica la versione Pro.
-Sotto il titolo e lo slogan compare il numero di versione installata,
+#strong[Identità e azioni.] Il logo del software (le barre di un VU
+meter con il simbolo di play) identifica la versione Pro. Sotto il
+titolo e lo slogan compare il numero di versione installata,
 accompagnato dallo stato del sistema di aggiornamento:
 
 - #strong[«Aggiornato»] (verde) --- stai usando l'ultima versione
@@ -129,15 +130,17 @@ Sotto trovi le azioni principali:
   verifica che ogni file audio referenziato esista ancora nel percorso
   memorizzato. I file mancanti vengono immediatamente segnalati con un
   bordo rosso sulla rispettiva clip.
-- #emph[Manuale] --- la voce è presente ma al momento disattivata: la
-  documentazione consultabile dall'interno del software arriverà in una
-  prossima versione via web.
+- #emph[Manuale Utente] --- apre nel browser questo manuale in PDF,
+  nella lingua dell'interfaccia (italiano o inglese). Serve una
+  connessione a internet.
+- #emph[Guida Rapida] --- una guida sintetica per iniziare, che si apre
+  dentro il software e si consulta anche offline.
 
-#strong[Zona destra --- Selettore lingua.] RLMP supporta otto lingue
-dell'interfaccia: Inglese, Italiano, Francese, Tedesco, Spagnolo,
-Portoghese, Russo e Cinese semplificato. La lingua attiva è evidenziata
-con un bordo ciano e un segno di spunta. La selezione ha effetto
-immediato e viene memorizzata tra una sessione e l'altra.
+#strong[Lingua (in alto a destra).] RLMP supporta due lingue
+dell'interfaccia: Inglese e Italiano. La tendina in alto a destra mostra
+bandiera e nome della lingua attiva: cliccala e scegli l'altra. La
+selezione ha effetto immediato e viene memorizzata tra una sessione e
+l'altra.
 
 == 2.6 Il primo avvio: cosa aspettarsi
 Alla prima apertura di un progetto, noterai nell'header il logo con il

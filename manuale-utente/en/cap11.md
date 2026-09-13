@@ -25,6 +25,8 @@ Everything happens **inside the local network**: the server is reachable from de
 
 The server listens on port **8787**. The PIN is **regenerated on every launch** of the application and is not stored: closing and reopening RLMP produces a new PIN. Remote Control itself also always starts off at every launch, to be re-enabled when needed.
 
+If startup fails, typically because port 8787 is already taken (by another copy of RLMP left open or by another program), the switch turns back off and a message shows the reason.
+
 ---
 
 ## 11.3 Connecting from the remote device
@@ -52,6 +54,7 @@ These are the only actions allowed. The rest of the production (the other column
 ## 11.5 Security and limits
 
 - **PIN required.** No device can send commands without passing the six-digit PIN check.
+- **Only from the remote control page.** The server accepts connections only from the page it serves itself: a web page from another site, opened on a device on the same network, is rejected before it can even ask for the PIN.
 - **Attempt protection.** PIN entry attempts are rate-limited: after several failed attempts in quick succession, access from that device is temporarily blocked.
 - **Whitelisted commands.** The server accepts only the three intended commands (start, stop, Stop All): any other request is ignored.
 - **Local network only.** The server is meant for the studio network. If your Wi-Fi is open or shared, consider carefully who can reach it.

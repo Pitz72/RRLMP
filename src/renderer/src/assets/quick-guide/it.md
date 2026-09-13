@@ -50,7 +50,7 @@ Non serve una scheda audio dedicata: RLMP funziona con qualsiasi periferica rico
 
 ## 3. Primo avvio
 
-All'apertura vedrai la **Welcome Screen**: da qui puoi creare un nuovo progetto, caricarne uno esistente (`.lmp`), scaricare il Manuale Utente o aprire questa Guida Rapida. In alto a destra puoi scegliere la lingua dell'interfaccia tra le otto disponibili.
+All'apertura vedrai la **Welcome Screen**: da qui puoi creare un nuovo progetto, caricarne uno esistente (`.lmp`), scaricare il Manuale Utente o aprire questa Guida Rapida. In alto a destra puoi scegliere la lingua dell'interfaccia: italiano o inglese.
 
 Una volta aperto un progetto, il badge **PRO** ciano nell'header conferma che il motore audio è attivo. Premi `F11` (Windows/Linux) o `Ctrl+Cmd+F` (macOS) per passare a schermo intero — la modalità di lavoro consigliata in regia.
 

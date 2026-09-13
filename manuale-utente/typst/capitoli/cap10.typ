@@ -133,6 +133,15 @@ Alcuni dettagli utili:
 - L'operazione è #strong[ripetibile]: se aggiungi nuove clip e
   riesporti, RLMP copia solo i file nuovi e riallinea il progetto, senza
   duplicare quelli già archiviati.
+- RLMP #strong[cancella file solo nelle cartelle `audio/` create da
+  lui]: la prima esportazione lascia nella cartella un piccolo file di
+  testo, `.rrlmp-archive`, che la contrassegna come archivio. Se accanto
+  al progetto esiste già una cartella `audio/` tua (o creata da versioni
+  fino alla 1.15.16), RLMP non rimuove nulla: ti segnala quanti file non
+  fanno parte del progetto e contrassegna la cartella, che
+  dall'esportazione successiva gestirà normalmente. Sposta altrove ciò
+  che vuoi conservare. Cancellando `.rrlmp-archive`, RLMP smette di
+  considerare la cartella come propria.
 - Il riaggancio all'archivio #strong[non entra nella cronologia
   Annulla/Ripeti]: un #emph[Annulla] riporterebbe le clip agli
   originali, che potresti avere già cancellato.

@@ -27,7 +27,7 @@ Non è richiesta una scheda audio dedicata: RLMP funziona con qualsiasi periferi
 
 ## 2.2 Installazione su Windows
 
-1. Scarica il file `Runtime-Live-Machine-Pro-1.15.15.exe` dal canale di distribuzione ufficiale.
+1. Scarica il file `Runtime-Live-Machine-Pro-1.15.32.exe` dal canale di distribuzione ufficiale.
 2. Fai doppio click sull'eseguibile. L'installer NSIS si avvierà e copierà i file nelle directory appropriate.
 3. Al termine, un collegamento verrà creato sul Desktop e nel menu Start.
 4. L'applicazione si avvia automaticamente al completamento dell'installazione.
@@ -61,13 +61,13 @@ Su alcune distribuzioni potrebbe essere necessario installare il pacchetto `liba
 
 ## 2.5 La schermata di benvenuto
 
-![La schermata di benvenuto di Runtime Live Machine Pro, con le azioni principali e il selettore di lingua.](../screenshots/schermata-benvenuto.png)
+![La schermata di benvenuto di Runtime Live Machine Pro, con le azioni principali e la tendina della lingua.](../screenshots/schermata-benvenuto.png)
 
-*Figura 2.1 — La schermata di benvenuto: identità del software, stato dell'aggiornamento, azioni principali e selettore di lingua.*
+*Figura 2.1 — La schermata di benvenuto: identità del software, stato dell'aggiornamento, azioni principali e tendina della lingua in alto a destra.*
 
-Al primo avvio — e a ogni avvio successivo, finché non apri un progetto — RLMP presenta la **schermata di benvenuto**, il punto di accesso a tutte le operazioni preliminari. Il pannello è diviso in due zone.
+Al primo avvio — e a ogni avvio successivo, finché non apri un progetto — RLMP presenta la **schermata di benvenuto**, il punto di accesso a tutte le operazioni preliminari. Al centro trovi identità del software e azioni; in alto a destra, la tendina della lingua.
 
-**Zona sinistra — Identità e azioni.**
+**Identità e azioni.**
 Il logo del software (le barre di un VU meter con il simbolo di play) identifica la versione Pro. Sotto il titolo e lo slogan compare il numero di versione installata, accompagnato dallo stato del sistema di aggiornamento:
 
 - **«Aggiornato»** (verde) — stai usando l'ultima versione disponibile.
@@ -78,10 +78,11 @@ Sotto trovi le azioni principali:
 
 - *Nuovo Progetto* — crea una sessione vuota con le colonne pronte al caricamento.
 - *Carica Progetto* — apre un file `.lmp` esistente. Prima di renderlo operativo, RLMP esegue un **controllo di integrità**: verifica che ogni file audio referenziato esista ancora nel percorso memorizzato. I file mancanti vengono immediatamente segnalati con un bordo rosso sulla rispettiva clip.
-- *Manuale* — la voce è presente ma al momento disattivata: la documentazione consultabile dall'interno del software arriverà in una prossima versione via web.
+- *Manuale Utente* — apre nel browser questo manuale in PDF, nella lingua dell'interfaccia (italiano o inglese). Serve una connessione a internet.
+- *Guida Rapida* — una guida sintetica per iniziare, che si apre dentro il software e si consulta anche offline.
 
-**Zona destra — Selettore lingua.**
-RLMP supporta otto lingue dell'interfaccia: Inglese, Italiano, Francese, Tedesco, Spagnolo, Portoghese, Russo e Cinese semplificato. La lingua attiva è evidenziata con un bordo ciano e un segno di spunta. La selezione ha effetto immediato e viene memorizzata tra una sessione e l'altra.
+**Lingua (in alto a destra).**
+RLMP supporta due lingue dell'interfaccia: Inglese e Italiano. La tendina in alto a destra mostra bandiera e nome della lingua attiva: cliccala e scegli l'altra. La selezione ha effetto immediato e viene memorizzata tra una sessione e l'altra.
 
 ---
 

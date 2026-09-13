@@ -2,7 +2,7 @@
 
 // Versione del software ed etichetta d'edizione: un solo punto di verità.
 // L'edizione è localizzata (T da strings.typ, ri-esportato dal template).
-#let VERSIONE = "1.15.15"
+#let VERSIONE = "1.15.32"
 #let EDIZIONE = T.edition-name + " · 2026"
 
 // Due tirature dalla stessa sorgente:

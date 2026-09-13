@@ -7,7 +7,7 @@
 #   pwsh ./build.ps1 -All       compila le lingue del manuale (it, en) con nome file localizzato
 #
 # 2026-07-22: il manuale è mantenuto SOLO in italiano e inglese (decisione utente);
-# le altre 6 lingue sono state rimosse (la guida rapida in-app resta in 8 lingue).
+# le altre 6 lingue sono state rimosse (dalla 1.15.32 anche app e guida rapida sono solo it/en).
 #
 # Richiede Typst (>= 0.13, winget install --id Typst.Typst) e pandoc.
 param([switch]$Watch, [switch]$Png, [string]$Lang = "it", [switch]$All)

@@ -24,7 +24,7 @@ When an update is available, the dedicated window shows the current version, the
 
 - **Later** — closes the window without doing anything. You can reopen it whenever you like.
 - **Download** — starts downloading the new version. The download **never starts on its own**: it begins only when you press this button. A progress bar shows its progress.
-- **Restart and install** — appears when the download is complete: it closes the application and applies the update. The shutdown is clean and immediate: since you’ve already confirmed the restart, the software doesn’t re-prompt to save and doesn’t stay open behind the installer.
+- **Restart and install** — appears when the download is complete: it closes the application and applies the update. If the open project has unsaved changes, RLMP asks what to do before installing, with the same choices as when closing: **Save** (save, then install), **Don’t Save** (install and discard the changes) or **Cancel** (install nothing; the app stays open). If saving fails, the installation doesn’t start. Once past this question, the shutdown is clean and immediate and the software doesn’t stay open behind the installer.
 
 ---
 

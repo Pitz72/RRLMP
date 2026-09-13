@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Check, ChevronDown } from 'lucide-react';
 import appLogo from '../../assets/logo.png';
 import { FlagIcon } from '../ui/FlagIcon';
 import { UpdaterStatusPayload } from '../../types';
 import { getManualUrl } from '../../utils/manualLinks';
 import { toast } from '../../store/useToastStore';
+import { useEscapeToClose } from '../../hooks/useEscapeToClose';
 import { QuickGuideModal } from './QuickGuideModal';
 
 interface WelcomeScreenProps {
@@ -18,23 +20,34 @@ interface WelcomeScreenProps {
 const LANGUAGES = [
     { code: 'en', label: 'English' },
     { code: 'it', label: 'Italiano' },
-    { code: 'fr', label: 'Français' },
-    { code: 'de', label: 'Deutsch' },
-    { code: 'es', label: 'Español' },
-    { code: 'pt', label: 'Português' },
-    { code: 'ru', label: 'Русский' },
-    { code: 'zh', label: '中文' },
 ];
 
 export const WelcomeScreen = ({ onNewProject, onLoadProject, updaterStatus, onOpenUpdateModal }: WelcomeScreenProps) => {
     const { t, i18n } = useTranslation();
     const [isQuickGuideOpen, setIsQuickGuideOpen] = useState(false);
 
+    // v1.15.32: selettore lingua a tendina in alto a destra (prima: pannello laterale).
+    const [isLangOpen, setIsLangOpen] = useState(false);
+    const langMenuRef = useRef<HTMLDivElement>(null);
+    const closeLangMenu = useCallback(() => setIsLangOpen(false), []);
+    // ESC chiude la tendina senza raggiungere l'Emergency Stop globale.
+    useEscapeToClose(isLangOpen, closeLangMenu);
+    useEffect(() => {
+        if (!isLangOpen) return;
+        const onPointerDown = (e: MouseEvent) => {
+            if (!langMenuRef.current?.contains(e.target as Node)) setIsLangOpen(false);
+        };
+        document.addEventListener('mousedown', onPointerDown);
+        return () => document.removeEventListener('mousedown', onPointerDown);
+    }, [isLangOpen]);
+
     const changeLanguage = (lng: string) => {
         i18n.changeLanguage(lng);
+        setIsLangOpen(false);
     };
 
     const currentLang = i18n.language?.slice(0, 2) || 'en';
+    const activeLanguage = LANGUAGES.find((l) => l.code === currentLang) ?? LANGUAGES[0];
 
     const handleOpenManual = async () => {
         const result = await window.electron?.openExternal(getManualUrl(currentLang));
@@ -45,10 +58,56 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject, updaterStatus, onOp
 
     return (
         <div className="ov" style={{ zIndex: 100 }}>
-            <div className="ov-panel anim-in !flex-row" style={{ width: 720, maxHeight: '90vh' }}>
+            <div className="ov-panel anim-in relative" style={{ width: 480, maxHeight: '90vh' }}>
 
-                {/* ── LEFT PANEL: Branding + Actions ── */}
-                <div className="flex flex-col items-center text-center p-10 flex-1">
+                {/* ── LINGUA: tendina in alto a destra ── */}
+                <div ref={langMenuRef} className="absolute top-4 right-4 z-10">
+                    <button
+                        onClick={() => setIsLangOpen((v) => !v)}
+                        aria-haspopup="listbox"
+                        aria-expanded={isLangOpen}
+                        title={t('welcome.selectLanguage')}
+                        className={`flex items-center gap-2 pl-2.5 pr-2 py-1.5 rounded-lg border text-xs transition-colors ${
+                            isLangOpen
+                                ? 'border-cyan-500 bg-cyan-500/10 text-white'
+                                : 'border-zinc-700 bg-zinc-900/70 text-zinc-300 hover:border-zinc-500 hover:text-white'
+                        }`}
+                    >
+                        <FlagIcon code={activeLanguage.code} className="rounded-[2px] shadow-sm flex-shrink-0" />
+                        <span className="font-medium">{activeLanguage.label}</span>
+                        <ChevronDown size={14} className={`text-zinc-500 transition-transform ${isLangOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {isLangOpen && (
+                        <div
+                            role="listbox"
+                            aria-label={t('welcome.selectLanguage')}
+                            className="absolute right-0 mt-1.5 w-40 p-1 rounded-lg border border-zinc-700 bg-zinc-900 shadow-xl shadow-black/50"
+                        >
+                            {LANGUAGES.map((lng) => {
+                                const isActive = currentLang === lng.code;
+                                return (
+                                    <button
+                                        key={lng.code}
+                                        role="option"
+                                        aria-selected={isActive}
+                                        onClick={() => changeLanguage(lng.code)}
+                                        className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-left text-sm transition-colors ${
+                                            isActive ? 'bg-cyan-500/10 text-white' : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
+                                        }`}
+                                    >
+                                        <FlagIcon code={lng.code} className="rounded-[2px] shadow-sm flex-shrink-0" />
+                                        <span>{lng.label}</span>
+                                        {isActive && <Check size={14} className="ml-auto text-cyan-400" />}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+
+                {/* ── Branding + Azioni ── */}
+                <div className="flex flex-col items-center text-center px-10 pt-12 pb-8">
 
                     {/* LOGO */}
                     <img src={appLogo} alt="Runtime Live Machine" className="w-20 h-auto mb-5 drop-shadow-lg" />
@@ -87,7 +146,7 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject, updaterStatus, onOp
                     </div>
 
                     {/* ACTIONS */}
-                    <div className="flex flex-col gap-3 w-full mb-auto">
+                    <div className="flex flex-col gap-3 w-full max-w-xs">
                         <button
                             onClick={onNewProject}
                             className="btn btn-green py-3"
@@ -120,33 +179,6 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject, updaterStatus, onOp
                     <div className="text-xs text-zinc-600 mt-6 space-y-1">
                         <p>{t('welcome.developedBy')}</p>
                         <p>{t('welcome.copyright')}</p>
-                    </div>
-                </div>
-
-                {/* ── RIGHT PANEL: Language Selector ── */}
-                <div className="w-56 bg-zinc-950/70 border-l border-zinc-800 flex flex-col p-5">
-                    <h3 className="text-[10px] uppercase text-zinc-500 font-bold tracking-wider mb-4">
-                        {t('welcome.selectLanguage')}
-                    </h3>
-                    <div className="flex flex-col gap-1.5 flex-1">
-                        {LANGUAGES.map((lng) => {
-                            const isActive = currentLang === lng.code;
-                            return (
-                                <button
-                                    key={lng.code}
-                                    onClick={() => changeLanguage(lng.code)}
-                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all text-left ${
-                                        isActive
-                                            ? 'border-cyan-500 bg-cyan-500/10 text-white'
-                                            : 'border-transparent text-zinc-400 hover:border-zinc-600 hover:text-zinc-200 hover:bg-zinc-800/60'
-                                    }`}
-                                >
-                                    <FlagIcon code={lng.code} className="rounded-[2px] shadow-sm flex-shrink-0" />
-                                    <span className="text-sm">{lng.label}</span>
-                                    {isActive && <span className="ml-auto text-cyan-400 text-xs font-bold">✓</span>}
-                                </button>
-                            );
-                        })}
                     </div>
                 </div>
 

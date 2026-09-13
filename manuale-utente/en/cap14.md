@@ -97,7 +97,7 @@ No. RLMP is designed for live production: shows attended by an operator. It has 
 **Can I use RLMP on an iPad or on mobile devices?**
 Not as the main application: RLMP is desktop software for Windows, macOS and Linux. A tablet or a phone can, however, act as a **remote** via the browser, through Remote Control (Chapter 11).
 
-**Are `.lmp` files from earlier versions compatible with 1.15.15?**
+**Are `.lmp` files from earlier versions compatible with 1.15.32?**
 Yes. When you open a project created with an earlier version, RLMP automatically updates its structure, including the columns added in the meantime, without modifying the file until you perform a save.
 
 **How do I update RLMP to a new version?**
@@ -110,4 +110,4 @@ In the `autosaves` folder inside the application data directory (`%APPDATA%\runt
 Yes, completely. RLMP doesn’t require an internet connection to work. The network is used only for the update check (optional) and for Remote Control on the local network (optional).
 
 **Remote Control won’t connect. Why?**
-Check that the remote device is on the **same network** as the computer, that you entered the **correct PIN** (it changes at every launch), and that you’re using the address shown in the Settings. Remember that Remote Control starts off at every launch of the application (Chapter 11).
+Check that the remote device is on the **same network** as the computer, that you entered the **correct PIN** (it changes at every launch), and that you’re using the address shown in the Settings. Remember that Remote Control starts off at every launch of the application (Chapter 11). If the switch turned itself off with a message, port 8787 is in use: close the other copy of RLMP or the program using it, then turn it back on.

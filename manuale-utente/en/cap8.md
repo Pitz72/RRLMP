@@ -46,10 +46,17 @@ The computer keyboard is the fastest controller available on air: it works in th
 | **Ctrl+Y** (or **Ctrl+Shift+Z**) | Redo the undone change |
 | **Ctrl+Shift+D** | Show/hide the Debug Overlay |
 | **Ctrl+Shift+M** | Open the MIDI simulator (for testing without a controller) |
+| **F1, F2, F3…** | Launch the matching column, counting the visible columns from the left |
 
 `Esc` acts as STOP ALL when RLMP is the active window, even while the cursor is in a text field. It is no longer a shortcut registered at the operating-system level: if the app is in the background, bring the window to the foreground first.
 
-> **Note.** There are no function keys (F1–F5) pre-assigned to launching columns. To launch a specific clip quickly, assign it a dedicated key, as described below.
+The other shortcuts are suspended while a window is open (Settings, the clip editor and the like), so `Ctrl+Z` or `Delete` don’t touch the running order while you work elsewhere. With a window open, `Esc` closes it without stopping the live show.
+
+### Function keys: one column per key
+
+The **F1**, **F2**, **F3**… keys launch the first available clip of the columns **visible** in the grid, in the order you see them from left to right. With the default layout: F1 Show Assets · F2 Jingle · F3 Promo · F4 Episode Songs · F5 Voice · F6 Pre-Show. If you hide a column from the Settings (Chapter 13), the keys shift accordingly: F1 is always the first column you see. If you have assigned a function key to a specific clip, that assignment takes precedence.
+
+> **Warning.** F1 normally launches Show Assets, and a clip from that column launched by hand stops everything on air except the pad FX effects, exactly like clicking the same clip.
 
 ### Custom keys per clip
 

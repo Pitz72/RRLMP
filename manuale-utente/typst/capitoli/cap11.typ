@@ -39,6 +39,10 @@ memorizzato: chiudere e riaprire RLMP produce un nuovo PIN. Anche il
 Controllo Remoto stesso riparte sempre spento a ogni avvio, da
 riattivare quando serve.
 
+Se l'avvio non riesce, tipicamente perché la porta 8787 è già occupata
+(da un'altra copia di RLMP rimasta aperta o da un altro programma),
+l'interruttore torna su spento e compare un messaggio con il motivo.
+
 == 11.3 Connettersi dal dispositivo remoto
 + Sul tablet o sul telefono, apri il browser e digita l'indirizzo
   mostrato nelle Impostazioni (o incollalo dal link copiato).
@@ -69,6 +73,10 @@ musicale a distanza, non a sostituire la postazione di regia.
 == 11.5 Sicurezza e limiti
 - #strong[PIN obbligatorio.] Nessun dispositivo può inviare comandi
   senza aver superato la verifica del PIN a sei cifre.
+- #strong[Solo dalla pagina del controllo remoto.] Il server accetta
+  connessioni soltanto dalla pagina che serve lui stesso: una pagina web
+  di un altro sito, aperta su un dispositivo della stessa rete, viene
+  respinta prima ancora di poter chiedere il PIN.
 - #strong[Protezione dai tentativi.] I tentativi di inserimento del PIN
   sono limitati nel tempo: dopo alcuni tentativi falliti ravvicinati,
   l'accesso da quell'apparecchio viene temporaneamente bloccato.

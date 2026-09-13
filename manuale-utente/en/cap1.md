@@ -77,4 +77,4 @@ Each column has distinct audio behaviours — mixing priority, exclusion rules, 
 
 ## 1.5 Current version and updates
 
-This manual describes version **1.15.15** of Runtime Live Machine Pro. At startup, the software silently checks whether a newer version is available and, if it finds one, opens an update notice, never during a live show. The update system is described in Chapter 12. The `.lmp` project files are compatible with later versions: updating the software doesn’t entail losing or manually migrating existing projects.
+This manual describes version **1.15.32** of Runtime Live Machine Pro. At startup, the software silently checks whether a newer version is available and, if it finds one, opens an update notice, never during a live show. The update system is described in Chapter 12. The `.lmp` project files are compatible with later versions: updating the software doesn’t entail losing or manually migrating existing projects.

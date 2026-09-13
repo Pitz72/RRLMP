@@ -24,7 +24,7 @@ Quando un aggiornamento è disponibile, la finestra dedicata mostra la versione 
 
 - **Più tardi** — chiude la finestra senza fare nulla. Potrai riaprirla quando vuoi.
 - **Scarica** — avvia il download della nuova versione. Il download **non parte mai da solo**: comincia solo quando premi questo pulsante. Una barra di avanzamento ne mostra il progresso.
-- **Riavvia e installa** — compare quando il download è completo: chiude l'applicazione e applica l'aggiornamento. La chiusura è pulita e immediata: avendo già confermato il riavvio, il software non ripropone la richiesta di salvataggio e non resta aperto dietro l'installer.
+- **Riavvia e installa** — compare quando il download è completo: chiude l'applicazione e applica l'aggiornamento. Se il progetto aperto ha modifiche non salvate, prima di installare RLMP chiede cosa fare, con le stesse scelte della chiusura: **Salva** (salva, poi installa), **Non Salvare** (installa scartando le modifiche) o **Annulla** (non installa nulla e l'app resta aperta). Se il salvataggio non va a buon fine, l'installazione non parte. Superata questa domanda, la chiusura è pulita e immediata e il software non resta aperto dietro l'installer.
 
 ---
 

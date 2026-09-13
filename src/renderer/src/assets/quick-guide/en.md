@@ -50,7 +50,7 @@ No dedicated sound card required: RLMP works with any device recognized by your 
 
 ## 3. First Launch
 
-On startup you'll see the **Welcome Screen**: from here you can create a new project, load an existing one (`.lmp`), download the User Manual, or open this Quick Start Guide. In the top-right corner you can pick the interface language from the eight available.
+On startup you'll see the **Welcome Screen**: from here you can create a new project, load an existing one (`.lmp`), download the User Manual, or open this Quick Start Guide. In the top-right corner you can pick the interface language: English or Italian.
 
 Once a project is open, the cyan **PRO** badge in the header confirms the audio engine is active. Press `F11` (Windows/Linux) or `Ctrl+Cmd+F` (macOS) to switch to full screen — the recommended mode for live directing.
 

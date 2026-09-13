@@ -270,16 +270,9 @@ Permission handler in main/index.ts: `session.defaultSession.setPermissionReques
 ## 8. Internazionalizzazione (i18n)
 
 - **Libreria**: `react-i18next` + `i18next-browser-languagedetector`
-- **Lingue supportate**: 8 lingue con bandiere SVG — IT, EN, FR, ES, DE, PT, RU, ZH-CN
-- **File locale**: tutti e 8 i file JSON sono completi (89+ chiavi ciascuno) da v1.0.0
-  - `en.json` ✅ completo (≤0.9.x)
-  - `it.json` ✅ completo (≤0.9.x)
-  - `fr.json` ✅ completo (v1.0.0)
-  - `de.json` ✅ completo (v1.0.0)
-  - `es.json` ✅ completo (v1.0.0)
-  - `pt.json` ✅ completo (v1.0.0)
-  - `ru.json` ✅ completo (v1.0.0)
-  - `zh.json` ✅ completo (v1.0.0)
+- **Lingue supportate**: 2 lingue con bandiere SVG — IT, EN (dalla v1.15.32; fino alla 1.15.31 erano 8: IT, EN, FR, ES, DE, PT, RU, ZH-CN)
+- **File locale**: `en.json`, `it.json` — la parità delle chiavi fra i due va mantenuta
+- **Lingue non più supportate**: `supportedLngs: ['en', 'it']` in `i18n.ts` — una lingua salvata fra quelle rimosse ripiega su inglese
 - **Utilizzo**: `useTranslation()` hook + `t('key')` nei componenti
 - **Language switcher**: presente in WelcomeScreen (bandiere dirette) e in GeneralSettingsModal (tab Lingua, da v0.16.5)
 - **Copertura**: ClipSettingsModal e GeneralSettingsModal completamente i18n da v0.16.1

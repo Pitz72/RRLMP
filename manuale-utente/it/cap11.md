@@ -25,6 +25,8 @@ Tutto avviene **dentro la rete locale**: il server è raggiungibile dagli appare
 
 Il server ascolta sulla porta **8787**. Il PIN viene **rigenerato a ogni avvio** dell'applicazione e non viene memorizzato: chiudere e riaprire RLMP produce un nuovo PIN. Anche il Controllo Remoto stesso riparte sempre spento a ogni avvio, da riattivare quando serve.
 
+Se l'avvio non riesce, tipicamente perché la porta 8787 è già occupata (da un'altra copia di RLMP rimasta aperta o da un altro programma), l'interruttore torna su spento e compare un messaggio con il motivo.
+
 ---
 
 ## 11.3 Connettersi dal dispositivo remoto
@@ -52,6 +54,7 @@ Sono le uniche azioni ammesse. Il resto della regia (le altre colonne, il pad FX
 ## 11.5 Sicurezza e limiti
 
 - **PIN obbligatorio.** Nessun dispositivo può inviare comandi senza aver superato la verifica del PIN a sei cifre.
+- **Solo dalla pagina del controllo remoto.** Il server accetta connessioni soltanto dalla pagina che serve lui stesso: una pagina web di un altro sito, aperta su un dispositivo della stessa rete, viene respinta prima ancora di poter chiedere il PIN.
 - **Protezione dai tentativi.** I tentativi di inserimento del PIN sono limitati nel tempo: dopo alcuni tentativi falliti ravvicinati, l'accesso da quell'apparecchio viene temporaneamente bloccato.
 - **Comandi su lista bianca.** Il server accetta soltanto i tre comandi previsti (avvia, ferma, Stop All): qualsiasi altra richiesta viene ignorata.
 - **Solo rete locale.** Il server è pensato per la rete dello studio. Se la tua rete Wi-Fi è aperta o condivisa, valuta con attenzione chi può raggiungerla.

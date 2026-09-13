@@ -71,6 +71,8 @@ e la possibilità di assegnare tasti alle singole clip.
     [#strong[Ctrl+Shift+D]], [Mostra/nascondi il Debug Overlay],
     [#strong[Ctrl+Shift+M]], [Apri il simulatore MIDI (per test senza
     controller)],
+    [#strong[F1, F2, F3…]], [Lancia la colonna corrispondente, contando
+    le colonne visibili da sinistra],
   )]
   , kind: table
   )
@@ -80,10 +82,25 @@ mentre il cursore è in un campo di testo. Non è più una scorciatoia
 registrata a livello di sistema operativo: se l'app è in background,
 riporta prima la finestra in primo piano.
 
-#nota[
-Non esistono tasti funzione (F1--F5) preassegnati al
-lancio delle colonne. Per lanciare rapidamente una clip specifica,
-assegnale un tasto dedicato, come descritto qui sotto.
+Le altre scorciatoie restano sospese finché è aperta una finestra
+(Impostazioni, editor della clip e simili): così `Ctrl+Z` o `Canc` non
+toccano la scaletta mentre lavori altrove. `Esc`, con una finestra
+aperta, la chiude senza fermare la diretta.
+
+=== Tasti funzione: una colonna per tasto
+I tasti #strong[F1], #strong[F2], #strong[F3]… lanciano la prima clip
+disponibile delle colonne #strong[visibili] in griglia, nell'ordine in
+cui le vedi da sinistra a destra. Con la disposizione predefinita: F1
+Show Assets · F2 Jingle · F3 Promo · F4 Canzoni · F5 Voci · F6 Pre-Show.
+Se nascondi una colonna dalle Impostazioni (Capitolo 13), i tasti si
+spostano di conseguenza: F1 è sempre la prima colonna che vedi. Se hai
+assegnato un tasto funzione a una clip specifica, quell'assegnazione ha
+la precedenza.
+
+#attenzione[
+F1 lancia di norma Show Assets, e una clip di
+quella colonna lanciata a mano ferma tutto ciò che è in onda tranne gli
+effetti del pad FX, esattamente come il click sulla stessa clip.
 ]
 
 === Tasti personalizzati per singola clip

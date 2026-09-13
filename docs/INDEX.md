@@ -46,12 +46,12 @@ Punto di ingresso unico alla documentazione del progetto. Ogni voce dice **a cos
 
 ## 📖 Area utente (operatori broadcast)
 
-Il **manuale utente** esiste in **due lingue: italiano e inglese** (decisione del 2026-07-22 — le altre sei lingue sono state rimosse; l'interfaccia dell'app e la guida rapida in-app restano invece a 8 lingue).
+Il **manuale utente** esiste in **due lingue: italiano e inglese** (decisione del 2026-07-22 — le altre sei lingue sono state rimosse; dalla 1.15.32 anche l'interfaccia dell'app e la guida rapida in-app sono solo in italiano e inglese).
 
 - **Sorgenti markdown:** [`manuale-utente/it/`](../manuale-utente/it/) · [`manuale-utente/en/`](../manuale-utente/en/) — 14 capitoli + INDICE
 - **PDF compilati:** `manuale-utente/typst/Manuale-Utente-IT.pdf` · `manuale-utente/typst/User-Manual-EN.pdf`
 - **Pubblicati per il download in-app:** `RRLMP-Releases/manuals/` (branch `master`), raggiunti dal pulsante "Manuale" tramite `utils/manualLinks.ts`
-- **Guida rapida in-app:** `src/renderer/src/assets/quick-guide/` — **8 lingue**, mostrata dalla `QuickGuideModal`
+- **Guida rapida in-app:** `src/renderer/src/assets/quick-guide/` — **italiano e inglese**, mostrata dalla `QuickGuideModal`
 
 Build del manuale: `manuale-utente/typst/build.ps1 -All` (rigenera i capitoli e compila entrambi i PDF); copertine da `branding/build-cover.py`.
 

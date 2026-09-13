@@ -7,11 +7,18 @@ const fs = require('fs');
 
 const outDir = process.argv[2] || '.';
 const mode = process.argv[3] || 'clip';
-const LANG = process.env.CAP_LANG || 'it';               // it|en|fr|de|es|pt|ru|zh
-const LANGBTN = {
-    it: 'Italiano', en: 'English', fr: 'Français', de: 'Deutsch',
-    es: 'Español', pt: 'Português', ru: 'Русский', zh: '中文',
-}[LANG] || 'Italiano';
+const LANG = process.env.CAP_LANG || 'it';               // it|en (app solo italiano e inglese dalla 1.15.32)
+const LANGBTN = { it: 'Italiano', en: 'English' }[LANG] || 'Italiano';
+// v1.15.32: lingua da tendina in alto a destra della schermata di benvenuto.
+const PICK_LANG_JS = `(async()=>{
+    const trig=document.querySelector('button[aria-haspopup="listbox"]');
+    if(!trig) return 'no-trigger';
+    trig.click();
+    await new Promise(r=>setTimeout(r,250));
+    const opt=[...document.querySelectorAll('[role=option]')].find(o=>(o.textContent||'').includes(${JSON.stringify(LANGBTN)}));
+    if(opt) opt.click(); else trig.click();
+    return !!opt;
+})()`;
 // Etichette UI lette dal file locale dell'app: unica fonte di verità, così
 // lo screenshot combacia sempre con la lingua selezionata.
 const loc = require(path.join(__dirname, '..', 'src', 'renderer', 'src', 'locales', LANG + '.json'));
@@ -34,7 +41,7 @@ app.whenReady().then(async () => {
     });
     await win.loadURL(URL);
     await sleep(1600);
-    await win.webContents.executeJavaScript(`(()=>{const it=[...document.querySelectorAll('button')].find(b=>(b.textContent||'').includes(${JSON.stringify(LANGBTN)}));if(it)it.click();})()`);
+    await win.webContents.executeJavaScript(PICK_LANG_JS);
     await sleep(400);
     await win.webContents.executeJavaScript(`(()=>{const g=document.querySelector('.btn-green');if(g)g.click();})()`);
     await sleep(400);

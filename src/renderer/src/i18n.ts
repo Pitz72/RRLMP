@@ -4,12 +4,6 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 import en from './locales/en.json';
 import it from './locales/it.json';
-import fr from './locales/fr.json';
-import de from './locales/de.json';
-import es from './locales/es.json';
-import pt from './locales/pt.json';
-import ru from './locales/ru.json';
-import zh from './locales/zh.json';
 
 // i18n main-process (2026-07-03): il main non ha accesso a i18next/localStorage —
 // gli si notifica la lingua via IPC (dialoghi nativi, errori IPC, vedi i18nMain.ts).
@@ -28,13 +22,11 @@ i18n
         resources: {
             en: { translation: en },
             it: { translation: it },
-            fr: { translation: fr },
-            de: { translation: de },
-            es: { translation: es },
-            pt: { translation: pt },
-            ru: { translation: ru },
-            zh: { translation: zh },
         },
+        // v1.15.32: solo italiano e inglese. Chi aveva salvato fr/de/es/pt/ru/zh
+        // in localStorage non è più "supportato" → i18next ripiega su 'en' e il
+        // detector memorizza la nuova scelta.
+        supportedLngs: ['en', 'it'],
         fallbackLng: 'en',
         interpolation: {
             escapeValue: false,

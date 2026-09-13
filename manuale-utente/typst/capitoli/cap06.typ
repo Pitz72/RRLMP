@@ -54,6 +54,31 @@ L'operatore non tocca nulla. Il gesto eseguito è stato un solo click:
 avviare l'intervista. L'entità della riduzione e la sua rapidità sono
 regolabili nelle Impostazioni (Capitolo 13).
 
+=== Smart Mic: il microfono che abbassa la musica
+Il ducking può partire anche dalla tua voce, senza lanciare nessuna
+clip. Con lo #strong[Smart Mic] RLMP ascolta il microfono e, quando
+parli, abbassa automaticamente la musica; quando smetti, la riporta su.
+
++ Nelle Impostazioni, scheda #emph[Microfono], abilita #strong[Smart
+  Mic] e scegli il dispositivo di input (Capitolo 13).
++ Nella Barra di Controllo premi #strong[ARM]: il pulsante diventa rosso
+  e il piccolo VU accanto mostra il livello del microfono.
++ Parla: quando la voce supera la soglia, ARM si accende e la musica
+  scende; poco dopo che hai smesso, risale.
+
+#attenzione[
+Lo Smart Mic è pensato per un #strong[microfono USB
+collegato direttamente al computer]. Se il microfono passa da un mixer
+USB (Rødecaster, Zoom LiveTrak e simili), l'ingresso del computer porta
+anche la musica in onda: il rilevamento la scambia per la tua voce e
+scatta da solo. In quel caso lascia lo Smart Mic disattivato e affida il
+ducking al mixer.
+]
+
+Lo Smart Mic è disattivato di serie e il microfono resta disarmato
+finché non premi ARM: chi non usa la funzione non nota alcuna
+differenza.
+
 == 6.3 Music Dominance: gestione intelligente delle basi
 Un errore sonoro classico è il momento in cui una canzone e una base
 musicale (#emph[bed]) si sovrappongono: due elementi ritmici che si

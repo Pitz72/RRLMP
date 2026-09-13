@@ -12,6 +12,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev:renderer", "--", "--port", "5233"],
       "port": 5233
+    },
+    {
+      "name": "Renderer (Vite, porta capture manuale)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:renderer", "--", "--port", "5199"],
+      "port": 5199
     }
   ]
 }

@@ -56,7 +56,7 @@ The **Settings** (Tools menu) gather the software’s global preferences, organi
 
 ### General
 
-- **Language.** Select the interface language among the eight available. The change is immediate.
+- **Language.** Select the interface language: English or Italian. The change is immediate.
 - **Remote Control (Beta).** Enables the browser remote and shows PIN, port and addresses (Chapter 11).
 - **Broadcast layout.** Shows or hides the grid columns individually. Hiding a column doesn’t delete its clips: they stay in the project. It’s a global preference, valid for all projects.
 
@@ -65,6 +65,14 @@ The **Settings** (Tools menu) gather the software’s global preferences, organi
 - **Output device.** The audio destination (Chapter 8).
 - **Mixing intelligence.** The amount of ducking (how far the music drops when a voice speaks, default 20%) and its speed (default 500 ms).
 - **Transitions.** The default transition mode and the crossfade and segue durations.
+
+### Microphone
+
+- **Smart Mic — Auto-Ducking.** Enables the microphone that lowers the music when you speak (Chapter 6). At the top of the tab, a notice reminds you that the feature is designed for USB microphones connected directly to the computer, not for USB mixers.
+- **Input Device.** The microphone to listen to: USB microphones and audio interfaces appear here automatically.
+- **Activation threshold.** The level above which your voice triggers the ducking (default −30 dBFS); release happens 12 dB lower.
+- **Activation and release hold.** How many milliseconds your voice must stay above the threshold before the music drops, and below it before the music comes back up.
+- **Microphone Mix Channel.** With *In Mix*, your voice also goes into RLMP’s output, with its own **Microphone Volume**. The **Bypass Master Chain** option decides how it comes out: off, the voice goes through a high-pass filter, compressor and limiter; on, it comes out as it is, with no added latency. A warning about the risk of **feedback** (howling), to be confirmed, reminds you to use headphones or a professional mixer: with the speakers on, your voice can leak back into the microphone.
 
 ### Recording
 

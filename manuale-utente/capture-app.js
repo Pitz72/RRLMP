@@ -6,11 +6,37 @@ const path = require('path');
 const fs = require('fs');
 
 const outDir = process.argv[2] || '.';
-const LANG = process.env.CAP_LANG || 'it';               // it|en|fr|de|es|pt|ru|zh
-const LANGBTN = {
-    it: 'Italiano', en: 'English', fr: 'Français', de: 'Deutsch',
-    es: 'Español', pt: 'Português', ru: 'Русский', zh: '中文',
-}[LANG] || 'Italiano';
+const LANG = process.env.CAP_LANG || 'it';               // it|en (app solo italiano e inglese dalla 1.15.32)
+const LANGBTN = { it: 'Italiano', en: 'English' }[LANG] || 'Italiano';
+
+// v1.15.32: la lingua si sceglie da una tendina in alto a destra della schermata
+// di benvenuto — va aperta prima di cliccare l'opzione.
+const PICK_LANG_JS = `(async()=>{
+    const trig=document.querySelector('button[aria-haspopup="listbox"]');
+    if(!trig) return 'no-trigger';
+    trig.click();
+    await new Promise(r=>setTimeout(r,250));
+    const opt=[...document.querySelectorAll('[role=option]')].find(o=>(o.textContent||'').includes(${JSON.stringify(LANGBTN)}));
+    if(opt) opt.click(); else trig.click();
+    return !!opt;
+})()`;
+
+// Per la figura dell'interfaccia: un brano della colonna Musica "in onda", così
+// la hero IN ONDA mostra titolo, avanzamento e timer. Stato simulato solo nello
+// store del renderer (devMock: nessun audio reale).
+const ON_AIR_JS = `(async()=>{
+    const { useAudioStore } = await import('/src/store/useAudioStore.ts');
+    const { useProjectStore } = await import('/src/store/useProjectStore.ts');
+    const clip = useProjectStore.getState().columns.flatMap(c=>c.clips).find(c=>/Midnight City/i.test(c.name));
+    if(!clip) return 'no-clip';
+    const dur = clip.duration || 244, t = 98;
+    const player = new Proxy({}, { get: (_, k) => typeof k !== 'string' ? undefined
+        : k.includes('Duration') ? () => dur
+        : k.includes('CurrentTime') ? () => t
+        : () => undefined });
+    useAudioStore.setState({ activeClips: { [clip.id]: { player, isPlaying: true, progress: t / dur, clip } } });
+    return 'on-air';
+})()`;
 const URL = 'http://localhost:5199/';
 const W = 1600, H = 900;
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -35,7 +61,7 @@ app.whenReady().then(async () => {
     await sleep(1600);
 
     // Lingua UI
-    await win.webContents.executeJavaScript(`(()=>{const it=[...document.querySelectorAll('button')].find(b=>(b.textContent||'').includes(${JSON.stringify(LANGBTN)}));if(it)it.click();return !!it;})()`);
+    console.log('  lingua:', await win.webContents.executeJavaScript(PICK_LANG_JS));
     await sleep(500);
     await shot(win, '01-benvenuto.png');
 
@@ -44,6 +70,8 @@ app.whenReady().then(async () => {
     await sleep(500);
     await win.webContents.executeJavaScript(`(()=>{ if(window.__seedDemo){window.__seedDemo(${JSON.stringify(LANG)});return 'seeded';} return 'noseed'; })()`);
     await sleep(1000);
+    console.log('  hero:', await win.webContents.executeJavaScript(ON_AIR_JS));
+    await sleep(800);
     await shot(win, '02-interfaccia.png');
 
     // Menu Strumenti aperto (per Figura 3.1 + ritaglio barra-controllo)

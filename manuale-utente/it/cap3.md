@@ -4,7 +4,7 @@
 
 L'interfaccia di Runtime Live Machine Pro è costruita per il contesto operativo più esigente: la diretta. Ogni scelta visiva — il tema scuro, l'alto contrasto, le dimensioni dei controlli — risponde a un requisito funzionale. Non è estetica per l'estetica, ma ergonomia.
 
-Quando apri un progetto, lo schermo si divide in due zone distinte: la **Barra di Controllo** in alto, che gestisce il progetto e il sistema, e la **Griglia di Regia** centrale, dove si svolge il lavoro effettivo.
+Quando apri un progetto, lo schermo si divide in tre fasce: la **Barra di Controllo** in alto, che gestisce il progetto e il sistema; il **banner IN ONDA** subito sotto, che mette in evidenza il brano che sta suonando; la **Griglia di Regia** al centro, dove si svolge il lavoro effettivo.
 
 ---
 
@@ -14,7 +14,7 @@ L'header occupa l'intera larghezza dello schermo. Procedendo da sinistra a destr
 
 ### Identità
 
-**Logo e badge PRO.** A sinistra, il logo affianca la scritta **RLM PRO** — la parola «PRO» è resa con un gradiente iridescente che passa dal ciano al verde, all'ambra, al rosso. Accanto, in caratteri monospazio, è riportata la versione installata (`v1.15.15`). Passando il mouse sul logo compare il nome completo del software con il numero di versione.
+**Logo e badge PRO.** A sinistra, il logo affianca la scritta **RLM PRO** — la parola «PRO» è resa con un gradiente iridescente che passa dal ciano al verde, all'ambra, al rosso. Accanto, in caratteri monospazio, è riportata la versione installata (`v1.15.32`). Passando il mouse sul logo compare il nome completo del software con il numero di versione.
 
 ### Menu File
 
@@ -36,6 +36,8 @@ Il pulsante **FILE** apre un menu con le operazioni sui progetti:
 **STOP ALL (pulsante rosso «ALL»).** Ferma istantaneamente tutte le clip attive e azzera i fade in corso. È il comando di emergenza del sistema. Il tasto `Esc` sulla tastiera esegue la stessa funzione quando l'applicazione è a fuoco — anche mentre stai scrivendo in un campo di testo.
 
 > **Nota.** A differenza delle versioni precedenti, `Esc` non è più registrato come scorciatoia globale di sistema: agisce quando RLMP è la finestra attiva. Questa scelta consente alle finestre di dialogo di usare `Esc` per chiudersi senza fermare la diretta.
+
+**ARM (microfono).** Arma e disarma il microfono per lo **Smart Mic** (Capitolo 6). Da disarmato il pulsante è grigio; da armato diventa rosso e, mentre parli, si accende e pulsa. Accanto compaiono un piccolo VU a otto barre con il livello del microfono e il cursore **Mic Vol**; il badge **On Mix** segnala che la voce entra anche nel mix. Lo Smart Mic va abilitato nella scheda *Microfono* delle Impostazioni (Capitolo 13): se lo disattivi, il microfono si disarma.
 
 **FX.** Apre e chiude il pad FX, la *jingle machine* degli effetti (Capitolo 7). Un piccolo contatore segnala quanti effetti sono in riproduzione in quel momento.
 
@@ -65,11 +67,27 @@ Nell'area dell'header possono comparire inoltre notifiche non intrusive (**toast
 
 ---
 
-## 3.2 La griglia a sei colonne
+## 3.2 Il banner IN ONDA
+
+Tra la Barra di Controllo e la griglia c'è un banner a tutta larghezza che mette in evidenza il brano in onda, leggibile anche da lontano. È **sempre presente**: senza brani in riproduzione mostra lo stato **OFF AIR** con colori spenti e la scritta «Nessun brano in onda»; quando parte una clip si accende in verde, senza cambiare dimensione né spostare le colonne.
+
+Da sinistra a destra trovi:
+
+- **ON AIR** — l'indicatore con il pallino rosso, che pulsa quando c'è un brano in onda.
+- **Titolo e colonna** — l'etichetta «IN ONDA» seguita dal nome della colonna, il titolo della clip in grande e, sotto, l'artista (o «In loop» per le clip in ripetizione).
+- **Barra di avanzamento** — si riempie di verde man mano che il brano procede; due tacche verticali segnano il punto di Intro (ciano) e di Outro (arancione), se configurati (Capitolo 5).
+- **Timer** — il tempo che manca alla fine del brano, in un colore che cambia con la fase: **ciano** durante l'intro (conta alla rovescia fino alla fine dell'intro), **bianco** nel corpo del brano, **arancione** dal punto di Outro in poi, **rosso lampeggiante** negli ultimi 10 secondi. Per le clip in loop mostra «LOOP». Nei 15 secondi che precedono l'Outro, sotto il timer compare l'avviso **OUTRO IN** con il conto alla rovescia.
+- **UP NEXT** — il titolo della clip che partirà dopo, quando la clip in onda è impostata su *Play Next*; negli altri casi il riquadro resta attenuato.
+
+Se suonano più clip insieme, il banner mostra quella della colonna con priorità più alta, in quest'ordine: Canzoni, Pre-Show, Voci, poi le altre colonne. Gli effetti del pad FX non compaiono mai nel banner. Nel passaggio da un brano al successivo in sequenza, il banner tiene per un istante il brano appena finito invece di lampeggiare su OFF AIR.
+
+---
+
+## 3.3 La griglia a sei colonne
 
 ![La griglia di regia a sei colonne con clip di esempio e i relativi badge di stato.](../screenshots/interfaccia-principale.png)
 
-*Figura 3.2 — L'interfaccia di lavoro: la griglia a sei colonne con le card audio.*
+*Figura 3.2 — L'interfaccia di lavoro: il banner IN ONDA con un brano in onda e la griglia a sei colonne con le card audio.*
 
 La griglia è il centro operativo del software: sei colonne verticali affiancate, ciascuna con una propria intestazione cromatica e una propria logica di comportamento audio. Gli effetti sonori non hanno una colonna in griglia: vivono nel pad FX (Capitolo 7).
 
@@ -102,7 +120,7 @@ La playlist di riscaldamento pre-diretta. Funziona come una coda musicale autono
 
 ---
 
-## 3.3 La Card Audio (Clip)
+## 3.4 La Card Audio (Clip)
 
 Ogni file audio importato si materializza nella griglia come una **card** rettangolare. La card è l'unità operativa del sistema: la vedi, la lanci, la configuri, la sposti.
 

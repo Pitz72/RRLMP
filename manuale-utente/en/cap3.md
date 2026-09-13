@@ -4,7 +4,7 @@
 
 The Runtime Live Machine Pro interface is built for the most demanding operating context: the live show. Every visual choice answers a functional requirement. The dark theme, the high contrast, the size of the controls: this is ergonomics, not aesthetics for their own sake.
 
-When you open a project, the screen divides into two distinct zones: the **Control Bar** at the top, which manages the project and the system, and the **broadcast grid** in the centre, where the actual work happens.
+When you open a project, the screen divides into three bands: the **Control Bar** at the top, which manages the project and the system; the **ON AIR banner** just below it, which puts the playing track front and centre; and the **broadcast grid** in the centre, where the actual work happens.
 
 ---
 
@@ -14,7 +14,7 @@ The header spans the full width of the screen. From left to right, it gathers th
 
 ### Identity
 
-**Logo and PRO badge.** On the left, the logo sits beside the wordmark **RLM PRO**, with the word “PRO” rendered in an iridescent gradient running from cyan to green, amber and red. Next to it, in monospaced type, is the installed version (`v1.15.15`). Hover over the logo to reveal the full software name and version number.
+**Logo and PRO badge.** On the left, the logo sits beside the wordmark **RLM PRO**, with the word “PRO” rendered in an iridescent gradient running from cyan to green, amber and red. Next to it, in monospaced type, is the installed version (`v1.15.32`). Hover over the logo to reveal the full software name and version number.
 
 ### File menu
 
@@ -36,6 +36,8 @@ The **FILE** button opens a menu with the project operations:
 **STOP ALL (red “ALL” button).** Instantly stops every active clip and cancels any fades in progress. It is the system’s emergency command. The `Esc` key does the same when the application is in focus, even while you are typing in a text field.
 
 > **Note.** Unlike previous versions, `Esc` is no longer registered as a system-wide global shortcut: it acts when RLMP is the active window. This choice lets dialog boxes use `Esc` to close without stopping the live show.
+
+**ARM (microphone).** Arms and disarms the microphone for **Smart Mic** (Chapter 6). Disarmed, the button is grey; armed, it turns red, and it lights up and pulses while you speak. Next to it appear a small eight-bar VU with the microphone level and the **Mic Vol** slider; the **On Mix** badge shows that the voice is also going into the mix. Smart Mic must be enabled in the *Microphone* tab of the Settings (Chapter 13): if you turn it off, the microphone is disarmed.
 
 **FX.** Opens and closes the pad FX, the effects *jingle machine* (Chapter 7). A small counter shows how many effects are playing at that moment.
 
@@ -65,11 +67,27 @@ The header area can also show unobtrusive notifications (**toasts**) about compl
 
 ---
 
-## 3.2 The six-column grid
+## 3.2 The ON AIR banner
+
+Between the Control Bar and the grid sits a full-width banner that puts the track on air front and centre, readable even from across the room. It is **always there**: with nothing playing it shows the **OFF AIR** state in muted colours and the words “No track on air”; when a clip starts it lights up in green, without changing size or shifting the columns.
+
+From left to right you find:
+
+- **ON AIR** — the indicator with the red dot, which pulses while a track is on air.
+- **Title and column** — the “ON AIR” label followed by the column name, the clip title in large type and, below it, the artist (or “In loop” for looping clips).
+- **Progress bar** — fills with green as the track plays; two vertical ticks mark the Intro point (cyan) and the Outro point (orange), if configured (Chapter 5).
+- **Timer** — the time left until the end of the track, in a colour that changes with the phase: **cyan** during the intro (counting down to the end of the intro), **white** in the body of the track, **orange** from the Outro point on, **flashing red** in the last 10 seconds. For looping clips it shows “LOOP”. In the 15 seconds before the Outro, the **OUTRO IN** warning appears below the timer with its countdown.
+- **UP NEXT** — the title of the clip that will start next, when the clip on air is set to *Play Next*; otherwise the box stays dimmed.
+
+If several clips are playing together, the banner shows the one from the highest-priority column, in this order: Episode Songs, Pre-Show, Voice, then the other columns. Pad FX effects never appear in the banner. When one track hands over to the next in a sequence, the banner holds the track that just ended for a moment instead of flashing OFF AIR.
+
+---
+
+## 3.3 The six-column grid
 
 ![The six-column broadcast grid with sample clips and their status badges.](../screenshots-en/interfaccia-principale.png)
 
-*Figure 3.2 — The working interface: the six-column grid with the audio cards.*
+*Figure 3.2 — The working interface: the ON AIR banner with a track on air and the six-column grid with the audio cards.*
 
 The grid is the software’s operational centre: six vertical columns side by side, each with its own colour-coded header and its own audio-behaviour logic. Sound effects have no column in the grid: they live in the pad FX (Chapter 7).
 
@@ -102,7 +120,7 @@ The pre-broadcast warm-up playlist. It works as a self-contained music queue, wi
 
 ---
 
-## 3.3 The audio card (Clip)
+## 3.4 The audio card (Clip)
 
 Every imported audio file materializes in the grid as a rectangular **card**. The card is the operating unit of the system: you see it, launch it, configure it, move it.
 

@@ -35,6 +35,18 @@ The most common case: a song is playing at full dynamics; you launch a pre-recor
 
 The operator touches nothing. The gesture performed was a single click: starting the interview. The amount of the reduction and its speed are adjustable in the Settings (Chapter 13).
 
+### Smart Mic: the microphone that lowers the music
+
+Ducking can also be triggered by your voice, without launching any clip. With **Smart Mic**, RLMP listens to the microphone and, when you speak, automatically lowers the music; when you stop, it brings it back up.
+
+1. In the Settings, *Microphone* tab, enable **Smart Mic** and choose the input device (Chapter 13).
+2. In the Control Bar, press **ARM**: the button turns red and the small VU next to it shows the microphone level.
+3. Speak: when your voice goes above the threshold, ARM lights up and the music drops; shortly after you stop, it comes back up.
+
+> **Warning.** Smart Mic is designed for a **USB microphone connected directly to the computer**. If the microphone goes through a USB mixer (Rødecaster, Zoom LiveTrak and the like), the computer’s input also carries the music on air: detection mistakes it for your voice and triggers by itself. In that case leave Smart Mic off and let the mixer handle the ducking.
+
+Smart Mic is off by default and the microphone stays disarmed until you press ARM: if you don’t use the feature, nothing changes.
+
 ---
 
 ## 6.3 Music Dominance: intelligent management of beds

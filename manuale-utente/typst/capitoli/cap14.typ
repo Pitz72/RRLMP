@@ -137,7 +137,7 @@ Linux. Un tablet o un telefono possono però fungere da
 11).
 
 #strong[I file `.lmp` delle versioni precedenti sono compatibili con la
-1.15.15?] Sì. Aprendo un progetto creato con una versione precedente,
+1.15.32?] Sì. Aprendo un progetto creato con una versione precedente,
 RLMP ne aggiorna automaticamente la struttura, comprese le colonne
 aggiunte nel frattempo, senza modificare il file finché non esegui un
 salvataggio.
@@ -163,4 +163,7 @@ Remoto in rete locale (opzionale).
 dispositivo remoto sia sulla #strong[stessa rete] del computer, di aver
 inserito il #strong[PIN corretto] (cambia a ogni avvio) e di usare
 l'indirizzo mostrato nelle Impostazioni. Ricorda che il Controllo Remoto
-riparte spento a ogni avvio dell'applicazione (Capitolo 11).
+riparte spento a ogni avvio dell'applicazione (Capitolo 11). Se
+l'interruttore si è spento da solo mostrando un messaggio, la porta 8787
+è occupata: chiudi l'altra copia di RLMP o il programma che la usa, poi
+riattivalo.

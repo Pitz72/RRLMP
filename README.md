@@ -57,7 +57,7 @@ It replaces the chaotic "play from folder" workflow with a structured, visual bo
 - **LMP Integrity Check** — on project load, all file paths are verified. Missing files are flagged red instantly.
 - **Export Self-Contained** — copies all audio files alongside the project for archiving or transfer
 - **MIDI Learn** + per-clip keybindings (F1-F12, Numpad, custom keys)
-- **i18n** — UI available in 8 languages: Italian, English, French, German, Spanish, Portuguese, Russian, Chinese
+- **i18n** — UI available in 2 languages: Italian and English
 
 ---
 

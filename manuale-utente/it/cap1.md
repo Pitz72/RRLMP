@@ -77,4 +77,4 @@ Ogni colonna ha comportamenti audio distinti — priorità nel mixaggio, regole 
 
 ## 1.5 Versione corrente e aggiornamenti
 
-Questo manuale descrive la versione **1.15.15** di Runtime Live Machine Pro. All'avvio, il software verifica in modo silenzioso la disponibilità di una versione più recente e, se ne trova una, apre un avviso di aggiornamento, mai durante una diretta. Il sistema di aggiornamento è descritto nel Capitolo 12. I file di progetto `.lmp` sono compatibili con le versioni successive: aggiornare il software non comporta la perdita o la migrazione manuale dei progetti esistenti.
+Questo manuale descrive la versione **1.15.32** di Runtime Live Machine Pro. All'avvio, il software verifica in modo silenzioso la disponibilità di una versione più recente e, se ne trova una, apre un avviso di aggiornamento, mai durante una diretta. Il sistema di aggiornamento è descritto nel Capitolo 12. I file di progetto `.lmp` sono compatibili con le versioni successive: aggiornare il software non comporta la perdita o la migrazione manuale dei progetti esistenti.

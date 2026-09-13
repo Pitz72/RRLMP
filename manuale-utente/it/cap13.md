@@ -56,7 +56,7 @@ Le **Impostazioni** (menu Strumenti) raccolgono le preferenze globali del softwa
 
 ### Generali
 
-- **Lingua.** Seleziona la lingua dell'interfaccia tra le otto disponibili. La modifica è immediata.
+- **Lingua.** Seleziona la lingua dell'interfaccia: italiano o inglese. La modifica è immediata.
 - **Controllo Remoto (Beta).** Attiva il telecomando via browser e mostra PIN, porta e indirizzi (Capitolo 11).
 - **Layout regia.** Mostra o nasconde singolarmente le colonne della griglia. Nascondere una colonna non ne elimina le clip: restano nel progetto. È una preferenza globale, valida per tutti i progetti.
 
@@ -65,6 +65,14 @@ Le **Impostazioni** (menu Strumenti) raccolgono le preferenze globali del softwa
 - **Periferica di uscita.** La destinazione audio (Capitolo 8).
 - **Intelligenza di mix.** L'entità del ducking (di quanto scende la musica quando parla una voce, predefinito 20%) e la sua rapidità (predefinito 500 ms).
 - **Transizioni.** La modalità di transizione predefinita e le durate di crossfade e segue.
+
+### Microfono
+
+- **Smart Mic — Auto-Ducking.** Abilita il microfono che abbassa la musica quando parli (Capitolo 6). In cima alla scheda un avviso ricorda che la funzione è pensata per i microfoni USB collegati direttamente al computer, non per i mixer USB.
+- **Dispositivo di Input.** Il microfono da ascoltare: i microfoni USB e le interfacce audio compaiono qui automaticamente.
+- **Soglia di attivazione.** Il livello oltre il quale la voce fa scattare il ducking (predefinito −30 dBFS); il rilascio avviene 12 dB più in basso.
+- **Hold di attivazione e di rilascio.** Per quanti millisecondi la voce deve restare sopra la soglia prima che la musica scenda, e sotto la soglia prima che risalga.
+- **Canale Mix Microfono.** Con *In Mix* la tua voce entra anche nell'uscita di RLMP, con il suo **Volume Microfono**. L'opzione **Bypass Master Chain** decide come esce: spenta, la voce passa per filtro passa-alto, compressore e limiter; accesa, esce così com'è, senza latenza aggiuntiva. Un avviso sul rischio di **feedback** (fischi), da confermare, ricorda di usare le cuffie o un mixer professionale: con le casse accese la voce può rientrare nel microfono.
 
 ### Registrazione
 

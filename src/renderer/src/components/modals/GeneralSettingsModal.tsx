@@ -24,12 +24,6 @@ type SettingsTab = 'general' | 'audio' | 'mic' | 'recording' | 'chain';
 const LANGUAGES = [
     { code: 'en', label: 'English' },
     { code: 'it', label: 'Italiano' },
-    { code: 'fr', label: 'Français' },
-    { code: 'de', label: 'Deutsch' },
-    { code: 'es', label: 'Español' },
-    { code: 'pt', label: 'Português' },
-    { code: 'ru', label: 'Русский' },
-    { code: 'zh', label: '中文' },
 ];
 
 const Toggle: React.FC<{ enabled: boolean; onToggle: () => void; labelOn?: string; labelOff?: string }> = ({

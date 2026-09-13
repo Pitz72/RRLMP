@@ -81,6 +81,7 @@ The project folder thus becomes self-contained: the `.lmp` plus the `audio/` sub
 A few useful details:
 
 - The operation is **repeatable**: if you add new clips and export again, RLMP copies only the new files and realigns the project, without duplicating the ones already archived.
+- RLMP **only deletes files inside `audio/` folders it created itself**: the first export leaves a small text file, `.rrlmp-archive`, in the folder to mark it as an archive. If an `audio/` folder of your own already sits next to the project (or one created by versions up to 1.15.16), RLMP removes nothing: it tells you how many files are not part of the project and marks the folder, which it will manage normally from the next export. Move elsewhere anything you want to keep. If you delete `.rrlmp-archive`, RLMP stops treating the folder as its own.
 - Repointing to the archive **does not enter the Undo/Redo history**: an *Undo* would send the clips back to the originals, which you may already have deleted.
 - The project folder (`.lmp` + `audio/`) can be **moved, renamed, zipped and taken to another computer**: on opening, any file that isn’t found at its old location is automatically searched for in the `audio/` folder next to the `.lmp` and relinked by itself. The project is marked as *modified*: the next save consolidates the new paths.
 

@@ -27,7 +27,7 @@ A dedicated sound card is not required: RLMP works with any audio device recogni
 
 ## 2.2 Installation on Windows
 
-1. Download the file `Runtime-Live-Machine-Pro-1.15.15.exe` from the official distribution channel.
+1. Download the file `Runtime-Live-Machine-Pro-1.15.32.exe` from the official distribution channel.
 2. Double-click the executable. The NSIS installer starts and copies the files to the appropriate directories.
 3. When it finishes, a shortcut is created on the Desktop and in the Start menu.
 4. The application launches automatically once installation is complete.
@@ -61,13 +61,13 @@ On some distributions you may need to install the `libasound2` package for ALSA 
 
 ## 2.5 The welcome screen
 
-![The Runtime Live Machine Pro welcome screen, with the main actions and the language selector.](../screenshots-en/schermata-benvenuto.png)
+![The Runtime Live Machine Pro welcome screen, with the main actions and the language drop-down.](../screenshots-en/schermata-benvenuto.png)
 
-*Figure 2.1 — The welcome screen: software identity, update status, main actions and language selector.*
+*Figure 2.1 — The welcome screen: software identity, update status, main actions and the language drop-down in the top-right corner.*
 
-On first launch — and at every subsequent launch, until you open a project — RLMP presents the **welcome screen**, the gateway to all preliminary operations. The panel is split into two zones.
+On first launch — and at every subsequent launch, until you open a project — RLMP presents the **welcome screen**, the gateway to all preliminary operations. In the centre you find the software identity and actions; in the top-right corner, the language drop-down.
 
-**Left zone — Identity and actions.**
+**Identity and actions.**
 The software logo (the bars of a VU meter with the play symbol) identifies the Pro edition. Below the title and slogan is the installed version number, accompanied by the status of the update system:
 
 - **“Latest Version”** (green) — you are running the most recent version available.
@@ -78,10 +78,11 @@ Below that are the main actions:
 
 - *New Project* — creates an empty session with the columns ready to load.
 - *Load Project* — opens an existing `.lmp` file. Before making it operational, RLMP runs an **integrity check**: it verifies that every referenced audio file still exists at the stored path. Missing files are flagged immediately with a red border on their clip.
-- *Manual* — the entry is present but currently disabled: documentation viewable from inside the software will arrive in a future version, over the web.
+- *User Manual* — opens this manual as a PDF in the browser, in the interface language (English or Italian). An internet connection is required.
+- *Quick Guide* — a short getting-started guide that opens inside the software and can be read offline too.
 
-**Right zone — Language selector.**
-RLMP supports eight interface languages: English, Italian, French, German, Spanish, Portuguese, Russian and Simplified Chinese. The active language is highlighted with a cyan border and a check mark. The selection takes effect immediately and is remembered from one session to the next.
+**Language (top-right corner).**
+RLMP supports two interface languages: English and Italian. The drop-down in the top-right corner shows the flag and name of the active language: click it and pick the other one. The selection takes effect immediately and is remembered from one session to the next.
 
 ---
 

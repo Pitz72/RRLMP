@@ -161,7 +161,7 @@ nascoste dalla vista (Impostazioni → Generali → Layout regia) senza
 perdere le clip che contengono.
 
 == 1.5 Versione corrente e aggiornamenti
-Questo manuale descrive la versione #strong[1.15.15] di Runtime Live
+Questo manuale descrive la versione #strong[1.15.32] di Runtime Live
 Machine Pro. All'avvio, il software verifica in modo silenzioso la
 disponibilità di una versione più recente e, se ne trova una, apre un
 avviso di aggiornamento, mai durante una diretta. Il sistema di
