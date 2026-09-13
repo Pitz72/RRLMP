@@ -3,7 +3,7 @@
 **Aperto:** 13 settembre 2026 · **Decisioni prese:** 13 settembre 2026
 **Obiettivo:** ritirare Runtime Live Machine Pro dalla vendita, portarlo su `Pitz72/RRLMP` come
 repository pubblico sotto licenza MIT, con le release pubblicate nello stesso repository.
-**Stato:** decisioni prese · **FASI 1, 2, 3 e 4 CHIUSE** (13/09) · `Pitz72/RRLMP` pubblico con la **v1.15.33**, traghetto pubblicato su `RRLMP-Releases` · prossima: **Fase 5** (Gumroad, sito Ecosystem, dismissione del ponte e del repository privato), più il collaudo sul campo dell'aggiornamento.
+**Stato:** decisioni prese · **FASI 1-4 CHIUSE** (13/09) · aggiornamento automatico verificato sul campo · **FASE 5 quasi chiusa**: Gumroad chiuso, sito Ecosystem aggiornato (v0.6.10). Restano solo la cancellazione dei due repository Ecosystem-Runtime, con **promemoria il 13 ottobre 2026**, e l'aggiornamento dello standard di distribuzione.
 
 > **Il modello è doppio.** Questa procedura ricalca i piani già eseguiti con successo da
 > *Runtime TelegramBot Desktop Titan Edition* (12–13 agosto 2026) e *Runtime FeedDownloader Pro*
@@ -245,9 +245,8 @@ già puntare alla destinazione definitiva): rispettato.
       `F:\Backup\BACKUP-RRLMP-2026-09-13\RRLMP-Releases_v1.15.32_binari\` (dimensioni conformi
       all'inventario, `SHA256SUMS.txt`). Su entrambi i repository resta solo la `v1.15.33`, nessuna bozza.
 - [x] **Backup** spostati in `F:\Backup\` su richiesta dell'utente (regola valida da ora per ogni backup).
-- [ ] **Collaudo sul campo** (a cura dell'utente): un'installazione 1.15.32 (o precedente) deve proporre la
-      1.15.33 con le note complete; dalla 1.15.33 installata, la **1.15.34** dovrà arrivare da
-      `Pitz72/RRLMP`.
+- [x] **Collaudo sul campo** (utente, 13/09): **aggiornamento automatico da un'installazione precedente alla
+      1.15.33 riuscito**. Resta da osservare, alla prossima release, che la 1.15.34 arrivi da `Pitz72/RRLMP`.
 
 ## FASE 4 — GitHub
 
@@ -290,24 +289,44 @@ già puntare alla destinazione definitiva): rispettato.
 
 ## FASE 5 — Dismissione della fase commerciale
 
-- [ ] ⛔ **Gumroad** — chiusura di `pizzisimone.gumroad.com/l/livemachinepro` (a cura dell'utente);
-      verificare HTTP 404.
-- [ ] **Sito Ecosystem** (`SITI-WEB/ECOSYSTEM`): `components/LiveMachineLandingPage.tsx`,
-      `constants.tsx`, `public/locales/{it,en}/translation.json`, `public/products-manifest.json`
-      (prezzo 0, licenza MIT, JSON-LD), flag `openSource`, CTA d'acquisto → download da GitHub +
-      «Codice sorgente». ⚠️ Con Live Machine Pro libero **non resta nessun prodotto a pagamento**:
-      verificare che card del bundle e chiavi i18n commerciali si comportino bene a zero prodotti.
-      Deploy via SFTP (`_SEGRETI/deploy.py`) e verifica sulla pagina live.
-- [ ] Correggere sul sito i fatti scaduti (lingue: ora 2; versione; piattaforme: Windows + Linux).
-- [ ] ⛔ **Repo ponte `RRLMP-Releases`** — cancellarla **solo dopo** la release traghetto e una
-      finestra di migrazione: le persone a cui l'autore ha dato il programma devono aver aggiornato
-      alla 1.15.33 (controllare i download sul ponte ed eventualmente chiedere). Prima: `--mirror` e
-      inventario degli asset. Fino ad allora resta anche `manuals/` (lo aprono le app ≤ 1.15.32).
-- [ ] **`Ecosystem-Runtime/RRLMP`** privato — cancellarlo dopo il backup, a Fase 4 verificata
-      (FeedDownloader l'ha fatto il 19/08).
-- [ ] Correggere i riferimenti residui a indirizzi vecchi (`.claude/PROJECT_STATE.md`,
-      `compilazione-mac.txt`).
-- [ ] Aggiornare lo standard `RUNTIME-DESKTOP-DISTRIBUTION-STANDARD.md` e le memorie di progetto.
+- [x] ⛔ **Gumroad** — pagina `pizzisimone.gumroad.com/l/livemachinepro` chiusa dall'utente; verificato
+      **HTTP 404** (13/09).
+- [x] **Sito Ecosystem** — **v0.6.10** (`2293e47` su `Pitz72/Ecosystem-Runtime`), deployata su
+      `ecosystem.runtimeradio.com` (13/09), sul modello della v0.6.8 di FeedDownloader:
+      - flag `openSource`, prezzo «Gratis», `LMP_REPO_URL`/`LMP_RELEASES_URL`, `LMP_VERSION` v1.15.33;
+      - le quattro CTA d'acquisto della landing diventano download da GitHub, blocco prezzo «Gratis» +
+        «Codice sorgente», targhetta MIT;
+      - `products-manifest.json` a prezzo 0 con licenza MIT e `os` «Windows, Linux» (JSON-LD);
+      - **fatti scaduti corretti**: versione, macOS, otto lingue, Emergency Stop «globale», master chain
+        (−16 LUFS, HPF 30 Hz, glue multibanda, limiter −1 dBFS), F1–F12, Smart Mic, 6 colonne; anche la scheda
+        condivisa di FeedDownloader dichiarava ancora macOS;
+      - **banner senza versione** `media/lmp/hero-banner-v2.webp` (sorgente `branding/banner-rlmp-pro.svg` in
+        questo repository, pillola `OPEN SOURCE · MIT`), usato anche come anteprima OG;
+      - **galleria rifatta** con le schermate 1.15.32 del manuale (le vecchie erano v1.11, con il badge STACCO);
+      - con **nessun prodotto a pagamento** rimasto: la card del bundle non compare, e la descrizione della home
+        nel prerender non promette più «One-time payment, lifetime license».
+      Verificato online: pagina 200, JSON-LD prezzo 0 + MIT, `og:image` sul banner nuovo, media nuovi 200,
+      nessun link Gumroad nei bundle serviti. Sul server rimossi 56 file residui (vecchi bundle JS, tra cui le
+      vecchie landing con Gumroad, e i media LMP sostituiti); resta solo `favicon.gif`, estraneo a questa modifica.
+      ⚠️ Difetto **preesistente** notato in verifica, non corretto: sulle landing (LMP, FeedDownloader, Titan) la
+      barra fissa per mobile resta visibile anche su desktop, perché lo stile inline `display: 'flex'` scavalca
+      la classe `md:hidden`.
+- [x] Fatti scaduti sul sito corretti (vedi sopra).
+- [ ] ⛔ **Repo ponte `RRLMP-Releases`** — da cancellare dopo la finestra di migrazione di un mese.
+      **Promemoria programmato per il 13 ottobre 2026 alle 9:30** (attività pianificata
+      `promemoria-cancellazione-repo-ecosystem-rrlmp`): conta i download della v1.15.33 sui due repository,
+      verifica i backup in `F:\Backup\BACKUP-RRLMP-2026-09-13\` e chiede conferma, senza cancellare da solo.
+      Prima di cancellare: aggiornare il `--mirror` in `F:\Backup`. Fino ad allora resta anche `manuals/`.
+- [ ] **`Ecosystem-Runtime/RRLMP`** privato — da cancellare insieme al ponte (stesso promemoria del 13/10);
+      backup `--mirror` già in `F:\Backup`. Dopo: togliere il remote `origin` dal repository locale, lasciando
+      `pubblico` (`Pitz72/RRLMP`).
+- [x] Riferimenti residui a indirizzi vecchi: `.claude/PROJECT_STATE.md` rimosso e `compilazione-mac.txt`
+      archiviato già nella Fase 2.
+- [ ] Aggiornare lo standard `RUNTIME-DESKTOP-DISTRIBUTION-STANDARD.md` (Live Machine Pro è ora open source,
+      release sullo stesso repository, niente macOS). Memorie di progetto aggiornate il 13/09.
+- [x] **Backup** — tutti in `F:\Backup\` per regola dell'utente (13/09); spostato lì anche un doppione
+      `Documents/GitHub/_backup-apertura-RRLMP-2026-09-13` creato durante un turno interrotto (fsck e ref
+      verificati prima di rimuovere l'originale).
 
 ---
 

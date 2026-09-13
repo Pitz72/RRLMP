@@ -18,6 +18,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev:renderer", "--", "--port", "5199"],
       "port": 5199
+    },
+    {
+      "name": "Sito Ecosystem (Vite)",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["C:/Users/Utente/Documents/GitHub/SITI-WEB/ECOSYSTEM/node_modules/vite/bin/vite.js", "C:/Users/Utente/Documents/GitHub/SITI-WEB/ECOSYSTEM", "--port", "5300", "--strictPort"],
+      "port": 5300
     }
   ]
 }
