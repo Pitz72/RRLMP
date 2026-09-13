@@ -1,5 +1,5 @@
 # RRLMP — Documento di Visione Tecnica
-**Software alla versione**: 1.15.15 | **Documento rivisto**: 2026-07-28 (scritto per la 1.3.18 il 2026-06-05)
+**Software alla versione**: 1.15.32 | **Documento rivisto**: 2026-09-13 per piattaforme e apertura del sorgente (scritto per la 1.3.18 il 2026-06-05, verificato il 2026-07-28)
 
 > Contenuto **verificato e tuttora valido**: la filosofia "nessuna automazione dello show, eccezione controllata sulla sola PRE-SHOW" continua a governare le decisioni di prodotto (è la ragione per cui il behavior `Stacco` è stato rimosso nella 1.15.15 e per cui il Voice Tracking resta sospeso). Per la mappa dei sottosistemi aggiunti dopo la 1.3 vedi [ARCHITECTURE.md](./ARCHITECTURE.md); per lo stato dei lavori [ROADMAP.md](./ROADMAP.md).
 
@@ -36,8 +36,8 @@ I file audio non vengono caricati in RAM. Un protocollo custom streamma i dati d
 - **Emergency Stop**: un unico tasto (Escape) per il silenzio immediato in emergenza.
 - **Save atomico** (tmp+rename) + validazione/sanitizzazione `.lmp` in apertura.
 
-### Multi-piattaforma (obiettivo)
-Target primario **Windows**, con supporto previsto anche per **Linux** e **macOS**. La gestione delle periferiche audio (input/output, routing) dovrà essere ridefinita tenendo conto delle differenze di driver fra le piattaforme (vedi ROADMAP — area Device/Routing).
+### Piattaforme
+Pacchetti ufficiali per **Windows** e **Linux** (AppImage, .deb). **macOS** si compila dal sorgente: con l'apertura del codice sotto licenza MIT (settembre 2026) non c'è più un installer ufficiale. La gestione delle periferiche audio (input/output, routing) dovrà essere ridefinita tenendo conto delle differenze di driver fra le piattaforme (vedi ROADMAP — area Device/Routing).
 
 ---
 

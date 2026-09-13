@@ -1,224 +1,203 @@
 #import "../lib/manuale-template.typ": *
 
-= Proprietà della clip e Waveform Editor
-<capitolo-5-proprietà-della-clip-e-waveform-editor>
+= Clip properties and the Waveform Editor
 
-Ogni file audio ha una sua storia prima di arrivare in griglia:
-registrazioni con secondi di silenzio iniziale, brani con code
-interminabili, interviste con il livello troppo basso rispetto al resto
-dello show. Invece di ricorrere a un editor audio esterno ogni volta che
-un file non è «pronto per la messa in onda», RLMP mette a disposizione
-un pannello di configurazione per ciascuna clip e un editor visivo della
-forma d'onda con funzionalità di taglio e marcatura.
+Every audio file has a history before it reaches the grid: recordings
+with seconds of silence at the start, tracks with endless tails,
+interviews with a level too low against the rest of the show. Rather
+than reaching for an external audio editor every time a file isn't
+"broadcast-ready", RLMP provides a configuration panel for each clip and
+a visual waveform editor with trimming and marking features.
 
-Tutte le modifiche apportate tramite questi strumenti sono #strong[non
-distruttive]: il file originale sul disco rimane invariato. RLMP
-memorizza le impostazioni nel file di progetto `.lmp` e le applica al
-volo durante la riproduzione.
+Every change made through these tools is #strong[non-destructive]: the
+original file on disk stays unchanged. RLMP stores the settings in the
+`.lmp` project file and applies them on the fly during playback.
 
-Per aprire le impostazioni di una clip, fai #strong[click con il tasto
-destro] sulla card.
+To open a clip's settings, #strong[right-click] on the card.
 
-== 5.1 Proprietà di base
-<proprietà-di-base>
-#figure(image("../screenshots/impostazioni-clip.png", alt: "Figura 5.1 — Le impostazioni della clip: nome, etichetta di colore, Volume Gain, comportamento, Next Action e assegnazione dei tasti."),
+== 5.1 Basic properties
+#figure(image("../screenshots-en/impostazioni-clip.png", alt: "Figure 5.1 — The clip settings: name, colour label, Volume Gain, behaviour, Next Action and key assignment."),
   caption: [
-    Figura 5.1 --- Le impostazioni della clip: nome, etichetta di
-    colore, Volume Gain, comportamento, Next Action e assegnazione dei
-    tasti.
+    Figure 5.1 --- The clip settings: name, colour label, Volume Gain,
+    behaviour, Next Action and key assignment.
   ]
 )
 
-=== Nome e apparenza
-#strong[Nome clip.] Puoi assegnare un nome personalizzato alla clip,
-indipendente dal nome del file originale. Il nome viene visualizzato
-sulla card nella griglia. Usa nomi descrittivi e operativamente utili
-durante la diretta: «SIGLA DI APERTURA» è più leggibile di
-`sigla_rev3_finale_def.mp3` quando hai tre secondi per trovare la clip
-giusta.
+=== Name and appearance
+#strong[Clip Name.] You can give the clip a custom name, independent of
+the original file name. The name is displayed on the card in the grid.
+Use descriptive names that are operationally useful during the live
+show: "OPENING THEME" is easier to read than `theme_rev3_final_def.mp3`
+when you have three seconds to find the right clip.
 
-#strong[Colore personalizzato.] Per impostazione predefinita, la clip
-eredita il colore della colonna di appartenenza. Qui puoi assegnare un
-colore specifico per farla risaltare visivamente. Utile per marcare clip
-critiche (es. la sigla di chiusura) o per differenziare gruppi tematici
-all'interno della stessa colonna.
+#strong[Custom colour.] By default, the clip inherits the colour of its
+column. Here you can assign a specific colour to make it stand out
+visually. Useful for marking critical clips (e.g.~the closing theme) or
+for distinguishing thematic groups within the same column.
 
 === Volume (Gain)
-Lo slider di guadagno va da 0% a 150% e agisce come un pre-fader sulla
-clip specifica, prima del Master Volume globale.
+The Volume Gain slider runs from 0% to 150% and acts as a pre-fader on
+the specific clip, before the global Master Volume.
 
-Il caso d'uso più comune è l'allineamento dei livelli: se hai un vocale
-registrato a bassa intensità (es. un messaggio WhatsApp o una
-registrazione telefonica), puoi portarlo oltre il 100% per avvicinarlo
-al volume delle altre tracce. Viceversa, puoi abbassare una clip
-particolarmente «calda» senza toccare il Master Volume.
+The most common use case is level alignment: if you have a voice message
+recorded at low intensity (e.g.~a WhatsApp message or a phone
+recording), you can push it beyond 100% to bring it closer to the volume
+of the other tracks. Conversely, you can lower a particularly "hot" clip
+without touching the Master Volume.
 
-== 5.2 L'editor della forma d'onda
-#figure(image("../screenshots/waveform-editor.png", alt: "Figura 5.2 — L’editor della forma d’onda: maniglie di Trim, marker di Intro e Outro, Auto-Trim, Smart Cues e dissolvenze."),
+== 5.2 The waveform editor
+#figure(image("../screenshots-en/waveform-editor.png", alt: "Figure 5.2 — The waveform editor: Trim handles, Intro and Outro markers, Auto-Trim, Smart Cues and fades."),
   caption: [
-    Figura 5.2 --- L'editor della forma d'onda: maniglie di Trim, marker
-    di Intro e Outro, Auto-Trim, Smart Cues e dissolvenze.
+    Figure 5.2 --- The waveform editor: Trim handles, Intro and Outro
+    markers, Auto-Trim, Smart Cues and fades.
   ]
 )
 
-L'editor visivo è la funzione più potente del pannello di
-configurazione. Occupa la zona centrale del pannello e mostra la
-rappresentazione grafica dell'audio dell'intera clip.
+The visual editor is the heart of the configuration panel. It occupies
+the central area and shows a graphical representation of the entire
+clip's audio.
 
-=== Navigazione nell'editor
-#strong[Zoom orizzontale.] Puoi ingrandire la vista della forma d'onda
-da 1× (vista completa) fino a 8×, con passi intermedi (1×, 2×, 3×, 4×,
-6×, 8×), tramite lo slider di zoom o la rotella del mouse sopra
-l'editor. A zoom elevato, la vista scorre seguendo la posizione
-corrente.
+=== Navigating the editor
+#strong[Horizontal zoom.] You can zoom the waveform view from 1× (full
+view) up to 8×, with intermediate steps (1×, 2×, 3×, 4×, 6×, 8×), using
+the zoom slider or the mouse wheel over the editor. At high zoom, the
+view scrolls to follow the current position.
 
-#strong[Ruler adattivo.] L'asse temporale nella parte superiore
-dell'editor si adatta automaticamente allo zoom: a vista completa mostra
-riferimenti radi, a zoom massimo li infittisce fino ai secondi.
+#strong[Adaptive ruler.] The time axis at the top of the editor adjusts
+automatically to the zoom: at full view it shows sparse references, at
+maximum zoom it packs them down to the second.
 
-#strong[Playhead.] Durante la riproduzione di anteprima, un indicatore
-verticale bianco scorre in tempo reale lungo la forma d'onda, mostrando
-la posizione corrente. Un click sulla forma d'onda sposta la
-riproduzione in quel punto.
+#strong[Playhead.] During preview playback, a white vertical indicator
+moves in real time along the waveform, showing the current position. A
+click on the waveform moves playback to that point.
 
-=== Le quattro maniglie
-Sull'editor sono presenti quattro #strong[handle] trascinabili, ciascuno
-con una funzione e un colore precisi:
+=== The four handles
+The editor has four draggable #strong[handles], each with a precise
+function and colour:
 
-#strong[Trim Start (maniglia rossa, sinistra).] Definisce il punto di
-inizio effettivo della clip. Tutto ciò che si trova a sinistra viene
-saltato durante la riproduzione. Trascinala verso destra per eliminare i
-silenzi o le parti indesiderate dall'inizio.
+#strong[Trim Start (red handle, left).] Defines the clip's actual start
+point. Everything to its left is skipped during playback. Drag it right
+to remove silences or unwanted parts from the beginning.
 
-#strong[Trim End (maniglia rossa, destra).] Definisce il punto di fine
-effettivo. Tutto ciò che si trova a destra viene ignorato. Trascinala
-verso sinistra per accorciare la coda. Trim Start e Trim End non possono
-sovrapporsi.
+#strong[Trim End (red handle, right).] Defines the actual end point.
+Everything to its right is ignored. Drag it left to shorten the tail.
+Trim Start and Trim End cannot overlap.
 
-#strong[Intro Marker (maniglia ciano).] Segna il punto strutturale in
-cui la melodia principale entra nel brano, dopo l'eventuale
-introduzione. Una volta impostato, sulla card in riproduzione comparirà
-il conto alla rovescia #strong[INTRO: −MM:SS].
+#strong[Intro Marker (cyan handle).] Marks the structural point where
+the main melody enters the track, after any intro. Once set, the
+countdown #strong[INTRO: −MM:SS] appears on the playing card.
 
-#strong[Outro Marker (maniglia arancione).] Segna il punto in cui inizia
-la coda del brano, tipicamente il momento in cui iniziare a parlare per
-riempire la transizione. Sulla card comparirà il conto alla rovescia
-#strong[OUTRO IN: −MM:SS]. Se il valore risulta incoerente con il trim o
-con la durata, il software lo disattiva e ti avvisa.
+#strong[Outro Marker (orange handle).] Marks the point where the track's
+tail begins, typically the moment to start talking to fill the
+transition. The countdown #strong[OUTRO IN: −MM:SS] appears on the card.
+If the value turns out to be inconsistent with the trim or the duration,
+the software disables it and warns you.
 
-Oltre al trascinamento, quattro pulsanti #emph[Set] impostano ciascuna
-maniglia alla posizione corrente del playhead, per una marcatura al volo
-durante l'ascolto. I valori restano modificabili con precisione nei
-rispettivi campi.
+Besides dragging, four #emph[Set] buttons place each handle at the
+playhead's current position, for marking on the fly while listening. The
+values remain precisely editable in their respective fields.
 
-=== Auto-Trim (Bacchetta magica)
-Il pulsante con l'icona della #strong[bacchetta magica] avvia il
-rilevamento automatico del silenzio tramite FFmpeg. La soglia non è
-fissa: il software stima prima il livello medio del file e imposta la
-soglia di silenzio circa 25 dB sotto quel livello (entro un intervallo
-di sicurezza compreso tra −55 e −20 dB; in mancanza di stima, ripiega su
-−40 dB). Il Trim Start e il Trim End vengono così impostati
-automaticamente, eliminando silenzi iniziali e code mute senza
-intervento manuale.
+=== Auto-Trim (Magic Wand)
+The button with the #strong[magic wand] icon starts automatic silence
+detection via FFmpeg. The threshold is not fixed: the software first
+estimates the file's average level and sets the silence threshold about
+25 dB below it (within a safety range between −55 and −20 dB; if no
+estimate is available, it falls back to −40 dB). Trim Start and Trim End
+are set automatically, removing leading silences and mute tails without
+manual work.
 
-Questa funzione è particolarmente utile per le registrazioni vocali non
-elaborate: telefonate, messaggi audio, interviste registrate su
-dispositivi mobili. Applicare l'Auto-Trim all'intera colonna Voci prima
-di uno show richiede meno di un minuto e migliora la pulizia delle
-transizioni.
+This is especially useful for unprocessed voice recordings: phone calls,
+voice messages, interviews recorded on mobile devices. Running Auto-Trim
+over the entire Voice column before a show takes less than a minute and
+makes the transitions cleaner.
 
 #nota[
-L'analisi avviene nel Main Process tramite
-FFmpeg, senza caricare il file in memoria nel Renderer. Su file di
-grandi dimensioni, il tempo di analisi resta nell'ordine di pochi
-secondi.
+The analysis happens in the Main Process via
+FFmpeg, without loading the file into the Renderer's memory. On large
+files, the analysis time stays in the order of a few seconds.
 ]
 
-=== Smart Cues (rilevamento automatico dei marker)
-Accanto all'Auto-Trim, la funzione di #strong[Smart Cues] propone
-automaticamente i marker di Intro e Outro. Usando una soglia più
-aggressiva, individua il punto in cui l'audio raggiunge la piena energia
-(Intro) e quello in cui inizia la dissolvenza finale (Outro),
-posizionando i due marker senza doverli cercare a orecchio.
+=== Smart Cues (automatic marker detection)
+Alongside Auto-Trim, the #strong[Smart Cues] feature automatically
+proposes the Intro and Outro markers. Using a more aggressive threshold,
+it finds the point where the audio reaches full energy (Intro) and the
+point where the final fade begins (Outro), placing the two markers
+without your having to find them by ear.
 
-=== Anteprima della transizione
-Se esiste una clip #strong[successiva] nella stessa colonna, il pulsante
-#strong[«Test →»] riproduce gli ultimi secondi della clip corrente e
-lascia scattare la transizione verso la successiva, direttamente
-nell'editor. Durante l'anteprima un pulsante #emph[Stop] interrompe la
-prova.
+=== Transition preview
+If there is a #strong[next] clip in the same column, the #strong["Test
+→"] button plays the last few seconds of the current clip and lets the
+transition into the next one trigger, right there in the editor. During
+the preview a #emph[Stop] button ends the test.
 
-== 5.3 Comportamenti e automazione
-=== Sovrapposizione: decide la colonna
-Quando una clip viene avviata, interrompe qualsiasi altra clip in
-riproduzione nella stessa colonna (con fade out): una canzone esclude le
-altre. A sovrapporsi liberamente sono solo gli effetti del #strong[pad
-FX], che suonano sopra qualunque cosa senza fermare nulla.
+== 5.3 Behaviours and automation
+=== Overlap: the column decides
+When a clip is started, it interrupts any other clip playing in the same
+column (with a fade out): one song excludes the others. Only the
+#strong[pad FX] effects overlap freely, playing on top of anything
+without stopping it.
 
-Se un elemento deve «cavalcare» ciò che è in onda --- uno #emph[station
-ID] («Stai ascoltando…») sull'intro di un brano, un jingle breve sopra
-una base in loop --- non serve un'impostazione della clip: mettilo nel
-#strong[pad FX] (suona a volume pieno sopra la musica) oppure nella
-colonna #strong[Voci] (in più abbassa tutto il resto con il ducking). Lo
-scopo di una clip lo determina la colonna in cui si trova; il vecchio
-comportamento per-clip «Stacco (Jingle)» delle versioni precedenti è
-stato rimosso.
+If an element has to "ride" what's on air --- a #emph[station ID]
+("You're listening to…") over a track's intro, a short jingle over a
+looping bed --- no clip setting is needed: put it in the #strong[pad FX]
+(it plays at full volume over the music) or in the #strong[Voice] column
+(which additionally lowers everything else with ducking). A clip's
+purpose is determined by the column it lives in; the old per-clip
+"Stacco (Jingle)" behaviour of previous versions has been removed.
 
-=== Next Action (automazione alla fine)
-Definisce cosa accade quando la clip raggiunge il punto di Trim End.
+=== Next Action (end-of-clip automation)
+Defines what happens when the clip reaches the Trim End point.
 
-#strong[Stop] --- comportamento predefinito per Canzoni, Voci e Assets.
-La clip termina e si ferma.
+#strong[Stop] --- the default behaviour for Songs, Voice and Assets. The
+clip ends and stops.
 
-#strong[Play Next] --- quando la clip si avvicina alla fine, avvia
-automaticamente la clip successiva nella colonna con la transizione
-configurata. Il badge #strong[NEXT] appare sulla card. È il
-comportamento predefinito della colonna Pre-Show e crea di fatto una
-playlist automatica: puoi configurarlo su più clip consecutive per
-costruire blocchi che scorrono senza interruzioni.
+#strong[Play Next] --- when the clip nears the end, it automatically
+starts the next clip in the column with the configured transition. The
+#strong[NEXT] badge appears on the card. It's the default behaviour of
+the Pre-Show column and effectively creates an automatic playlist: you
+can set it on several consecutive clips to build blocks that flow
+without breaks.
 
-La riproduzione in #strong[loop] è un'opzione a sé: quando è attiva, la
-clip ricomincia dall'inizio (dal Trim Start) senza soluzione di
-continuità, e sulla card compare il badge #strong[LOOP]. Usala per basi
-musicali, ambienti sonori o sigle di sottofondo che devono girare finché
-non vengono fermate esplicitamente. Le modalità di transizione ---
-Crossfade, Segue, Gapless --- sono descritte nel Capitolo 13.
+#strong[Loop] playback is a separate option: when active, the clip
+restarts from the beginning (from Trim Start) seamlessly, and the
+#strong[LOOP] badge appears on the card. Use it for music beds, sound
+environments or background idents that should keep running until
+explicitly stopped. The transition modes --- Crossfade, Segue, Gapless
+--- are described in Chapter 13.
 
-== 5.4 Dissolvenze (Fade In e Fade Out)
-Il pannello consente di impostare, per la singola clip, la durata delle
-dissolvenze in ingresso e in uscita. I valori vanno da 0 a 60.000
-millisecondi (60 secondi) e la curva applicata è lineare.
+== 5.4 Fades (Fade In and Fade Out)
+The panel lets you set, per clip, the duration of the incoming and
+outgoing fades. Values range from 0 to 60,000 milliseconds (60 seconds)
+and the curve applied is linear.
 
-#strong[Fade In.] Il tempo che il volume impiega ad arrivare al livello
-massimo dall'avvio. Un valore di 2000 ms produce una salita graduale di
-due secondi. Usalo sulle basi musicali che devono emergere dolcemente;
-mantienilo a 0 per le voci e gli effetti che devono essere uditi
-immediatamente.
+#strong[Fade In.] The time the volume takes to reach its maximum level
+from the start. A value of 2000 ms produces a gradual two-second rise.
+Use it on music beds that should emerge gently; keep it at 0 for voices
+and effects that need to be heard immediately.
 
-#strong[Fade Out.] Il tempo di dissolvenza alla chiusura --- sia quando
-si clicca su una clip attiva, sia nelle transizioni. Valori tipici:
-2000--3000 ms per le canzoni, 500--1000 ms per le basi, 0 ms per gli
-stacchi secchi.
+#strong[Fade Out.] The fade time at close, both when you click an active
+clip and during transitions. Typical values: 2000--3000 ms for songs,
+500--1000 ms for beds, 0 ms for hard stingers.
 
-Un fade out a 0 ms produce una chiusura immediata («hard cut»). Su un
-brano musicale in diretta può essere percepito come un errore tecnico:
-valuta con attenzione quando è appropriato.
+A 0 ms fade out produces an immediate close ("hard cut"). On a music
+track, live, it can be perceived as a technical error: consider
+carefully when it is appropriate.
 
-== 5.5 Assegnazione controlli
-Ogni clip può essere lanciata anche da un tasto della tastiera o da un
-controller MIDI.
+== 5.5 Assigning controls
+Every clip can also be launched from a keyboard key or a MIDI
+controller.
 
-#strong[Trigger Keybind.] Il tasto della tastiera assegnato alla clip.
-Puoi impostarlo dal campo dedicato nelle impostazioni della clip (clicca
-e premi il tasto desiderato) oppure dalla finestra #strong[Keybinds]
-raggiungibile dal menu Strumenti. Il badge corrispondente compare sulla
-card. Se il tasto è già assegnato a un'altra clip, il software segnala
-il conflitto prima di sovrascrivere.
+#strong[Trigger Keybind.] The keyboard key assigned to the clip. You can
+set it from the dedicated field in the clip settings (click and press
+the desired key) or from the #strong[Keybinds] window reachable from the
+Tools menu. The corresponding badge appears on the card. If the key is
+already assigned to another clip, the software reports the conflict
+before overwriting.
 
-#strong[MIDI Bind.] La nota MIDI assegnata (es. `NOTE:60`).
-L'assegnazione avviene tramite la modalità #strong[MIDI Learn] (vedi
-Capitolo 8), non digitando il numero a mano.
+#strong[MIDI Bind.] The assigned MIDI note (e.g.~`NOTE:60`). The
+assignment is made through #strong[MIDI Learn] mode (see Chapter 8), not
+by typing the number by hand.
 
-I binding delle clip sono salvati nel file di progetto: portando il
-progetto su un altro computer con lo stesso controller MIDI, le
-mappature funzioneranno senza riconfigurazione.
+Clip bindings are saved in the project file: carry the project to
+another computer with the same MIDI controller and the mappings will
+work without reconfiguration.

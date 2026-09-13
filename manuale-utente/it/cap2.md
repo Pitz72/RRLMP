@@ -13,13 +13,13 @@ Prima di procedere, verifica che il tuo computer soddisfi i requisiti minimi. Le
 | | Minimo | Consigliato |
 |---|---|---|
 | **Sistema operativo (Windows)** | Windows 10 64-bit | Windows 11 64-bit |
-| **Sistema operativo (macOS)** | macOS 11 Big Sur | macOS 13 Ventura o successivi |
+| **Sistema operativo (macOS)** | macOS 11 Big Sur, compilando dal sorgente | macOS 13 Ventura o successivi |
 | **Sistema operativo (Linux)** | Ubuntu 20.04 / Debian 11 | Ubuntu 22.04 LTS |
 | **RAM** | 4 GB | 8 GB o più |
 | **Spazio su disco** | 300 MB (applicazione) | 1 GB + spazio per i file audio |
 | **CPU** | Qualsiasi dual-core moderno | Quad-core o superiore |
 
-Il software è ottimizzato per Apple Silicon (M1, M2, M3) e gira in modo nativo su entrambe le architetture macOS senza emulazione Rosetta.
+Per Windows e Linux sono disponibili pacchetti pronti. Su macOS non esiste un installer ufficiale: il programma si compila dal sorgente (paragrafo 2.3).
 
 Non è richiesta una scheda audio dedicata: RLMP funziona con qualsiasi periferica audio riconosciuta dal sistema operativo, dalla scheda audio integrata ai mixer USB professionali come il Rødecaster Pro o l'RØDECaster Duo.
 
@@ -27,24 +27,27 @@ Non è richiesta una scheda audio dedicata: RLMP funziona con qualsiasi periferi
 
 ## 2.2 Installazione su Windows
 
-1. Scarica il file `Runtime-Live-Machine-Pro-1.15.32.exe` dal canale di distribuzione ufficiale.
+1. Scarica il file `Runtime-Live-Machine-Pro-1.15.32.exe` dalla pagina **Releases** del progetto su GitHub (`github.com/Pitz72/RRLMP/releases`).
 2. Fai doppio click sull'eseguibile. L'installer NSIS si avvierà e copierà i file nelle directory appropriate.
 3. Al termine, un collegamento verrà creato sul Desktop e nel menu Start.
 4. L'applicazione si avvia automaticamente al completamento dell'installazione.
 
-**Nota su Windows SmartScreen.** Poiché il software viene aggiornato con frequenza, il certificato di firma digitale potrebbe non avere ancora accumulato la «reputazione» sufficiente per la whitelist automatica di SmartScreen. Se compare l'avviso «Il PC è stato protetto da Windows», clicca su *Ulteriori informazioni* e poi su *Esegui comunque*. Il software è privo di malware; gli installer ufficiali sono pubblicati esclusivamente attraverso i canali di distribuzione dell'autore.
+**Nota su Windows SmartScreen.** Gli installer non sono firmati con un certificato commerciale, quindi SmartScreen non li riconosce in automatico. Se compare l'avviso «Il PC è stato protetto da Windows», clicca su *Ulteriori informazioni* e poi su *Esegui comunque*. Il software è privo di malware; gli installer ufficiali sono pubblicati esclusivamente nella pagina Releases del progetto, e il codice sorgente è pubblico.
 
 ---
 
-## 2.3 Installazione su macOS
+## 2.3 macOS: compilare dal sorgente
 
-1. Scarica il file `.dmg` dal canale ufficiale.
-2. Apri il file immagine e trascina l'icona di Runtime Live Machine Pro nella cartella *Applicazioni*.
-3. Al primo avvio, macOS potrebbe mostrare un avviso Gatekeeper («App non può essere aperta perché proviene da uno sviluppatore non identificato»). Per procedere, apri *Preferenze di Sistema* → *Sicurezza e Privacy* → *Generali* e clicca su *Apri comunque* accanto al nome dell'applicazione.
+Per macOS non esiste un installer ufficiale. Runtime Live Machine Pro è software libero: chi ha un Mac può scaricare il codice sorgente e compilare il programma sul proprio computer.
 
-Dalla versione macOS 15 (Sequoia) in poi, il percorso è *Impostazioni di Sistema* → *Privacy e sicurezza* → scorri fino alla sezione *Sicurezza*.
+1. Installa **Node.js 20** (e git, se vuoi clonare il repository).
+2. Scarica il codice da `github.com/Pitz72/RRLMP`, con il pulsante *Code* oppure con `git clone`.
+3. Nella cartella del progetto esegui, in ordine: `npm ci`, `npm run build:main`, `npm run build:preload`, `npx vite build` e `npx electron-builder --mac --publish never`.
+4. Il file `.dmg` si trova nella cartella `builds/`: aprilo e trascina l'applicazione in *Applicazioni*.
 
-> **Nota.** L'applicazione macOS non è firmata con un certificato Apple Developer. Questo influisce anche sul modo in cui vengono gestiti gli aggiornamenti, come spiegato nel Capitolo 12.
+Il pacchetto compilato così non è firmato: al primo avvio macOS mostra un avviso Gatekeeper. Fai clic destro sull'applicazione e scegli *Apri*, oppure consenti l'apertura da *Impostazioni di Sistema* → *Privacy e sicurezza*, nella sezione *Sicurezza*. Le istruzioni sempre aggiornate stanno nel file `CONTRIBUTING.md` del progetto.
+
+> **Nota.** Un'applicazione compilata da sé segnala le nuove versioni ma non può installarle: per aggiornare si scarica il codice aggiornato e si ricompila (Capitolo 12). I progetti `.lmp` restano compatibili.
 
 ---
 

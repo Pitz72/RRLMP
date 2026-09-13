@@ -85,7 +85,7 @@
 // COLOPHON / PAGINA DEI DIRITTI
 // =============================================================================
 #let colophon(versione: "1.11.5", autore: "Simone Pizzi", edizione: "Seconda Edizione · 2026",
-              produzione: "Ecosystem.Runtime") = {
+              produzione: "Runtime Radio") = {
   page(header: none, footer: none)[
     #v(1fr)
     #align(center)[
@@ -99,7 +99,7 @@
       #v(3mm)
       #box(width: 30mm, line(length: 100%, stroke: 1pt + brandGrad))
       #v(3.5mm)
-      #text(fill: c.ink, weight: 600)[© 2026 #produzione / #autore]
+      #text(fill: c.ink, weight: 600)[© 2026 #autore (#produzione)]
       #linebreak()
       #T.rights
       #v(4.5mm)

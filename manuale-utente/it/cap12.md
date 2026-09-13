@@ -43,7 +43,10 @@ Il modo in cui l'aggiornamento viene installato dipende dal sistema operativo.
 **Windows e Linux (AppImage).**
 L'aggiornamento è completamente integrato: scarichi la nuova versione dalla finestra e il software la installa al successivo riavvio, senza passaggi manuali.
 
-**macOS e Linux (pacchetto .deb).**
-Su questi sistemi RLMP non può installare l'aggiornamento in modo affidabile. Al posto dell'installazione automatica, la finestra ti avvisa e apre il browser sulla pagina di download della nuova versione: da lì scarichi il pacchetto e lo installi come faresti per una nuova installazione (Capitolo 2). I tuoi progetti e i file `.lmp` restano intatti.
+**Linux (pacchetto .deb).**
+Con questo formato RLMP non può installare l'aggiornamento in modo affidabile. Al posto dell'installazione automatica, la finestra ti avvisa e apre il browser sulla pagina di download della nuova versione: da lì scarichi il pacchetto e lo installi come faresti per una nuova installazione (Capitolo 2). I tuoi progetti e i file `.lmp` restano intatti.
+
+**macOS (compilato dal sorgente).**
+Non esiste un pacchetto ufficiale da scaricare: la finestra segnala la nuova versione e apre la pagina del progetto, ma per aggiornare si scarica il codice aggiornato e si ricompila (paragrafo 2.3).
 
 > **Nota.** In tutti i casi, aggiornare RLMP non comporta la perdita dei progetti: i file `.lmp` sono compatibili tra le versioni e non richiedono migrazione manuale.

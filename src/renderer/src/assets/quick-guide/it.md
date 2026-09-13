@@ -1,17 +1,18 @@
 # Runtime Live Machine Pro — Guida Rapida
 
-**Versione 1.15.10 · Italiano**
+**Versione 1.15.33 · Italiano**
 
-Benvenuto in Runtime Live Machine Pro (RLMP), il software di playout audio per radio, dirette ed eventi live. Questa guida ti porta dall'installazione al primo play in pochi minuti. Per la documentazione completa, consulta il Manuale Utente (scaricabile dal software con il pulsante "Manuale").
+Benvenuto in Runtime Live Machine Pro (RLMP), il software di playout audio per radio, dirette ed eventi live. Questa guida ti porta dall'installazione al primo play in pochi minuti. Per la documentazione completa, consulta il Manuale Utente (pulsante *Manuale Utente*). RLMP è software libero, rilasciato sotto licenza MIT: il codice è su `github.com/Pitz72/RRLMP`.
 
 ---
 
 ## Novità di questa versione
 
-- **Esporta progetto con audio** — la voce del menu FILE (sotto *Salva Come…*) consolida tutto l'audio in una sottocartella `audio/` e vi ripunta le clip: da quel momento l'archivio è il riferimento del progetto e **puoi cancellare i file originali in sicurezza**. Prima si chiamava "Esporta Archivio".
-- **Svuota colonna** — l'icona a cestino nell'intestazione di ogni colonna rimuove tutte le sue clip in un colpo solo, con richiesta di conferma (annullabile con `Ctrl+Z`).
-- **Badge Intro sulle card** — se una clip ha un punto di Intro configurato, un badge ciano `I` con i secondi resta sempre visibile; il badge BPM è ora giallo fluorescente ad alta visibilità.
-- **Aggiornamenti in-app migliorati** — la finestra di aggiornamento è più grande e mostra le note di rilascio reali (il changelog); a "Riavvia e installa" l'app si chiude in modo pulito e l'installazione parte senza intoppi.
+- **Software libero** — Runtime Live Machine Pro non è più in vendita: è rilasciato sotto licenza MIT e il codice sorgente è pubblico. Aggiornamenti e download arrivano dal repository del progetto su GitHub.
+- **Banner IN ONDA sempre presente** — il brano in onda è in evidenza con avanzamento, timer a fasi e UP NEXT, senza più spostare le colonne.
+- **Italiano e inglese** — l'interfaccia è disponibile in due lingue, scelte dalla tendina in alto a destra della schermata di benvenuto.
+- **Smart Mic** — con un microfono USB collegato al computer, la musica scende da sola quando parli (pulsante ARM).
+- **macOS** — nessun installer ufficiale: chi ha un Mac compila il programma dal sorgente.
 
 ---
 
@@ -20,12 +21,12 @@ Benvenuto in Runtime Live Machine Pro (RLMP), il software di playout audio per r
 | | Minimo | Consigliato |
 |---|---|---|
 | Windows | 10 64-bit | 11 64-bit |
-| macOS | 11 Big Sur | 13 Ventura o successivi |
+| macOS (dal sorgente) | 11 Big Sur | 13 Ventura o successivi |
 | Linux | Ubuntu 20.04 / Debian 11 | Ubuntu 22.04 LTS |
 | RAM | 4 GB | 8 GB o più |
 | Disco | 300 MB | 1 GB + spazio per gli audio |
 
-Non serve una scheda audio dedicata: RLMP funziona con qualsiasi periferica riconosciuta dal sistema, dall'uscita integrata ai mixer USB professionali (Rødecaster Pro, Rødecaster Duo, ecc.). Ottimizzato nativamente per Apple Silicon (M1/M2/M3).
+Non serve una scheda audio dedicata: RLMP funziona con qualsiasi periferica riconosciuta dal sistema, dall'uscita integrata ai mixer USB professionali (Rødecaster Pro, Rødecaster Duo, ecc.).
 
 ---
 
@@ -37,9 +38,7 @@ Non serve una scheda audio dedicata: RLMP funziona con qualsiasi periferica rico
 3. Segui la procedura guidata. Al termine si crea un collegamento su Desktop e nel menu Start.
 
 **macOS**
-1. Apri il file `.dmg` scaricato.
-2. Trascina l'icona di Runtime Live Machine Pro nella cartella **Applicazioni**.
-3. Al primo avvio, se macOS mostra l'avviso Gatekeeper, vai in **Impostazioni di Sistema → Privacy e sicurezza** e clicca su **Apri comunque** accanto al nome dell'app.
+Non esiste un installer ufficiale: il programma si compila dal sorgente. Le istruzioni sono nel Manuale Utente (paragrafo 2.3) e nel file `CONTRIBUTING.md` del progetto su GitHub.
 
 **Linux**
 - **AppImage** (portabile, nessuna installazione): rendi il file eseguibile con `chmod +x` e avvialo.
@@ -99,4 +98,4 @@ Nella maggior parte delle colonne vale la regola "una clip alla volta": avviarne
 
 Buona diretta.
 
-*Runtime Live Machine Pro è un progetto Ecosystem.Runtime — © Simone Pizzi.*
+*Runtime Live Machine Pro è un progetto di Runtime Radio — software libero, licenza MIT — © 2026 Simone Pizzi.*

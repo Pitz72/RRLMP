@@ -7,7 +7,7 @@
 Cos'è RLMP e per chi è stato costruito. La filosofia «Single Show». L'architettura Main-Side-Heavy. La griglia di regia: una grammatica visiva.
 
 **Capitolo 2 — Installazione e primo avvio**
-Requisiti di sistema. Installazione su Windows, macOS e Linux. La schermata di benvenuto. Il primo avvio: cosa aspettarsi.
+Requisiti di sistema. Installazione su Windows e Linux. macOS: compilare dal sorgente. La schermata di benvenuto. Il primo avvio: cosa aspettarsi.
 
 **Capitolo 3 — L'interfaccia di lavoro**
 La Barra di Controllo: logo, timer On Air, orologio di studio, Master Volume, VU meter, STOP ALL, pulsante ARM del microfono, menu File e Strumenti. Il banner IN ONDA: il brano in evidenza, il timer a fasi, UP NEXT. La griglia a sei colonne: intestazioni, avviso DEAD AIR, personalizzazione cromatica. La Card Audio: anatomia, badge di stato, interazione.

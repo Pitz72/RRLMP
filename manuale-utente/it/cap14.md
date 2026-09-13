@@ -72,9 +72,9 @@ Il bordo rosso indica che il file audio non è raggiungibile al percorso memoriz
 
 ## 14.4 Problemi di avvio
 
-### L'applicazione non si avvia su macOS (avviso Gatekeeper)
+### L'applicazione compilata non si avvia su macOS (avviso Gatekeeper)
 
-Vedi la sezione 2.3: sblocco tramite *Impostazioni di Sistema → Privacy e sicurezza*.
+Vedi la sezione 2.3: clic destro sull'applicazione → *Apri*, oppure sblocco da *Impostazioni di Sistema → Privacy e sicurezza*.
 
 ### L'applicazione non si avvia su Windows (avviso SmartScreen)
 
@@ -95,13 +95,13 @@ No. RLMP è progettato per la regia live: show presidiati da un operatore. Non d
 *Salva Progetto* sovrascrive il file `.lmp` aperto, in silenzio. *Salva Come…* apre sempre la finestra di dialogo e crea un nuovo file, senza toccare quello corrente.
 
 **Posso usare RLMP su iPad o su dispositivi mobile?**
-Non come applicazione principale: RLMP è un software desktop per Windows, macOS e Linux. Un tablet o un telefono possono però fungere da **telecomando** via browser, tramite il Controllo Remoto (Capitolo 11).
+Non come applicazione principale: RLMP è un software desktop per Windows e Linux, compilabile anche su macOS. Un tablet o un telefono possono però fungere da **telecomando** via browser, tramite il Controllo Remoto (Capitolo 11).
 
 **I file `.lmp` delle versioni precedenti sono compatibili con la 1.15.32?**
 Sì. Aprendo un progetto creato con una versione precedente, RLMP ne aggiorna automaticamente la struttura, comprese le colonne aggiunte nel frattempo, senza modificare il file finché non esegui un salvataggio.
 
 **Come aggiorno RLMP a una nuova versione?**
-Il software controlla gli aggiornamenti all'avvio e ti avvisa. Su Windows e Linux AppImage l'installazione è automatica dalla finestra di aggiornamento; su macOS e Linux `.deb` viene aperto il browser sulla pagina di download. Tutti i dettagli nel Capitolo 12.
+Il software controlla gli aggiornamenti all'avvio e ti avvisa. Su Windows e Linux AppImage l'installazione è automatica dalla finestra di aggiornamento; su Linux `.deb` viene aperto il browser sulla pagina di download; su macOS si ricompila dal sorgente. Tutti i dettagli nel Capitolo 12.
 
 **Dove vengono salvati i backup automatici?**
 Nella cartella `autosaves` all'interno della directory dati dell'applicazione (`%APPDATA%\runtime-live-machine-pro\autosaves\` su Windows; percorsi equivalenti su macOS e Linux, Capitolo 10). Vengono conservate le dieci istantanee più recenti.

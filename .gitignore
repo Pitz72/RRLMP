@@ -119,7 +119,7 @@ dist/
 release/
 .claude/worktrees/
 
-# Gumroad distribution packages (installers, assembled from public release)
+# Pacchetti di distribuzione locali della fase commerciale (storici, mai in git)
 distribuzione/
 
 # Source graphic assets (raw files, not for repo)
@@ -127,3 +127,9 @@ IMPORT/
 
 # Impostazioni locali di Claude Code (permessi e percorsi della macchina)
 .claude/settings.local.json
+
+# Materiale promozionale e sorgenti grafici fuori da git (apertura del sorgente, Fase 2)
+MATERIALE/
+
+# Il sito ha un repository a sé: la cartella locale non entra in questo progetto
+website/

@@ -12,14 +12,14 @@ Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio)
 | Area | Stato |
 |------|-------|
 | Typecheck (renderer/main/node/preload) | **0 errori** su tutti e 4 |
-| Test Vitest | **224/224 verdi** (23 file) |
+| Test Vitest | **232/232 verdi** (24 file) |
 | Criticità aperte del codice | **nessuna** dalla [revisione 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md) (22 reperti chiusi in 1.15.16 → 1.15.29) — resta da verificare il limiter, vedi sotto |
 | Ultima release **pubblicata** | **v1.15.32** — note cumulative 1.15.16 → 1.15.32 in italiano e inglese; v1.15.31 e v1.15.15 eliminate con i tag |
 | Lingue | **Solo italiano e inglese** in app, guida rapida, manuale e note di rilascio (dalla 1.15.32) |
 | Manuale utente | IT + EN allineati alla 1.15.32, schermate nuove, pubblicati su `RRLMP-Releases/manuals` (link verificato dal software) |
 | Auto-updater | operativo (nativo su Windows/Linux-AppImage, fallback browser su macOS/.deb); `latest.yml` e `latest-linux.yml` → 1.15.32 |
-| Pacchetti | exe 114 MB · AppImage 158 MB · deb 108 MB · dmg 143 MB (il problema dei 500 MB non si ripresenta) |
-| Distribuzione Gumroad | pacchetti fermi alla 1.15.10 — scelta deliberata: gli utenti si aggiornano dall'updater |
+| Pacchetti | exe 114 MB · AppImage 158 MB · deb 108 MB · dmg 143 MB (il problema dei 500 MB non si ripresenta). Dalla 1.15.33 niente più `.dmg`: macOS si compila dal sorgente |
+| Apertura del sorgente | **in corso**: ritiro dalla vendita e pubblicazione MIT su `Pitz72/RRLMP` — Fasi 1 e 2 chiuse, vedi [PIANO-APERTURA.md](./PIANO-APERTURA.md) |
 
 ---
 
@@ -124,7 +124,7 @@ Si guadagna: niente cattura di sistema (niente AGC, niente notifiche Windows in 
 - **Solo italiano e inglese** — app, guida rapida, manuale e note di rilascio (dalla 1.15.32). Nuove chiavi i18n solo in `it.json` + `en.json`; `supportedLngs: ['en','it']` fa ripiegare su inglese chi aveva una lingua rimossa.
 - **Ciclo di rilascio**: si eliminano le release precedenti; il changelog della versione **è** il corpo della release, in italiano (`<ver>.md`) e inglese (`<ver>.en.md`, obbligatorio). L'updater mostra **solo** il corpo dell'ultima release → le note devono essere **cumulative** dall'ultima versione che gli utenti potrebbero avere.
 - **La CI non usa lo storage artifact in modalità release** (bozza → upload diretto → publish finale).
-- **Nessun ricarico su Gumroad a ogni patch** — gli utenti si aggiornano dall'updater.
+- **Nessuna vendita** — dal settembre 2026 il programma è software libero MIT, distribuito solo da GitHub; macOS si compila dal sorgente.
 - **Schermate del manuale** si rifanno con gli script (`manuale-utente/capture-app.js`, `capture-extra.js`, `finalize-screenshots.py`) su Vite :5199 — config "Renderer (Vite, porta capture manuale)" in `.claude/launch.json`.
 
 ---

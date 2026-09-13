@@ -1,17 +1,18 @@
 # Runtime Live Machine Pro — Quick Start Guide
 
-**Version 1.15.10 · English**
+**Version 1.15.33 · English**
 
-Welcome to Runtime Live Machine Pro (RLMP), the audio playout software for radio, live shows, and events. This guide gets you from installation to your first play in a few minutes. For full documentation, see the User Manual (downloadable from the software via the "Manual" button).
+Welcome to Runtime Live Machine Pro (RLMP), the audio playout software for radio, live shows, and events. This guide gets you from installation to your first play in a few minutes. For full documentation, see the User Manual (*User Manual* button). RLMP is free software released under the MIT licence: the code is at `github.com/Pitz72/RRLMP`.
 
 ---
 
 ## What's new in this version
 
-- **Export project with audio** — this FILE menu item (below *Save As…*) consolidates all audio into an `audio/` subfolder and re-points the clips to it: from that moment on, the archive is the project's reference and **you can safely delete the original files**. It used to be called "Export Archive".
-- **Clear column** — the trash-can icon in each column header removes all of its clips in one go, with a confirmation prompt (undoable with `Ctrl+Z`).
-- **Intro badge on cards** — if a clip has an Intro point configured, a cyan `I` badge with the number of seconds stays permanently visible; the BPM badge is now high-visibility fluorescent yellow.
-- **Improved in-app updates** — the update window is larger and shows the real release notes (the changelog); when you choose "Restart and install", the app closes cleanly and the installation runs without a hitch.
+- **Free software** — Runtime Live Machine Pro is no longer for sale: it is released under the MIT licence and the source code is public. Updates and downloads come from the project repository on GitHub.
+- **ON AIR banner always visible** — the track on air is shown with progress, a phased timer and UP NEXT, without shifting the columns any more.
+- **Italian and English** — the interface comes in two languages, picked from the drop-down in the top-right corner of the welcome screen.
+- **Smart Mic** — with a USB microphone plugged into the computer, the music dips on its own when you speak (ARM button).
+- **macOS** — no official installer: if you have a Mac, you build the program from source.
 
 ---
 
@@ -20,12 +21,12 @@ Welcome to Runtime Live Machine Pro (RLMP), the audio playout software for radio
 | | Minimum | Recommended |
 |---|---|---|
 | Windows | 10 64-bit | 11 64-bit |
-| macOS | 11 Big Sur | 13 Ventura or later |
+| macOS (from source) | 11 Big Sur | 13 Ventura or later |
 | Linux | Ubuntu 20.04 / Debian 11 | Ubuntu 22.04 LTS |
 | RAM | 4 GB | 8 GB or more |
 | Disk | 300 MB | 1 GB + space for audio files |
 
-No dedicated sound card required: RLMP works with any device recognized by your system, from built-in outputs to professional USB mixers (Rødecaster Pro, Rødecaster Duo, etc.). Natively optimized for Apple Silicon (M1/M2/M3).
+No dedicated sound card required: RLMP works with any device recognized by your system, from built-in outputs to professional USB mixers (Rødecaster Pro, Rødecaster Duo, etc.).
 
 ---
 
@@ -37,9 +38,7 @@ No dedicated sound card required: RLMP works with any device recognized by your 
 3. Follow the setup wizard. A shortcut is created on the Desktop and in the Start menu once it's done.
 
 **macOS**
-1. Open the downloaded `.dmg` file.
-2. Drag the Runtime Live Machine Pro icon into the **Applications** folder.
-3. On first launch, if macOS shows a Gatekeeper warning, go to **System Settings → Privacy & Security** and click **Open Anyway** next to the app name.
+There is no official installer: the program is built from source. Instructions are in the User Manual (section 2.3) and in the project’s `CONTRIBUTING.md` file on GitHub.
 
 **Linux**
 - **AppImage** (portable, no installation): make the file executable with `chmod +x` and run it.
@@ -99,4 +98,4 @@ In most columns the rule is "one clip at a time": starting a new one automatical
 
 Enjoy the show.
 
-*Runtime Live Machine Pro is an Ecosystem.Runtime project — © Simone Pizzi.*
+*Runtime Live Machine Pro is a Runtime Radio project — free software, MIT licence — © 2026 Simone Pizzi.*

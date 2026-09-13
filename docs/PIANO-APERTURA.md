@@ -3,7 +3,7 @@
 **Aperto:** 13 settembre 2026 · **Decisioni prese:** 13 settembre 2026
 **Obiettivo:** ritirare Runtime Live Machine Pro dalla vendita, portarlo su `Pitz72/RRLMP` come
 repository pubblico sotto licenza MIT, con le release pubblicate nello stesso repository.
-**Stato:** decisioni prese · **FASE 1 CHIUSA** (13/09) · prossima: Fase 2.
+**Stato:** decisioni prese · **FASI 1 e 2 CHIUSE** (13/09) · prossima: Fase 4.1–4.2 (trasferimento e pubblicazione), poi la Fase 3 (release ponte 1.15.33).
 
 > **Il modello è doppio.** Questa procedura ricalca i piani già eseguiti con successo da
 > *Runtime TelegramBot Desktop Titan Edition* (12–13 agosto 2026) e *Runtime FeedDownloader Pro*
@@ -154,25 +154,61 @@ Info, nel README e nei manuali.
 > Da portare in Fase 2: restano tracciati `.claude/settings.json`, `.claude/launch.json` e
 > `.claude/PROJECT_STATE.md` (quest'ultimo con indirizzi vecchi): valutarli nell'audit completo.
 
-## FASE 2 — Documentazione, manuali e riordino
+## FASE 2 — Documentazione, manuali e riordino ✅ CHIUSA (13/09)
 
-- [ ] **Colophon dei manuali** — `strings.typ` IT+EN: via «Tutti i diritti riservati», dentro MIT e
-      credito ai modelli; rigenerare copertine e i due PDF, verificarli a video.
-- [ ] **macOS nei manuali** — capitolo 2 (installazione): la sezione macOS diventa «compilare dal
-      sorgente»; togliere i riferimenti al `.dmg` e a Gatekeeper per l'installer ufficiale (cap. 2,
-      12, 14). Stessa correzione nella guida rapida in-app.
-- [ ] **Guida rapida in-app** (`assets/quick-guide/it.md`, `en.md`) — riga di licenza.
-- [ ] **Documentazione di progetto** — `docs/INDEX.md`, `docs/ROADMAP.md` (via le decisioni
-      commerciali: Gumroad, «nessun ricarico»), `docs/VISION.md`, `relazione.md` (voce di apertura).
-- [ ] **Riordino dell'albero corrente** (la storia resta intatta) — togliere il gitlink `website`,
-      `RRLMP.zip`, il video e il PDF pesanti di `docs/assets/` (conservarli fuori da git se servono);
-      ripulire `.gitignore` dai riferimenti Gumroad.
-- [ ] **Cartelle locali commerciali** — `distribuzione/`, `DISTRIBUZIONE/`, `builds/`: eliminarle o
-      archiviarle su decisione dell'utente (FeedDownloader ne ha tolti 2,56 GB).
-- [ ] **Audit completo della storia** come FeedDownloader: estrazione integrale dei blob testuali di
-      tutti i ref e scansione non campionaria (segreti, credenziali, dati personali). Serve a
-      confermare che la storia **si pubblica così com'è**; se emergesse un segreto vero, ci si ferma e
-      si decide con l'utente prima di qualunque riscrittura.
+> Eseguita nella stessa sessione della Fase 1, su via esplicito dell'utente.
+
+- [x] ⛔ **Audit completo della storia** — **277 commit** su tutti i ref, **2.538 blob unici**, di cui
+      **2.342 testuali (49,6 MB) estratti e scansionati per intero**, non a campione.
+      **Verdetto: pubblicabile senza riscrivere niente.**
+      - **Zero segreti**: nessun token GitHub/GitLab, chiave AWS o Google, token Slack, Telegram,
+        OpenAI/Anthropic, chiave privata, JWT, chiave Stripe, password assegnata, URL con
+        credenziali o header `Authorization`, in nessuna versione di nessun file.
+      - **Nessun file con nome sensibile** mai esistito (`.env`, `secret`, `credential`, `.pem`,
+        `.key`, `.npmrc`…). Anche le versioni storiche di `.claude/settings.local.json` sono pulite.
+      - **Email**: solo `pizzisimone1972@gmail.com` (autore) e `info@runtimeradio.it` (contatto
+        pubblico); l'unica altra è l'URL finto `github.com@evil.example` del test dei link.
+      - **Nessun numero di telefono.** Gli IPv4 sono indirizzi di rete locale d'esempio
+        (`192.168.1.x` della demo e dei test) o numeri di versione scambiati per indirizzi.
+      - **Un solo autore**, con due nomi (`Pitz72` e `Simone`) e la stessa email.
+- [x] **Colophon dei manuali** — `strings.typ` IT+EN: al posto di «Tutti i diritti riservati» e del
+      divieto di riproduzione, «Software libero, rilasciato sotto licenza MIT» e la licenza del
+      manuale stesso; credito agli otto modelli e indirizzo del codice. Riga di copyright allineata al
+      file `LICENSE`: «© 2026 Simone Pizzi (Runtime Radio)» (prima «Ecosystem.Runtime / Simone Pizzi»).
+      I due PDF sono stati ricompilati (IT 49 pagine, EN 48) e verificati sul testo e a video.
+- [x] **macOS nei manuali** — cap. 2: requisiti «compilando dal sorgente», via la frase su Apple
+      Silicon, **nuovo paragrafo 2.3 «macOS: compilare dal sorgente»** (Node.js 20, comandi di build,
+      Gatekeeper sul pacchetto non firmato, niente aggiornamenti automatici). Cap. 12: il `.deb` e
+      macOS separati. Cap. 14: FAQ e avvio. INDICE aggiornato. IT ed EN.
+- [x] **Distribuzione nei manuali** — cap. 2: gli installer si scaricano dalla pagina **Releases** su
+      GitHub (prima «canale di distribuzione ufficiale»); la nota su SmartScreen dice ora il vero
+      motivo: installer non firmati con un certificato commerciale.
+- [x] **Guida rapida in-app** IT+EN — riga di licenza e indirizzo del codice, «Novità» riscritte
+      (erano ferme alla 1.15.10), macOS dal sorgente, via Apple Silicon, piè di pagina «progetto di
+      Runtime Radio — software libero, licenza MIT».
+- [x] **Documentazione di progetto** — `docs/INDEX.md` (sezione «Progetto aperto» con LICENSE,
+      SECURITY, CONTRIBUTING e README; questo piano fra i documenti da leggere per primi; comandi e
+      baseline aggiornati a 4 typecheck e 232 test), `docs/ROADMAP.md` (via la riga Gumroad e la
+      regola «nessun ricarico», dentro lo stato dell'apertura), `docs/VISION.md` (piattaforme).
+      La voce in `relazione.md` arriva con la 1.15.33 in Fase 3, perché la tabella è per versione.
+- [x] **Riordino dell'albero corrente** (la storia resta intatta):
+      - via `RRLMP.zip`, `ts_error.txt` (errore di compilazione della 0.11.0), `tmp/check_binaries.js`,
+        `.gitlab-ci.yml` (CI del periodo GitLab), `manuale-utente/build_manual_pdf.py` (pipeline PDF
+        dismessa, conteneva il vecchio colophon) e `.claude/PROJECT_STATE.md` (fermo alla 0.16.2, con
+        gli indirizzi GitLab);
+      - via il **gitlink orfano `website`** (la cartella resta sul disco, ora ignorata);
+      - `compilazione-mac.txt` spostato in `docs/archive/compilazione-mac-v1.0.0.txt`, superato da
+        `CONTRIBUTING.md`;
+      - da `docs/assets/` tolti 12 file promozionali mai citati dalla documentazione (video 31,7 MB,
+        PDF 18,5 MB, immagini di marketing): copiati in `MATERIALE/docs-assets/`, fuori da git come in
+        FeedDownloader. Restano `banner.png` (README) e `icon.png` (citata da un changelog);
+      - `.gitignore`: via il riferimento a Gumroad, dentro `MATERIALE/` e `website/`.
+      Restano tracciati `.claude/settings.json` e `.claude/launch.json`: innocui e utili a chi usa
+      Claude Code sul progetto.
+- [ ] **Cartelle locali commerciali** — `distribuzione/` (1,2 GB; su Windows è la stessa cartella di
+      `DISTRIBUZIONE/`) e `builds/` (17 GB), fuori da git: **in attesa della decisione dell'utente**
+      se eliminarle o archiviarle.
+- [x] Gate verde: `tsc` ×4 zero errori, Vitest 232/232.
 
 ## FASE 3 — La release ponte e prima da progetto aperto (v1.15.33)
 

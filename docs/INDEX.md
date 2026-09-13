@@ -1,8 +1,8 @@
 # RRLMP — Centro Documentazione
 
 **Software:** Runtime Live Machine Pro · **versione corrente 1.15.32**
-**Repo codice:** `Ecosystem-Runtime/RRLMP` · **Repo rilasci pubblici:** `Ecosystem-Runtime/RRLMP-Releases`
-*Indice aggiornato: 2026-07-28*
+**Repo codice:** `Ecosystem-Runtime/RRLMP` (privato, in migrazione verso **`Pitz72/RRLMP`** pubblico) · **Repo rilasci pubblici:** `Ecosystem-Runtime/RRLMP-Releases` (ponte fino alla fine dell'apertura)
+*Indice aggiornato: 2026-09-13*
 
 Punto di ingresso unico alla documentazione del progetto. Ogni voce dice **a cosa serve** e **quanto è aggiornata**, così non serve aprire un file per scoprire che è fermo a due anni fa.
 
@@ -12,10 +12,20 @@ Punto di ingresso unico alla documentazione del progetto. Ogni voce dice **a cos
 
 | Documento | A cosa serve | Stato |
 |---|---|---|
+| [Piano di apertura del sorgente](./PIANO-APERTURA.md) | Ritiro dalla vendita e pubblicazione sotto licenza MIT: decisioni, fasi, stato | 🔄 **in corso** (Fasi 1-2 chiuse) |
 | [Revisione codice 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md) | Criticità aperte del codice, classificate per gravità con file:riga e fix proposto | ✅ **chiusa** (reperti risolti in 1.15.16-29, rilasciati con la 1.15.32) |
 | [Roadmap & Backlog](./ROADMAP.md) | Cosa c'è da fare adesso, cosa è sospeso, cosa è chiuso | ✅ **allineato a 1.15.32** |
 | [Regole per colonna](./regole-colonne/README.md) | Il comportamento di ogni colonna in regia — **fonte di verità del motore** | ✅ allineato a 1.15.15 |
 | [Relazione tecnica](../relazione.md) | Storico fix versione per versione | ⚠️ intestazione ferma a 1.11.5 |
+
+---
+
+## 📜 Progetto aperto
+
+- **[LICENSE](../LICENSE)** — MIT, © 2026 Simone Pizzi (Runtime Radio).
+- **[SECURITY.md](../SECURITY.md)** — come segnalare una vulnerabilità e modello di sicurezza del programma.
+- **[CONTRIBUTING.md](../CONTRIBUTING.md)** — sviluppo, regole del progetto, test, build, compilazione su macOS.
+- **[README](../README.md)** — presentazione pubblica del progetto.
 
 ---
 
@@ -39,6 +49,7 @@ Punto di ingresso unico alla documentazione del progetto. Ogni voce dice **a cos
   - `test-regia-v1.11.4.md` — checklist di test della 1.11.4
   - `integrazione-interfaccia-v1.0.0.md` — analisi del prototipo di interfaccia
   - `input-recording-implementation-v1.0.0.md` — analisi input audio e registrazione di sessione
+  - `compilazione-mac-v1.0.0.txt` — guida di compilazione macOS della 1.0.0, superata da `CONTRIBUTING.md`
 - **[Analisi e report tecnici](./technical/)** — revisioni del codice, analisi forensi dei crash, report di build.
 - `automix/PROMPT-SESSIONE-AUTOMIX.md` — documento di lavoro della feature Automix (fasi A-D, ormai completate). Storico: resta al suo posto perché citato dai changelog 1.10.14/1.10.15/1.11.0.
 
@@ -50,7 +61,7 @@ Il **manuale utente** esiste in **due lingue: italiano e inglese** (decisione de
 
 - **Sorgenti markdown:** [`manuale-utente/it/`](../manuale-utente/it/) · [`manuale-utente/en/`](../manuale-utente/en/) — 14 capitoli + INDICE
 - **PDF compilati:** `manuale-utente/typst/Manuale-Utente-IT.pdf` · `manuale-utente/typst/User-Manual-EN.pdf`
-- **Pubblicati per il download in-app:** `RRLMP-Releases/manuals/` (branch `master`), raggiunti dal pulsante "Manuale" tramite `utils/manualLinks.ts`
+- **Pubblicati per il download in-app:** `RRLMP-Releases/manuals/` (branch `master`), raggiunti dal pulsante "Manuale" tramite `utils/manualLinks.ts` (dalla release ponte 1.15.33 passano al repository pubblico)
 - **Guida rapida in-app:** `src/renderer/src/assets/quick-guide/` — **italiano e inglese**, mostrata dalla `QuickGuideModal`
 
 Build del manuale: `manuale-utente/typst/build.ps1 -All` (rigenera i capitoli e compila entrambi i PDF); copertine da `branding/build-cover.py`.
@@ -69,15 +80,15 @@ Prima di modificare il motore audio, leggere **[Architettura](./ARCHITECTURE.md)
 **Controlli obbligatori prima di ogni commit** (baseline attuale: tutti verdi):
 
 ```bash
-npx tsc --noEmit -p tsconfig.json && npx tsc --noEmit -p tsconfig.main.json && npx tsc --noEmit -p tsconfig.preload.json && npx vitest run
+npx tsc --noEmit -p tsconfig.json && npx tsc --noEmit -p tsconfig.main.json && npx tsc --noEmit -p tsconfig.node.json && npx tsc --noEmit -p tsconfig.preload.json && npx vitest run
 ```
 
-Baseline di riferimento: **0 errori TypeScript sui 3 progetti** e **172/172 test Vitest verdi**.
+Baseline di riferimento: **0 errori TypeScript sui 4 progetti** e **232/232 test Vitest verdi**. Gli stessi controlli girano nel job `verify` della CI su ogni pull request.
 
 ### Convenzioni di progetto
 
 - **SemVer stretto**: PATCH per ogni build di test e ogni step atomico; MINOR solo a feature dichiarata completa; MAJOR riservato al salto Tauri/Rust. Il numero di versione **non si abbassa mai** (l'updater confronta `remoto > corrente`).
-- **Un commit per step**, con changelog in `docs/changelogs/current/<versione>.md` e riga corrispondente in `relazione.md`.
+- **Un commit per step**, con changelog in `docs/changelogs/current/<versione>.md` e `<versione>.en.md` e riga corrispondente in `relazione.md`.
 - **Il changelog della versione diventa le note di rilascio**: `.github/workflows/build.yml` legge `docs/changelogs/current/<versione>.md` e lo usa come corpo della release — quindi va scritto per l'utente finale, non solo per lo sviluppatore.
 - **Ciclo di rilascio**: eliminare la release precedente (`gh release delete vX.Y.Z --cleanup-tag --yes`) **prima** di pubblicare la nuova; poi `gh workflow run build.yml -f publish_release=true`.
 - `builds/`, `node_modules/`, `distribuzione/` non si committano mai.

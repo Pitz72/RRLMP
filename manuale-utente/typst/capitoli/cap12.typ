@@ -1,82 +1,82 @@
 #import "../lib/manuale-template.typ": *
 
-= Aggiornamenti
+= Updates
 
-Runtime Live Machine Pro si aggiorna da solo, ma mai a tuo discapito.
-Due regole reggono tutto: nessun aggiornamento deve interferire con una
-diretta, e nessun download parte senza il tuo consenso. Questo capitolo
-spiega come il software controlla la presenza di nuove versioni, come le
-installa e perché a volte si comporta in modo diverso a seconda del
-sistema operativo.
+Runtime Live Machine Pro updates itself, but never at your expense. Two
+rules govern everything: no update may interfere with a live show, and
+no download starts without your consent. This chapter explains how the
+software checks for new versions, how it installs them, and why it
+sometimes behaves differently depending on the operating system.
 
-== 12.1 Il controllo all'avvio
-Poco dopo l'avvio (circa tre secondi), RLMP verifica in modo silenzioso
-se esiste una versione più recente. L'esito compare nella schermata di
-benvenuto, accanto al numero di versione:
+== 12.1 The startup check
+Shortly after startup (about three seconds), RLMP silently checks
+whether a newer version exists. The outcome appears on the welcome
+screen, next to the version number:
 
-- #strong[«Aggiornato»] (verde) --- stai usando l'ultima versione.
-- #strong[«Aggiornamento disponibile»] (ambra) --- è disponibile una
-  versione più recente. È un pulsante: cliccalo per aprire la finestra
-  di aggiornamento.
-- #strong[«OFFLINE»] --- non è stato possibile contattare il servizio;
-  riprova più tardi. Il software funziona normalmente.
+- #strong["Latest Version"] (green) --- you are running the most recent
+  version.
+- #strong["Update Available"] (amber) --- a newer version is available.
+  It is a button: click it to open the update window.
+- #strong["OFFLINE"] --- the service could not be reached; try again
+  later. The software works normally.
 
-Il controllo è opzionale e non bloccante: se sei offline, RLMP parte e
-lavora senza problemi.
+The check is optional and non-blocking: if you're offline, RLMP starts
+and works without any trouble.
 
-== 12.2 La finestra di aggiornamento
-Quando un aggiornamento è disponibile, la finestra dedicata mostra la
-versione corrente, la nuova versione e le #strong[note di rilascio]:
-l'elenco reale delle novità di quella versione (lo stesso changelog di
-questo software), formattato e leggibile, non un semplice elenco di
-file. Le note restano visibili anche a download completato, subito prima
-di installare, così sai sempre cosa stai per applicare. Da qui decidi
-tu:
+== 12.2 The update window
+When an update is available, the dedicated window shows the current
+version, the new version and the #strong[release notes]: the real list
+of what's new in that version (the same changelog as this software),
+formatted and readable, not a bare list of files. The notes stay visible
+even once the download is complete, right before installing, so you
+always know what you're about to apply. From here you decide:
 
-- #strong[Più tardi] --- chiude la finestra senza fare nulla. Potrai
-  riaprirla quando vuoi.
-- #strong[Scarica] --- avvia il download della nuova versione. Il
-  download #strong[non parte mai da solo]: comincia solo quando premi
-  questo pulsante. Una barra di avanzamento ne mostra il progresso.
-- #strong[Riavvia e installa] --- compare quando il download è completo:
-  chiude l'applicazione e applica l'aggiornamento. Se il progetto aperto
-  ha modifiche non salvate, prima di installare RLMP chiede cosa fare,
-  con le stesse scelte della chiusura: #strong[Salva] (salva, poi
-  installa), #strong[Non Salvare] (installa scartando le modifiche) o
-  #strong[Annulla] (non installa nulla e l'app resta aperta). Se il
-  salvataggio non va a buon fine, l'installazione non parte. Superata
-  questa domanda, la chiusura è pulita e immediata e il software non
-  resta aperto dietro l'installer.
+- #strong[Later] --- closes the window without doing anything. You can
+  reopen it whenever you like.
+- #strong[Download] --- starts downloading the new version. The download
+  #strong[never starts on its own]: it begins only when you press this
+  button. A progress bar shows its progress.
+- #strong[Restart and install] --- appears when the download is
+  complete: it closes the application and applies the update. If the
+  open project has unsaved changes, RLMP asks what to do before
+  installing, with the same choices as when closing: #strong[Save]
+  (save, then install), #strong[Don't Save] (install and discard the
+  changes) or #strong[Cancel] (install nothing; the app stays open). If
+  saving fails, the installation doesn't start. Once past this question,
+  the shutdown is clean and immediate and the software doesn't stay open
+  behind the installer.
 
-== 12.3 La regola «mai durante la diretta»
-Il controllo automatico può trovare un aggiornamento proprio mentre sei
-in onda. In quel caso, RLMP #strong[non ti interrompe]: la finestra di
-aggiornamento resta in attesa e si apre da sola soltanto quando la
-diretta è finita (quando fermi tutto). La priorità è sempre lo show in
-corso.
+== 12.3 The "never during a live show" rule
+The automatic check may find an update right while you're on air. In
+that case, RLMP #strong[does not interrupt you]: the update window waits
+and opens on its own only when the live show is over (when you stop
+everything). The priority is always the show in progress.
 
-C'è una sola eccezione, ed è voluta: il pulsante #strong[Controlla
-aggiornamenti ora], nel pannello #emph[Info] (menu Strumenti), è
-un'azione esplicita tua e apre subito la finestra, anche in diretta. Se
-lo premi, è perché lo vuoi.
+There is one exception, and it's intentional: the #strong[Check for
+updates now] button, in the #emph[Info] panel (Tools menu), is an
+explicit action of yours and opens the window immediately, even live. If
+you press it, it's because you want to.
 
-== 12.4 Differenze tra le piattaforme
-Il modo in cui l'aggiornamento viene installato dipende dal sistema
-operativo.
+== 12.4 Platform differences
+How the update is installed depends on the operating system.
 
-#strong[Windows e Linux (AppImage).] L'aggiornamento è completamente
-integrato: scarichi la nuova versione dalla finestra e il software la
-installa al successivo riavvio, senza passaggi manuali.
+#strong[Windows and Linux (AppImage).] The update is fully integrated:
+you download the new version from the window and the software installs
+it at the next restart, with no manual steps.
 
-#strong[macOS e Linux (pacchetto \.deb).] Su questi sistemi RLMP non può
-installare l'aggiornamento in modo affidabile. Al posto
-dell'installazione automatica, la finestra ti avvisa e apre il browser
-sulla pagina di download della nuova versione: da lì scarichi il
-pacchetto e lo installi come faresti per una nuova installazione
-(Capitolo 2). I tuoi progetti e i file `.lmp` restano intatti.
+#strong[Linux (.deb package).] With this format RLMP can't install the
+update reliably. Instead of automatic installation, the window notifies
+you and opens the browser on the download page for the new version: from
+there you download the package and install it as you would for a fresh
+install (Chapter 2). Your projects and `.lmp` files stay intact.
+
+#strong[macOS (built from source).] There is no official package to
+download: the window reports the new version and opens the project page,
+but to update you download the updated code and build again (section
+2.3).
 
 #nota[
-In tutti i casi, aggiornare RLMP non comporta la perdita
-dei progetti: i file `.lmp` sono compatibili tra le versioni e non
-richiedono migrazione manuale.
+In all cases, updating RLMP doesn't entail losing your
+projects: the `.lmp` files are compatible across versions and require no
+manual migration.
 ]

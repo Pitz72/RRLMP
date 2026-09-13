@@ -7,7 +7,7 @@
 What RLMP is and who it was built for. The “Single Show” philosophy. The Main-Side-Heavy architecture. The broadcast grid: a visual grammar.
 
 **Chapter 2 — Installation and first launch**
-System requirements. Installing on Windows, macOS and Linux. The welcome screen. The first launch: what to expect.
+System requirements. Installing on Windows and Linux. macOS: building from source. The welcome screen. The first launch: what to expect.
 
 **Chapter 3 — The working interface**
 The Control Bar: logo, On Air timer, studio clock, Master Volume, VU meter, STOP ALL, microphone ARM button, File and Tools menus. The ON AIR banner: the featured track, the phased timer, UP NEXT. The six-column grid: headers, DEAD AIR warning, colour customization. The audio card: anatomy, status badges, interaction.

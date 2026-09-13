@@ -16,7 +16,7 @@
 // ---- FRONTE DEL MANUALE -----------------------------------------------------
 #if not per-kdp { copertina() }
 #frontespizio(versione: VERSIONE, autore: "Simone Pizzi", edizione: EDIZIONE)
-#colophon(versione: VERSIONE, autore: "Simone Pizzi", edizione: EDIZIONE)
+#colophon(versione: VERSIONE, autore: "Simone Pizzi", edizione: EDIZIONE, produzione: "Runtime Radio")
 
 // ---- INDICE -----------------------------------------------------------------
 #page(header: none)[

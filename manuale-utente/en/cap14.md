@@ -72,9 +72,9 @@ The red border indicates that the audio file isn’t reachable at the path store
 
 ## 14.4 Startup problems
 
-### The application won’t start on macOS (Gatekeeper warning)
+### The application you built won’t start on macOS (Gatekeeper warning)
 
-See section 2.3: unblock via *System Settings → Privacy & Security*.
+See section 2.3: right-click the application → *Open*, or unblock it from *System Settings → Privacy & Security*.
 
 ### The application won’t start on Windows (SmartScreen warning)
 
@@ -95,13 +95,13 @@ No. RLMP is designed for live production: shows attended by an operator. It has 
 *Save Project* overwrites the open `.lmp` file, silently. *Save As…* always opens the dialog box and creates a new file, without touching the current one.
 
 **Can I use RLMP on an iPad or on mobile devices?**
-Not as the main application: RLMP is desktop software for Windows, macOS and Linux. A tablet or a phone can, however, act as a **remote** via the browser, through Remote Control (Chapter 11).
+Not as the main application: RLMP is desktop software for Windows and Linux, and can also be built on macOS. A tablet or a phone can, however, act as a **remote** via the browser, through Remote Control (Chapter 11).
 
 **Are `.lmp` files from earlier versions compatible with 1.15.32?**
 Yes. When you open a project created with an earlier version, RLMP automatically updates its structure, including the columns added in the meantime, without modifying the file until you perform a save.
 
 **How do I update RLMP to a new version?**
-The software checks for updates at startup and notifies you. On Windows and Linux AppImage the installation is automatic from the update window; on macOS and Linux `.deb` the browser is opened on the download page. All the details are in Chapter 12.
+The software checks for updates at startup and notifies you. On Windows and Linux AppImage the installation is automatic from the update window; on Linux `.deb` the browser is opened on the download page; on macOS you build again from source. All the details are in Chapter 12.
 
 **Where are the automatic backups saved?**
 In the `autosaves` folder inside the application data directory (`%APPDATA%\runtime-live-machine-pro\autosaves\` on Windows; equivalent paths on macOS and Linux, Chapter 10). The ten most recent snapshots are kept.
