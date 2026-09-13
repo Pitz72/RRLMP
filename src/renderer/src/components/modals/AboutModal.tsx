@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import appLogo from '../../assets/logo.png';
-import { X, BookOpen, FileText, RefreshCw } from 'lucide-react';
+import { X, BookOpen, FileText, RefreshCw, Code, Mail, Coffee } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useEscapeToClose } from '../../hooks/useEscapeToClose';
 import { UpdaterStatusPayload } from '../../types';
 import { getManualUrl } from '../../utils/manualLinks';
 import { toast } from '../../store/useToastStore';
 import { QuickGuideModal } from './QuickGuideModal';
+
+// Pulsanti dei link del progetto (codice sorgente, contatti, sostegno).
+const LINK_BTN = 'bg-zinc-800/50 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/50 py-1.5 px-1 rounded flex flex-col items-center justify-center gap-1 text-[10px] leading-tight transition-colors';
 
 interface AboutModalProps {
     isOpen: boolean;
@@ -29,6 +32,13 @@ export const AboutModal = ({ isOpen, onClose, updaterStatus, onOpenUpdateModal, 
     const handleOpenManual = async () => {
         const lang = i18n.language?.slice(0, 2) || 'en';
         const result = await window.electron?.openExternal(getManualUrl(lang));
+        if (!result?.success) {
+            toast(t('modal.about.openError'), 'error');
+        }
+    };
+
+    const openLink = async (url: string) => {
+        const result = await window.electron?.openExternal(url);
         if (!result?.success) {
             toast(t('modal.about.openError'), 'error');
         }
@@ -71,7 +81,27 @@ export const AboutModal = ({ isOpen, onClose, updaterStatus, onOpenUpdateModal, 
                     <div className="card w-full text-sm text-zinc-400 space-y-2 mb-4">
                         <p>{t('modal.about.description')}</p>
                         <hr className="border-zinc-800 my-2" />
-                        <p className="text-xs">{t('welcome.developedBy')}</p>
+                        {/* Il progetto: licenza, paternità, credito ai modelli e sostegno (apertura del sorgente). */}
+                        <p className="text-[10px] uppercase tracking-wider font-bold text-zinc-500">{t('modal.about.project')}</p>
+                        <p className="text-xs leading-relaxed">
+                            {t('welcome.license')}<br />
+                            {t('welcome.developedBy')}<br />
+                            {t('modal.about.models')}
+                        </p>
+                        <div className="grid grid-cols-3 gap-1.5 pt-1">
+                            <button onClick={() => openLink('https://github.com/Pitz72/RRLMP')} className={LINK_BTN} title={t('modal.about.sourceCode')}>
+                                <Code size={13} />
+                                <span>{t('modal.about.sourceCode')}</span>
+                            </button>
+                            <button onClick={() => openLink('https://simonepizzi.runtimeradio.it/contatti')} className={LINK_BTN} title={t('modal.about.contacts')}>
+                                <Mail size={13} />
+                                <span>{t('modal.about.contacts')}</span>
+                            </button>
+                            <button onClick={() => openLink('https://www.paypal.com/paypalme/runtimeradio')} className={LINK_BTN} title={t('modal.about.donate')}>
+                                <Coffee size={13} />
+                                <span>{t('modal.about.donate')}</span>
+                            </button>
+                        </div>
                     </div>
 
                     {/* NEW ACTIONS */}

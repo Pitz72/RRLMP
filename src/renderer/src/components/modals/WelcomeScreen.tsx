@@ -176,8 +176,10 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject, updaterStatus, onOp
                     </div>
 
                     {/* FOOTER / CREDITS */}
+                    {/* Licenza, paternità e credito ai modelli (apertura del sorgente), come in FeedDownloader e Titan. */}
                     <div className="text-xs text-zinc-600 mt-6 space-y-1">
-                        <p>{t('welcome.developedBy')}</p>
+                        <p>{t('welcome.license')} · {t('welcome.developedBy')}</p>
+                        <p>{t('welcome.llm')}</p>
                         <p>{t('welcome.copyright')}</p>
                     </div>
                 </div>

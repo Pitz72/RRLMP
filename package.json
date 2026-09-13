@@ -2,7 +2,12 @@
   "name": "runtime-live-machine-pro",
   "version": "1.15.32",
   "description": "Professional Broadcast Audio Architecture",
-  "homepage": "https://gitlab.com/pizzisimone1972/RRLMP",
+  "homepage": "https://github.com/Pitz72/RRLMP",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Pitz72/RRLMP.git"
+  },
+  "private": true,
   "main": "out/main/index.js",
   "scripts": {
     "postinstall": "node scripts/prune-native-binaries.js",
@@ -82,7 +87,7 @@
   },
   "keywords": [],
   "author": "Simone Pizzi <pizzisimone1972@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",

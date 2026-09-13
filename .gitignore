@@ -124,3 +124,6 @@ distribuzione/
 
 # Source graphic assets (raw files, not for repo)
 IMPORT/
+
+# Impostazioni locali di Claude Code (permessi e percorsi della macchina)
+.claude/settings.local.json

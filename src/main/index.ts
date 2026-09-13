@@ -1,3 +1,4 @@
+import { isAllowedExternalUrl } from './externalLinks';
 import { app, shell, BrowserWindow, protocol, nativeImage, ipcMain, dialog, globalShortcut, session } from 'electron';
 import { join, normalize, isAbsolute, extname } from 'path';
 import * as fs from 'fs';
@@ -1068,13 +1069,13 @@ ipcMain.handle('quit-and-install', () => {
     return { success: true };
 });
 
-// Apre un URL nel browser di sistema (usato dal fallback dell'auto-updater su
-// macOS/.deb e da AboutModal per i link esterni)
+// Apre un URL nel browser di sistema su richiesta del renderer (manuali, codice
+// sorgente, contatti, sostegno). Il fallback dell'auto-updater non passa di qui.
 ipcMain.handle('open-external', async (_event, url: string) => {
-    // SEC (audit 2026-05-29): il downloadUrl proviene dal feed di aggiornamento remoto.
-    // Consenti solo http/https per evitare apertura di schemi pericolosi via feed compromesso.
-    if (!isSafeExternalUrl(url)) {
-        logger.warn(`[Main] open-external rifiutato (schema non sicuro): ${String(url)}`);
+    // Apertura del sorgente (Fase 1): solo https verso l'elenco chiuso di host del
+    // progetto (externalLinks.ts) — un renderer compromesso non può usarlo come lanciatore.
+    if (!isAllowedExternalUrl(url)) {
+        logger.warn(`[Main] open-external rifiutato (schema o host non consentito): ${String(url)}`);
         return { success: false, error: 'URL non consentito' };
     }
     await shell.openExternal(url);

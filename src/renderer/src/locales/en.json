@@ -11,7 +11,9 @@
         "checking": "Checking updates...",
         "latest": "✅ Latest Version",
         "updateAvailable": "⬇️ Update Available v{{version}}",
-        "developedBy": "Developed by Simone Pizzi with Gemini 3.0",
+        "developedBy": "by Simone Pizzi — Runtime Radio",
+        "license": "Free software · MIT licence",
+        "llm": "written with the help of large language models (Gemini, Claude)",
         "copyright": "© 2026 Runtime Radio",
         "comingSoon": "Coming soon via Web",
         "quickGuide": "Quick Guide"
@@ -71,7 +73,12 @@
             "manual": "User Manual",
             "checkNow": "Check for updates now",
             "quickGuide": "Quick Guide",
-            "openError": "Could not open the link."
+            "openError": "Could not open the link.",
+            "project": "The project",
+            "models": "Models used: Gemini 3.0 and 3.1; Claude Sonnet 4.6, Opus 4.7, Opus 4.8, Sonnet 5, Opus 5 and Fable 5.",
+            "sourceCode": "Source code",
+            "contacts": "Contact",
+            "donate": "Buy me a coffee"
         },
         "settings": {
             "title": "General Settings",

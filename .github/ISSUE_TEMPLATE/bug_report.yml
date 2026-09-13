@@ -1,0 +1,71 @@
+name: Segnalazione bug
+description: Qualcosa non funziona come dovrebbe / Report a bug
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Grazie per la segnalazione. Italiano o inglese, indifferentemente.
+
+        ⚠️ **Vulnerabilità di sicurezza: non aprire una issue.** Scrivi a info@runtimeradio.it — vedi [SECURITY.md](../blob/master/SECURITY.md).
+
+  - type: textarea
+    id: cosa
+    attributes:
+      label: Cosa succede
+      description: Cosa ti aspettavi e cosa è successo invece.
+    validations:
+      required: true
+
+  - type: textarea
+    id: riproduzione
+    attributes:
+      label: Come riprodurlo
+      placeholder: |
+        1. Carico una clip nella colonna …
+        2. Premo …
+        3. Osservo …
+    validations:
+      required: true
+
+  - type: input
+    id: versione
+    attributes:
+      label: Versione dell'applicazione
+      description: La trovi nella schermata di benvenuto o in Strumenti → Info.
+      placeholder: "1.15.33"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Sistema operativo
+      options:
+        - Windows
+        - Linux (AppImage)
+        - Linux (.deb)
+        - macOS (compilato dal sorgente)
+        - Altro
+    validations:
+      required: true
+
+  - type: input
+    id: audio
+    attributes:
+      label: Periferica audio e file
+      description: |
+        Scheda audio o mixer USB in uso, e formato del file coinvolto (MP3, WAV, FLAC…).
+        Molti problemi dipendono dalla periferica o da come è codificato il file.
+      placeholder: "Rødecaster Pro II, MP3 320 kbps"
+
+  - type: textarea
+    id: dettagli
+    attributes:
+      label: Messaggi di errore
+      description: |
+        Il testo dell'avviso comparso a schermo, oppure le righe rilevanti del Debug Overlay
+        (Ctrl+Shift+D, pulsante COPY).
+
+        Attenzione a non incollare percorsi o nomi di file che non vuoi rendere pubblici.
+      render: text

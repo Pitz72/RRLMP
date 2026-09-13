@@ -1,0 +1,41 @@
+name: Proposta
+description: Un'idea per migliorare il programma / Suggest an improvement
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Italiano o inglese, indifferentemente.
+
+        **Nota sullo stato del progetto.** Live Machine Pro è funzionalmente completo e viene
+        mantenuto per correzioni. Le proposte sono benvenute e vengono lette, ma la risposta più
+        probabile a una funzione nuova è «buona idea, non la implemento io» — e una pull request è
+        sempre la strada più rapida.
+
+        Il programma è pensato per la **regia umana di show finiti** (podcast, eventi, web radio):
+        non per l'automazione di una radio 24 ore su 24.
+
+  - type: textarea
+    id: problema
+    attributes:
+      label: Quale problema risolve
+      description: |
+        Racconta la situazione concreta, in regia o in preparazione, in cui il programma oggi ti
+        costringe a un giro largo. Le proposte che partono da un problema reale sono quelle che si
+        capiscono meglio.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposta
+    attributes:
+      label: Cosa proponi
+      description: Come dovrebbe comportarsi il programma.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternative
+    attributes:
+      label: Come te la cavi adesso
+      description: Se hai trovato un modo per aggirare il problema, dirlo aiuta a capire quanto pesa.

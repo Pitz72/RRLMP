@@ -1,129 +1,200 @@
-# Runtime Live Machine Pro
+<div align="center">
+  <img src="docs/assets/banner.png" alt="Runtime Live Machine Pro — software libero, licenza MIT, per Windows e Linux" width="100%" />
 
-![Runtime Live Machine Pro](docs/assets/banner.png)
+  # Runtime Live Machine Pro
 
-**Professional broadcast audio playout software for radio, live events, and stage productions.**
+  **On Air. Al tuo controllo.**
 
-Built with Electron + React + TypeScript. Designed for operators who need rock-solid reliability under pressure.
+  ![Version](https://img.shields.io/badge/Version-1.15.32-22c55e?style=for-the-badge)
+  ![License](https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge)
+  ![Platform](https://img.shields.io/badge/Platform-Win%20%7C%20Linux-emerald?style=for-the-badge)
+  ![Stack](https://img.shields.io/badge/Stack-Electron%20%7C%20React%20%7C%20FFmpeg-475569?style=for-the-badge)
+  ![Lang](https://img.shields.io/badge/Languages-IT%20%7C%20EN-purple?style=for-the-badge)
 
----
-
-## What it does
-
-Runtime Live Machine Pro is a multi-column audio playout system. You load audio clips into columns, assign behaviors, and trigger them during a live broadcast — with full control over transitions, cues, and timing.
-
-It replaces the chaotic "play from folder" workflow with a structured, visual board where every clip has its place, its markers, its notes, and its behavior defined *before* you go on air.
-
----
-
-## Key Features
-
-### Audio Engine
-- **Main-Side-Heavy Architecture** — FFmpeg runs in the Node.js main process. The renderer never loads audio files into memory. No OOM crashes, even on large files.
-- **Streaming via custom `media://` protocol** — files are streamed, not buffered. Works on files of any size.
-- **Transition engine for all columns** — crossfade/segue/gapless now available for Music and Assets columns, not only PRE-SHOW
-- **Auto-Silence Detection** — drop a file into PRE-SHOW and the app automatically detects and trims leading/trailing silence via FFmpeg
-- **Ducking Sidechain** — voice columns can automatically duck music columns
-- **Smart Mic Auto-Ducking** — hardware microphone monitoring via Web Audio API (USB mic, Rødecaster, any audio input). Voice detected by noise gate → automatic music ducking, no button required. Fully opt-in.
-- **Mic-in-Mix Channel** — operator voice routed directly into the master bus, with volume slider, optional master chain bypass, and professional feedback warning.
-- **Session Recording** — capture the full master mix (post-limiter) to WAV, FLAC, MP3, OGG, or WEBM. Select format, bitrate, and bit depth at export time. Export modal opens at end of recording.
-- **Master Chain Audio** — broadcast-grade processing on master bus: HPF 80Hz, Dynamics Compressor (-18dBFS, 4:1), Brickwall Limiter (-1dBFS). Configurable in Settings.
-- **Output Device Hot-Switch** — change audio output device without restarting
-- **Emergency Stop** — global `Escape` key (via Electron `globalShortcut`) stops all playback instantly, even when the app is not focused
-
-### Board & Workflow
-- **5 fixed columns**: Assets, Music, Voice, SFX, PRE-SHOW — each with configurable behavior, color-coded, keybind-mapped
-- **Dynamic clip colors** — clips inherit and follow the column's current color in real time. Idle: lighter tint. Playing: full bright color. Per-clip color override is also available.
-- **Smart Mic ARM button** — arm/disarm microphone monitoring from the header with real-time mini VU meter
-- **Column color customization** — each column has its own color picker (30 colors), persisted in project
-- **Real-Time Board Cues** — INTRO countdown (`INTRO: -5s`) and OUTRO pre-cue alert on each ClipCard
-- **UP NEXT badge** — dynamically shows which clip fires next in the queue
-- **FADE OUT badge** — violet pulsing indicator on the outgoing clip during Crossfade/Segue transitions
-- **Drop indicator** — glowing blue line shows exact insert position when dragging files from OS
-- **Timer On Air** — elapsed time counter since first play of the session
-- **NoteBoard** — when a clip with notes goes live, a panel appears at the bottom of the screen showing the director's script. Auto-shows and auto-hides.
-- **Preview Transition** — test any crossfade/segue/gapless transition from ClipSettingsModal with a dedicated Stop button
-- **Toast Notification System** — no blocking `alert()` dialogs. All notifications are non-intrusive toasts. Confirm dialogs are Promise-based — audio keeps playing while you decide.
-
-### Waveform Editor
-- **Interactive waveform** with 4 draggable handles: Trim Start, Trim End, Intro Marker, Outro Marker
-- **Horizontal zoom** from 1x to 8x with adaptive ruler
-- **Auto-Trim via IPC** — one button to detect and apply silence trim without touching the renderer memory
-- **Playhead** tracking in real time during preview playback
-
-### Project Management
-- **Save/Load `.lmp` projects** (JSON format) with full clip state
-- **Auto-backup** every 5 minutes, silent
-- **LMP Integrity Check** — on project load, all file paths are verified. Missing files are flagged red instantly.
-- **Export Self-Contained** — copies all audio files alongside the project for archiving or transfer
-- **MIDI Learn** + per-clip keybindings (F1-F12, Numpad, custom keys)
-- **i18n** — UI available in 2 languages: Italian and English
+  [![Build](https://github.com/Pitz72/RRLMP/actions/workflows/build.yml/badge.svg)](https://github.com/Pitz72/RRLMP/actions/workflows/build.yml)
+</div>
 
 ---
 
-## Stack
+## Panoramica
 
-| Layer | Technology |
-|-------|-----------|
-| Shell | Electron 28 |
-| UI | React 18 + TypeScript + Vite 5 |
-| Styling | Tailwind CSS |
-| State | Zustand |
-| Audio processing | FFmpeg / FFprobe (main process, ASAR unpacked) |
-| Packaging | electron-builder -> NSIS installer (Windows) |
-| i18n | react-i18next |
+**Runtime Live Machine Pro** è un'applicazione desktop di regia audio per la diretta: podcast, web
+radio, eventi. Si caricano i file in una griglia di colonne, ognuna con il proprio ruolo, e durante
+lo show li si lancia con un click, un tasto o un controller MIDI. Il programma si occupa del resto:
+abbassa la musica quando entra una voce, silenzia le basi quando parte una canzone, gestisce le
+transizioni tra un brano e l'altro.
+
+Nasce a gennaio 2026 come strumento di [Runtime Radio](https://runtimeradio.com) per condurre le
+dirette senza un regista accanto. È stato distribuito come prodotto commerciale fino al settembre
+2026, quando è stato ritirato dalla vendita e aperto sotto licenza MIT.
+
+> **Stato del progetto.** Funzionalmente completo e in produzione. Viene mantenuto per correzioni;
+> gli sviluppi aperti sono in [`docs/ROADMAP.md`](docs/ROADMAP.md). Le pull request sono benvenute —
+> vedi [CONTRIBUTING.md](CONTRIBUTING.md).
+>
+> Lo scopo è la **regia umana di show finiti**, non l'automazione di una radio 24 ore su 24.
+
+### ✨ Caratteristiche principali
+
+**La griglia di regia**
+- **Sei colonne con un ruolo ciascuna** — Show Assets, Jingle, Promo, Canzoni dell'episodio, Voci,
+  Pre-Show — e un **pad FX 5×5** per gli effetti sonori che suonano sopra a tutto
+- **Banner IN ONDA** sempre presente: titolo, avanzamento con i punti di Intro e Outro, timer
+  colorato per fase, UP NEXT
+- **Card audio** con badge di stato (LOOP, NEXT, UP NEXT, BPM, Intro, FADE OUT), conti alla rovescia
+  di Intro e Outro, allarme **DEAD AIR** sull'intestazione quando la colonna sta per restare muta
+- **NoteBoard**: il copione di una clip compare a schermo mentre suona
+
+**Il motore di mixaggio**
+- **Gerarchia audio per colonna**: la voce abbassa tutto (ducking), la musica silenzia le basi e le
+  riprende da dove erano (Music Dominance), le sigle prendono la scena
+- **Smart Mic**: con un microfono USB diretto, la musica scende da sola quando parli
+- **Omologazione del volume** EBU R128 (−16 LUFS di default) e **Master Chain** con filtro passa-alto,
+  glue multibanda e limiter
+- **Transizioni** Crossfade, Segue e Gapless, provabili senza andare in onda
+- **Vista Automix** per la colonna Musica, con rilevamento del BPM e passaggi a tempo
+
+**Editor e controllo**
+- **Editor della forma d'onda** con trim, marker di Intro e Outro, Auto-Trim dei silenzi e Smart Cues
+- **Tastiera** (tasti per clip, F1…F6 sulle colonne visibili, `Esc` = STOP ALL) e **MIDI Learn**
+- **Controllo remoto** da tablet o telefono sulla rete locale, protetto da PIN
+
+**Progetti e sessione**
+- Progetti **`.lmp`** in JSON, salvataggio automatico, controllo dei file mancanti all'apertura
+- **Esporta progetto con audio**: cartella autocontenuta, portabile su un altro computer
+- **Registrazione della sessione** dal master, esportabile in WAV, FLAC, MP3, OGG, WEBM
+- **Aggiornamenti automatici** con consenso, mai durante una diretta
+- Interfaccia in **italiano e inglese**
+
+### 🌐 Documentazione
+
+- **Manuale utente** in PDF: [italiano](manuale-utente/typst/Manuale-Utente-IT.pdf) ·
+  [English](manuale-utente/typst/User-Manual-EN.pdf) — apribile anche dal pulsante *Manuale Utente*
+  dell'applicazione
+- **Guida rapida** dentro l'applicazione (schermata di benvenuto e pannello Info)
+- Documentazione tecnica: [`docs/INDEX.md`](docs/INDEX.md), con architettura, roadmap e
+  [regole delle colonne](docs/regole-colonne/README.md)
+
+### 📋 Changelog
+
+Un file per versione in [`docs/changelogs/current/`](docs/changelogs/current/), in italiano e in
+inglese; lo storico completo delle correzioni è in [`relazione.md`](relazione.md).
 
 ---
 
-## Getting Started
+## Download
+
+Le release si trovano nella pagina **[Releases](https://github.com/Pitz72/RRLMP/releases)**:
+
+| Piattaforma | File |
+|---|---|
+| **Windows** 10/11 64-bit | `Runtime-Live-Machine-Pro-<versione>.exe` |
+| **Linux** (portabile) | `Runtime-Live-Machine-Pro-<versione>.AppImage` |
+| **Linux** (Debian/Ubuntu) | `Runtime-Live-Machine-Pro-<versione>.deb` |
+
+**macOS**: nessun installer ufficiale. Chi ha un Mac può compilarlo dal sorgente, le istruzioni sono
+in [CONTRIBUTING.md](CONTRIBUTING.md#macos).
+
+I pacchetti non sono firmati con un certificato commerciale: al primo avvio Windows SmartScreen
+mostra un avviso (*Ulteriori informazioni* → *Esegui comunque*).
+
+---
+
+## Quick Start (sviluppo)
 
 ```bash
-npm install
+# Installa le dipendenze
+npm ci
+
+# Avvia in modalità sviluppo (Windows; per Linux e macOS vedi CONTRIBUTING.md)
 npm run dev
-```
 
-### Production build
+# Test e controllo dei tipi
+npm test
 
-```bash
-npm run build:main && npm run build:preload && npx vite build && npx electron-builder
-# Output: builds/v{version}/Runtime Live Machine Setup {version}.exe
-```
-
----
-
-## Project Structure
-
-```
-src/
-├── main/                   # Electron main process — IPC handlers, FFmpeg, file I/O
-├── preload/                # contextBridge — secure IPC bridge to renderer
-└── renderer/src/
-    ├── engine/             # StreamPlayer, AudioContextManager, MidiManager
-    ├── store/              # Zustand stores (audio, project, settings, toast, confirm)
-    ├── components/
-    │   ├── layout/         # MainGrid, ClipCard, NoteBoard
-    │   ├── modals/         # ClipSettingsModal, GeneralSettingsModal, KeymappingModal
-    │   └── ui/             # WaveformEditor, ToastContainer, ConfirmDialog, OnAirTimer
-    └── i18n/               # Translation files (IT, EN, FR, DE, ES, PT, RU, ZH)
+# Build locale (senza pubblicazione)
+npm run build
 ```
 
 ---
 
-## Documentation
+## Stack Tecnologico
 
-- [`docs/VISION.md`](./docs/VISION.md) — complete feature inventory, architecture decisions, and prioritized backlog
-- [`docs/changelogs/current/`](./docs/changelogs/current/) — per-version changelogs from v0.14.3 onward
+| Livello | Tecnologia |
+|---|---|
+| Applicazione | Electron 28 |
+| Interfaccia | React 18 · TypeScript 5 · Vite 5 · Tailwind CSS 3 |
+| Stato | Zustand 4 |
+| Audio | Web Audio API nel renderer · FFmpeg / FFprobe nel processo principale |
+| Streaming dei file | protocollo `media://` (nessun file audio caricato in memoria) |
+| Localizzazione | react-i18next |
+| Distribuzione | electron-builder · electron-updater (GitHub Releases) |
+| Test | Vitest |
+| Manuale | Typst |
 
 ---
 
-## Current Version
+## Requisiti di Sistema
 
-**v1.2.0** — *Recording Export Modal · Settings Redesign · Dynamic Clip Colors · Recording Bugfix*
+| | Minimo | Consigliato |
+|---|---|---|
+| **Windows** | Windows 10 64-bit | Windows 11 64-bit |
+| **Linux** | Ubuntu 20.04 / Debian 11 | Ubuntu 22.04 LTS |
+| **RAM** | 4 GB | 8 GB o più |
+| **Disco** | 300 MB | 1 GB + spazio per i file audio |
+| **CPU** | dual-core moderno | quad-core o superiore |
 
-See [`docs/changelogs/current/1.2.0.md`](./docs/changelogs/current/1.2.0.md) for details.
+Nessuna scheda audio dedicata richiesta: funziona con qualsiasi periferica riconosciuta dal sistema,
+dalla scheda integrata ai mixer USB.
 
 ---
 
-## License
+## Sostenere il progetto
 
-ISC — Antigravity
+Il programma è gratuito e lo resterà. Se ti è utile e vuoi dare una mano:
+
+### 👉 **[simonepizzi.runtimeradio.it/contatti](https://simonepizzi.runtimeradio.it/contatti)**
+
+Per una donazione diretta: **[paypal.me/runtimeradio](https://www.paypal.com/paypalme/runtimeradio)**
+
+---
+
+## Privacy
+
+L'applicazione funziona in locale. Si collega solo a GitHub, per il controllo degli aggiornamenti e
+per aprire i manuali, e, se lo attivi, apre un piccolo server sulla tua rete locale per il controllo
+remoto. Il microfono si attiva solo quando lo armi. Nessuna telemetria, nessun analytics, nessun
+account: progetti, registrazioni e impostazioni restano sul tuo disco.
+
+Il modello di sicurezza è descritto in [SECURITY.md](SECURITY.md).
+
+---
+
+## Come è stato scritto
+
+Questo programma è stato scritto facendo un **uso massiccio di modelli linguistici di grandi
+dimensioni**: Google **Gemini 3.0** e **3.1**, e Anthropic **Claude Sonnet 4.6**, **Opus 4.7**,
+**Opus 4.8**, **Sonnet 5**, **Opus 5** e **Fable 5**. Gran parte del codice che leggi l'hanno prodotta
+loro, ed è giusto che sia dichiarato apertamente.
+
+Tutto il resto è di **Simone Pizzi**: il concetto, la visione, la direzione progettuale, la
+definizione minuziosa di ogni dettaglio funzionale e la caccia ostinata ai bug. Ogni comportamento
+del programma — dalla gerarchia audio decisa dalla colonna alla base che torna da dove era rimasta,
+dalla sigla che prende la scena all'aggiornamento che aspetta la fine della diretta — è una decisione
+progettuale presa, verificata in regia e corretta a mano fino a farla funzionare.
+
+I modelli hanno scritto il codice. Le decisioni, dalla prima all'ultima, sono state sue.
+
+Lo stesso vale per la documentazione: manuali, guide e note tecniche sono stati redatti con questo
+metodo e revisionati riga per riga contro il codice.
+
+---
+
+## Licenza
+
+Rilasciato sotto licenza **MIT** — vedi [LICENSE](LICENSE).
+
+Sviluppato da **Simone Pizzi** per **[Runtime Radio](https://runtimeradio.com)**.
+
+Fino a settembre 2026 il progetto è stato distribuito commercialmente. Quella fase è chiusa: il
+software è ora liberamente utilizzabile, modificabile e ridistribuibile secondo i termini MIT.
