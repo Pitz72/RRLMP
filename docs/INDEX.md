@@ -1,7 +1,7 @@
 # RRLMP — Centro Documentazione
 
-**Software:** Runtime Live Machine Pro · **versione corrente 1.15.32**
-**Repo codice:** `Ecosystem-Runtime/RRLMP` (privato, in migrazione verso **`Pitz72/RRLMP`** pubblico) · **Repo rilasci pubblici:** `Ecosystem-Runtime/RRLMP-Releases` (ponte fino alla fine dell'apertura)
+**Software:** Runtime Live Machine Pro · **versione corrente 1.15.33**
+**Repository:** **`Pitz72/RRLMP`** — pubblico, licenza MIT, codice e release · `Ecosystem-Runtime/RRLMP-Releases` resta come ponte per le installazioni ≤ 1.15.32 · `Ecosystem-Runtime/RRLMP` privato come copia di sicurezza fino alla Fase 5
 *Indice aggiornato: 2026-09-13*
 
 Punto di ingresso unico alla documentazione del progetto. Ogni voce dice **a cosa serve** e **quanto è aggiornata**, così non serve aprire un file per scoprire che è fermo a due anni fa.
@@ -12,9 +12,9 @@ Punto di ingresso unico alla documentazione del progetto. Ogni voce dice **a cos
 
 | Documento | A cosa serve | Stato |
 |---|---|---|
-| [Piano di apertura del sorgente](./PIANO-APERTURA.md) | Ritiro dalla vendita e pubblicazione sotto licenza MIT: decisioni, fasi, stato | 🔄 **in corso** (Fasi 1-2 chiuse) |
+| [Piano di apertura del sorgente](./PIANO-APERTURA.md) | Ritiro dalla vendita e pubblicazione sotto licenza MIT: decisioni, fasi, stato | 🔄 **Fasi 1-4 chiuse**, resta la Fase 5 |
 | [Revisione codice 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md) | Criticità aperte del codice, classificate per gravità con file:riga e fix proposto | ✅ **chiusa** (reperti risolti in 1.15.16-29, rilasciati con la 1.15.32) |
-| [Roadmap & Backlog](./ROADMAP.md) | Cosa c'è da fare adesso, cosa è sospeso, cosa è chiuso | ✅ **allineato a 1.15.32** |
+| [Roadmap & Backlog](./ROADMAP.md) | Cosa c'è da fare adesso, cosa è sospeso, cosa è chiuso | ✅ **allineato a 1.15.33** |
 | [Regole per colonna](./regole-colonne/README.md) | Il comportamento di ogni colonna in regia — **fonte di verità del motore** | ✅ allineato a 1.15.15 |
 | [Relazione tecnica](../relazione.md) | Storico fix versione per versione | ⚠️ intestazione ferma a 1.11.5 |
 
@@ -61,7 +61,7 @@ Il **manuale utente** esiste in **due lingue: italiano e inglese** (decisione de
 
 - **Sorgenti markdown:** [`manuale-utente/it/`](../manuale-utente/it/) · [`manuale-utente/en/`](../manuale-utente/en/) — 14 capitoli + INDICE
 - **PDF compilati:** `manuale-utente/typst/Manuale-Utente-IT.pdf` · `manuale-utente/typst/User-Manual-EN.pdf`
-- **Pubblicati per il download in-app:** `RRLMP-Releases/manuals/` (branch `master`), raggiunti dal pulsante "Manuale" tramite `utils/manualLinks.ts` (dalla release ponte 1.15.33 passano al repository pubblico)
+- **Pubblicati per il download in-app:** `RRLMP-Releases/manuals/` (branch `master`), raggiunti dal pulsante "Manuale" delle versioni ≤ 1.15.32 tramite `utils/manualLinks.ts`; **dalla 1.15.33 il pulsante apre direttamente `manuale-utente/typst/` su `Pitz72/RRLMP`**
 - **Guida rapida in-app:** `src/renderer/src/assets/quick-guide/` — **italiano e inglese**, mostrata dalla `QuickGuideModal`
 
 Build del manuale: `manuale-utente/typst/build.ps1 -All` (rigenera i capitoli e compila entrambi i PDF); copertine da `branding/build-cover.py`.

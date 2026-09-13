@@ -3,7 +3,7 @@
 **Aperto:** 13 settembre 2026 · **Decisioni prese:** 13 settembre 2026
 **Obiettivo:** ritirare Runtime Live Machine Pro dalla vendita, portarlo su `Pitz72/RRLMP` come
 repository pubblico sotto licenza MIT, con le release pubblicate nello stesso repository.
-**Stato:** decisioni prese · **FASI 1, 2, 4.1 e 4.2 CHIUSE** (13/09) · **`Pitz72/RRLMP` è pubblico** · prossima: Fase 3 (release ponte 1.15.33), che chiude anche la 4.3.
+**Stato:** decisioni prese · **FASI 1, 2, 3 e 4 CHIUSE** (13/09) · `Pitz72/RRLMP` pubblico con la **v1.15.33**, traghetto pubblicato su `RRLMP-Releases` · prossima: **Fase 5** (Gumroad, sito Ecosystem, dismissione del ponte e del repository privato), più il collaudo sul campo dell'aggiornamento.
 
 > **Il modello è doppio.** Questa procedura ricalca i piani già eseguiti con successo da
 > *Runtime TelegramBot Desktop Titan Edition* (12–13 agosto 2026) e *Runtime FeedDownloader Pro*
@@ -210,27 +210,44 @@ Info, nel README e nei manuali.
       se eliminarle o archiviarle.
 - [x] Gate verde: `tsc` ×4 zero errori, Vitest 232/232.
 
-## FASE 3 — La release ponte e prima da progetto aperto (v1.15.33)
+## FASE 3 — La release ponte e prima da progetto aperto (v1.15.33) ✅ CHIUSA (13/09)
 
-⛔ Va fatta **dopo la Fase 4.1–4.2**: `app-update.yml` nasce dalla configurazione di publish e deve già
-puntare alla destinazione definitiva.
+⛔ Andava fatta **dopo la Fase 4.1–4.2** (`app-update.yml` nasce dalla configurazione di publish e deve
+già puntare alla destinazione definitiva): rispettato.
 
-- [ ] `package.json → build.publish` → `Pitz72/RRLMP`.
-- [ ] `build.yml` — release nello stesso repository con `GITHUB_TOKEN` (permessi `contents: write`
-      solo nel job di release); via `RELEASE_TOKEN` e la repo esterna. Mantenere bozza → upload →
-      publish. **Via il job macOS** e il `.dmg` dalla tabella download delle note.
-- [ ] `src/main/updateManager.ts` — `RELEASES_API` → `Pitz72/RRLMP`.
-- [ ] `src/renderer/src/utils/manualLinks.ts` — i PDF sono già versionati in
-      `manuale-utente/typst/`: puntare a `github.com/Pitz72/RRLMP/raw/master/manuale-utente/typst/…`
-      e verificare **HTTP 200 + SHA-256** contro le copie locali.
-- [ ] Changelog `1.15.33.md` + `.en.md` aperti da **«Apertura del sorgente»**; se passa altro tempo
-      dalla 1.15.32, cumulativi.
-- [ ] Verificare lo **SHA-512** degli installer contro `latest.yml` / `latest-linux.yml`.
-- [ ] ⛔ **Traghetto**: pubblicare **la stessa 1.15.33, con gli stessi binari, anche su
-      `RRLMP-Releases`**. Le app fino alla 1.15.32 la vedono lì, la installano, e da quel momento
-      cercano gli aggiornamenti su `Pitz72/RRLMP` (modello della release-ponte v1.2.4 di
-      FeedDownloader). Le note sul ponte spiegano il passaggio e che macOS non ha più un installer.
-- [ ] Collaudo sul campo: dalla 1.15.33 installata, la **1.15.34** deve arrivare da `Pitz72/RRLMP`.
+- [x] `package.json → build.publish` → `Pitz72/RRLMP`; versione 1.15.33 (`25e0f5a`).
+- [x] `build.yml` — release sullo stesso repository con `GITHUB_TOKEN`, `contents: write` solo nei job
+      che creano, riempiono e pubblicano la release (default `read`); via `RELEASE_TOKEN` e la repo
+      esterna; mantenuto bozza → upload → publish; **via il job macOS** e il `.dmg` dalla tabella delle
+      note. `--target` sul commit della build.
+- [x] `src/main/updateManager.ts` — `RELEASES_API` → `Pitz72/RRLMP`; nel fallback nessuna ricerca di
+      `.dmg` (su macOS si apre la pagina della release).
+- [x] `src/renderer/src/utils/manualLinks.ts` → `raw.githubusercontent.com/Pitz72/RRLMP/master/manuale-utente/typst`:
+      **HTTP 200 e SHA-256 identici** ai PDF locali, versione 1.15.33 nei PDF. +1 test sull'elenco dei link.
+- [x] Changelog `1.15.33.md` + `.en.md` aperti da **«Apertura del sorgente»**, con il cambio di indirizzo
+      degli aggiornamenti, macOS, pannello «Il progetto», link sicuri, manuale; **cumulativi dalla
+      1.15.16** (sul ponte possono esserci ancora installazioni 1.15.15). Manuale e copertine alla
+      1.15.33, PDF ricompilati (49 e 48 pagine).
+- [x] Build [run 34766628020](https://github.com/Pitz72/RRLMP/actions/runs/34766628020): verify, bozza,
+      Windows, Linux e pubblicazione tutti verdi. Release `v1.15.33` Latest su `Pitz72/RRLMP`.
+- [x] **SHA-512** di `.exe`, `.AppImage` e `.deb` identici a `latest.yml` / `latest-linux.yml`, con le
+      dimensioni. **`app-update.yml` estratto dal `.deb`**: `owner: Pitz72`, `repo: RRLMP`.
+- [x] ⛔ **Traghetto**: la stessa `v1.15.33` pubblicata su `Ecosystem-Runtime/RRLMP-Releases` come
+      Latest, caricando **gli stessi file** scaricati dalla release di `Pitz72/RRLMP`: nomi, dimensioni e
+      digest SHA-256 identici sui due repository; note identiche (a meno di un ritorno a capo finale).
+      Verificato senza credenziali ciò che vede un'app ≤ 1.15.32: API `releases/latest` → `v1.15.33`,
+      feed Atom di electron-updater con la 1.15.33 in testa, `latest.yml` e `latest-linux.yml` del
+      ponte alla 1.15.33.
+- [x] **Ponte aggiornato** (`cb2bc07`): README «il progetto si è spostato» in IT+EN con i link al nuovo
+      repository, e i PDF di `manuals/` sostituiti con quelli della 1.15.33 (licenza MIT), che sono i
+      manuali aperti dalle versioni ≤ 1.15.32. Serviti in raw con SHA-256 identici.
+- [x] Ciclo di rilascio: **`v1.15.32` rimossa dal ponte** con il tag, dopo averne salvato i binari in
+      `F:\Backup\BACKUP-RRLMP-2026-09-13\RRLMP-Releases_v1.15.32_binari\` (dimensioni conformi
+      all'inventario, `SHA256SUMS.txt`). Su entrambi i repository resta solo la `v1.15.33`, nessuna bozza.
+- [x] **Backup** spostati in `F:\Backup\` su richiesta dell'utente (regola valida da ora per ogni backup).
+- [ ] **Collaudo sul campo** (a cura dell'utente): un'installazione 1.15.32 (o precedente) deve proporre la
+      1.15.33 con le note complete; dalla 1.15.33 installata, la **1.15.34** dovrà arrivare da
+      `Pitz72/RRLMP`.
 
 ## FASE 4 — GitHub
 
@@ -267,8 +284,9 @@ puntare alla destinazione definitiva.
       `workflow_dispatch` / `pull_request`); registrato solo `Build and Release`.
 - [x] Ultimo controllo: nessun file di credenziali tracciato nell'albero pubblicato.
 
-### 4.3 CI
-- [ ] Matrice **Windows + Linux** (AppImage + deb), senza macOS, come Titan e FeedDownloader.
+### 4.3 CI ✅ CHIUSA (13/09, con la Fase 3)
+- [x] Matrice **Windows + Linux** (AppImage + deb), senza macOS, come Titan e FeedDownloader; release
+      sullo stesso repository con `GITHUB_TOKEN`. Prima build pubblica: run 34766628020, tutta verde.
 
 ## FASE 5 — Dismissione della fase commerciale
 

@@ -1,7 +1,7 @@
 # RRLMP — Roadmap & Backlog
 
-**Versione corrente:** 1.15.32 — **rilasciata** (Latest su RRLMP-Releases, unica release presente)
-**Ultimo aggiornamento:** 2026-09-13 — dopo il rilascio della 1.15.32 e la verifica di audit, revisioni e roadmap contro il codice
+**Versione corrente:** 1.15.33 — **rilasciata** su `Pitz72/RRLMP` (repository pubblico, MIT) e, come release ponte, su `Ecosystem-Runtime/RRLMP-Releases`
+**Ultimo aggiornamento:** 2026-09-13 — dopo l'apertura del sorgente e la release ponte 1.15.33
 
 Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio). Nessuna automazione 24h. L'unica eccezione controllata è la rotazione PRE-SHOW — vedi [VISION.md](./VISION.md).
 
@@ -12,14 +12,14 @@ Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio)
 | Area | Stato |
 |------|-------|
 | Typecheck (renderer/main/node/preload) | **0 errori** su tutti e 4 |
-| Test Vitest | **232/232 verdi** (24 file) |
+| Test Vitest | **233/233 verdi** (24 file) |
 | Criticità aperte del codice | **nessuna** dalla [revisione 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md) (22 reperti chiusi in 1.15.16 → 1.15.29) — resta da verificare il limiter, vedi sotto |
-| Ultima release **pubblicata** | **v1.15.32** — note cumulative 1.15.16 → 1.15.32 in italiano e inglese; v1.15.31 e v1.15.15 eliminate con i tag |
+| Ultima release **pubblicata** | **v1.15.33** su `Pitz72/RRLMP` e, identica, sul ponte `RRLMP-Releases` (unica release in entrambi) — note cumulative 1.15.16 → 1.15.33 in italiano e inglese |
 | Lingue | **Solo italiano e inglese** in app, guida rapida, manuale e note di rilascio (dalla 1.15.32) |
-| Manuale utente | IT + EN allineati alla 1.15.32, schermate nuove, pubblicati su `RRLMP-Releases/manuals` (link verificato dal software) |
-| Auto-updater | operativo (nativo su Windows/Linux-AppImage, fallback browser su macOS/.deb); `latest.yml` e `latest-linux.yml` → 1.15.32 |
+| Manuale utente | IT + EN allineati alla 1.15.33, licenza MIT; il pulsante dell'app li apre da `Pitz72/RRLMP/manuale-utente/typst` (le versioni ≤ 1.15.32 da `RRLMP-Releases/manuals`, aggiornati anch'essi) |
+| Auto-updater | operativo (nativo su Windows/Linux-AppImage, fallback browser su .deb e macOS compilato); dalla 1.15.33 legge `Pitz72/RRLMP`, le versioni ≤ 1.15.32 il ponte |
 | Pacchetti | exe 114 MB · AppImage 158 MB · deb 108 MB · dmg 143 MB (il problema dei 500 MB non si ripresenta). Dalla 1.15.33 niente più `.dmg`: macOS si compila dal sorgente |
-| Apertura del sorgente | **in corso**: ritiro dalla vendita e pubblicazione MIT su `Pitz72/RRLMP` — Fasi 1 e 2 chiuse, vedi [PIANO-APERTURA.md](./PIANO-APERTURA.md) |
+| Apertura del sorgente | **Fasi 1-4 chiuse**: repository pubblico MIT, release ponte 1.15.33. Resta la Fase 5 (Gumroad, sito, dismissione del ponte) — vedi [PIANO-APERTURA.md](./PIANO-APERTURA.md) |
 
 ---
 
@@ -41,7 +41,7 @@ Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio)
 Non riproducibili con i test automatici:
 
 - **Hero IN ONDA e card stabili** (1.15.31) durante una sequenza play_next reale, con intro/outro.
-- **Aggiornamento automatico dalla 1.15.15 alla 1.15.32**, con il popup che mostra le note cumulative.
+- **Aggiornamento automatico dalla 1.15.32 (o precedente) alla 1.15.33 tramite il ponte**, con il popup che mostra le note cumulative; poi la 1.15.34 deve arrivare da `Pitz72/RRLMP`.
 - **Share di rete reale** (1.15.20): riprodurre un brano su NAS/cartella condivisa.
 - **Distacco di un supporto durante la registrazione** (1.15.21): la sessione deve chiudersi salvando quanto raccolto.
 - **Tasti F1–F6** (1.15.26): F6 lancia PRE-SHOW; nascondendo una colonna i tasti si rimappano.
