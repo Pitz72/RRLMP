@@ -3,7 +3,7 @@
 **Aperto:** 13 settembre 2026 · **Decisioni prese:** 13 settembre 2026
 **Obiettivo:** ritirare Runtime Live Machine Pro dalla vendita, portarlo su `Pitz72/RRLMP` come
 repository pubblico sotto licenza MIT, con le release pubblicate nello stesso repository.
-**Stato:** decisioni prese · **FASI 1 e 2 CHIUSE** (13/09) · prossima: Fase 4.1–4.2 (trasferimento e pubblicazione), poi la Fase 3 (release ponte 1.15.33).
+**Stato:** decisioni prese · **FASI 1, 2, 4.1 e 4.2 CHIUSE** (13/09) · **`Pitz72/RRLMP` è pubblico** · prossima: Fase 3 (release ponte 1.15.33), che chiude anche la 4.3.
 
 > **Il modello è doppio.** Questa procedura ricalca i piani già eseguiti con successo da
 > *Runtime TelegramBot Desktop Titan Edition* (12–13 agosto 2026) e *Runtime FeedDownloader Pro*
@@ -234,20 +234,38 @@ puntare alla destinazione definitiva.
 
 ## FASE 4 — GitHub
 
-### 4.1 Trasferimento
-- [ ] ⛔ **Backup**: `git clone --mirror` di `Ecosystem-Runtime/RRLMP` e di `Ecosystem-Runtime/RRLMP-Releases`.
-- [ ] Togliere l'archiviazione a `Pitz72/RRLMP` (nessuna rinomina).
-- [ ] Push di `master` **fast-forward**: lo storico completo, dal primo commit del 4/1/2026, arriva sul
-      repository esistente senza forzature.
-- [ ] Verifica con **clone pulito**: SHA identico al `master` locale, numero di commit, `git fsck --strict`.
-- [ ] `Ecosystem-Runtime/RRLMP` resta privato e intatto come rete di sicurezza fino alla Fase 5.
+### 4.1 Trasferimento ✅ CHIUSA (13/09)
+- [x] ⛔ **Backup** in `C:\Users\Utente\Documents\BACKUP-RRLMP-2026-09-13\`, tutti con `git fsck --strict`
+      pulito: `Ecosystem-Runtime_RRLMP.git` (278 commit, 148 MB), `Ecosystem-Runtime_RRLMP-Releases.git`
+      (3 commit, manuali inclusi, 31 MB) e `Pitz72_RRLMP.git` (278 commit). Più l'inventario degli asset
+      della v1.15.32 sul ponte (`RRLMP-Releases_asset-inventario.tsv`) e le sue note di rilascio.
+      I binari delle release non sono nel backup git: si rigenerano dal tag con la CI, e prima di
+      cancellare il ponte (Fase 5) va deciso se scaricarli.
+- [x] Tolta l'archiviazione a `Pitz72/RRLMP` (nessuna rinomina).
+- [x] Push di `master` **fast-forward** `9c65650..fbe4e6f`: 115 commit nuovi in coda ai 163 già presenti.
+- [x] Verifica con **clone pulito**: SHA `fbe4e6f` identico al `master` locale, 278 commit in entrambi,
+      primo commit 4/1/2026, `git fsck --strict` pulito, `LICENSE` MIT presente. Nessun workflow partito.
+- [x] Pulizia locale su decisione dell'utente: svuotata `builds/` (17 GB) ed eliminata `distribuzione/`
+      con i pacchetti Gumroad (1,2 GB).
+- [x] `Ecosystem-Runtime/RRLMP` resta privato e intatto come rete di sicurezza fino alla Fase 5.
 
-### 4.2 Pubblicazione
-- [ ] Repository **pubblico**; descrizione in inglese, sito, argomenti (`radio`, `broadcast`,
-      `playout`, `electron`, `react`, `typescript`, `audio`, `open-source`).
-- [ ] GitHub riconosce **MIT**; issue abilitate con i template.
-- [ ] Nessun workflow parte con il push (trigger solo `workflow_dispatch` / `pull_request`).
-- [ ] Ultimo controllo: nessun file di credenziali tracciato.
+### 4.2 Pubblicazione ✅ CHIUSA (13/09)
+- [x] Repository **pubblico**. Descrizione in inglese sul modello di FeedDownloader («Live radio
+      playout and show-control for podcasts, web radio and live events. Electron + React + FFmpeg.
+      Free software, MIT licence.»), sito `https://runtimeradio.com`, argomenti `radio`, `broadcast`,
+      `playout`, `podcast`, `live-audio`, `electron`, `react`, `typescript`, `ffmpeg`, `audio`,
+      `open-source`. Wiki disattivata.
+- [x] GitHub riconosce **MIT** (API `license` → `spdx_id: MIT`, dopo circa un minuto di propagazione).
+- [x] **Accesso anonimo verificato**, senza nessuna credenziale: pagina del repository, `LICENSE` e PDF
+      del manuale in raw (HTTP 200), `git ls-remote` e clone anonimo sullo SHA `fbe4e6f`. Nel primo
+      minuto dopo il cambio di visibilità il protocollo git rispondeva ancora 401: è la propagazione.
+- [x] Issue abilitate; i due moduli `.github/ISSUE_TEMPLATE/*.yml` sono pubblicati e validi. GitHub
+      non li conta nel profilo della community né li elenca via GraphQL: succede identico su
+      FeedDownloader (profilo al 71% in entrambi), perché quei controlli vedono solo i modelli Markdown.
+      Pagina della politica di sicurezza attiva (`/security/policy`, HTTP 200).
+- [x] Nessun workflow partito con il push o con il cambio di visibilità (trigger solo
+      `workflow_dispatch` / `pull_request`); registrato solo `Build and Release`.
+- [x] Ultimo controllo: nessun file di credenziali tracciato nell'albero pubblicato.
 
 ### 4.3 CI
 - [ ] Matrice **Windows + Linux** (AppImage + deb), senza macOS, come Titan e FeedDownloader.
