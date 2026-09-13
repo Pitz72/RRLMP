@@ -28,7 +28,7 @@
 > **Rettifiche puntuali al testo che segue:**
 > - `useSettingsStore.preshowTransitionType` oggi si chiama **`defaultPreshowTransition`**.
 > - `evaluateMix` ha un **quarto parametro** `mixState` (`fadingClipIds`/`suppressedClips`), necessario quando la si chiama dentro un `set()`.
-> - `suppressedClips` è **codice morto dalla 1.15.15** (mai più scritto): vedi L4 nella [revisione](./technical/REVISIONE-CODICE-2026-07-28.md).
+> - `suppressedClips` è stato **rimosso nella 1.15.28** (era codice morto dalla 1.15.15): vedi L4 nella [revisione](./technical/REVISIONE-CODICE-2026-07-28.md).
 > - Le criticità architetturali aperte sono elencate nella [revisione del 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md).
 
 ---

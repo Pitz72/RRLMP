@@ -1,6 +1,6 @@
 # Changelog — come è organizzato questo archivio
 
-*Aggiornato: 2026-07-28 — versione corrente 1.15.15*
+*Aggiornato: 2026-09-13 — versione corrente 1.15.32*
 
 La cartella si è stratificata nel tempo e i nomi non dicono più quello che sembrano dire. Questa è la mappa reale.
 
@@ -10,7 +10,7 @@ La cartella si è stratificata nel tempo e i nomi non dicono più quello che sem
 
 | Percorso | Cosa contiene davvero |
 |---|---|
-| `current/<versione>.md` | Un file per versione, **dalla 0.10.0 alla 1.15.15**. ~250 file. È qui che si scrive il changelog di ogni nuova versione. |
+| `current/<versione>.md` | Un file per versione, **dalla 0.10.0 alla 1.15.32** (dalla 1.15.31 anche `<versione>.en.md`, inglese). ~250 file. È qui che si scrive il changelog di ogni nuova versione. |
 | `archive/<versione>.md` | Un file per versione, **dalla 0.0.1 alla 0.9.20** (incluse le build `0.0.5fix1`…`fix13`). Preistoria del progetto. |
 | `0.0.md` … `0.15.md` | Riepiloghi **aggregati per minor**, scritti a suo tempo in parallelo ai file per-versione. Si sovrappongono in parte al contenuto di `archive/` e `current/`. Storici, non si aggiornano più. |
 
@@ -28,7 +28,7 @@ Conseguenze pratiche:
 
 1. **Il percorso `docs/changelogs/current/` non va cambiato** senza aggiornare il workflow.
 2. **Il file va scritto per l'utente finale**, non solo per lo sviluppatore: è il testo che legge chi riceve l'aggiornamento.
-3. Se una versione viene sviluppata ma **non rilasciata**, il changelog della versione successiva deve essere **cumulativo** — includere anche le novità di quella saltata, altrimenti chi si aggiorna non le vede mai. È il pattern usato per 1.15.13 (che includeva 1.15.11-12) e per 1.15.15 (che include 1.15.14).
+3. Se una versione viene sviluppata ma **non rilasciata**, il changelog della versione successiva deve essere **cumulativo** — includere anche le novità di quella saltata, altrimenti chi si aggiorna non le vede mai. È il pattern usato per 1.15.13 (che includeva 1.15.11-12) e per 1.15.15 (che include 1.15.14). Vale anche quando si **eliminano le release precedenti**: l'auto-updater mostra solo il corpo dell'ultima release, quindi le note devono coprire tutto ciò che è uscito dall'ultima versione che gli utenti potrebbero avere installata (così la 1.15.32, cumulativa dalla 1.15.16).
 
 ## Come si scrive un changelog nuovo
 

@@ -1,6 +1,6 @@
 # RRLMP — Centro Documentazione
 
-**Software:** Runtime Live Machine Pro · **versione corrente 1.15.15**
+**Software:** Runtime Live Machine Pro · **versione corrente 1.15.32**
 **Repo codice:** `Ecosystem-Runtime/RRLMP` · **Repo rilasci pubblici:** `Ecosystem-Runtime/RRLMP-Releases`
 *Indice aggiornato: 2026-07-28*
 
@@ -12,8 +12,8 @@ Punto di ingresso unico alla documentazione del progetto. Ogni voce dice **a cos
 
 | Documento | A cosa serve | Stato |
 |---|---|---|
-| [Revisione codice 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md) | Criticità aperte del codice, classificate per gravità con file:riga e fix proposto | ✅ **allineato a 1.15.15** |
-| [Roadmap & Backlog](./ROADMAP.md) | Cosa c'è da fare adesso, cosa è sospeso, cosa è chiuso | ✅ **allineato a 1.15.15** |
+| [Revisione codice 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md) | Criticità aperte del codice, classificate per gravità con file:riga e fix proposto | ✅ **chiusa** (reperti risolti in 1.15.16-29, rilasciati con la 1.15.32) |
+| [Roadmap & Backlog](./ROADMAP.md) | Cosa c'è da fare adesso, cosa è sospeso, cosa è chiuso | ✅ **allineato a 1.15.32** |
 | [Regole per colonna](./regole-colonne/README.md) | Il comportamento di ogni colonna in regia — **fonte di verità del motore** | ✅ allineato a 1.15.15 |
 | [Relazione tecnica](../relazione.md) | Storico fix versione per versione | ⚠️ intestazione ferma a 1.11.5 |
 
