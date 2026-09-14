@@ -32,7 +32,11 @@ Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio)
    3. **equalizzatore** — tre `BiquadFilter` (rumble, corpo, presenza 3–4 kHz);
    4. **riduzione rumore** — partire da un expander sul gate già presente in `MicManager`; RNNoise/WASM è la strada di qualità ma è una dipendenza nuova.
 
-   Nota: `MicManager` **instrada già** la voce al master bus quando il *Canale Mix Microfono* è attivo (`micGain` → `manager.getOutput()`), quindi compressore ed equalizzatore hanno un'uscita su cui agire anche prima dell'integrazione LIVE.
+3. **Allineamento allo standard di distribuzione 2.0** (deciso dall'utente il 14/09/2026, da fare nelle prossime sessioni):
+   1. **schermata «Novità» dopo l'aggiornamento**, sul modello di Titan (§4 dello standard): `lastSeenVersion` nelle impostazioni del main, handler `consume-whats-new`, una sola volta dopo l'update, mai alla prima installazione, note brevi IT+EN;
+   2. **configurazione dei pacchetti in `electron-builder.yml` dedicato**, togliendo la sezione `"build"` da `package.json`. Attenzione a `publish` (owner `Pitz72`, repo `RRLMP`): verificare con una release di prova che `app-update.yml` punti ancora a `Pitz72/RRLMP`.
+
+   Nota (punto 2 di Smart Mic): `MicManager` **instrada già** la voce al master bus quando il *Canale Mix Microfono* è attivo (`micGain` → `manager.getOutput()`), quindi compressore ed equalizzatore hanno un'uscita su cui agire anche prima dell'integrazione LIVE.
 
 ---
 
@@ -125,6 +129,7 @@ Si guadagna: niente cattura di sistema (niente AGC, niente notifiche Windows in 
 - **Ciclo di rilascio**: si eliminano le release precedenti; il changelog della versione **è** il corpo della release, in italiano (`<ver>.md`) e inglese (`<ver>.en.md`, obbligatorio). L'updater mostra **solo** il corpo dell'ultima release → le note devono essere **cumulative** dall'ultima versione che gli utenti potrebbero avere.
 - **La CI non usa lo storage artifact in modalità release** (bozza → upload diretto → publish finale).
 - **Nessuna vendita** — dal settembre 2026 il programma è software libero MIT, distribuito solo da GitHub; macOS si compila dal sorgente.
+- **Icona dell'app definitiva** (decisione dell'utente, 14/09/2026): resta quella attuale (barre + play), non va portata nello stile di famiglia.
 - **Schermate del manuale** si rifanno con gli script (`manuale-utente/capture-app.js`, `capture-extra.js`, `finalize-screenshots.py`) su Vite :5199 — config "Renderer (Vite, porta capture manuale)" in `.claude/launch.json`.
 
 ---
