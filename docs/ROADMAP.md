@@ -1,6 +1,6 @@
 # RRLMP — Roadmap & Backlog
 
-**Versione corrente:** 1.15.34 — nel codice, **non ancora rilasciata** (ultima pubblicata: 1.15.33 su `Pitz72/RRLMP` e sul ponte `Ecosystem-Runtime/RRLMP-Releases`)
+**Versione corrente:** 1.15.34 — **rilasciata** su `Pitz72/RRLMP` il 2026-09-19 (run 35402635920, 5/5; SHA-512 degli asset e `app-update.yml` del `.deb` verificati). Il ponte `Ecosystem-Runtime/RRLMP-Releases` resta alla 1.15.33
 **Ultimo aggiornamento:** 2026-09-19 — schermata «Novità», `electron-builder.yml`, limiter misurato
 
 Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio). Nessuna automazione 24h. L'unica eccezione controllata è la rotazione PRE-SHOW — vedi [VISION.md](./VISION.md).
@@ -34,7 +34,7 @@ Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio)
 
 3. ✅ **Allineamento allo standard di distribuzione 2.0 — FATTO nella 1.15.34:**
    1. **schermata «Novità»** (`src/main/whatsNew.ts`, `WhatsNewModal`, note in `constants/whatsNew.ts`): provata sull'exe compilato (aggiornamento → sì, prima installazione → no, secondo avvio → no). **A ogni release aggiungere la voce della versione** in `constants/whatsNew.ts`, altrimenti compare il testo generico;
-   2. **`electron-builder.yml`** con contenuto identico alla vecchia sezione `"build"`; nella build NSIS locale `app-update.yml` punta a `Pitz72/RRLMP`. Resta da controllare lo stesso file dentro il `.deb` della prima build CI.
+   2. **`electron-builder.yml`** con contenuto identico alla vecchia sezione `"build"`; nella build NSIS locale `app-update.yml` punta a `Pitz72/RRLMP`. Verificato anche dentro il `.deb` della release: `Pitz72/RRLMP`.
 4. **Catena spenta non trasparente sui picchi** (emerso misurando il limiter): in bypass il livello resta identico, ma il picco vero sale fino a +2,5 dB (NIN: −0,1 → +2,4 dBTP). Causa probabile: l'HPF messo in `allpass`, che ruota la fase delle basse. Rimedio da valutare: aggirare il filtro con il routing, come si fa col Glue, invece di cambiarne il tipo.
 
    Nota (punto 2 di Smart Mic): `MicManager` **instrada già** la voce al master bus quando il *Canale Mix Microfono* è attivo (`micGain` → `manager.getOutput()`), quindi compressore ed equalizzatore hanno un'uscita su cui agire anche prima dell'integrazione LIVE.
