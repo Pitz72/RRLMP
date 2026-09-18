@@ -1,7 +1,7 @@
 # RRLMP — Roadmap & Backlog
 
-**Versione corrente:** 1.15.33 — **rilasciata** su `Pitz72/RRLMP` (repository pubblico, MIT) e, come release ponte, su `Ecosystem-Runtime/RRLMP-Releases`
-**Ultimo aggiornamento:** 2026-09-13 — dopo l'apertura del sorgente e la release ponte 1.15.33
+**Versione corrente:** 1.15.34 — nel codice, **non ancora rilasciata** (ultima pubblicata: 1.15.33 su `Pitz72/RRLMP` e sul ponte `Ecosystem-Runtime/RRLMP-Releases`)
+**Ultimo aggiornamento:** 2026-09-19 — schermata «Novità», `electron-builder.yml`, limiter misurato
 
 Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio). Nessuna automazione 24h. L'unica eccezione controllata è la rotazione PRE-SHOW — vedi [VISION.md](./VISION.md).
 
@@ -12,8 +12,8 @@ Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio)
 | Area | Stato |
 |------|-------|
 | Typecheck (renderer/main/node/preload) | **0 errori** su tutti e 4 |
-| Test Vitest | **233/233 verdi** (24 file) |
-| Criticità aperte del codice | **nessuna** dalla [revisione 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md) (22 reperti chiusi in 1.15.16 → 1.15.29) — resta da verificare il limiter, vedi sotto |
+| Test Vitest | **246/246 verdi** (26 file) |
+| Criticità aperte del codice | **nessuna** dalla [revisione 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md) (22 reperti chiusi in 1.15.16 → 1.15.29) — limiter misurato e corretto nella 1.15.34 |
 | Ultima release **pubblicata** | **v1.15.33** su `Pitz72/RRLMP` e, identica, sul ponte `RRLMP-Releases` (unica release in entrambi) — note cumulative 1.15.16 → 1.15.33 in italiano e inglese |
 | Lingue | **Solo italiano e inglese** in app, guida rapida, manuale e note di rilascio (dalla 1.15.32) |
 | Manuale utente | IT + EN allineati alla 1.15.33, licenza MIT; il pulsante dell'app li apre da `Pitz72/RRLMP/manuale-utente/typst` (le versioni ≤ 1.15.32 da `RRLMP-Releases/manuals`, aggiornati anch'essi) |
@@ -25,16 +25,17 @@ Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio)
 
 ## 🔴 Priorità 1 — Da fare nel codice
 
-1. **Limiter della master chain da misurare.** Oggi `AudioContextManager.ts` usa `DynamicsCompressorNode` con soglia −1 dBFS, ratio 20, knee 0. Su StreamFlow è stato **misurato** che con questi parametri il tetto non regge (uscita sopra 0 dBFS già a +6 dB di sovraccarico) e che Chromium aggiunge un makeup implicito di ~0,57 dB per ogni dB di soglia, anche a riposo. Rifare la stessa sonda con `OfflineAudioContext` dentro RRLMP; se confermato, correggere (in StreamFlow ha funzionato soglia −3 dB + trim di compensazione).
+1. ✅ **Limiter della master chain — FATTO nella 1.15.34.** Misurato dentro l'Electron del progetto: confermati il makeup implicito (+0,570 dB per dB di soglia) e il tetto che non reggeva (+1,26 dBFS a +24 dB di sovraccarico, +0,5 dBTP su musica). Ora soglia = tetto − 1,5 dB e trim che annulla il makeup; Glue ritarato per restare al livello di prima. Misure: [LIMITER-MISURA-2026-09-18.md](./technical/LIMITER-MISURA-2026-09-18.md); sonde riusabili in `scripts/sonda-audio/` (servono anche al compressore della voce, punto 2.2).
 2. **Microfono (Smart Mic) — completamento**, in ordine:
    1. **interruttore ducking on/off** — oggi armare il microfono implica l'abbassamento della musica;
    2. **compressore sulla voce** — con trim del makeup implicito, misurato e non stimato;
    3. **equalizzatore** — tre `BiquadFilter` (rumble, corpo, presenza 3–4 kHz);
    4. **riduzione rumore** — partire da un expander sul gate già presente in `MicManager`; RNNoise/WASM è la strada di qualità ma è una dipendenza nuova.
 
-3. **Allineamento allo standard di distribuzione 2.0** (deciso dall'utente il 14/09/2026, da fare nelle prossime sessioni):
-   1. **schermata «Novità» dopo l'aggiornamento**, sul modello di Titan (§4 dello standard): `lastSeenVersion` nelle impostazioni del main, handler `consume-whats-new`, una sola volta dopo l'update, mai alla prima installazione, note brevi IT+EN;
-   2. **configurazione dei pacchetti in `electron-builder.yml` dedicato**, togliendo la sezione `"build"` da `package.json`. Attenzione a `publish` (owner `Pitz72`, repo `RRLMP`): verificare con una release di prova che `app-update.yml` punti ancora a `Pitz72/RRLMP`.
+3. ✅ **Allineamento allo standard di distribuzione 2.0 — FATTO nella 1.15.34:**
+   1. **schermata «Novità»** (`src/main/whatsNew.ts`, `WhatsNewModal`, note in `constants/whatsNew.ts`): provata sull'exe compilato (aggiornamento → sì, prima installazione → no, secondo avvio → no). **A ogni release aggiungere la voce della versione** in `constants/whatsNew.ts`, altrimenti compare il testo generico;
+   2. **`electron-builder.yml`** con contenuto identico alla vecchia sezione `"build"`; nella build NSIS locale `app-update.yml` punta a `Pitz72/RRLMP`. Resta da controllare lo stesso file dentro il `.deb` della prima build CI.
+4. **Catena spenta non trasparente sui picchi** (emerso misurando il limiter): in bypass il livello resta identico, ma il picco vero sale fino a +2,5 dB (NIN: −0,1 → +2,4 dBTP). Causa probabile: l'HPF messo in `allpass`, che ruota la fase delle basse. Rimedio da valutare: aggirare il filtro con il routing, come si fa col Glue, invece di cambiarne il tipo.
 
    Nota (punto 2 di Smart Mic): `MicManager` **instrada già** la voce al master bus quando il *Canale Mix Microfono* è attivo (`micGain` → `manager.getOutput()`), quindi compressore ed equalizzatore hanno un'uscita su cui agire anche prima dell'integrazione LIVE.
 
@@ -53,6 +54,8 @@ Non riproducibili con i test automatici:
 - **"Riavvia e installa" con progetto sporco** (1.15.19): deve chiedere Salva / Non Salvare / Annulla.
 - **Smart Mic con microfono USB** (1.15.30): la musica scende parlando e risale smettendo.
 - **Utente con lingua rimossa** (1.15.32): chi aveva l'app in francese/tedesco/… deve ripartire in inglese.
+- **Limiter nuovo all'ascolto** (1.15.34): con Glue acceso nessuna differenza di livello; con Glue spento sui master molto compressi il limiter ora lavora (−0,5 LU misurati). Guardare il GR del limiter nel Debug Overlay (Ctrl+Shift+D).
+- **Schermata «Novità» su un aggiornamento vero** (1.15.34): deve comparire una volta sola aggiornando dalla 1.15.33.
 
 Feature precedenti mai validate su materiale reale:
 

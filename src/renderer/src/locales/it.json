@@ -120,7 +120,7 @@
                 "styleHint": "Solo 'Neutro' è tarato con misura oggettiva (LUFS/LRA). Gli altri stili sono valori di partenza: verificare in regia con ascolto reale.",
                 "limiterAlways": "Sempre attivo se chain abilitata",
                 "maxThreshold": "Soglia massima",
-                "limiterHint": "Blocco assoluto per protezione trasmittente. 20:1, 2 ms att. Default: -1 dBFS.",
+                "limiterHint": "Tetto reale dell'uscita: i picchi non lo superano (misurato fino a +12 dB di sovraccarico). 20:1, 2 ms att. Default: -1 dBFS.",
                 "resetDefault": "Ripristina default Master Chain"
             },
             "languageHelp": "Seleziona la lingua dell'interfaccia. La modifica è immediata.",
@@ -322,6 +322,13 @@
             "downloadInstall": "Scarica e installa",
             "download": "Scarica",
             "restartInstall": "Riavvia e installa"
+        },
+        "whatsNew": {
+            "title": "Novità della versione {{v}}",
+            "updatedFrom": "Aggiornato dalla v{{from}}",
+            "fallback": "RRLMP è stato aggiornato. L'elenco completo delle modifiche è nelle note di rilascio.",
+            "fullNotes": "Note di rilascio complete",
+            "close": "Ho capito"
         },
         "exportProgress": {
             "title": "Esportazione in corso...",

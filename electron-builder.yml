@@ -1,0 +1,67 @@
+# Configurazione dei pacchetti (electron-builder).
+# Dalla v1.15.34 vive qui e non più nella sezione "build" di package.json
+# (standard di distribuzione Runtime Desktop 2.0, §5; modello Titan/FeedDownloader).
+# Contenuto identico a quello che stava in package.json: nessun cambio di
+# comportamento nei pacchetti.
+
+appId: com.antigravity.rrlmp
+productName: Runtime Live Machine Pro
+# Senza spazi: latest.yml deve combaciare con i nomi degli asset della release.
+artifactName: Runtime-Live-Machine-Pro-${version}.${ext}
+directories:
+  output: builds/v${version}
+
+# === Auto-update ===
+# Finisce in app-update.yml dentro i pacchetti: è il repository dove le
+# installazioni cercano gli aggiornamenti. Dalla 1.15.33 è quello pubblico.
+publish:
+  provider: github
+  owner: Pitz72
+  repo: RRLMP
+  releaseType: release
+
+files:
+  - out/**/*
+  - package.json
+  - build/icon.png
+extraResources:
+  - from: resources/default-sfx
+    to: default-sfx
+asarUnpack:
+  - node_modules/ffmpeg-static/ffmpeg*
+  - node_modules/ffprobe-static/ffprobe*
+
+# === Windows ===
+win:
+  target: nsis
+  icon: build/icon.png
+nsis:
+  oneClick: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: false
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: Runtime Live Machine Pro
+
+# === macOS ===
+# Nessun installer ufficiale: la CI non costruisce per macOS. La sezione resta
+# per chi compila dal sorgente (CONTRIBUTING.md).
+mac:
+  target: dmg
+  icon: build/icon.png
+  entitlementsInherit: build/entitlements.mac.plist
+  extendInfo:
+    NSMicrophoneUsageDescription: Runtime Live Machine Pro richiede l'accesso al microfono per Smart Mic Auto-Ducking e il Canale Mix.
+
+# === Linux ===
+linux:
+  target:
+    - AppImage
+    - deb
+  icon: build/icons
+
+fileAssociations:
+  - ext: lmp
+    name: RRLMP Project
+    role: Editor
+    icon: build/icon.png

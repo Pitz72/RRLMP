@@ -703,7 +703,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     accent="accent-red-500"
                                     onChange={(v) => setMasterChain({ limiterThreshold: v })}
                                 />
-                                <p className="text-[10px] text-zinc-600 italic">{t('modal.settings.chain.limiterHint', 'Blocco assoluto per protezione trasmittente. 20:1, 2 ms att. Default: -1 dBFS.')}</p>
+                                <p className="text-[10px] text-zinc-600 italic">{t('modal.settings.chain.limiterHint', "Tetto reale dell'uscita: i picchi non lo superano (misurato fino a +12 dB di sovraccarico). 20:1, 2 ms att. Default: -1 dBFS.")}</p>
                             </div>
                             </div>
 

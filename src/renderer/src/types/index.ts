@@ -106,6 +106,8 @@ declare global {
             downloadUpdate: () => Promise<{ success: boolean }>;
             quitAndInstall: () => Promise<{ success: boolean }>;
             onUpdaterStatus: (callback: (status: UpdaterStatusPayload) => void) => () => void;
+            // v1.15.34 — schermata «Novità» dopo l'aggiornamento (src/main/whatsNew.ts)
+            consumeWhatsNew: () => Promise<{ shouldShow: boolean; previousVersion: string | null; currentVersion: string }>;
         }
 
 

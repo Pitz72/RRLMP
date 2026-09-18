@@ -109,6 +109,8 @@ if (process.contextIsolated) {
                 ipcRenderer.on('updater:status', subscription);
                 return () => ipcRenderer.removeListener('updater:status', subscription);
             },
+            // v1.15.34 — schermata «Novità»: il main decide e segna la versione come vista
+            consumeWhatsNew: () => ipcRenderer.invoke('consume-whats-new'),
             // v1.2.3 — Apertura diretta file .lmp da doppio click / file association OS
             loadProjectFromPath: (filePath: string) => ipcRenderer.invoke('load-project-path', filePath),
             onOpenFile: (callback: (filePath: string) => void) => {

@@ -1,6 +1,6 @@
 {
   "name": "runtime-live-machine-pro",
-  "version": "1.15.33",
+  "version": "1.15.34",
   "description": "Professional Broadcast Audio Architecture",
   "homepage": "https://github.com/Pitz72/RRLMP",
   "repository": {
@@ -20,70 +20,6 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
-  },
-  "build": {
-    "appId": "com.antigravity.rrlmp",
-    "productName": "Runtime Live Machine Pro",
-    "artifactName": "Runtime-Live-Machine-Pro-${version}.${ext}",
-    "directories": {
-      "output": "builds/v${version}"
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "Pitz72",
-      "repo": "RRLMP",
-      "releaseType": "release"
-    },
-    "files": [
-      "out/**/*",
-      "package.json",
-      "build/icon.png"
-    ],
-    "extraResources": [
-      {
-        "from": "resources/default-sfx",
-        "to": "default-sfx"
-      }
-    ],
-    "asarUnpack": [
-      "node_modules/ffmpeg-static/ffmpeg*",
-      "node_modules/ffprobe-static/ffprobe*"
-    ],
-    "win": {
-      "target": "nsis",
-      "icon": "build/icon.png"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowElevation": true,
-      "allowToChangeInstallationDirectory": false,
-      "createDesktopShortcut": "always",
-      "createStartMenuShortcut": true,
-      "shortcutName": "Runtime Live Machine Pro"
-    },
-    "mac": {
-      "target": "dmg",
-      "icon": "build/icon.png",
-      "entitlementsInherit": "build/entitlements.mac.plist",
-      "extendInfo": {
-        "NSMicrophoneUsageDescription": "Runtime Live Machine Pro richiede l'accesso al microfono per Smart Mic Auto-Ducking e il Canale Mix."
-      }
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ],
-      "icon": "build/icons"
-    },
-    "fileAssociations": [
-      {
-        "ext": "lmp",
-        "name": "RRLMP Project",
-        "role": "Editor",
-        "icon": "build/icon.png"
-      }
-    ]
   },
   "keywords": [],
   "author": "Simone Pizzi <pizzisimone1972@gmail.com>",

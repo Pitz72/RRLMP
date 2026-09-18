@@ -8,6 +8,12 @@ import { startRemoteControlServer, stopRemoteControlServer, getRemoteControlStat
 import { initUpdateManager, checkForUpdates, downloadUpdate, quitAndInstall } from './updateManager';
 import { setMainLanguage, tMain } from './i18nMain';
 import { mediaUrlToFilePath } from './mediaPath';
+import { detectExistingUserData, consumeWhatsNew } from './whatsNew';
+
+// v1.15.34 — schermata «Novità» (whatsNew.ts). Le tracce di un utente esistente
+// vanno lette ADESSO, prima che la finestra crei il proprio localStorage: dopo,
+// anche una prima installazione sembrerebbe un aggiornamento.
+const hadUserDataAtLaunch = detectExistingUserData(app.getPath('userData'));
 
 // GR-03 Fix: timeout wrapper per IPC handler asincroni che invocano FFmpeg.
 // Evita hang permanenti dell'app se FFmpeg si blocca o il file è illeggibile.
@@ -1068,6 +1074,12 @@ ipcMain.handle('quit-and-install', () => {
     }
     return { success: true };
 });
+
+// v1.15.34 — «Novità» dopo l'aggiornamento: una sola volta per versione, mai alla
+// prima installazione. La versione vista resta nelle impostazioni del main.
+ipcMain.handle('consume-whats-new', () =>
+    consumeWhatsNew(app.getPath('userData'), app.getVersion(), hadUserDataAtLaunch)
+);
 
 // Apre un URL nel browser di sistema su richiesta del renderer (manuali, codice
 // sorgente, contatti, sostegno). Il fallback dell'auto-updater non passa di qui.

@@ -12,7 +12,8 @@
  *               └─ DRY: passthrough pulito                                            → dryGain
  *                       (wetGain/dryGain in mutua esclusione: glue ON = wet, glue OFF = dry)
  *                   → preLimiter
- *                       → Limiter (brickwall: -1 dBFS, 20:1, 2 ms / 100 ms)
+ *                       → Limiter (20:1, 2 ms / 100 ms, soglia = tetto − 1,5 dB)
+ *                         → limiterTrim (annulla il makeup implicito, v1.15.34)
  *                           → destination
  *                           → ChannelSplitter → AnalyserL, AnalyserR
  *                           → recordingBus
@@ -29,8 +30,13 @@
  * ai 3 compressori — 'neutro' resta il default, zero regressione per chi non lo cambia.
  *
  * Quando masterChainEnabled = false: HPF→allpass, dry path attivo, limiter→passthrough
- * (ratio 1 / threshold 0, knee 0) → catena trasparente, identica al segnale d'ingresso.
+ * (ratio 1 / threshold 0, knee 0, trim 0) → livello identico al segnale d'ingresso.
+ *
+ * v1.15.34 — LIMITER MISURATO: vedi masterLimiter.ts. Il vecchio limiter (soglia −1,
+ * nessun trim) alzava tutto di +0,57 dB e lasciava passare picchi oltre 0 dBFS.
  */
+
+import { limiterParams, dbToGain, GLUE_LEGACY_MAKEUP_GAIN, LIMITER_KNEE, LIMITER_ATTACK_S, LIMITER_RELEASE_S } from './masterLimiter';
 
 export type CompressorStyle = 'neutro' | 'rock' | 'jazz' | 'elettronico';
 
@@ -42,7 +48,7 @@ export interface MasterChainSettings {
     compressorThreshold: number; // dBFS — vestigiale (preset multibanda fisso), mantenuto per compat persistenza
     compressorRatio: number;     // vestigiale (preset multibanda fisso)
     compressorStyle: CompressorStyle; // colore del Glue Multibanda (v1.7.0), default 'neutro'
-    limiterThreshold: number;    // dBFS — default -1
+    limiterThreshold: number;    // dBFS — tetto d'uscita, default -1 (v1.15.34: tetto reale, vedi masterLimiter.ts)
 }
 
 export const DEFAULT_MASTER_CHAIN: MasterChainSettings = {
@@ -116,6 +122,7 @@ class AudioContextManager {
     private preLimiter: GainNode;
 
     private limiter: DynamicsCompressorNode;
+    private limiterTrim: GainNode; // v1.15.34 — annulla il makeup implicito del limiter
     private analyserL: AnalyserNode;
     private analyserR: AnalyserNode;
     private splitter: ChannelSplitterNode;
@@ -169,7 +176,7 @@ class AudioContextManager {
 
         // --- 5. Somma bande (wet) + gain calibrazione ---
         this.mbSum = ctx.createGain();
-        this.mbSum.gain.value = MB_PRESET.outGain;
+        this.mbSum.gain.value = MB_PRESET.outGain * GLUE_LEGACY_MAKEUP_GAIN;
         lowLPb.connect(this.compLow);   this.compLow.connect(this.mbSum);
         midLPb.connect(this.compMid);   this.compMid.connect(this.mbSum);
         highHPb.connect(this.compHigh); this.compHigh.connect(this.mbSum);
@@ -185,13 +192,16 @@ class AudioContextManager {
         this.wetGain.connect(this.preLimiter);
         this.dryGain.connect(this.preLimiter);
 
-        // --- 7. Brickwall Limiter ---
+        // --- 7. Brickwall Limiter + trim del makeup (v1.15.34, masterLimiter.ts) ---
+        const lim = limiterParams(DEFAULT_MASTER_CHAIN.limiterThreshold, DEFAULT_MASTER_CHAIN.enabled);
         this.limiter = ctx.createDynamicsCompressor();
-        this.limiter.threshold.value = DEFAULT_MASTER_CHAIN.limiterThreshold;
-        this.limiter.knee.value = 0;
-        this.limiter.ratio.value = 20;
-        this.limiter.attack.value = 0.002;  // 2 ms
-        this.limiter.release.value = 0.100; // 100 ms
+        this.limiter.threshold.value = lim.threshold;
+        this.limiter.knee.value = LIMITER_KNEE;
+        this.limiter.ratio.value = lim.ratio;
+        this.limiter.attack.value = LIMITER_ATTACK_S;
+        this.limiter.release.value = LIMITER_RELEASE_S;
+        this.limiterTrim = ctx.createGain();
+        this.limiterTrim.gain.value = dbToGain(lim.trimDb);
 
         // --- 8. Metering ---
         this.splitter = ctx.createChannelSplitter(2);
@@ -220,11 +230,12 @@ class AudioContextManager {
         this.hpf.connect(midHPa);
         // DRY branch
         this.hpf.connect(this.dryGain);
-        // preLimiter → limiter → destination + splitter + recordingBus
+        // preLimiter → limiter → limiterTrim → destination + splitter + recordingBus
         this.preLimiter.connect(this.limiter);
-        this.limiter.connect(ctx.destination);
-        this.limiter.connect(this.splitter);
-        this.limiter.connect(this.recordingBus);
+        this.limiter.connect(this.limiterTrim);
+        this.limiterTrim.connect(ctx.destination);
+        this.limiterTrim.connect(this.splitter);
+        this.limiterTrim.connect(this.recordingBus);
         this.splitter.connect(this.analyserL, 0);
         this.splitter.connect(this.analyserR, 1);
 
@@ -280,7 +291,7 @@ class AudioContextManager {
      * @deprecated Usa getRecordingBus() per il tap della registrazione (include mic diretto).
      */
     public getMasterOutput(): AudioNode {
-        return this.limiter;
+        return this.limiterTrim;
     }
 
     /** v1.2.2 — Recording bus: mix di limiter output + mic diretto (quando mixEnabled=false).
@@ -338,20 +349,19 @@ class AudioContextManager {
         applyBand(this.compLow, style.low);
         applyBand(this.compMid, style.mid);
         applyBand(this.compHigh, style.high);
-        this.mbSum.gain.setTargetAtTime(style.outGain, now, t);
+        this.mbSum.gain.setTargetAtTime(style.outGain * GLUE_LEGACY_MAKEUP_GAIN, now, t);
 
         // Glue Multibanda — wet/dry in mutua esclusione (click-free)
         this.wetGain.gain.setTargetAtTime(glueOn ? 1 : 0, now, t);
         this.dryGain.gain.setTargetAtTime(glueOn ? 0 : 1, now, t);
 
-        // Limiter — sempre presente quando la chain è attiva (sicurezza broadcast)
-        if (!chainOn) {
-            this.limiter.threshold.setTargetAtTime(0, now, 0.05);
-            this.limiter.ratio.setTargetAtTime(1, now, 0.05);
-        } else {
-            this.limiter.threshold.setTargetAtTime(s.limiterThreshold, now, 0.05);
-            this.limiter.ratio.setTargetAtTime(20, now, 0.05);
-        }
+        // Limiter — sempre presente quando la chain è attiva (sicurezza broadcast).
+        // Soglia e trim si muovono insieme, con la stessa costante di tempo: il
+        // makeup implicito segue la soglia e il trim lo annulla istante per istante.
+        const lim = limiterParams(s.limiterThreshold, chainOn);
+        this.limiter.threshold.setTargetAtTime(lim.threshold, now, 0.05);
+        this.limiter.ratio.setTargetAtTime(lim.ratio, now, 0.05);
+        this.limiterTrim.gain.setTargetAtTime(dbToGain(lim.trimDb), now, 0.05);
     }
 
     /** Legge la massima riduzione (gain reduction) tra i 3 compressori di banda in dB. */

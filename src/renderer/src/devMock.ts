@@ -49,6 +49,7 @@ if (import.meta.env.DEV && !w.electron) {
         downloadUpdate: async () => {},
         quitAndInstall: async () => {},
         onUpdaterStatus: (cb: (s: any) => void) => { setTimeout(() => cb({ type: 'not-available' }), 300); return noop; },
+        consumeWhatsNew: async () => ({ shouldShow: false, previousVersion: null, currentVersion: '0.0.0' }),
         loadProjectFromPath: async () => ({ success: false }),
         onOpenFile: cleanup,
         showSaveDialogRecording: async () => ({ canceled: true }),

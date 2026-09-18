@@ -28,6 +28,7 @@ import { FxPadOverlay } from './components/ui/FxPadOverlay';
 import { AutomixView } from './components/automix/AutomixView';
 import { populateDefaultFxIfPadEmpty } from './utils/defaultSfx';
 import { UpdateModal } from './components/modals/UpdateModal';
+import { WhatsNewModal } from './components/modals/WhatsNewModal';
 import { UpdaterStatusPayload } from './types';
 // i18n: qui si usa i18n.t diretto (non l'hook) — i gestori vivono in closure di
 // useEffect con deps vuote e l'istanza i18n risolve sempre la lingua corrente.
@@ -60,6 +61,9 @@ function App() {
     // il popup resta in coda finché onAirStartTime non torna a null.
     const pendingUpdateNoticeRef = useRef(false);
     const onAirStartTime = useAudioStore((s) => s.onAirStartTime);
+    // v1.15.34 — schermata «Novità» dopo l'aggiornamento (decisione nel main,
+    // src/main/whatsNew.ts). null = niente da mostrare.
+    const [whatsNew, setWhatsNew] = useState<{ version: string; previousVersion: string | null } | null>(null);
 
     // LI-04: cleanup singleton audio/MIDI all'unmount (hot-reload dev + ricarica pagina)
     // v1.2.27 (NEW-LI-01): chiamata esplicita a setMicActive(false) PRIMA di destroy()
@@ -233,6 +237,15 @@ function App() {
             setShowUpdateModal(true);
         }
     }, [onAirStartTime]);
+
+    // v1.15.34 — «Novità»: chiesta una volta all'avvio. Il main la segna subito
+    // come vista, quindi compare una sola volta per versione (anche chiudendo
+    // l'app senza leggerla). Mai alla prima installazione.
+    useEffect(() => {
+        window.electron.consumeWhatsNew?.()
+            .then((r) => { if (r.shouldShow) setWhatsNew({ version: r.currentVersion, previousVersion: r.previousVersion }); })
+            .catch(() => { /* non bloccante */ });
+    }, []);
 
     const handleCheckUpdatesNow = () => {
         manualUpdateCheckRef.current = true;
@@ -532,6 +545,12 @@ function App() {
                 onClose={() => setShowUpdateModal(false)}
                 onDownload={() => void window.electron.downloadUpdate()}
                 onInstall={() => void handleInstallUpdate()}
+            />
+            <WhatsNewModal
+                isOpen={whatsNew !== null}
+                version={whatsNew?.version ?? __APP_VERSION__}
+                previousVersion={whatsNew?.previousVersion ?? null}
+                onClose={() => setWhatsNew(null)}
             />
 
             {showWelcome && (

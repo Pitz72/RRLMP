@@ -120,7 +120,7 @@
                 "styleHint": "Only 'Neutral' is tuned with objective measurement (LUFS/LRA). The other styles are starting values: verify in broadcast with real listening.",
                 "limiterAlways": "Always active if chain is enabled",
                 "maxThreshold": "Maximum threshold",
-                "limiterHint": "Absolute block for transmitter protection. 20:1, 2 ms att. Default: -1 dBFS.",
+                "limiterHint": "Real output ceiling: peaks stay below it (measured up to +12 dB of overload). 20:1, 2 ms att. Default: -1 dBFS.",
                 "resetDefault": "Restore Master Chain defaults"
             },
             "languageHelp": "Select the interface language. The change is applied immediately.",
@@ -322,6 +322,13 @@
             "downloadInstall": "Download and install",
             "download": "Download",
             "restartInstall": "Restart and install"
+        },
+        "whatsNew": {
+            "title": "What's new in version {{v}}",
+            "updatedFrom": "Updated from v{{from}}",
+            "fallback": "RRLMP has been updated. The full list of changes is in the release notes.",
+            "fullNotes": "Full release notes",
+            "close": "Got it"
         },
         "exportProgress": {
             "title": "Exporting...",
