@@ -90,9 +90,13 @@ Aperto il **2026-07-28** da un problema reale in onda: una speaker con microfono
 >    automatico, eliminazione del suo repo ponte. Si farà in una sessione dedicata; il piano sta nella
 >    ROADMAP di StreamFlow.
 >
-> Conseguenze qui: la premessa del Passo 2 («StreamFlow è pensato per il solo team di Runtime
-> Radio») **non vale più** — con due progetti pubblici il modo di condividere `stream-core` va
-> riconsiderato dopo l'apertura di StreamFlow. Il Passo 3 riguarda un pulsante LIVE **di RRLMP** e
+> 3. **Precisazione dell'utente (stesso giorno):** anche se non si uniranno mai, **i due programmi
+>    restano pensati per il team di Runtime Radio**. Quando saranno completi se ne faranno
+>    **versioni universali, per tutti**.
+>
+> Conseguenze qui: la premessa del Passo 2 resta vera nel fine (il team di Runtime Radio) ma cambia
+> nella forma — StreamFlow avrà un repository pubblico, quindi il modo di condividere `stream-core`
+> va riconsiderato dopo la sua apertura. Il Passo 3 riguarda un pulsante LIVE **di RRLMP** e
 > resta un'idea da valutare: non cambia la natura di StreamFlow.
 
 ### Passo 1 — Microfono in RRLMP ✅ avviato (v1.15.30)
@@ -101,7 +105,7 @@ Smart Mic riattivata e documentata nel manuale (capitoli 3, 6, 13). Il completam
 ### Passo 2 — `stream-core`: motore di streaming condiviso
 I moduli di streaming di StreamFlow (`ffmpeg-manager`, `metadata-manager`, `connection-diagnostic`, `zmq-command`, `credentials`) sono **1.389 righe già disaccoppiate** (solo builtin Node, `electron`, `ffmpeg-static`). Unico aggancio: `BrowserWindow` dentro `ffmpeg-manager`, da sostituire con una callback iniettata.
 
-> ⚠️ *(Superata il 2026-09-27: StreamFlow diventerà pubblico, vedi sopra.)* **Premessa da discutere prima di progettare.** StreamFlow **è pensato per il solo team di Runtime Radio**. Con un pubblico interno e noto la condivisione del codice può essere più diretta del repo versionato con tag ipotizzato in origine (`github:Ecosystem-Runtime/stream-core#v1.0.0`). Aspettare le domande dell'utente su questo punto.
+> ⚠️ *(Aggiornata il 2026-09-27: StreamFlow resta pensato per il team di Runtime Radio ma avrà un repository pubblico, vedi sopra.)* **Premessa da discutere prima di progettare.** StreamFlow **è pensato per il solo team di Runtime Radio**. Con un pubblico interno e noto la condivisione del codice può essere più diretta del repo versionato con tag ipotizzato in origine (`github:Ecosystem-Runtime/stream-core#v1.0.0`). Aspettare le domande dell'utente su questo punto.
 
 ### Passo 3 — LIVE dentro RRLMP (integrazione, non fusione)
 **Decisione dell'utente (2026-07-28): StreamFlow resta un prodotto autonomo.**
