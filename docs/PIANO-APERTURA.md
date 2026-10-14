@@ -3,7 +3,7 @@
 **Aperto:** 13 settembre 2026 · **Decisioni prese:** 13 settembre 2026
 **Obiettivo:** ritirare Runtime Live Machine Pro dalla vendita, portarlo su `Pitz72/RRLMP` come
 repository pubblico sotto licenza MIT, con le release pubblicate nello stesso repository.
-**Stato:** decisioni prese · **FASI 1-4 CHIUSE** (13/09) · aggiornamento automatico verificato sul campo · **FASE 5 quasi chiusa**: Gumroad chiuso, sito Ecosystem aggiornato (v0.6.10-0.6.11), standard di distribuzione alla 2.0. **Resta solo la cancellazione dei due repository Ecosystem-Runtime**, con promemoria il 13 ottobre 2026.
+**Stato:** decisioni prese · **FASI 1-4 CHIUSE** (13/09) · aggiornamento automatico verificato sul campo · **FASE 5 quasi chiusa**: Gumroad chiuso, sito Ecosystem aggiornato (v0.6.10-0.6.11), standard di distribuzione alla 2.0. **Cancellati il 14/10/2026 i due repository Ecosystem-Runtime (ponte e privato)**, backup in `F:\Backup\BACKUP-RRLMP-2026-10-14\`. FASE 5 CHIUSA.
 
 > **Il modello è doppio.** Questa procedura ricalca i piani già eseguiti con successo da
 > *Runtime TelegramBot Desktop Titan Edition* (12–13 agosto 2026) e *Runtime FeedDownloader Pro*
@@ -312,14 +312,13 @@ già puntare alla destinazione definitiva): rispettato.
       sulle landing la barra fissa per mobile restava visibile anche su desktop (lo stile inline `display: 'flex'`
       scavalcava `md:hidden`); ora `flex` è una classe.
 - [x] Fatti scaduti sul sito corretti (vedi sopra).
-- [ ] ⛔ **Repo ponte `RRLMP-Releases`** — da cancellare dopo la finestra di migrazione di un mese.
+- [x] **Repo ponte `RRLMP-Releases`** — cancellato il 14/10/2026 (backup + binari 1.15.33 in F:BackupBACKUP-RRLMP-2026-10-14).
       **Promemoria programmato per il 13 ottobre 2026 alle 9:30** (attività pianificata
       `promemoria-cancellazione-repo-ecosystem-rrlmp`): conta i download della v1.15.33 sui due repository,
       verifica i backup in `F:\Backup\BACKUP-RRLMP-2026-09-13\` e chiede conferma, senza cancellare da solo.
       Prima di cancellare: aggiornare il `--mirror` in `F:\Backup`. Fino ad allora resta anche `manuals/`.
-- [ ] **`Ecosystem-Runtime/RRLMP`** privato — da cancellare insieme al ponte (stesso promemoria del 13/10);
-      backup `--mirror` già in `F:\Backup`. Dopo: togliere il remote `origin` dal repository locale, lasciando
-      `pubblico` (`Pitz72/RRLMP`).
+- [x] **`Ecosystem-Runtime/RRLMP`** privato — **cancellato il 14/10/2026** insieme al ponte; backup `--mirror`
+      aggiornato in `F:\Backup\BACKUP-RRLMP-2026-10-14\`. Remote `origin` tolto, resta `pubblico` (`Pitz72/RRLMP`).
 - [x] Riferimenti residui a indirizzi vecchi: `.claude/PROJECT_STATE.md` rimosso e `compilazione-mac.txt`
       archiviato già nella Fase 2.
 - [x] **Standard `RUNTIME-DESKTOP-DISTRIBUTION-STANDARD.md` portato alla 2.0** (13/09, `Documents/GitHub`, fuori da git):
