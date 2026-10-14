@@ -3,7 +3,7 @@
 **Aperto:** 13 settembre 2026 · **Decisioni prese:** 13 settembre 2026
 **Obiettivo:** ritirare Runtime Live Machine Pro dalla vendita, portarlo su `Pitz72/RRLMP` come
 repository pubblico sotto licenza MIT, con le release pubblicate nello stesso repository.
-**Stato:** decisioni prese · **FASI 1-4 CHIUSE** (13/09) · aggiornamento automatico verificato sul campo · **FASE 5 quasi chiusa**: Gumroad chiuso, sito Ecosystem aggiornato (v0.6.10-0.6.11), standard di distribuzione alla 2.0. **Cancellati il 14/10/2026 i due repository Ecosystem-Runtime (ponte e privato)**, backup in `F:\Backup\BACKUP-RRLMP-2026-10-14\`. FASE 5 CHIUSA.
+**Stato:** decisioni prese · **FASI 1-4 CHIUSE** (13/09) · aggiornamento automatico verificato sul campo · **FASE 5**: Gumroad chiuso, sito Ecosystem aggiornato (v0.6.10-0.6.11), standard di distribuzione alla 2.0. **Cancellati il 14/10/2026 i due repository Ecosystem-Runtime (ponte e privato)**, backup in `F:\Backup\BACKUP-RRLMP-2026-10-14\`. FASE 5 CHIUSA.
 
 > **Il modello è doppio.** Questa procedura ricalca i piani già eseguiti con successo da
 > *Runtime TelegramBot Desktop Titan Edition* (12–13 agosto 2026) e *Runtime FeedDownloader Pro*
@@ -312,7 +312,7 @@ già puntare alla destinazione definitiva): rispettato.
       sulle landing la barra fissa per mobile restava visibile anche su desktop (lo stile inline `display: 'flex'`
       scavalcava `md:hidden`); ora `flex` è una classe.
 - [x] Fatti scaduti sul sito corretti (vedi sopra).
-- [x] **Repo ponte `RRLMP-Releases`** — cancellato il 14/10/2026 (backup + binari 1.15.33 in F:BackupBACKUP-RRLMP-2026-10-14).
+- [x] **Repo ponte `RRLMP-Releases`** — cancellato il 14/10/2026 (backup + binari 1.15.33 in F:\Backup\BACKUP-RRLMP-2026-10-14).
       **Promemoria programmato per il 13 ottobre 2026 alle 9:30** (attività pianificata
       `promemoria-cancellazione-repo-ecosystem-rrlmp`): conta i download della v1.15.33 sui due repository,
       verifica i backup in `F:\Backup\BACKUP-RRLMP-2026-09-13\` e chiede conferma, senza cancellare da solo.
