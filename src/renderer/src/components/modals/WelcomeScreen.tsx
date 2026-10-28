@@ -142,7 +142,7 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject, updaterStatus, onOp
                                 {t('welcome.updateAvailable', { version: updaterStatus.type === 'downloading' ? '' : updaterStatus.version })}
                             </button>
                         )}
-                        {updaterStatus.type === 'error' && <span className="text-xs text-red-900">OFFLINE</span>}
+                        {updaterStatus.type === 'error' && <span className="text-xs font-bold text-[#FF8A7D]">OFFLINE</span>}
                     </div>
 
                     {/* ACTIONS */}

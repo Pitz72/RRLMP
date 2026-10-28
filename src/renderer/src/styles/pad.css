@@ -418,7 +418,12 @@
 /* il prossimo in coda: anello e LED verdi */
 .theme-pad .clip.upnext { box-shadow: var(--sh-key), 0 0 0 2px rgba(61, 255, 122, .6); }
 .theme-pad .clip.upnext .clip-led { background: var(--led-green); opacity: 1; box-shadow: 0 0 8px var(--led-green); }
-.theme-pad .clip.played { opacity: .42; }
+/* clip PRE-SHOW già andata: tasto "consumato" (piatto, LED spento, testo grigio
+   chiaro). Prima era al 42% di opacità e il titolo scendeva sotto 3:1. */
+.theme-pad .clip.played { background: #1C1D21; box-shadow: inset 0 1px 2px rgba(0, 0, 0, .5); }
+.theme-pad .clip.played .clip-led { background: #3A3D44; opacity: 1; box-shadow: none; }
+.theme-pad .clip.played .clip-title,
+.theme-pad .clip.played .clip-time { color: #A3A8B2; }
 .theme-pad .clip.picked { box-shadow: var(--sh-key), 0 0 0 2px var(--led-blue); z-index: 2; }
 .theme-pad .clip.learn { border: 1px dashed rgba(90, 216, 255, .45); opacity: .85; }
 .theme-pad .clip.learn.picked { opacity: 1; box-shadow: var(--sh-key), 0 0 0 2px var(--led-cyan); }
