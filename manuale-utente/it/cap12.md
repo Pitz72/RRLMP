@@ -10,8 +10,8 @@ Runtime Live Machine Pro si aggiorna da solo, ma mai a tuo discapito. Due regole
 
 Poco dopo l'avvio (circa tre secondi), RLMP verifica in modo silenzioso se esiste una versione più recente. L'esito compare nella schermata di benvenuto, accanto al numero di versione:
 
-- **«Aggiornato»** (verde) — stai usando l'ultima versione.
-- **«Aggiornamento disponibile»** (ambra) — è disponibile una versione più recente. È un pulsante: cliccalo per aprire la finestra di aggiornamento.
+- **«Ultima versione»** (verde) — stai usando l'ultima versione.
+- **«Aggiornamento v…»** (ambra) — è disponibile una versione più recente, indicata dal numero. È un pulsante: cliccalo per aprire la finestra di aggiornamento.
 - **«OFFLINE»** — non è stato possibile contattare il servizio; riprova più tardi. Il software funziona normalmente.
 
 Il controllo è opzionale e non bloccante: se sei offline, RLMP parte e lavora senza problemi.

@@ -86,7 +86,7 @@ Connect the USB controller to the computer and start RLMP. The software detects 
 RLMP doesn’t require you to know MIDI note numbering or to configure messages by hand. Learning is done through **MIDI Learn** mode, from the Tools menu (or from the Keybinds window).
 
 **To map a clip to a key/pad:**
-1. Enable MIDI Learn. The cards enter a waiting state.
+1. Enable MIDI Learn. The cards enter a waiting state, with a dashed cyan border.
 2. Select the clip (or the pad FX cell) to map.
 3. Play the note, press the pad or the key on the controller. The `M` badge with the note number appears on the card.
 

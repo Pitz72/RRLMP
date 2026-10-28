@@ -40,8 +40,8 @@ L'operatore non tocca nulla. Il gesto eseguito è stato un solo click: avviare l
 Il ducking può partire anche dalla tua voce, senza lanciare nessuna clip. Con lo **Smart Mic** RLMP ascolta il microfono e, quando parli, abbassa automaticamente la musica; quando smetti, la riporta su.
 
 1. Nelle Impostazioni, scheda *Microfono*, abilita **Smart Mic** e scegli il dispositivo di input (Capitolo 13).
-2. Nella Barra di Controllo premi **ARM**: il pulsante diventa rosso e il piccolo VU accanto mostra il livello del microfono.
-3. Parla: quando la voce supera la soglia, ARM si accende e la musica scende; poco dopo che hai smesso, risale.
+2. Nella Barra di Controllo premi **ARM**: al posto dell'icona del microfono compare un piccolo VU a otto LED con il livello della tua voce.
+3. Parla: quando la voce supera la soglia, ARM diventa rosso e pulsa, e la musica scende; poco dopo che hai smesso, risale.
 
 > **Attenzione.** Lo Smart Mic è pensato per un **microfono USB collegato direttamente al computer**. Se il microfono passa da un mixer USB (Rødecaster, Zoom LiveTrak e simili), l'ingresso del computer porta anche la musica in onda: il rilevamento la scambia per la tua voce e scatta da solo. In quel caso lascia lo Smart Mic disattivato e affida il ducking al mixer.
 

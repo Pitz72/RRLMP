@@ -61,10 +61,11 @@ parli, abbassa automaticamente la musica; quando smetti, la riporta su.
 
 + Nelle Impostazioni, scheda #emph[Microfono], abilita #strong[Smart
   Mic] e scegli il dispositivo di input (Capitolo 13).
-+ Nella Barra di Controllo premi #strong[ARM]: il pulsante diventa rosso
-  e il piccolo VU accanto mostra il livello del microfono.
-+ Parla: quando la voce supera la soglia, ARM si accende e la musica
-  scende; poco dopo che hai smesso, risale.
++ Nella Barra di Controllo premi #strong[ARM]: al posto dell'icona del
+  microfono compare un piccolo VU a otto LED con il livello della tua
+  voce.
++ Parla: quando la voce supera la soglia, ARM diventa rosso e pulsa, e
+  la musica scende; poco dopo che hai smesso, risale.
 
 #attenzione[
 Lo Smart Mic è pensato per un #strong[microfono USB

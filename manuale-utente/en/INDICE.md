@@ -1,5 +1,5 @@
 # Runtime Live Machine Pro — User Manual
-## Table of Contents — English Edition (v1.15.33, Second Edition)
+## Table of Contents — English Edition (v1.15.36, Second Edition)
 
 ---
 
@@ -10,7 +10,7 @@ What RLMP is and who it was built for. The “Single Show” philosophy. The Mai
 System requirements. Installing on Windows and Linux. macOS: building from source. The welcome screen. The first launch: what to expect.
 
 **Chapter 3 — The working interface**
-The Control Bar: logo, On Air timer, studio clock, Master Volume, VU meter, STOP ALL, microphone ARM button, File and Tools menus. The ON AIR banner: the featured track, the phased timer, UP NEXT. The six-column grid: headers, DEAD AIR warning, colour customization. The audio card: anatomy, status badges, interaction.
+The Control Bar: logo, On Air timer, studio clock, Master Volume, VU meter, STOP ALL, microphone ARM button, File and Tools menus. The ON AIR display: the featured track, the LED bar, the phased timer, UP NEXT. The six-column grid: headers, DEAD AIR warning, colour customization. The audio card: anatomy, status badges, interaction.
 
 **Chapter 4 — The basic workflow: load and play**
 Importing by drag & drop. Supported formats. Playing and stopping. The per-column exclusion logic. Organizing the running order: reordering and multiple selection. Structure cues: Intro and Outro.

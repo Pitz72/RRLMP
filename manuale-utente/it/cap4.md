@@ -47,7 +47,7 @@ RLMP memorizza il **percorso assoluto** del file sul disco, non una copia del fi
 
 ### Avviare una clip
 
-Un **click sinistro** sulla card è sufficiente per avviare la riproduzione. Il feedback è immediato: la card si accende nel verde di stato attivo, il timer passa al conto alla rovescia e i VU meter nell'header riflettono il segnale in uscita.
+Un **click sinistro** sulla card è sufficiente per avviare la riproduzione. Il feedback è immediato: la card si accende del colore della sua colonna, il timer passa al conto alla rovescia e i VU meter nell'header riflettono il segnale in uscita.
 
 Se alla clip è stato assegnato un tasto della tastiera (vedi Capitolo 8), quel tasto funziona come alternativa al click — utile quando stai operando su un'altra parte dell'interfaccia e non vuoi spostare il mouse.
 
@@ -83,7 +83,7 @@ Spostare le clip tra colonne è un'operazione potente e intenzionale. Usa la fun
 
 Per rimuovere più clip dalla griglia in una sola operazione:
 
-1. `Ctrl+Click` (Windows/Linux) o `Cmd+Click` (macOS) su ciascuna clip da selezionare. Il bordo diventa blu.
+1. `Ctrl+Click` (Windows/Linux) o `Cmd+Click` (macOS) su ciascuna clip da selezionare. Attorno alla card compare un anello blu.
 2. Premi `Canc` o `Delete`. Il software chiede conferma se il numero di clip selezionate è superiore a una.
 
 La cancellazione dalla griglia rimuove le clip dal progetto corrente, non i file audio dal disco. Se sbagli, `Ctrl+Z` annulla l'operazione.
@@ -99,9 +99,9 @@ Ogni clip può avere due **marker strutturali** configurati nell'editor della fo
 - **Intro Marker** — il punto in cui la melodia principale del brano entra effettivamente, dopo l'introduzione strumentale. Utile per sapere esattamente quando iniziare a parlare sopra l'intro.
 - **Outro Marker** — il punto in cui inizia la coda finale del brano. Segnala il momento giusto per preparare la transizione alla traccia successiva.
 
-Quando la riproduzione di una clip si avvicina a questi punti, sulla card compare un avviso visivo:
+Quando la riproduzione di una clip si avvicina a questi punti, in basso a sinistra sulla card compare un avviso visivo:
 
-- **INTRO: −MM:SS** — conto alla rovescia all'Intro Marker.
-- **OUTRO IN: −MM:SS** — conto alla rovescia all'Outro Marker, seguito da **🚨 OUTRO** quando la coda è iniziata.
+- **INTRO −MM:SS** — per tutta la durata dell'intro, il tempo che manca all'Intro Marker, su un'etichetta ciano.
+- **OUTRO IN −MM:SS** — negli ultimi 15 secondi prima dell'Outro Marker, su un'etichetta ambra. Quando la coda è iniziata, l'etichetta diventa **OUTRO**.
 
 Questi avvisi vengono visualizzati solo se i marker sono stati configurati. Sulle clip senza marker, la card mostra soltanto il conto alla rovescia standard al termine del brano.

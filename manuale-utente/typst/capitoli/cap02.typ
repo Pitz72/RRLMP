@@ -44,7 +44,7 @@ integrata ai mixer USB professionali come il Rødecaster Pro o
 l'RØDECaster Duo.
 
 == 2.2 Installazione su Windows
-+ Scarica il file `Runtime-Live-Machine-Pro-1.15.33.exe` dalla pagina
++ Scarica il file `Runtime-Live-Machine-Pro-1.15.36.exe` dalla pagina
   #strong[Releases] del progetto su GitHub
   (`github.com/Pitz72/RRLMP/releases`).
 + Fai doppio click sull'eseguibile. L'installer NSIS si avvierà e
@@ -121,12 +121,12 @@ meter con il simbolo di play) identifica la versione Pro. Sotto il
 titolo e lo slogan compare il numero di versione installata,
 accompagnato dallo stato del sistema di aggiornamento:
 
-- #strong[«Aggiornato»] (verde) --- stai usando l'ultima versione
-  disponibile.
-- #strong[«Aggiornamento disponibile»] (ambra, lampeggiante) --- è un
-  pulsante: cliccalo per aprire la finestra di aggiornamento (Capitolo
-  12).
-- #strong[«OFFLINE»] (rosso tenue) --- non è stato possibile contattare
+- #strong[«Ultima versione»] (verde, con il segno di spunta) --- stai
+  usando l'ultima versione disponibile.
+- #strong[«Aggiornamento v…»] (ambra, saltellante) --- c'è una versione
+  più recente, indicata dal numero. È un pulsante: cliccalo per aprire
+  la finestra di aggiornamento (Capitolo 12).
+- #strong[«OFFLINE»] (rosso scuro) --- non è stato possibile contattare
   il servizio di aggiornamento; il software funziona ugualmente.
 
 Sotto trovi le azioni principali:
@@ -136,8 +136,8 @@ Sotto trovi le azioni principali:
 - #emph[Carica Progetto] --- apre un file `.lmp` esistente. Prima di
   renderlo operativo, RLMP esegue un #strong[controllo di integrità]:
   verifica che ogni file audio referenziato esista ancora nel percorso
-  memorizzato. I file mancanti vengono immediatamente segnalati con un
-  bordo rosso sulla rispettiva clip.
+  memorizzato. Le clip con il file mancante vengono segnalate subito: la
+  card diventa rosso scuro, con il badge FILE MANCANTE.
 - #emph[Manuale Utente] --- apre nel browser questo manuale in PDF,
   nella lingua dell'interfaccia (italiano o inglese). Serve una
   connessione a internet.
@@ -151,11 +151,12 @@ selezione ha effetto immediato e viene memorizzata tra una sessione e
 l'altra.
 
 == 2.6 Il primo avvio: cosa aspettarsi
-Alla prima apertura di un progetto, noterai nell'header il logo con il
-badge #strong[PRO] dal gradiente iridescente. Dietro l'interfaccia,
-l'apertura del progetto avvia il motore audio in background: FFmpeg
-viene inizializzato e il protocollo di streaming `media://` si mette in
-ascolto, pronto a servire i file dal disco senza caricarli in memoria.
+Alla prima apertura di un progetto, in alto a sinistra trovi il logo con
+la scritta #strong[RLM PRO] e il numero di versione. Dietro
+l'interfaccia, l'apertura del progetto avvia il motore audio in
+background: FFmpeg viene inizializzato e il protocollo di streaming
+`media://` si mette in ascolto, pronto a servire i file dal disco senza
+caricarli in memoria.
 
 Il software si avvia preferibilmente in modalità a tutto schermo. Se la
 finestra dovesse aprirsi ridimensionata, premi `F11` (Windows/Linux) o

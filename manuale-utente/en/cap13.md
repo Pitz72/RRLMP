@@ -15,11 +15,11 @@ The **NoteBoard** is the note system built into the clips. It lets you attach wr
 1. Open the clip settings (right-click the card) and go to the *Notes* section.
 2. Write the text in the free field. There is no length limit.
 
-Clips with a note show the 📋 badge on the card.
+Clips with a note show a badge with a clipboard icon on the card.
 
 ### The panel during the live show
 
-When a clip with notes starts playing, the **NoteBoard panel** appears at the bottom of the screen with the associated text, headed by the clip’s name and colour. The panel stays visible for the whole duration of playback and closes on its own when the clip ends. If several clips with notes play together, the panel shows the one with the highest priority.
+When a clip with notes starts playing, the **NoteBoard panel** appears at the bottom of the screen with the associated text. The panel’s header carries the words NOTE REGIA, an LED pulsing in the clip’s colour and the clip’s name. The panel stays visible for the whole duration of playback and closes on its own when the clip ends. If several clips with notes play together, the panel shows the one with the highest priority.
 
 ### Use cases
 
@@ -32,9 +32,9 @@ When a clip with notes starts playing, the **NoteBoard panel** appears at the bo
 
 ## 13.2 Column colour customization
 
-The default colours have an established meaning (green for Assets, red for Songs, and so on), but every column is customizable. Click the **coloured dot** in the column header: a palette of **30 colours** opens. Choose one and the column (header, cards, indicators) takes on the new colour immediately. The choice is saved in the project file.
+The default colours have an established meaning (green for Assets, red for Songs, and so on), but every column is customizable. Click the button with the **coloured dot** in the column header: a palette of **30 colours** opens. Choose one and the column (header, cards, indicators) takes on the new colour immediately. The choice is saved in the project file.
 
-The cards inherit the column’s colour dynamically: at rest they appear in a muted shade, in playback in the full colour. Each project can thus have its own colour identity.
+The cards take on the column’s colour: at rest only the thin strip at the top shows it, on air the whole card lights up. The text on a lit card turns dark or white depending on the colour, so it stays readable with any shade. Each project can thus have its own colour identity.
 
 ---
 
@@ -99,6 +99,6 @@ Changes to the running order (additions, moves, deletions) are reversible. `Ctrl
 
 ## 13.7 Toast notification system
 
-RLMP doesn’t use blocking windows for routine communications. Non-critical notifications appear as **toasts**: small, unobtrusive banners in a corner of the screen that stay for a few seconds and disappear on their own without interrupting playback. They are used to confirm a save, the end of an export, a MIDI Learn operation, or to warn of missing files.
+RLMP doesn’t use blocking windows for routine communications. Non-critical notifications appear as **toasts**: small, unobtrusive boxes at the bottom right of the screen that stay for a few seconds and disappear on their own without interrupting playback. They are used to confirm a save, the end of an export, a MIDI Learn operation, or to warn of missing files.
 
 The **confirmation windows**, needed when an action is irreversible (deleting clips, closing an unsaved project), are instead modal and require a response, but they are designed not to cut off the playback in progress: the audio continues while you decide.

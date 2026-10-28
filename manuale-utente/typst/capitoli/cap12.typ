@@ -14,10 +14,10 @@ Poco dopo l'avvio (circa tre secondi), RLMP verifica in modo silenzioso
 se esiste una versione più recente. L'esito compare nella schermata di
 benvenuto, accanto al numero di versione:
 
-- #strong[«Aggiornato»] (verde) --- stai usando l'ultima versione.
-- #strong[«Aggiornamento disponibile»] (ambra) --- è disponibile una
-  versione più recente. È un pulsante: cliccalo per aprire la finestra
-  di aggiornamento.
+- #strong[«Ultima versione»] (verde) --- stai usando l'ultima versione.
+- #strong[«Aggiornamento v…»] (ambra) --- è disponibile una versione più
+  recente, indicata dal numero. È un pulsante: cliccalo per aprire la
+  finestra di aggiornamento.
 - #strong[«OFFLINE»] --- non è stato possibile contattare il servizio;
   riprova più tardi. Il software funziona normalmente.
 

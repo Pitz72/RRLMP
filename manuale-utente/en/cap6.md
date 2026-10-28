@@ -40,8 +40,8 @@ The operator touches nothing. The gesture performed was a single click: starting
 Ducking can also be triggered by your voice, without launching any clip. With **Smart Mic**, RLMP listens to the microphone and, when you speak, automatically lowers the music; when you stop, it brings it back up.
 
 1. In the Settings, *Microphone* tab, enable **Smart Mic** and choose the input device (Chapter 13).
-2. In the Control Bar, press **ARM**: the button turns red and the small VU next to it shows the microphone level.
-3. Speak: when your voice goes above the threshold, ARM lights up and the music drops; shortly after you stop, it comes back up.
+2. In the Control Bar, press **ARM**: the microphone icon is replaced by a small eight-LED VU showing the level of your voice.
+3. Speak: when your voice goes above the threshold, ARM turns red and pulses, and the music drops; shortly after you stop, it comes back up.
 
 > **Warning.** Smart Mic is designed for a **USB microphone connected directly to the computer**. If the microphone goes through a USB mixer (Rødecaster, Zoom LiveTrak and the like), the computer’s input also carries the music on air: detection mistakes it for your voice and triggers by itself. In that case leave Smart Mic off and let the mixer handle the ducking.
 

@@ -54,9 +54,9 @@ Sull'editor sono presenti quattro **handle** trascinabili, ciascuno con una funz
 
 **Trim End (maniglia rossa, destra).** Definisce il punto di fine effettivo. Tutto ciò che si trova a destra viene ignorato. Trascinala verso sinistra per accorciare la coda. Trim Start e Trim End non possono sovrapporsi.
 
-**Intro Marker (maniglia ciano).** Segna il punto strutturale in cui la melodia principale entra nel brano, dopo l'eventuale introduzione. Una volta impostato, sulla card in riproduzione comparirà il conto alla rovescia **INTRO: −MM:SS**.
+**Intro Marker (maniglia ciano).** Segna il punto strutturale in cui la melodia principale entra nel brano, dopo l'eventuale introduzione. Una volta impostato, sulla card in riproduzione comparirà il conto alla rovescia **INTRO −MM:SS**.
 
-**Outro Marker (maniglia arancione).** Segna il punto in cui inizia la coda del brano, tipicamente il momento in cui iniziare a parlare per riempire la transizione. Sulla card comparirà il conto alla rovescia **OUTRO IN: −MM:SS**. Se il valore risulta incoerente con il trim o con la durata, il software lo disattiva e ti avvisa.
+**Outro Marker (maniglia arancione).** Segna il punto in cui inizia la coda del brano, tipicamente il momento in cui iniziare a parlare per riempire la transizione. Sulla card comparirà il conto alla rovescia **OUTRO IN −MM:SS**. Se il valore risulta incoerente con il trim o con la durata, il software lo disattiva e ti avvisa.
 
 Oltre al trascinamento, quattro pulsanti *Set* impostano ciascuna maniglia alla posizione corrente del playhead, per una marcatura al volo durante l'ascolto. I valori restano modificabili con precisione nei rispettivi campi.
 

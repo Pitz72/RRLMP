@@ -19,8 +19,8 @@ servono e si chiudono con un click.
 
 Gli effetti sonori non hanno una colonna nella griglia. Vivono nel
 #strong[pad FX], un pannello a griglia di celle (una #emph[jingle
-machine]) che si apre dal pulsante #strong[FX] nell'header e resta
-flottante in un angolo dello schermo.
+machine]) che si apre dal pulsante #strong[FX] nell'header (il LED del
+pulsante diventa verde) e resta flottante in un angolo dello schermo.
 
 Il pad è un #strong[overlay non bloccante]: non oscura la board e non
 intercetta i click diretti altrove. Puoi lanciare un effetto e, nello
@@ -39,8 +39,9 @@ Un click su una cella #strong[lancia l'effetto]. Gli effetti del pad
 sono polifonici e si sovrappongono: più celle possono suonare insieme,
 sopra qualsiasi cosa sia in onda, senza fermarla. Il comportamento audio
 è identico a quello di una clip normale: cambia soltanto la superficie
-di lancio. Un contatore accanto al pulsante FX nell'header indica quanti
-effetti stanno suonando in quel momento.
+di lancio. La cella dell'effetto in onda si accende del suo colore, e un
+contatore sul pulsante FX nell'header indica quanti effetti stanno
+suonando in quel momento.
 
 === Configurare un effetto
 Gli effetti si configurano su due livelli, pensati per due esigenze
@@ -55,9 +56,10 @@ diverse:
 
 === Posizione del pad
 Il pad può stare nell'angolo in basso a sinistra o in basso a destra
-dello schermo: la preferenza si imposta con le frecce sul pad stesso e
-viene ricordata tra le sessioni. A destra copre la NoteBoard e l'ultima
-colonna; scegli il lato in base a come hai disposto la tua scaletta.
+dello schermo: la preferenza si imposta con il tasto a freccia nella
+testata del pad e viene ricordata tra le sessioni. A destra copre la
+NoteBoard e l'ultima colonna; scegli il lato in base a come hai disposto
+la tua scaletta.
 
 #nota[
 In modalità MIDI Learn, un click su una cella del pad
@@ -83,17 +85,24 @@ il comando di emergenza, e il pulsante STOP ALL rimane raggiungibile
 nell'header.
 
 === Il deck
-Al centro trovi il brano #strong[in onda] e, in coda, il
-#strong[prossimo] brano della colonna Musica, con il tempo rimanente. Da
-qui puoi far partire una traccia e gestire il passaggio da un brano
-all'altro con un solo comando: il pulsantone di transizione applica lo
-stesso crossfade che useresti dalla griglia, ma con l'attenzione in più
-dell'aggancio ritmico.
+In alto ci sono due display. A sinistra il brano #strong[in onda]:
+titolo, BPM, tempo trascorso e durata, tempo rimanente e una barra di
+avanzamento a LED. A destra il #strong[prossimo] brano della colonna
+Musica, con BPM, durata e compatibilità. In mezzo c'è il pulsantone
+verde di transizione: con un solo comando applica lo stesso crossfade
+che useresti dalla griglia, ma con l'attenzione in più dell'aggancio
+ritmico. Se non c'è niente in onda, al suo posto trovi #strong[START],
+che fa partire il primo brano.
+
+Sotto i display c'è la scaletta della colonna Musica, una riga per brano
+con numero, titolo, durata e BPM. La riga del brano in onda è accesa del
+colore della colonna.
 
 === Compatibilità e transizioni beat-matched
 <compatibilità-e-transizioni-beat-matched>
-Accanto a ogni brano, un #strong[pallino di compatibilità] con il brano
-precedente ne indica l'affinità ritmica:
+Sotto il titolo di ogni brano, un #strong[pallino di compatibilità] con
+il brano precedente ne indica l'affinità ritmica, seguito da una breve
+spiegazione (per esempio «beat non rilevato → crossfade classico»):
 
 - #strong[Verde] --- i due tempi si agganciano bene: la transizione può
   essere beat-matched.
@@ -107,9 +116,10 @@ diretta.
 
 === La modalità automatica
 <la-modalità-automatica>
-In fondo alla vista c'è un interruttore per l'#strong[automazione a fine
-brano]. Quando è attivo, RLMP fa partire da solo il passaggio al brano
-successivo quando la traccia in onda si avvicina alla fine.
+Sotto il pulsante di transizione c'è l'interruttore #strong[Auto a fine
+brano]. Quando è attivo la scritta diventa verde e RLMP fa partire da
+solo il passaggio al brano successivo quando la traccia in onda si
+avvicina alla fine.
 
 Questa modalità è un'eccezione deliberata alla filosofia del software,
 che per scelta non automatizza lo show. Per questo è #strong[disattivata

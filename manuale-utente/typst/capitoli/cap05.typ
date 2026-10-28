@@ -98,12 +98,12 @@ sovrapporsi.
 #strong[Intro Marker (maniglia ciano).] Segna il punto strutturale in
 cui la melodia principale entra nel brano, dopo l'eventuale
 introduzione. Una volta impostato, sulla card in riproduzione comparirà
-il conto alla rovescia #strong[INTRO: −MM:SS].
+il conto alla rovescia #strong[INTRO −MM:SS].
 
 #strong[Outro Marker (maniglia arancione).] Segna il punto in cui inizia
 la coda del brano, tipicamente il momento in cui iniziare a parlare per
 riempire la transizione. Sulla card comparirà il conto alla rovescia
-#strong[OUTRO IN: −MM:SS]. Se il valore risulta incoerente con il trim o
+#strong[OUTRO IN −MM:SS]. Se il valore risulta incoerente con il trim o
 con la durata, il software lo disattiva e ti avvisa.
 
 Oltre al trascinamento, quattro pulsanti #emph[Set] impostano ciascuna

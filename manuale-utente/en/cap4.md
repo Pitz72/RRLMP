@@ -47,7 +47,7 @@ RLMP stores the **absolute path** of the file on disk, not a copy of the file it
 
 ### Starting a clip
 
-A **left click** on the card is enough to start playback. The feedback is immediate: the card lights up in the green of the active state, the timer switches to a countdown, and the VU meters in the header reflect the output signal.
+A **left click** on the card is enough to start playback. The feedback is immediate: the card lights up in the colour of its column, the timer switches to a countdown, and the VU meters in the header reflect the output signal.
 
 If a keyboard key has been assigned to the clip (see Chapter 8), that key works as an alternative to the click, handy when you are operating on another part of the interface and don’t want to move the mouse.
 
@@ -83,7 +83,7 @@ Moving clips between columns changes their behaviour, so use it deliberately, es
 
 To remove several clips from the grid in a single operation:
 
-1. `Ctrl+Click` (Windows/Linux) or `Cmd+Click` (macOS) on each clip to select. The border turns blue.
+1. `Ctrl+Click` (Windows/Linux) or `Cmd+Click` (macOS) on each clip to select. A blue ring appears around the card.
 2. Press `Delete` or `Backspace`. The software asks for confirmation if more than one clip is selected.
 
 Deleting from the grid removes the clips from the current project, not the audio files from disk. If you make a mistake, `Ctrl+Z` undoes the operation.
@@ -99,9 +99,9 @@ Every clip can have two **structural markers** configured in the waveform editor
 - **Intro Marker** — the point where the track’s main melody actually enters, after the instrumental intro. Useful for knowing exactly when to start talking over the intro.
 - **Outro Marker** — the point where the track’s final tail begins. It flags the right moment to prepare the transition to the next track.
 
-When a clip’s playback approaches these points, a visual warning appears on the card:
+When a clip’s playback approaches these points, a visual warning appears at the bottom left of the card:
 
-- **INTRO: −MM:SS** — countdown to the Intro Marker.
-- **OUTRO IN: −MM:SS** — countdown to the Outro Marker, followed by **🚨 OUTRO** once the tail has begun.
+- **INTRO −MM:SS** — for the whole intro, the time left until the Intro Marker, on a cyan label.
+- **OUTRO IN −MM:SS** — in the last 15 seconds before the Outro Marker, on an amber label. Once the tail has begun, the label becomes **OUTRO**.
 
 These warnings appear only if the markers have been configured. On clips without markers, the card shows only the standard countdown to the end of the track.

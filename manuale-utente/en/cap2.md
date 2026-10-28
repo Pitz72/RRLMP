@@ -27,7 +27,7 @@ A dedicated sound card is not required: RLMP works with any audio device recogni
 
 ## 2.2 Installation on Windows
 
-1. Download the file `Runtime-Live-Machine-Pro-1.15.33.exe` from the project’s **Releases** page on GitHub (`github.com/Pitz72/RRLMP/releases`).
+1. Download the file `Runtime-Live-Machine-Pro-1.15.36.exe` from the project’s **Releases** page on GitHub (`github.com/Pitz72/RRLMP/releases`).
 2. Double-click the executable. The NSIS installer starts and copies the files to the appropriate directories.
 3. When it finishes, a shortcut is created on the Desktop and in the Start menu.
 4. The application launches automatically once installation is complete.
@@ -73,14 +73,14 @@ On first launch — and at every subsequent launch, until you open a project —
 **Identity and actions.**
 The software logo (the bars of a VU meter with the play symbol) identifies the Pro edition. Below the title and slogan is the installed version number, accompanied by the status of the update system:
 
-- **“Latest Version”** (green) — you are running the most recent version available.
-- **“Update Available”** (amber, flashing) — this is a button: click it to open the update window (Chapter 12).
-- **“OFFLINE”** (dim red) — the update service could not be reached; the software works all the same.
+- **“Latest Version”** (green, with a tick) — you are running the most recent version available.
+- **“Update Available v…”** (amber, bouncing) — a newer version exists, shown by its number. This is a button: click it to open the update window (Chapter 12).
+- **“OFFLINE”** (dark red) — the update service could not be reached; the software works all the same.
 
 Below that are the main actions:
 
 - *New Project* — creates an empty session with the columns ready to load.
-- *Load Project* — opens an existing `.lmp` file. Before making it operational, RLMP runs an **integrity check**: it verifies that every referenced audio file still exists at the stored path. Missing files are flagged immediately with a red border on their clip.
+- *Load Project* — opens an existing `.lmp` file. Before making it operational, RLMP runs an **integrity check**: it verifies that every referenced audio file still exists at the stored path. Clips whose file is missing are flagged straight away: the card turns dark red, with the MISSING FILE badge.
 - *User Manual* — opens this manual as a PDF in the browser, in the interface language (English or Italian). An internet connection is required.
 - *Quick Guide* — a short getting-started guide that opens inside the software and can be read offline too.
 
@@ -91,7 +91,7 @@ RLMP supports two interface languages: English and Italian. The drop-down in the
 
 ## 2.6 The first launch: what to expect
 
-When you first open a project, you’ll notice in the header the logo with the **PRO** badge and its iridescent gradient. Behind the interface, opening the project starts the audio engine in the background: FFmpeg is initialized and the `media://` streaming protocol begins listening, ready to serve files from disk without loading them into memory.
+When you first open a project, you’ll find the logo at the top left, with the **RLM PRO** wordmark and the version number. Behind the interface, opening the project starts the audio engine in the background: FFmpeg is initialized and the `media://` streaming protocol begins listening, ready to serve files from disk without loading them into memory.
 
 The software starts preferably in full-screen mode. If the window opens resized, press `F11` (Windows/Linux) or `Ctrl+Cmd+F` (macOS) to bring it full screen — the ideal condition for production work.
 

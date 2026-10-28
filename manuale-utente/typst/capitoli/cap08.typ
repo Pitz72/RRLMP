@@ -142,9 +142,10 @@ modalità #strong[MIDI Learn], dal menu Strumenti (o dalla finestra
 Keybinds).
 
 #strong[Per mappare una clip a un tasto/pad:] 1. Attiva MIDI Learn. Le
-card entrano in stato di attesa. 2. Seleziona la clip (o la cella del
-pad FX) da mappare. 3. Suona la nota, premi il pad o il tasto sul
-controller. Il badge `M` con il numero di nota compare sulla card.
+card entrano in stato di attesa, con un bordo tratteggiato ciano. 2.
+Seleziona la clip (o la cella del pad FX) da mappare. 3. Suona la nota,
+premi il pad o il tasto sul controller. Il badge `M` con il numero di
+nota compare sulla card.
 
 #strong[Per mappare le funzioni globali:] - Seleziona #strong[STOP ALL]
 e premi un tasto sul controller: quel tasto eseguirà lo Stop All. -

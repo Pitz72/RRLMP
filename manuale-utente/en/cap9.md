@@ -8,10 +8,10 @@ Session recording turns Runtime Live Machine Pro from a playout tool into a comp
 
 ## 9.1 Starting the recording
 
-The recording control is in the header, identified by the record icon.
+The recording control is the **REC** button, with a red circle, on the right side of the header.
 
 **Start.**
-Click the record button. A red indicator and a counter show that capture is under way. Recording starts immediately: everything that leaves the software’s output from that moment on is captured.
+Click **REC**. The button turns red and shows the recording time running, next to a flashing stop icon: capture is under way. Recording starts immediately: everything that leaves the software’s output from that moment on is captured.
 
 You don’t need clips playing to start recording: you can begin capture ahead of the show’s start, so you don’t lose the first few seconds in case of an early start.
 

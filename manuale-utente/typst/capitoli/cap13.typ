@@ -20,12 +20,14 @@ clip entra in riproduzione.
   sezione #emph[Note].
 + Scrivi il testo nel campo libero. Non c'è limite di lunghezza.
 
-Le clip con una nota mostrano il badge 📋 sulla card.
+Le clip con una nota mostrano sulla card un badge con l'icona degli
+appunti.
 
 === Il pannello in diretta
 Quando una clip con note entra in riproduzione, il #strong[pannello
 NoteBoard] appare nella parte inferiore dello schermo con il testo
-associato, intestato dal nome e dal colore della clip. Il pannello resta
+associato. La testata del pannello porta la scritta NOTE REGIA, un LED
+che pulsa nel colore della clip e il nome della clip. Il pannello resta
 visibile per tutta la durata della riproduzione e si chiude da solo
 quando la clip termina. Se più clip con note suonano insieme, il
 pannello mostra quella con priorità più alta.
@@ -44,14 +46,17 @@ pannello mostra quella con priorità più alta.
 == 13.2 Personalizzazione cromatica delle colonne
 I colori predefiniti hanno un significato consolidato (verde per gli
 Assets, rosso per le Canzoni, e così via), ma ogni colonna è
-personalizzabile. Clicca sul #strong[pallino colorato] nell'intestazione
-della colonna: si apre una palette di #strong[30 colori]. Scegline uno e
-la colonna (intestazione, card, indicatori) assume immediatamente il
-nuovo colore. La scelta è salvata nel file di progetto.
+personalizzabile. Clicca sul tasto con il #strong[pallino colorato]
+nella testata della colonna: si apre una palette di #strong[30 colori].
+Scegline uno e la colonna (testata, card, indicatori) assume
+immediatamente il nuovo colore. La scelta è salvata nel file di
+progetto.
 
-Le card ereditano dinamicamente il colore della colonna: a riposo
-appaiono in una tinta attenuata, in riproduzione nel colore pieno. Ogni
-progetto può così avere una propria identità cromatica.
+Le card prendono il colore della colonna: a riposo lo mostra solo la
+sottile striscia in alto, in onda si accende tutta la card. Il testo
+della card accesa diventa scuro o bianco in base al colore, così resta
+leggibile con qualunque tinta. Ogni progetto può così avere una propria
+identità cromatica.
 
 == 13.3 Transizioni tra clip
 Quando una clip è impostata su #emph[Play Next], il passaggio alla clip
@@ -142,11 +147,11 @@ sicurezza per le operazioni fatte in fretta durante la preparazione.
 
 == 13.7 Sistema di notifiche toast
 RLMP non usa finestre bloccanti per le comunicazioni di routine. Le
-notifiche non critiche compaiono come #strong[toast]: piccoli banner non
-intrusivi in un angolo dello schermo, che restano per alcuni secondi e
-scompaiono da soli senza interrompere la riproduzione. Vengono usati per
-confermare un salvataggio, la fine di un'esportazione, un'operazione di
-MIDI Learn o per avvisare di file mancanti.
+notifiche non critiche compaiono come #strong[toast]: piccoli riquadri
+non intrusivi in basso a destra dello schermo, che restano per alcuni
+secondi e scompaiono da soli senza interrompere la riproduzione. Vengono
+usati per confermare un salvataggio, la fine di un'esportazione,
+un'operazione di MIDI Learn o per avvisare di file mancanti.
 
 Le #strong[finestre di conferma], necessarie quando un'azione è
 irreversibile (la cancellazione di clip, la chiusura di un progetto non

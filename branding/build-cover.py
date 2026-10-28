@@ -12,7 +12,7 @@ ROOT = pathlib.Path(r"C:\Users\Utente\Documents\GitHub\RRLMP")
 LOGO = ROOT / "src" / "renderer" / "src" / "assets" / "logo.png"
 OUT_DIR = ROOT / "branding" / "covers"
 
-VERSION = "1.15.33"
+VERSION = "1.15.36"
 
 # Specchio di lib/strings.typ (manual-title, edition-name, version-word, language-name).
 # 2026-07-22: manuale mantenuto SOLO in it/en (decisione utente).
@@ -118,7 +118,7 @@ def build_svg(lang, logo_uri):
   <text x="{CX}" y="612" text-anchor="middle" font-family="{FONT_STACK}" font-size="13" font-weight="700" letter-spacing="6" fill="#00c8d4">{s['manual_title'].upper()}</text>
   <text x="{CX}" y="640" text-anchor="middle" font-family="{FONT_STACK}" font-size="15" font-weight="500" letter-spacing="1" fill="#c7cede">{title_line}</text>
 
-  <text x="{CX}" y="686" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="4" fill="#5b6472">ECOSYSTEM.RUNTIME &#183; SIMONE PIZZI &#183; 2026</text>
+  <text x="{CX}" y="686" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="4" fill="#7d8694">ECOSYSTEM.RUNTIME &#183; SIMONE PIZZI &#183; 2026</text>
 
   <g>
     {eq}

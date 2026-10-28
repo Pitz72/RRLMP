@@ -41,9 +41,10 @@ toccare i dati esistenti.
 === Salva rapido
 La voce #emph[Salva Progetto] nel menu FILE esegue un salvataggio
 immediato sul file `.lmp` aperto. Il salvataggio è silenzioso: nessuna
-finestra di dialogo. La voce si evidenzia in giallo quando ci sono
-modifiche non salvate, un promemoria visivo a colpo d'occhio. Usala con
-frequenza durante la preparazione dello show.
+finestra di dialogo. Quando ci sono modifiche non salvate la voce
+diventa ambra e sul pulsante FILE si accende un pallino ambra, un
+promemoria visibile a colpo d'occhio. Usala con frequenza durante la
+preparazione dello show.
 
 Il salvataggio è #strong[atomico]: il file viene scritto prima in una
 copia temporanea e poi rinominato al volo. Se il computer si spegne
@@ -163,7 +164,6 @@ spazio cancellando i file sparsi da cui avevi importato.
 <controllo-di-integrità-allapertura>
 Ogni volta che apri un file `.lmp`, RLMP esegue un #strong[controllo di
 integrità] automatico: verifica che ciascun file audio referenziato sia
-raggiungibile. I file mancanti vengono segnalati con il bordo rosso e
-l'etichetta FILE MANCANTE sulla card corrispondente. Il resto del
-progetto, tutte le clip con file raggiungibili, resta pienamente
-funzionale.
+raggiungibile. Le clip con il file mancante vengono segnalate da una
+card rosso scuro con il badge FILE MANCANTE. Il resto del progetto,
+tutte le clip con file raggiungibili, resta pienamente funzionale.

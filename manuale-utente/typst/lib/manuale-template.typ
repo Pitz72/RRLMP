@@ -15,11 +15,13 @@
   muted:       rgb("#6a7686"),
   rule:        rgb("#dce4ee"),   // filetti chiari
   paper:       rgb("#ffffff"),
-  cyan:        rgb("#0891b2"),   // accento su bianco
+  // 1.15.36: ciano e verde scuriti per il contrasto WCAG dei testi piccoli
+  // (titoletti, codice, etichette dei box): #0891b2 dava 3,3-3,7:1, #059669 3,5:1.
+  cyan:        rgb("#0e7490"),   // accento su bianco (5,4:1; 4,8:1 sul fondo del codice)
   cyan-bright: rgb("#22d3ee"),
   blue:        rgb("#0070ff"),
   purple:      rgb("#6610f2"),
-  emerald:     rgb("#059669"),
+  emerald:     rgb("#047857"),   // 5,1:1 sul fondo del box suggerimento
   emerald-bright: rgb("#22c55e"),
   amber:       rgb("#b45309"),
   amber-bright: rgb("#f59e0b"),

@@ -38,7 +38,7 @@ In condizioni normali il motore audio è robusto rispetto a questi artefatti. Se
 
 ### Una card è diventata rossa («FILE MANCANTE») e non risponde al click
 
-Il bordo rosso indica che il file audio non è raggiungibile al percorso memorizzato nel progetto.
+La card rosso scuro, con il badge FILE MANCANTE, indica che il file audio non è raggiungibile al percorso memorizzato nel progetto.
 
 **Cause possibili:**
 
@@ -97,7 +97,7 @@ No. RLMP è progettato per la regia live: show presidiati da un operatore. Non d
 **Posso usare RLMP su iPad o su dispositivi mobile?**
 Non come applicazione principale: RLMP è un software desktop per Windows e Linux, compilabile anche su macOS. Un tablet o un telefono possono però fungere da **telecomando** via browser, tramite il Controllo Remoto (Capitolo 11).
 
-**I file `.lmp` delle versioni precedenti sono compatibili con la 1.15.33?**
+**I file `.lmp` delle versioni precedenti sono compatibili con la 1.15.36?**
 Sì. Aprendo un progetto creato con una versione precedente, RLMP ne aggiorna automaticamente la struttura, comprese le colonne aggiunte nel frattempo, senza modificare il file finché non esegui un salvataggio.
 
 **Come aggiorno RLMP a una nuova versione?**

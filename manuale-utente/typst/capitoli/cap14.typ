@@ -56,8 +56,8 @@ software.
 == 14.2 Clip rosse e file mancanti
 === Una card è diventata rossa («FILE MANCANTE») e non risponde al click
 <una-card-è-diventata-rossa-file-mancante-e-non-risponde-al-click>
-Il bordo rosso indica che il file audio non è raggiungibile al percorso
-memorizzato nel progetto.
+La card rosso scuro, con il badge FILE MANCANTE, indica che il file
+audio non è raggiungibile al percorso memorizzato nel progetto.
 
 #strong[Cause possibili:]
 
@@ -137,7 +137,7 @@ da #strong[telecomando] via browser, tramite il Controllo Remoto
 (Capitolo 11).
 
 #strong[I file `.lmp` delle versioni precedenti sono compatibili con la
-1.15.33?] Sì. Aprendo un progetto creato con una versione precedente,
+1.15.36?] Sì. Aprendo un progetto creato con una versione precedente,
 RLMP ne aggiorna automaticamente la struttura, comprese le colonne
 aggiunte nel frattempo, senza modificare il file finché non esegui un
 salvataggio.

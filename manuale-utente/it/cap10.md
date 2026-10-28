@@ -26,7 +26,7 @@ All'apertura, RLMP convalida il file: ricostruisce eventuali identificativi dupl
 
 ### Salva rapido
 
-La voce *Salva Progetto* nel menu FILE esegue un salvataggio immediato sul file `.lmp` aperto. Il salvataggio è silenzioso: nessuna finestra di dialogo. La voce si evidenzia in giallo quando ci sono modifiche non salvate, un promemoria visivo a colpo d'occhio. Usala con frequenza durante la preparazione dello show.
+La voce *Salva Progetto* nel menu FILE esegue un salvataggio immediato sul file `.lmp` aperto. Il salvataggio è silenzioso: nessuna finestra di dialogo. Quando ci sono modifiche non salvate la voce diventa ambra e sul pulsante FILE si accende un pallino ambra, un promemoria visibile a colpo d'occhio. Usala con frequenza durante la preparazione dello show.
 
 Il salvataggio è **atomico**: il file viene scritto prima in una copia temporanea e poi rinominato al volo. Se il computer si spegne durante la scrittura, il `.lmp` originale non viene mai lasciato a metà.
 
@@ -89,4 +89,4 @@ Alcuni dettagli utili:
 
 ### Controllo di integrità all'apertura
 
-Ogni volta che apri un file `.lmp`, RLMP esegue un **controllo di integrità** automatico: verifica che ciascun file audio referenziato sia raggiungibile. I file mancanti vengono segnalati con il bordo rosso e l'etichetta FILE MANCANTE sulla card corrispondente. Il resto del progetto, tutte le clip con file raggiungibili, resta pienamente funzionale.
+Ogni volta che apri un file `.lmp`, RLMP esegue un **controllo di integrità** automatico: verifica che ciascun file audio referenziato sia raggiungibile. Le clip con il file mancante vengono segnalate da una card rosso scuro con il badge FILE MANCANTE. Il resto del progetto, tutte le clip con file raggiungibili, resta pienamente funzionale.

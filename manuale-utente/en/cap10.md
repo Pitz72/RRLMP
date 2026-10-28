@@ -26,7 +26,7 @@ On opening, RLMP validates the file: it rebuilds any duplicate identifiers, brin
 
 ### Quick save
 
-The *Save Project* entry in the FILE menu performs an immediate save to the open `.lmp` file. The save is silent: no dialog box. The entry turns yellow when there are unsaved changes, a visual reminder at a glance. Use it often while preparing the show.
+The *Save Project* entry in the FILE menu performs an immediate save to the open `.lmp` file. The save is silent: no dialog box. When there are unsaved changes the entry turns amber and an amber dot lights up on the FILE button, a reminder you can see at a glance. Use it often while preparing the show.
 
 The save is **atomic**: the file is first written to a temporary copy and then renamed on the fly. If the computer shuts down during the write, the original `.lmp` is never left half-written.
 
@@ -89,4 +89,4 @@ A few useful details:
 
 ### Integrity check on opening
 
-Every time you open a `.lmp` file, RLMP runs an automatic **integrity check**: it verifies that each referenced audio file is reachable. Missing files are flagged with a red border and the MISSING FILE label on the corresponding card. The rest of the project — all the clips with reachable files — stays fully functional.
+Every time you open a `.lmp` file, RLMP runs an automatic **integrity check**: it verifies that each referenced audio file is reachable. Clips whose file is missing are flagged by a dark red card with the MISSING FILE badge. The rest of the project — all the clips with reachable files — stays fully functional.

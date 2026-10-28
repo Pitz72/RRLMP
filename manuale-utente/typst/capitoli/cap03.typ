@@ -2,31 +2,32 @@
 
 = L'interfaccia di lavoro
 
-L'interfaccia di Runtime Live Machine Pro è costruita per il contesto
-operativo più esigente: la diretta. Ogni scelta visiva --- il tema
-scuro, l'alto contrasto, le dimensioni dei controlli --- risponde a un
-requisito funzionale. Non è estetica per l'estetica, ma ergonomia.
+L'interfaccia di Runtime Live Machine Pro è disegnata come una
+superficie hardware da regia: tasti in rilievo, display incassati, LED
+nel colore di ogni colonna. Da ferma resta sobria, e quello che va in
+onda si accende. Il tema scuro, il contrasto alto e i caratteri grandi
+servono a leggere tutto a colpo d'occhio anche nei momenti più concitati
+della diretta.
 
 Quando apri un progetto, lo schermo si divide in tre fasce: la
 #strong[Barra di Controllo] in alto, che gestisce il progetto e il
-sistema; il #strong[banner IN ONDA] subito sotto, che mette in evidenza
+sistema; il #strong[display IN ONDA] subito sotto, che mette in evidenza
 il brano che sta suonando; la #strong[Griglia di Regia] al centro, dove
 si svolge il lavoro effettivo.
 
 == 3.1 La Barra di Controllo (Header)
-L'header occupa l'intera larghezza dello schermo. Procedendo da sinistra
-a destra, raccoglie l'identità del software, i comandi sui file, il
-monitoraggio e i controlli di trasporto, il menu degli strumenti e gli
-indicatori di sessione.
+L'header occupa l'intera larghezza dello schermo ed è diviso in due
+gruppi. A sinistra ci sono i comandi che durante la diretta non servono:
+il logo, il menu #strong[FILE] e il menu #strong[Strumenti]. A destra,
+in fila, quelli della diretta: microfono, VU meter, volume master, FX,
+MIX, STOP ALL, Playout Log, registrazione, timer On Air e orologio.
 
 === Identità
 <identità>
-#strong[Logo e badge PRO.] A sinistra, il logo affianca la scritta
-#strong[RLM PRO] --- la parola «PRO» è resa con un gradiente iridescente
-che passa dal ciano al verde, all'ambra, al rosso. Accanto, in caratteri
-monospazio, è riportata la versione installata (`v1.15.33`). Passando il
-mouse sul logo compare il nome completo del software con il numero di
-versione.
+#strong[Logo e versione.] All'estrema sinistra, il logo affianca la
+scritta #strong[RLM PRO], con «PRO» in ambra. Sotto, in piccolo, è
+riportata la versione installata (`v1.15.36`). Passando il mouse sul
+logo compare il nome completo del software con il numero di versione.
 
 === Menu File
 Il pulsante #strong[FILE] apre un menu con le operazioni sui progetti:
@@ -34,7 +35,6 @@ Il pulsante #strong[FILE] apre un menu con le operazioni sui progetti:
 - #emph[Nuovo Progetto] --- apre una sessione vuota. Se ci sono
   modifiche non salvate, il software chiede conferma.
 - #emph[Salva Progetto] --- salvataggio rapido sul file `.lmp` corrente.
-  La voce si evidenzia in giallo quando ci sono modifiche non salvate.
 - #emph[Salva Come…] --- apre sempre la finestra di dialogo, per creare
   versioni progressive (es. `Ep47_bozza.lmp`, `Ep47_finale.lmp`).
 - #emph[Esporta progetto con audio] --- consolida tutto l'audio dentro
@@ -44,18 +44,73 @@ Il pulsante #strong[FILE] apre un menu con le operazioni sui progetti:
 - #emph[Importa M3U] --- importa una playlist in formato M3U come
   sequenza di clip.
 
-=== Monitoraggio e trasporto
-#strong[VU Meter stereo (L/R).] Due barre orizzontali mostrano il
-livello audio reale in uscita dopo il Master Volume. La scala cromatica
-è intuitiva: verde fino a circa l'85% del percorso, poi giallo, infine
-rosso in prossimità del fondo scala. Il rosso persistente segnala
-clipping: riduci il livello.
+Quando ci sono modifiche non salvate, sull'angolo del pulsante FILE si
+accende un pallino ambra e, nel menu, la voce #emph[Salva Progetto]
+diventa ambra. Dopo un salvataggio automatico compare per qualche
+istante, sotto il pulsante, la scritta verde #emph[Salvataggio
+automatico].
 
-#strong[Master Volume.] Il fader controlla il volume generale di uscita
-del software, da 0 a 100%. Agisce come un fader master: portato a zero,
-nessun suono esce, indipendentemente dallo stato delle singole clip. Se
-hai mappato un controllo MIDI sul Master Volume, un piccolo badge ne
-mostra l'assegnazione.
+=== Strumenti
+Accanto a FILE, il pulsante con l'icona a #strong[chiave inglese] apre
+il menu Strumenti:
+
+- #emph[Annulla] e #emph[Ripeti] --- la cronologia delle modifiche alla
+  scaletta (`Ctrl+Z` / `Ctrl+Y`).
+- #emph[MIDI Learn] --- attiva la modalità di apprendimento MIDI
+  (Capitolo 8). A destra della voce è indicato quanti controller MIDI
+  sono collegati.
+- #emph[Keybinds & MIDI Dashboard] --- la finestra di assegnazione dei
+  tasti alle clip.
+- #emph[Impostazioni Generali] --- le preferenze globali del software
+  (Capitolo 13).
+- #emph[Info & Aggiornamenti] --- versione, crediti e controllo manuale
+  degli aggiornamenti.
+
+Mentre MIDI Learn è attivo, sul pulsante Strumenti resta visibile, anche
+a menu chiuso, un'etichetta con la scritta MIDI o con i secondi che
+restano all'apprendimento.
+
+#figure(image("../screenshots/barra-controllo.png", alt: "Figura 3.1 — La Barra di Controllo con il menu Strumenti aperto: a sinistra logo, FILE e Strumenti; a destra i comandi della diretta."),
+  caption: [
+    Figura 3.1 --- La Barra di Controllo con il menu Strumenti aperto: a
+    sinistra logo, FILE e Strumenti; a destra i comandi della diretta.
+  ]
+)
+
+=== Microfono, livelli e trasporto
+#strong[ARM (microfono).] Arma e disarma il microfono per lo
+#strong[Smart Mic] (Capitolo 6). Da disarmato il pulsante mostra l'icona
+di un microfono barrato. Da armato, al posto dell'icona compare un
+piccolo VU a otto LED con il livello del microfono e accanto appare il
+cursore #strong[Mic Vol]\; mentre parli, il pulsante diventa rosso e
+pulsa. La scritta #strong[On Mix], sul bordo inferiore del pulsante,
+segnala che la voce entra anche nel mix. Lo Smart Mic va abilitato nella
+scheda #emph[Microfono] delle Impostazioni (Capitolo 13): se lo
+disattivi, il microfono si disarma.
+
+#strong[VU Meter stereo (L/R).] Due file di 16 LED, una per canale,
+mostrano il livello reale in uscita dopo il Master Volume. Ogni LED vale
+3 dB: i LED sono verdi fino a −12 dBFS, gialli fino a −3 dBFS, e
+l'ultimo è rosso, a ridosso del limiter. Il LED del picco resta acceso
+per circa un secondo e mezzo, così vedi anche i picchi più brevi. Se
+l'ultimo LED resta acceso a lungo, il segnale sta spingendo sul limite:
+riduci il livello.
+
+#strong[Master Volume.] Il fader #strong[MASTER VOL] controlla il volume
+generale di uscita del software, da 0 a 100; il valore è scritto accanto
+all'etichetta. Agisce come un fader master: portato a zero, nessun suono
+esce, indipendentemente dallo stato delle singole clip. Se hai mappato
+un controllo MIDI sul Master Volume, al posto del valore compare
+l'assegnazione (per esempio `C7`).
+
+#strong[FX.] Apre e chiude il pad FX, la #emph[jingle machine] degli
+effetti (Capitolo 7). Il LED sul pulsante è verde quando il pad è
+aperto; un piccolo contatore segnala quanti effetti sono in riproduzione
+in quel momento.
+
+#strong[MIX.] Apre e chiude la vista Automix, il deck dedicato alla
+colonna Musica (Capitolo 7). Anche qui il LED verde indica che la vista
+è aperta.
 
 #strong[STOP ALL (pulsante rosso «ALL»).] Ferma istantaneamente tutte le
 clip attive e azzera i fade in corso. È il comando di emergenza del
@@ -70,132 +125,106 @@ finestra attiva. Questa scelta consente alle finestre di dialogo di
 usare `Esc` per chiudersi senza fermare la diretta.
 ]
 
-#strong[ARM (microfono).] Arma e disarma il microfono per lo
-#strong[Smart Mic] (Capitolo 6). Da disarmato il pulsante è grigio; da
-armato diventa rosso e, mentre parli, si accende e pulsa. Accanto
-compaiono un piccolo VU a otto barre con il livello del microfono e il
-cursore #strong[Mic Vol]\; il badge #strong[On Mix] segnala che la voce
-entra anche nel mix. Lo Smart Mic va abilitato nella scheda
-#emph[Microfono] delle Impostazioni (Capitolo 13): se lo disattivi, il
-microfono si disarma.
-
-#strong[FX.] Apre e chiude il pad FX, la #emph[jingle machine] degli
-effetti (Capitolo 7). Un piccolo contatore segnala quanti effetti sono
-in riproduzione in quel momento.
-
-#strong[MIX.] Apre e chiude la vista Automix, il deck dedicato alla
-colonna Musica (Capitolo 7).
-
-=== Strumenti
-Il menu #strong[Strumenti] (icona a chiave inglese) raccoglie:
-
-- #emph[Annulla] e #emph[Ripeti] --- la cronologia delle modifiche alla
-  scaletta (`Ctrl+Z` / `Ctrl+Y`).
-- #emph[MIDI Learn] --- attiva la modalità di apprendimento MIDI
-  (Capitolo 8).
-- #emph[Keybinds] --- la finestra di assegnazione dei tasti alle clip.
-- #emph[Impostazioni] --- le preferenze globali del software (Capitolo
-  13).
-- #emph[Info] --- versione, crediti e controllo manuale degli
-  aggiornamenti.
-
-Poco sotto il menu compare per qualche istante l'indicatore
-#emph[Auto-saved], a conferma che il progetto è stato salvato
-automaticamente.
-
-#figure(image("../screenshots/barra-controllo.png", alt: "Figura 3.1 — La Barra di Controllo e il menu Strumenti aperto (Annulla/Ripeti, MIDI Learn, Keybinds, Impostazioni Generali, Info)."),
-  caption: [
-    Figura 3.1 --- La Barra di Controllo e il menu Strumenti aperto
-    (Annulla/Ripeti, MIDI Learn, Keybinds, Impostazioni Generali, Info).
-  ]
-)
-
 === Indicatori di sessione
-Sul lato destro dell'header trovano posto il pulsante del
-#strong[Playout Log] (il registro cronologico dei lanci, Capitolo 13),
-il pulsante di #strong[Registrazione] (Capitolo 9), il #strong[Timer On
-Air] (che quando è in diretta mostra `ON AIR HH:MM:SS` su fondo rosso) e
-l'#strong[orologio di studio] digitale in formato 24 ore, sincronizzato
-con l'orologio di sistema.
+In fondo a destra trovi il pulsante del #strong[Playout Log] (il
+registro cronologico dei lanci, Capitolo 13), il pulsante #strong[REC]
+della registrazione (Capitolo 9), il #strong[Timer On Air] e
+l'#strong[orologio di studio].
 
-Nell'area dell'header possono comparire inoltre notifiche non intrusive
-(#strong[toast]) relative a operazioni completate o avvisi di sistema. A
-differenza dei dialog bloccanti, i toast scompaiono da soli dopo pochi
-secondi e non interrompono la riproduzione.
+Il Timer On Air è un piccolo display con la scritta ON AIR: a riposo
+mostra `--:--:--`\; quando parte la diretta si accende un LED rosso che
+pulsa e il tempo scorre nel formato `HH:MM:SS`. L'orologio di studio è
+in formato 24 ore, sincronizzato con l'orologio di sistema.
 
-== 3.2 Il banner IN ONDA
-Tra la Barra di Controllo e la griglia c'è un banner a tutta larghezza
-che mette in evidenza il brano in onda, leggibile anche da lontano. È
-#strong[sempre presente]: senza brani in riproduzione mostra lo stato
-#strong[OFF AIR] con colori spenti e la scritta «Nessun brano in onda»;
-quando parte una clip si accende in verde, senza cambiare dimensione né
-spostare le colonne.
+Le notifiche non intrusive (#strong[toast]) relative a operazioni
+completate o avvisi di sistema compaiono in basso a destra. A differenza
+dei dialog bloccanti, i toast scompaiono da soli dopo pochi secondi e
+non interrompono la riproduzione.
+
+== 3.2 Il display IN ONDA
+Tra la Barra di Controllo e la griglia c'è un display a tutta larghezza
+che mostra il brano in onda, leggibile anche da lontano. È
+#strong[sempre presente] e ha un'altezza fissa, così le colonne sotto
+non si spostano mai. Senza brani in riproduzione mostra #strong[OFF
+AIR], la scritta «Nessun brano in onda» e la spia spenta.
 
 Da sinistra a destra trovi:
 
-- #strong[ON AIR] --- l'indicatore con il pallino rosso, che pulsa
-  quando c'è un brano in onda.
+- #strong[ON AIR] --- la spia: rossa e accesa quando c'è un brano in
+  onda, grigia e spenta a riposo.
 - #strong[Titolo e colonna] --- l'etichetta «IN ONDA» seguita dal nome
-  della colonna, il titolo della clip in grande e, sotto, l'artista (o
+  della colonna, il titolo della clip in grande e, accanto, l'artista (o
   «In loop» per le clip in ripetizione).
-- #strong[Barra di avanzamento] --- si riempie di verde man mano che il
-  brano procede; due tacche verticali segnano il punto di Intro (ciano)
-  e di Outro (arancione), se configurati (Capitolo 5).
-- #strong[Timer] --- il tempo che manca alla fine del brano, in un
-  colore che cambia con la fase: #strong[ciano] durante l'intro (conta
-  alla rovescia fino alla fine dell'intro), #strong[bianco] nel corpo
-  del brano, #strong[arancione] dal punto di Outro in poi, #strong[rosso
-  lampeggiante] negli ultimi 10 secondi. Per le clip in loop mostra
-  «LOOP». Nei 15 secondi che precedono l'Outro, sotto il timer compare
-  l'avviso #strong[OUTRO IN] con il conto alla rovescia.
-- #strong[UP NEXT] --- il titolo della clip che partirà dopo, quando la
-  clip in onda è impostata su #emph[Play Next]\; negli altri casi il
-  riquadro resta attenuato.
+- #strong[Barra a LED] --- sotto il titolo, una fila di LED che si
+  accendono man mano che il brano avanza, con il tempo trascorso a
+  sinistra e la durata totale a destra. Se la clip ha i marker di Intro
+  e Outro (Capitolo 5), i LED che precedono la fine dell'intro sono
+  ciano e quelli dall'Outro in poi ambra; due tacche verticali, una
+  ciano e una ambra, segnano i due punti. Le zone colorate si vedono
+  anche a LED spenti, così sai in anticipo dove cade l'Outro.
+- #strong[Timer RIMANENTE] --- il tempo che manca alla fine del brano,
+  in un colore che cambia con la fase: #strong[ciano] durante l'intro
+  (conta alla rovescia fino alla fine dell'intro), #strong[bianco] nel
+  corpo del brano, #strong[ambra] dal punto di Outro in poi,
+  #strong[rosso lampeggiante] negli ultimi 10 secondi. Per le clip in
+  loop mostra «LOOP». Nei 15 secondi che precedono l'Outro, sotto il
+  timer compare l'etichetta ambra #strong[OUTRO IN] con il conto alla
+  rovescia.
+- #strong[UP NEXT] --- la clip che partirà dopo, con artista e durata,
+  quando la clip in onda è impostata su #emph[Play Next]: il LED accanto
+  alla scritta diventa verde. Negli altri casi il riquadro resta spento
+  e mostra un trattino.
 
-Se suonano più clip insieme, il banner mostra quella della colonna con
+Se suonano più clip insieme, il display mostra quella della colonna con
 priorità più alta, in quest'ordine: Canzoni, Pre-Show, Voci, poi le
-altre colonne. Gli effetti del pad FX non compaiono mai nel banner. Nel
-passaggio da un brano al successivo in sequenza, il banner tiene per un
+altre colonne. Gli effetti del pad FX non compaiono mai nel display. Nel
+passaggio da un brano al successivo in sequenza, il display tiene per un
 istante il brano appena finito invece di lampeggiare su OFF AIR.
 
 == 3.3 La griglia a sei colonne
-#figure(image("../screenshots/interfaccia-principale.png", alt: "Figura 3.2 — L’interfaccia di lavoro: il banner IN ONDA con un brano in onda e la griglia a sei colonne con le card audio."),
+#figure(image("../screenshots/interfaccia-principale.png", alt: "Figura 3.2 — L’interfaccia di lavoro: il display IN ONDA con un brano in onda e la griglia a sei colonne. La clip in onda è accesa del colore della sua colonna."),
   caption: [
-    Figura 3.2 --- L'interfaccia di lavoro: il banner IN ONDA con un
-    brano in onda e la griglia a sei colonne con le card audio.
+    Figura 3.2 --- L'interfaccia di lavoro: il display IN ONDA con un
+    brano in onda e la griglia a sei colonne. La clip in onda è accesa
+    del colore della sua colonna.
   ]
 )
 
 La griglia è il centro operativo del software: sei colonne verticali
-affiancate, ciascuna con una propria intestazione cromatica e una
-propria logica di comportamento audio. Gli effetti sonori non hanno una
-colonna in griglia: vivono nel pad FX (Capitolo 7).
+affiancate, ciascuna con la sua testata, il suo colore e una propria
+logica di comportamento audio. Gli effetti sonori non hanno una colonna
+in griglia: vivono nel pad FX (Capitolo 7).
 
-=== Intestazioni di colonna
-Ogni intestazione riporta il nome della colonna, la sua tipologia e
-funge da indicatore di stato. In condizioni normali è statica e colorata
-nel tono caratteristico della colonna. Quando la clip in riproduzione è
-l'ultima disponibile della colonna, non è in loop e mancano meno di
-#strong[20 secondi] alla fine, l'intestazione entra in allarme
-#strong[DEAD AIR]: pulsa, vira all'ambra, mostra un'icona di avviso e il
-badge #strong[END]. È l'anticipo che ti dà il tempo di preparare la
-traccia successiva prima del silenzio.
+=== Testate di colonna
+La testata è su due righe, con una striscia luminosa nel colore della
+colonna sul bordo superiore. Sopra c'è il titolo intero della colonna.
+Sotto trovi il tipo (ASSET, MUSIC, VOICE o PRESHOW) con il numero di
+clip e, a destra, i tasti della colonna.
 
-Il colore di ogni colonna è personalizzabile: clicca sul pallino
-colorato nell'intestazione per aprire una palette di #strong[30 tinte].
-La scelta viene salvata nel file di progetto.
+La testata funge anche da indicatore di stato. Quando la clip in
+riproduzione è l'ultima disponibile della colonna, non è in loop e
+mancano meno di #strong[20 secondi] alla fine, scatta l'allarme
+#strong[DEAD AIR]: la testata diventa ambra, la striscia lampeggia,
+accanto al titolo compare un triangolo di avviso e sotto il badge
+#strong[END]. Durante l'allarme i tasti della colonna si nascondono. È
+l'anticipo che ti dà il tempo di preparare la traccia successiva prima
+del silenzio.
 
-Quando una colonna contiene almeno una clip, nell'intestazione compare
-un'icona a #strong[cestino]: il comando #strong[Svuota colonna] rimuove
-in un colpo solo tutte le clip di quella colonna. Per sicurezza chiede
-sempre conferma, indicando quante clip verranno rimosse, e l'operazione
-è reversibile con #emph[Annulla] (`Ctrl+Z`). Sulle colonne vuote l'icona
-non appare.
+Il colore di ogni colonna è personalizzabile: clicca sul tasto con il
+pallino colorato, nella seconda riga della testata, per aprire una
+palette di #strong[30 tinte]. La scelta viene salvata nel file di
+progetto.
 
-Sull'intestazione della colonna #strong[Pre-Show] compare inoltre un
-pulsante di #strong[rotazione]: quando è attivo, la coda pre-diretta
-inserisce automaticamente jingle e promo a intervalli regolari (Capitolo
-13).
+Quando una colonna contiene almeno una clip, nella testata compare un
+tasto con l'icona a #strong[cestino]: il comando #strong[Svuota colonna]
+rimuove in un colpo solo tutte le clip di quella colonna. Per sicurezza
+chiede sempre conferma, indicando quante clip verranno rimosse, e
+l'operazione è reversibile con #emph[Annulla] (`Ctrl+Z`). Sulle colonne
+vuote il tasto non appare.
+
+Nella testata della colonna #strong[Pre-Show] compare inoltre un tasto
+di #strong[rotazione]: quando è attivo, la coda pre-diretta inserisce
+automaticamente jingle e promo a intervalli regolari (Capitolo 13).
 
 === Le sei colonne
 #strong[Show Assets (Verde)] Gli elementi strutturali dello show: sigle,
@@ -228,11 +257,17 @@ jingle e promo. Quando inizia la diretta vera e propria, questa colonna
 viene tipicamente svuotata o disattivata.
 
 == 3.4 La Card Audio (Clip)
-Ogni file audio importato si materializza nella griglia come una
-#strong[card] rettangolare. La card è l'unità operativa del sistema: la
-vedi, la lanci, la configuri, la sposti.
+Ogni file audio importato diventa nella griglia una #strong[card], un
+tasto rettangolare in rilievo. La card è l'unità operativa del sistema:
+la vedi, la lanci, la configuri, la sposti.
 
 === Anatomia di una card
+Dall'alto in basso, una card mostra: una sottile striscia nel colore
+della colonna, la riga dei badge, il titolo su una riga tutta sua,
+l'artista (solo per le clip musicali che ne hanno uno) e, in fondo, i
+tasti assegnati a sinistra e il timer a destra. Il tipo della colonna
+non è ripetuto sulla card: lo dice già la testata.
+
 #strong[Titolo e artista.] Il nome del file o il nome personalizzato
 assegnato nelle proprietà. Il titolo personalizzato cambia solo
 l'etichetta nel software; il file originale sul disco rimane intatto.
@@ -242,62 +277,69 @@ dell'artista.
 #strong[Timer.] A riposo, mostra la durata totale della clip nel formato
 `MM:SS`. Durante la riproduzione passa al #strong[conto alla rovescia],
 con il prefisso negativo (es. `−01:20`). Quando mancano meno di 15
-secondi alla fine, il timer diventa #strong[rosso].
+secondi alla fine, le cifre diventano bianche su un'etichetta scura e
+lampeggiano.
 
 #strong[Badge di stato.] Piccole etichette comunicano in modo immediato
 le proprietà configurate:
 
+- #strong[IN ONDA] --- la clip sta suonando: etichetta scura con un LED
+  rosso.
 - #strong[LOOP] --- la clip ripartirà dall'inizio al termine della
   riproduzione.
 - #strong[NEXT] --- al termine di questa clip partirà automaticamente la
   successiva nella colonna.
 - #strong[▶ UP NEXT] --- evidenzia quale clip sarà la prossima a partire
-  nella sequenza automatica.
-- #strong[\#\#\# BPM] --- il tempo rilevato, sulle clip musicali, su un
-  badge giallo fluorescente ad alta visibilità.
+  nella sequenza automatica: il badge è verde e lampeggia, la card ha un
+  anello verde e la striscia in alto diventa verde.
+- #strong[\#\#\# BPM] --- il tempo rilevato, sulle clip musicali,
+  scritto in giallo chiaro.
 - #strong[I \#\#s] --- la clip ha un punto di Intro configurato
   (Capitolo 5): il badge, in ciano, ne indica la durata in secondi ed è
   sempre visibile, anche a clip ferma.
-- #strong[TRIM…] --- analisi del silenzio in corso (Auto-Trim).
+- #strong[TRIM…] --- analisi del silenzio in corso (Auto-Trim), con un
+  LED ambra.
 - #strong[FADE OUT] --- appare sulla clip uscente durante un crossfade o
   una dissolvenza.
-- #strong[📋] --- la clip ha una nota associata nella NoteBoard
-  (Capitolo 13).
+- #strong[Icona degli appunti] --- la clip ha una nota associata nella
+  NoteBoard (Capitolo 13).
 
 #strong[Assegnazioni.] Se la clip ha un tasto della tastiera assegnato,
-la lettera compare in un badge dal colore della colonna; se ha un
-binding MIDI, compare l'etichetta `M` seguita dal numero di nota (es.
-`M60`).
+il tasto compare in basso a sinistra, in un riquadro scuro con il
+carattere nel colore della colonna; se ha un binding MIDI, compare in
+ciano l'etichetta `M` seguita dal numero di nota (es. `M60`).
 
 #strong[Cue di struttura.] Se sono configurati i marker, durante la
-riproduzione compaiono i conti alla rovescia `INTRO: −MM:SS` (in ciano)
-e `OUTRO IN: −MM:SS` (in arancione), fino all'avviso `🚨 OUTRO` quando
-la coda è iniziata.
+riproduzione i tasti assegnati lasciano il posto ai conti alla rovescia
+`INTRO −MM:SS` (etichetta ciano) e `OUTRO IN −MM:SS` (etichetta ambra);
+quando la coda è iniziata l'etichetta diventa `OUTRO`.
 
-#strong[Indicatore di riproduzione.] Quando una clip è in play, la card
-si accende: bordo verde, sfondo con un alone luminoso, un pallino
-pulsante e il titolo evidenziato. La barra di avanzamento scorre sullo
-sfondo della card.
+#strong[La card in onda.] Quando una clip va in onda, tutta la card si
+accende del colore della sua colonna. Il testo è scuro sui colori chiari
+e bianco su quelli scuri, scelto in base al contrasto: una colonna blu
+notte si legge bene quanto una gialla. La striscia in alto diventa
+bianca e sul fondo della card scorre una barra di avanzamento.
 
 === Interazione con le card
 - #strong[Click sinistro] --- avvia la clip se è ferma; la ferma (con
   fade out) se è in riproduzione.
 - #strong[Ctrl + Click] (Windows/Linux) o #strong[Cmd + Click] (macOS)
-  --- seleziona la clip senza avviarla. Il bordo diventa blu. Utile per
-  la selezione multipla e la cancellazione in blocco.
+  --- seleziona la clip senza avviarla. Attorno alla card compare un
+  anello blu. Utile per la selezione multipla e la cancellazione in
+  blocco.
 - #strong[Tasto Canc] (o #emph[Delete] / #emph[Backspace]) --- cancella
   le clip selezionate dalla griglia. Se sono selezionate più clip, il
   software chiede conferma.
 - #strong[Tasto destro] --- apre le #strong[Impostazioni della clip]:
   proprietà, editor della forma d'onda, note (Capitolo 5).
 - #strong[Drag & Drop] --- trascina una card per riordinarla all'interno
-  della colonna o spostarla in un'altra. Un indicatore luminoso blu
-  mostra la posizione di inserimento durante il trascinamento.
+  della colonna o spostarla in un'altra. Una linea blu luminosa mostra
+  la posizione di inserimento durante il trascinamento.
 
 === Card in stato di errore
-Una card con l'indicazione #strong[FILE MANCANTE] e il bordo rosso
-segnala che il file audio referenziato non è più raggiungibile: è stato
-spostato, rinominato o si trova su un disco esterno non collegato. La
-clip non è riproducibile finché il file non torna disponibile nel
-percorso originale. La gestione degli errori di percorso è trattata nel
-Capitolo 14.
+Una card rosso scuro, con il badge rosso #strong[FILE MANCANTE] e il
+titolo in rosso chiaro, segnala che il file audio referenziato non è più
+raggiungibile: è stato spostato, rinominato o si trova su un disco
+esterno non collegato. La clip non è riproducibile finché il file non
+torna disponibile nel percorso originale. La gestione degli errori di
+percorso è trattata nel Capitolo 14.

@@ -13,7 +13,7 @@ Due superfici di lavoro vivono sopra la griglia, richiamabili con un tasto e pen
 
 *Figura 7.1 — Il pad FX: la jingle machine 5×5 degli effetti sonori, con lancio a sovrapposizione.*
 
-Gli effetti sonori non hanno una colonna nella griglia. Vivono nel **pad FX**, un pannello a griglia di celle (una *jingle machine*) che si apre dal pulsante **FX** nell'header e resta flottante in un angolo dello schermo.
+Gli effetti sonori non hanno una colonna nella griglia. Vivono nel **pad FX**, un pannello a griglia di celle (una *jingle machine*) che si apre dal pulsante **FX** nell'header (il LED del pulsante diventa verde) e resta flottante in un angolo dello schermo.
 
 Il pad è un **overlay non bloccante**: non oscura la board e non intercetta i click diretti altrove. Puoi lanciare un effetto e, nello stesso istante, continuare a operare sulle colonne o sui comandi dell'header. Per questa ragione il tasto `Esc` non chiude il pad: resta il comando di STOP ALL, sempre disponibile. Il pad si chiude dal suo pulsante di chiusura o di nuovo dal toggle FX.
 
@@ -21,7 +21,7 @@ Il pad è un **overlay non bloccante**: non oscura la board e non intercetta i c
 
 Il pad nasce con una griglia di 25 celle (5×5) e cresce in righe quando aggiungi altri effetti. Per popolarlo, **trascina i file audio direttamente sulle celle** del pad, esattamente come faresti con una colonna della griglia.
 
-Un click su una cella **lancia l'effetto**. Gli effetti del pad sono polifonici e si sovrappongono: più celle possono suonare insieme, sopra qualsiasi cosa sia in onda, senza fermarla. Il comportamento audio è identico a quello di una clip normale: cambia soltanto la superficie di lancio. Un contatore accanto al pulsante FX nell'header indica quanti effetti stanno suonando in quel momento.
+Un click su una cella **lancia l'effetto**. Gli effetti del pad sono polifonici e si sovrappongono: più celle possono suonare insieme, sopra qualsiasi cosa sia in onda, senza fermarla. Il comportamento audio è identico a quello di una clip normale: cambia soltanto la superficie di lancio. La cella dell'effetto in onda si accende del suo colore, e un contatore sul pulsante FX nell'header indica quanti effetti stanno suonando in quel momento.
 
 ### Configurare un effetto
 
@@ -32,7 +32,7 @@ Gli effetti si configurano su due livelli, pensati per due esigenze diverse:
 
 ### Posizione del pad
 
-Il pad può stare nell'angolo in basso a sinistra o in basso a destra dello schermo: la preferenza si imposta con le frecce sul pad stesso e viene ricordata tra le sessioni. A destra copre la NoteBoard e l'ultima colonna; scegli il lato in base a come hai disposto la tua scaletta.
+Il pad può stare nell'angolo in basso a sinistra o in basso a destra dello schermo: la preferenza si imposta con il tasto a freccia nella testata del pad e viene ricordata tra le sessioni. A destra copre la NoteBoard e l'ultima colonna; scegli il lato in base a come hai disposto la tua scaletta.
 
 > **Nota.** In modalità MIDI Learn, un click su una cella del pad **seleziona** l'effetto per l'assegnazione invece di suonarlo — così non mandi in onda un jingle mentre stai mappando i controlli (vedi Capitolo 8).
 
@@ -48,11 +48,13 @@ La **vista Automix** è il deck della colonna Musica: una schermata a tutto camp
 
 ### Il deck
 
-Al centro trovi il brano **in onda** e, in coda, il **prossimo** brano della colonna Musica, con il tempo rimanente. Da qui puoi far partire una traccia e gestire il passaggio da un brano all'altro con un solo comando: il pulsantone di transizione applica lo stesso crossfade che useresti dalla griglia, ma con l'attenzione in più dell'aggancio ritmico.
+In alto ci sono due display. A sinistra il brano **in onda**: titolo, BPM, tempo trascorso e durata, tempo rimanente e una barra di avanzamento a LED. A destra il **prossimo** brano della colonna Musica, con BPM, durata e compatibilità. In mezzo c'è il pulsantone verde di transizione: con un solo comando applica lo stesso crossfade che useresti dalla griglia, ma con l'attenzione in più dell'aggancio ritmico. Se non c'è niente in onda, al suo posto trovi **START**, che fa partire il primo brano.
+
+Sotto i display c'è la scaletta della colonna Musica, una riga per brano con numero, titolo, durata e BPM. La riga del brano in onda è accesa del colore della colonna.
 
 ### Compatibilità e transizioni beat-matched
 
-Accanto a ogni brano, un **pallino di compatibilità** con il brano precedente ne indica l'affinità ritmica:
+Sotto il titolo di ogni brano, un **pallino di compatibilità** con il brano precedente ne indica l'affinità ritmica, seguito da una breve spiegazione (per esempio «beat non rilevato → crossfade classico»):
 
 - **Verde** — i due tempi si agganciano bene: la transizione può essere beat-matched.
 - **Giallo** — aggancio possibile ma con qualche riserva.
@@ -62,6 +64,6 @@ Quando l'aggancio ritmico non è praticabile (BPM non rilevato, beat incerto, te
 
 ### La modalità automatica
 
-In fondo alla vista c'è un interruttore per l'**automazione a fine brano**. Quando è attivo, RLMP fa partire da solo il passaggio al brano successivo quando la traccia in onda si avvicina alla fine.
+Sotto il pulsante di transizione c'è l'interruttore **Auto a fine brano**. Quando è attivo la scritta diventa verde e RLMP fa partire da solo il passaggio al brano successivo quando la traccia in onda si avvicina alla fine.
 
 Questa modalità è un'eccezione deliberata alla filosofia del software, che per scelta non automatizza lo show. Per questo è **disattivata di default** e funziona **solo mentre la vista Automix è aperta**: chiudere la vista disattiva l'automazione. È lo strumento giusto per un blocco musicale continuo, la mezz'ora di sola musica prima di rientrare in voce, non per l'intera diretta.

@@ -54,9 +54,9 @@ The editor has four draggable **handles**, each with a precise function and colo
 
 **Trim End (red handle, right).** Defines the actual end point. Everything to its right is ignored. Drag it left to shorten the tail. Trim Start and Trim End cannot overlap.
 
-**Intro Marker (cyan handle).** Marks the structural point where the main melody enters the track, after any intro. Once set, the countdown **INTRO: −MM:SS** appears on the playing card.
+**Intro Marker (cyan handle).** Marks the structural point where the main melody enters the track, after any intro. Once set, the countdown **INTRO −MM:SS** appears on the playing card.
 
-**Outro Marker (orange handle).** Marks the point where the track’s tail begins, typically the moment to start talking to fill the transition. The countdown **OUTRO IN: −MM:SS** appears on the card. If the value turns out to be inconsistent with the trim or the duration, the software disables it and warns you.
+**Outro Marker (orange handle).** Marks the point where the track’s tail begins, typically the moment to start talking to fill the transition. The countdown **OUTRO IN −MM:SS** appears on the card. If the value turns out to be inconsistent with the trim or the duration, the software disables it and warns you.
 
 Besides dragging, four *Set* buttons place each handle at the playhead’s current position, for marking on the fly while listening. The values remain precisely editable in their respective fields.
 

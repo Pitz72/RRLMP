@@ -1,5 +1,5 @@
 # Runtime Live Machine Pro — Manuale Utente
-## Indice generale — Edizione Italiana (v1.15.33, Seconda Edizione)
+## Indice generale — Edizione Italiana (v1.15.36, Seconda Edizione)
 
 ---
 
@@ -10,7 +10,7 @@ Cos'è RLMP e per chi è stato costruito. La filosofia «Single Show». L'archit
 Requisiti di sistema. Installazione su Windows e Linux. macOS: compilare dal sorgente. La schermata di benvenuto. Il primo avvio: cosa aspettarsi.
 
 **Capitolo 3 — L'interfaccia di lavoro**
-La Barra di Controllo: logo, timer On Air, orologio di studio, Master Volume, VU meter, STOP ALL, pulsante ARM del microfono, menu File e Strumenti. Il banner IN ONDA: il brano in evidenza, il timer a fasi, UP NEXT. La griglia a sei colonne: intestazioni, avviso DEAD AIR, personalizzazione cromatica. La Card Audio: anatomia, badge di stato, interazione.
+La Barra di Controllo: logo, timer On Air, orologio di studio, Master Volume, VU meter, STOP ALL, pulsante ARM del microfono, menu File e Strumenti. Il display IN ONDA: il brano in evidenza, la barra a LED, il timer a fasi, UP NEXT. La griglia a sei colonne: testate, avviso DEAD AIR, personalizzazione cromatica. La Card Audio: anatomia, badge di stato, interazione.
 
 **Capitolo 4 — Il workflow base: caricare e riprodurre**
 Importazione tramite drag & drop. Formati supportati. Riproduzione e stop. La logica di esclusione per colonna. Organizzare la scaletta: riordinamento e selezione multipla. Cue di struttura: Intro e Outro.

@@ -10,13 +10,14 @@ post-processato], ovvero tutto ciò che esce dall'applicazione, inclusi
 gli effetti del Master Chain, in un file audio sul disco.
 
 == 9.1 Avviare la registrazione
-Il controllo della registrazione si trova nell'header, identificato
-dall'icona di registrazione.
+Il controllo della registrazione è il pulsante #strong[REC], con un
+cerchio rosso, nella parte destra dell'header.
 
-#strong[Avvio.] Clicca sul pulsante di registrazione. Un indicatore
-rosso e un contatore mostrano che la cattura è in corso. La
-registrazione parte immediatamente: tutto ciò che esce dall'output del
-software da quel momento viene catturato.
+#strong[Avvio.] Clicca su #strong[REC]. Il pulsante diventa rosso,
+mostra il tempo di registrazione che scorre e un'icona di stop che
+lampeggia: la cattura è in corso. La registrazione parte immediatamente:
+tutto ciò che esce dall'output del software da quel momento viene
+catturato.
 
 Non è necessario avere clip in riproduzione per avviare la
 registrazione: puoi avviare la cattura in anticipo rispetto all'inizio

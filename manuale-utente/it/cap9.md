@@ -8,10 +8,10 @@ La registrazione della sessione trasforma Runtime Live Machine Pro da strumento 
 
 ## 9.1 Avviare la registrazione
 
-Il controllo della registrazione si trova nell'header, identificato dall'icona di registrazione.
+Il controllo della registrazione è il pulsante **REC**, con un cerchio rosso, nella parte destra dell'header.
 
 **Avvio.**
-Clicca sul pulsante di registrazione. Un indicatore rosso e un contatore mostrano che la cattura è in corso. La registrazione parte immediatamente: tutto ciò che esce dall'output del software da quel momento viene catturato.
+Clicca su **REC**. Il pulsante diventa rosso, mostra il tempo di registrazione che scorre e un'icona di stop che lampeggia: la cattura è in corso. La registrazione parte immediatamente: tutto ciò che esce dall'output del software da quel momento viene catturato.
 
 Non è necessario avere clip in riproduzione per avviare la registrazione: puoi avviare la cattura in anticipo rispetto all'inizio dello show, per non perdere i primi secondi in caso di partenza anticipata.
 

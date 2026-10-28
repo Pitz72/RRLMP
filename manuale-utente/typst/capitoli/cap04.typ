@@ -75,8 +75,8 @@ sicurezza) o creare archivi portabili, utilizza la funzione
 == 4.2 Riproduzione: avviare e fermare le clip
 === Avviare una clip
 Un #strong[click sinistro] sulla card è sufficiente per avviare la
-riproduzione. Il feedback è immediato: la card si accende nel verde di
-stato attivo, il timer passa al conto alla rovescia e i VU meter
+riproduzione. Il feedback è immediato: la card si accende del colore
+della sua colonna, il timer passa al conto alla rovescia e i VU meter
 nell'header riflettono il segnale in uscita.
 
 Se alla clip è stato assegnato un tasto della tastiera (vedi Capitolo
@@ -132,7 +132,7 @@ la funzione in modo consapevole, specialmente durante la diretta.
 Per rimuovere più clip dalla griglia in una sola operazione:
 
 + `Ctrl+Click` (Windows/Linux) o `Cmd+Click` (macOS) su ciascuna clip da
-  selezionare. Il bordo diventa blu.
+  selezionare. Attorno alla card compare un anello blu.
 + Premi `Canc` o `Delete`. Il software chiede conferma se il numero di
   clip selezionate è superiore a una.
 
@@ -157,12 +157,14 @@ nell'editor della forma d'onda (Capitolo 5):
   brano. Segnala il momento giusto per preparare la transizione alla
   traccia successiva.
 
-Quando la riproduzione di una clip si avvicina a questi punti, sulla
-card compare un avviso visivo:
+Quando la riproduzione di una clip si avvicina a questi punti, in basso
+a sinistra sulla card compare un avviso visivo:
 
-- #strong[INTRO: −MM:SS] --- conto alla rovescia all'Intro Marker.
-- #strong[OUTRO IN: −MM:SS] --- conto alla rovescia all'Outro Marker,
-  seguito da #strong[🚨 OUTRO] quando la coda è iniziata.
+- #strong[INTRO −MM:SS] --- per tutta la durata dell'intro, il tempo che
+  manca all'Intro Marker, su un'etichetta ciano.
+- #strong[OUTRO IN −MM:SS] --- negli ultimi 15 secondi prima dell'Outro
+  Marker, su un'etichetta ambra. Quando la coda è iniziata, l'etichetta
+  diventa #strong[OUTRO].
 
 Questi avvisi vengono visualizzati solo se i marker sono stati
 configurati. Sulle clip senza marker, la card mostra soltanto il conto

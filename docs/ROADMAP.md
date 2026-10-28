@@ -16,7 +16,7 @@ Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio)
 | Criticità aperte del codice | **nessuna** dalla [revisione 2026-10-28](./technical/REVISIONE-CODICE-2026-10-28.md): 1 gravissima (Ctrl+R ricaricava l'interfaccia), 4 gravi (MIDI hardware negato, registrazione persa all'uscita, export che sovrascriveva l'archivio, catena ferma su clip non riproducibile), 4 medie e 10 lievi, tutte corrette nella 1.15.35. Precedente: [revisione 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md), 22 reperti chiusi in 1.15.16 → 1.15.29 |
 | Ultima release **pubblicata** | **v1.15.33** su `Pitz72/RRLMP` e, identica, sul ponte `RRLMP-Releases` (unica release in entrambi) — note cumulative 1.15.16 → 1.15.33 in italiano e inglese |
 | Lingue | **Solo italiano e inglese** in app, guida rapida, manuale e note di rilascio (dalla 1.15.32) |
-| Manuale utente | IT + EN allineati alla 1.15.33, licenza MIT. **Schermate e descrizioni dell'interfaccia da rifare dopo la 1.15.36** (nuova grafica); il pulsante dell'app li apre da `Pitz72/RRLMP/manuale-utente/typst` (le versioni ≤ 1.15.32 da `RRLMP-Releases/manuals`, aggiornati anch'essi) |
+| Manuale utente | IT + EN allineati alla 1.15.36 («Pad luminosi»: schermate e descrizioni rifatte, non ancora pubblicati), licenza MIT; il pulsante dell'app li apre da `Pitz72/RRLMP/manuale-utente/typst` (le versioni ≤ 1.15.32 da `RRLMP-Releases/manuals`, aggiornati anch'essi) |
 | Auto-updater | operativo (nativo su Windows/Linux-AppImage, fallback browser su .deb e macOS compilato); dalla 1.15.33 legge `Pitz72/RRLMP`, le versioni ≤ 1.15.32 il ponte |
 | Pacchetti | exe 114 MB · AppImage 158 MB · deb 108 MB · dmg 143 MB (il problema dei 500 MB non si ripresenta). Dalla 1.15.33 niente più `.dmg`: macOS si compila dal sorgente |
 | Apertura del sorgente | **Fasi 1-4 chiuse**: repository pubblico MIT, release ponte 1.15.33. Resta la Fase 5 (Gumroad, sito, dismissione del ponte) — vedi [PIANO-APERTURA.md](./PIANO-APERTURA.md) |
@@ -156,7 +156,7 @@ Si guadagna: niente cattura di sistema (niente AGC, niente notifiche Windows in 
 - **La CI non usa lo storage artifact in modalità release** (bozza → upload diretto → publish finale).
 - **Nessuna vendita** — dal settembre 2026 il programma è software libero MIT, distribuito solo da GitHub; macOS si compila dal sorgente.
 - **Icona dell'app definitiva** (decisione dell'utente, 14/09/2026): resta quella attuale (barre + play), non va portata nello stile di famiglia.
-- **Schermate del manuale** si rifanno con gli script (`manuale-utente/capture-app.js`, `capture-extra.js`, `finalize-screenshots.py`) su Vite :5199 — config "Renderer (Vite, porta capture manuale)" in `.claude/launch.json`.
+- **Schermate del manuale** si rifanno con gli script (`manuale-utente/capture-app.js`, `capture-extra.js`, `finalize-screenshots.py`) su Vite :5199 — config "Renderer (Vite, porta capture manuale)" in `.claude/launch.json`. L'italiano va in `screenshots/` e `typst/screenshots/` (senza suffisso: catturare in `screenshots-it`, finalizzare e spostare), l'inglese in `screenshots-en`. Con Windows al 200% lanciare Electron con `--force-device-scale-factor=1` (atteso 1600×855, barra 1600×300). Compilare prima `-Lang en` e poi `-Lang it`, così in `typst/capitoli` restano i capitoli italiani.
 
 ---
 
