@@ -2,46 +2,43 @@ import React from 'react';
 import { useToastStore, Toast, ToastType } from '../../store/useToastStore';
 import { X, CheckCircle, AlertCircle, AlertTriangle, Info } from 'lucide-react';
 
+// v1.15.36 (tema Pad luminosi): pannello in rilievo; tipo indicato da icona e
+// colore LED (verde, rosso, ambra, ciano), barra di scadenza nello stesso colore.
+const LED_COLORS: Record<ToastType, string> = {
+    success: '#3DFF7A',
+    error:   '#FF4D3D',
+    warning: '#FFB547',
+    info:    '#5AD8FF',
+};
+
 const ICONS: Record<ToastType, React.ReactNode> = {
-    success: <CheckCircle size={16} className="shrink-0 text-emerald-400" />,
-    error:   <AlertCircle size={16} className="shrink-0 text-red-400" />,
-    warning: <AlertTriangle size={16} className="shrink-0 text-amber-400" />,
-    info:    <Info size={16} className="shrink-0 text-cyan-400" />,
-};
-
-const STYLES: Record<ToastType, string> = {
-    success: 'border-emerald-500/40 bg-emerald-950/80',
-    error:   'border-red-500/40 bg-red-950/80',
-    warning: 'border-amber-500/40 bg-amber-950/80',
-    info:    'border-cyan-500/40 bg-cyan-950/80',
-};
-
-const BAR_COLORS: Record<ToastType, string> = {
-    success: 'bg-emerald-500',
-    error:   'bg-red-500',
-    warning: 'bg-amber-500',
-    info:    'bg-cyan-500',
+    success: <CheckCircle size={18} className="shrink-0 mt-px" style={{ color: LED_COLORS.success }} />,
+    error:   <AlertCircle size={18} className="shrink-0 mt-px" style={{ color: LED_COLORS.error }} />,
+    warning: <AlertTriangle size={18} className="shrink-0 mt-px" style={{ color: LED_COLORS.warning }} />,
+    info:    <Info size={18} className="shrink-0 mt-px" style={{ color: LED_COLORS.info }} />,
 };
 
 const ToastItem: React.FC<{ toast: Toast }> = ({ toast }) => {
     const removeToast = useToastStore(s => s.removeToast);
 
     return (
-        <div className={`relative flex items-start gap-3 px-4 py-3 rounded-lg border shadow-2xl backdrop-blur-sm min-w-[280px] max-w-[420px] overflow-hidden ${STYLES[toast.type]}`}>
+        <div className="toast" role="status" style={{ boxShadow: `inset 3px 0 0 ${LED_COLORS[toast.type]}, inset 0 1px 0 rgba(255,255,255,.07), 0 16px 36px -8px rgba(0,0,0,.8)` }}>
             {/* Auto-dismiss progress bar */}
             <div
-                className={`absolute bottom-0 left-0 h-0.5 ${BAR_COLORS[toast.type]} opacity-60`}
+                className="t-bar"
                 style={{
+                    background: LED_COLORS[toast.type],
                     animation: `toast-shrink ${toast.duration}ms linear forwards`,
                 }}
             />
             {ICONS[toast.type]}
-            <p className="text-sm text-white/90 leading-snug flex-1 whitespace-pre-wrap">{toast.message}</p>
+            <p>{toast.message}</p>
             <button
                 onClick={() => removeToast(toast.id)}
-                className="text-white/40 hover:text-white/80 transition-colors shrink-0 mt-0.5"
+                className="t-x"
+                aria-label="×"
             >
-                <X size={14} />
+                <X size={15} />
             </button>
         </div>
     );
@@ -53,17 +50,10 @@ export const ToastContainer: React.FC = () => {
     if (toasts.length === 0) return null;
 
     return (
-        <>
-            <style>{`
-                @keyframes toast-shrink {
-                    from { width: 100%; }
-                    to   { width: 0%; }
-                }
-            `}</style>
-            {/* 2026-07-04: z-index sopra qualunque modale/overlay (max attuale 300, ConfirmDialog) — il toast deve restare visibile anche sopra i dialog di conferma. */}
-            <div className="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 items-end">
-                {toasts.map(t => <ToastItem key={t.id} toast={t} />)}
-            </div>
-        </>
+        // 2026-07-04: z-index sopra qualunque modale/overlay (max attuale 300, ConfirmDialog) —
+        // il toast deve restare visibile anche sopra i dialog di conferma (.toasts, z 9999).
+        <div className="toasts">
+            {toasts.map(t => <ToastItem key={t.id} toast={t} />)}
+        </div>
     );
 };

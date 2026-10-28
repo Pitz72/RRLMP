@@ -10,6 +10,7 @@ import { ClipSettingsModal } from '../modals/ClipSettingsModal';
 import { FxQuickSettingsModal } from '../modals/FxQuickSettingsModal';
 import { hasSupportedAudioExtension } from '../../utils/audioExtensions';
 import type { AudioClip } from '../../types';
+import { inkFor } from '../../utils/colorInk';
 
 interface FxPadOverlayProps {
     isOpen: boolean;
@@ -171,31 +172,29 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
 
     return (
         <>
-        {/* v1.10.6: z-150→z-40 — il pad deve stare SOTTO tutte le modali
-            (KeymappingModal è la più bassa, z-50; .ov standard 200, Confirm 300).
-            Prima, a z-150, galleggiava sopra la KeymappingModal. */}
+        {/* v1.10.6: z-40 — il pad deve stare SOTTO tutte le modali (KeymappingModal
+            è la più bassa, z-50; .ov standard 200, Confirm 300).
+            v1.15.36 (tema Pad luminosi): una piccola superficie hardware con 25 tasti. */}
         <div
-            className={`fixed bottom-4 ${fxPadSide === 'left' ? 'left-4' : 'right-4'} z-40 w-[560px] max-w-[calc(100vw-2rem)] max-h-[80vh] flex flex-col rounded-2xl border shadow-[0_30px_90px_-20px_rgba(0,0,0,0.85)] backdrop-blur-xl transition-colors ${
-                isDragOver ? 'border-emerald-500' : 'border-zinc-700'
-            }`}
-            style={{ background: 'rgba(13,13,15,0.96)' }}
+            className={`fxp ${fxPadSide === 'left' ? 'left' : 'right'} ${isDragOver ? 'drag' : ''}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
         >
             {/* HEADER */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 shrink-0">
-                <div className="flex items-center gap-2">
-                    <Zap size={16} className="text-slate-300" />
-                    <span className="text-sm font-bold tracking-wider text-zinc-100">{t('fxPad.title', 'FX / CARTWALL')}</span>
-                    <span className="text-[10px] font-mono text-zinc-500">{clips.length}</span>
+            <div className="fxp-head">
+                <div className="fxp-title">
+                    <Zap size={16} className="text-[#FFB547]" />
+                    <span>{t('fxPad.title', 'FX / CARTWALL')}</span>
+                    <span className="num">{clips.length}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                     {/* v1.10.8: ripristino libreria FX di default (CC0) */}
                     <button
                         onClick={handleRestoreDefaults}
                         title={t('fxPad.restoreDefaultsTip', 'Ripristina gli FX di default (libreria CC0 inclusa nel software)')}
-                        className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 transition-colors"
+                        aria-label={t('fxPad.restoreDefaultsTip', 'Ripristina gli FX di default (libreria CC0 inclusa nel software)')}
+                        className="kbtn sm icon"
                     >
                         <Sparkles size={15} />
                     </button>
@@ -206,14 +205,16 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                             setFxPadSide(fxPadSide === 'left' ? 'right' : 'left');
                         }}
                         title={fxPadSide === 'left' ? t('fxPad.moveRightTip', 'Sposta il pad a destra') : t('fxPad.moveLeftTip', 'Sposta il pad a sinistra')}
-                        className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 transition-colors"
+                        aria-label={fxPadSide === 'left' ? t('fxPad.moveRightTip', 'Sposta il pad a destra') : t('fxPad.moveLeftTip', 'Sposta il pad a sinistra')}
+                        className="kbtn sm icon"
                     >
                         {fxPadSide === 'left' ? <ChevronsRight size={16} /> : <ChevronsLeft size={16} />}
                     </button>
                     <button
                         onClick={onClose}
                         title={t('fxPad.hideTip', 'Nascondi il pad FX')}
-                        className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 transition-colors"
+                        aria-label={t('fxPad.hideTip', 'Nascondi il pad FX')}
+                        className="kbtn sm icon"
                     >
                         <X size={16} />
                     </button>
@@ -221,21 +222,18 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
             </div>
 
             {/* BODY — griglia pad 5 colonne */}
-            <div className="p-3 overflow-y-auto min-h-0">
+            <div className="fxp-body">
                 {!sfxCol ? (
-                    <div className="h-40 flex items-center justify-center text-zinc-600 text-xs">
+                    <div className="h-40 flex items-center justify-center text-[#8F949E] text-sm">
                         {t('fxPad.noColumn', 'Nessuna colonna FX nel progetto.')}
                     </div>
                 ) : (
-                    <div className="grid grid-cols-5 gap-2">
+                    <div className="fxp-grid">
                         {cells.map((clip, idx) => {
                             if (!clip) {
                                 return (
-                                    <div
-                                        key={`empty-${idx}`}
-                                        className="h-20 rounded-lg border border-dashed border-zinc-800 flex items-center justify-center text-zinc-700"
-                                    >
-                                        <Music4 size={16} className="opacity-40" />
+                                    <div key={`empty-${idx}`} className="fxp-empty">
+                                        <Music4 size={16} />
                                     </div>
                                 );
                             }
@@ -243,13 +241,11 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                             const label = clip.title || clip.name;
                             const disabled = !!clip.isMissing;
                             const isSelected = selectedClipIds.includes(clip.id);
-                            // v1.10.10/13: un colore assegnato dalle impostazioni riempie il
-                            // pad. Solo customColor esplicito (clip.color è il colore di
-                            // colonna, uguale per tutti). Da fermo = colore "spento" (velo +
-                            // glow tenue); IN RIPRODUZIONE = ACCESO a colore pieno con tutto
-                            // il pulsante illuminato (prima diventava verde come i pad neutri
-                            // — riscontro dev). Mancante (rosso) e MIDI Learn (cyan) restano
-                            // prioritari.
+                            // v1.10.10/13: un colore assegnato dalle impostazioni tinge il pad
+                            // (solo customColor esplicito: clip.color è il colore di colonna,
+                            // uguale per tutti). Da fermo = tinta spenta; IN RIPRODUZIONE = il
+                            // tasto si accende del suo colore (senza colore: verde LED).
+                            // Mancante (rosso) e MIDI Learn (ciano) restano prioritari.
                             const fxColor = !disabled && !isMidiLearnMode ? clip.customColor : undefined;
                             // v1.10.2: NIENTE attributo `disabled` — Chromium sopprime i click
                             // anche sui discendenti di un button disabled, rendendo ⚙ e ×
@@ -260,20 +256,7 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                 <button
                                     key={clip.id}
                                     aria-disabled={disabled}
-                                    style={fxColor ? (isPlaying ? {
-                                        // ACCESO: colore pieno, bordo schiarito, glow forte
-                                        // esterno + luce interna — tutto il pulsante illuminato.
-                                        backgroundColor: fxColor,
-                                        borderColor: `color-mix(in srgb, ${fxColor} 45%, #fff)`,
-                                        boxShadow: `0 0 30px 1px ${fxColor}e6, inset 0 0 22px rgba(255,255,255,0.30)`,
-                                        color: '#fff',
-                                    } : {
-                                        // SPENTO: velo del colore + glow tenue (v1.10.12)
-                                        backgroundColor: `${fxColor}47`,
-                                        borderColor: fxColor,
-                                        boxShadow: `0 0 18px -2px ${fxColor}b3, inset 0 0 26px -14px ${fxColor}`,
-                                        color: '#fff',
-                                    }) : undefined}
+                                    style={fxColor ? ({ '--fx-color': fxColor, '--fx-ink': inkFor(fxColor) } as React.CSSProperties) : undefined}
                                     onContextMenu={(e) => {
                                         // v1.10.10: tasto destro = impostazioni clip (come la ⚙)
                                         e.preventDefault();
@@ -297,35 +280,21 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                         else playClip(clip);
                                     }}
                                     title={disabled ? t('fxPad.missingFileTip', 'File mancante: {{label}}', { label }) : label}
-                                    className={`group relative h-20 rounded-lg border p-2 text-left flex flex-col justify-between transition-all overflow-hidden ${
-                                        disabled
-                                            ? 'border-red-800/60 bg-red-950/30 text-red-400/70 cursor-not-allowed'
-                                            : fxColor
-                                                ? '' /* v1.10.13: pad colorato → stile tutto inline (spento/ACCESO) */
-                                                : isPlaying
-                                                    ? 'border-emerald-500 bg-emerald-500/15 text-emerald-200 shadow-[0_0_18px_-4px_rgba(34,197,94,0.6)]'
-                                                    : 'border-zinc-700 bg-zinc-800/40 text-zinc-200 hover:border-slate-400 hover:bg-zinc-800'
-                                    } ${
-                                        /* v1.10.4: feedback MIDI Learn — stesse classi della ClipCard */
-                                        isMidiLearnMode && isSelected ? 'ring-2 ring-cyan-400 ring-dashed' : ''
-                                    } ${
-                                        isMidiLearnMode && !isSelected ? 'border-dashed border-cyan-800 opacity-80' : ''
-                                    }`}
+                                    className={`fxp-cell group ${disabled ? 'missing' : ''} ${!disabled && isPlaying ? 'live' : ''} ${fxColor ? 'tinted' : ''} ${isMidiLearnMode ? 'learn' : ''} ${isMidiLearnMode && isSelected ? 'picked' : ''}`}
                                 >
-                                    <span className="text-[11px] font-semibold leading-tight line-clamp-2 pr-4">{label}</span>
-                                    <div className="flex items-center gap-1">
+                                    <span className="fx-led" />
+                                    <span className="fx-name">{label}</span>
+                                    <div className="fx-foot">
                                         {clip.keybind && (
-                                            <span className="text-[8px] font-bold font-mono px-1 py-0.5 rounded bg-black/40 text-slate-300">
+                                            <span className="fx-k">
                                                 {clip.keybind.replace('Key', '').replace('Digit', '').replace('Numpad', 'N')}
                                             </span>
                                         )}
                                         {clip.midiBind && (
-                                            <span className="text-[8px] font-bold font-mono px-1 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
-                                                {midiLabel(clip.midiBind)}
-                                            </span>
+                                            <span className="fx-k m">{midiLabel(clip.midiBind)}</span>
                                         )}
-                                        {isPlaying && (
-                                            <span className={`ml-auto w-2 h-2 rounded-full animate-pulse ${fxColor ? 'bg-white' : 'bg-emerald-400'}`} />
+                                        {isPlaying && !disabled && (
+                                            <span className="led ml-auto pulse" style={{ background: '#fff', boxShadow: '0 0 8px #fff' }} />
                                         )}
                                     </div>
                                     {/* Impostazioni clip (⚙ su hover, v1.10.1) */}
@@ -334,9 +303,9 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                         tabIndex={-1}
                                         onClick={(e) => handleEdit(e, clip)}
                                         title={t('fxPad.settingsTip', 'Impostazioni clip')}
-                                        className="absolute top-1 right-6 w-4 h-4 rounded flex items-center justify-center bg-black/50 text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-cyan-300 transition-opacity"
+                                        className="fx-act e"
                                     >
-                                        <Settings2 size={11} />
+                                        <Settings2 size={12} />
                                     </span>
                                     {/* Rimuovi (× su hover) */}
                                     <span
@@ -344,9 +313,9 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                                         tabIndex={-1}
                                         onClick={(e) => handleRemove(e, clip.id, label)}
                                         title={t('fxPad.removeTip', 'Rimuovi dal pad')}
-                                        className="absolute top-1 right-1 w-4 h-4 rounded flex items-center justify-center bg-black/50 text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-red-400 transition-opacity"
+                                        className="fx-act x"
                                     >
-                                        <X size={11} />
+                                        <X size={12} />
                                     </span>
                                 </button>
                             );
@@ -356,8 +325,8 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
             </div>
 
             {/* FOOTER — hint */}
-            <div className="px-4 py-2 border-t border-zinc-800 shrink-0 flex items-center gap-2 text-[10px] text-zinc-500">
-                <Upload size={11} />
+            <div className="fxp-foot">
+                <Upload size={13} className="shrink-0" />
                 <span>{t('fxPad.hint', 'Trascina qui i file audio per aggiungere effetti · click per suonare/fermare · ESC = STOP ALL globale')}</span>
             </div>
         </div>

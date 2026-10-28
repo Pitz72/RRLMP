@@ -23,33 +23,21 @@ export const NoteBoard: React.FC = () => {
     const { clip, col } = activeNote;
     const color = clip.customColor || col.color;
 
+    // v1.15.36 (tema Pad luminosi): pozzetto sotto la board, LED nel colore della
+    // colonna, testo in carattere proporzionale e più grande (si legge in onda).
     return (
-        <div
-            className="shrink-0 border-t overflow-y-auto custom-scrollbar"
-            style={{
-                borderColor: color,
-                backgroundColor: 'rgba(0,0,0,0.85)',
-                maxHeight: '160px',
-            }}
-        >
+        <div className="notes">
             {/* Header strip */}
-            <div
-                className="px-4 py-1.5 flex items-center gap-2 sticky top-0"
-                style={{ backgroundColor: `${color}18`, borderBottom: `1px solid ${color}30` }}
-            >
-                <span className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{ backgroundColor: color }} />
-                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color }}>
+            <div className="notes-head">
+                <span className="led pulse" style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}` }} />
+                <span className="k" style={{ color: `color-mix(in srgb, ${color} 65%, #fff)` }}>
                     NOTE REGIA
                 </span>
-                <span className="text-[10px] text-zinc-400 truncate">— {clip.name}</span>
+                <span className="n">— {clip.name}</span>
             </div>
 
             {/* Testo note */}
-            <pre
-                className="px-4 py-3 text-sm text-white/90 font-mono leading-relaxed whitespace-pre-wrap break-words"
-            >
-                {clip.notes}
-            </pre>
+            <pre>{clip.notes}</pre>
         </div>
     );
 };

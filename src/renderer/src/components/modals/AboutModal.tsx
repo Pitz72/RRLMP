@@ -51,9 +51,10 @@ export const AboutModal = ({ isOpen, onClose, updaterStatus, onOpenUpdateModal, 
                 {/* CLOSE BUTTON */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors"
+                    className="ov-x absolute top-4 right-4 z-10"
+                    aria-label="×"
                 >
-                    <X size={20} />
+                    <X size={18} />
                 </button>
 
                 <div className="flex flex-col items-center text-center">

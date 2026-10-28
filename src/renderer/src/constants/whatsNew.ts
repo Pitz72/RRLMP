@@ -11,6 +11,22 @@ export interface WhatsNewEntry {
 }
 
 export const WHATS_NEW: Record<string, WhatsNewEntry> = {
+    '1.15.36': {
+        it: [
+            'Interfaccia nuova, «Pad luminosi»: la board è una superficie con tasti in rilievo e la clip in onda si accende del colore della sua colonna.',
+            'Il display IN ONDA mostra l’avanzamento vero con LED: ciano durante l’intro, ambra dall’outro in poi.',
+            'Testi più grandi e contrasto verificato su tutte le schermate; le impostazioni disattivate ora si leggono.',
+            'I caratteri sono inclusi nel programma e funzionano anche senza rete.',
+            'Comprende le correzioni della 1.15.35: Ctrl+R non ricarica più, i controller MIDI funzionano, la registrazione non si perde chiudendo.',
+        ],
+        en: [
+            'New "Backlit Pads" interface: the board is a surface of raised keys and the clip on air lights up in its column’s colour.',
+            'The ON AIR display shows the real progress with LEDs: cyan during the intro, amber from the outro on.',
+            'Larger text and contrast checked on every screen; disabled settings are now readable.',
+            'Fonts are bundled with the program and work offline too.',
+            'Includes the 1.15.35 fixes: Ctrl+R no longer reloads, MIDI controllers work, the recording is not lost on quit.',
+        ],
+    },
     '1.15.35': {
         it: [
             'Ctrl+R non ricarica più l’interfaccia: in diretta fermava tutto.',

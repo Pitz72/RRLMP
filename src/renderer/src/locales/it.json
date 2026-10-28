@@ -402,6 +402,7 @@
         "onAirLabel": "IN ONDA",
         "offAir": "OFF AIR",
         "outroIn": "OUTRO IN {{time}}",
+        "remaining": "RIMANENTE",
         "upNext": "UP NEXT"
     },
     "confirm": {
@@ -462,6 +463,7 @@
         "recBadge": "REC"
     },
     "card": {
+        "onAirBadge": "IN ONDA",
         "missingFile": "FILE MANCANTE",
         "missingTitle": "⚠️ {{name}} (File Non Trovato)",
         "loopBadge": "LOOP",

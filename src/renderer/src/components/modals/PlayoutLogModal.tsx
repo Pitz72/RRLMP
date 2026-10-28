@@ -80,7 +80,7 @@ export const PlayoutLogModal: React.FC<PlayoutLogModalProps> = ({ onClose }) => 
             <div className="ov-panel anim-in w-full max-w-6xl max-h-[85vh]">
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-800">
+                <div className="ov-head">
                     <div className="flex items-center gap-2">
                         <Radio size={16} className="text-cyan-400" />
                         <h2 className="text-sm font-bold text-zinc-100">Playout Log</h2>
@@ -103,8 +103,8 @@ export const PlayoutLogModal: React.FC<PlayoutLogModalProps> = ({ onClose }) => 
                         >
                             <Trash2 size={12} /> {t('modal.playout.clearAction', 'Svuota')}
                         </button>
-                        <button onClick={onClose} className="p-1.5 hover:bg-zinc-800 rounded transition-all">
-                            <X size={16} className="text-zinc-400" />
+                        <button onClick={onClose} className="ov-x" aria-label="×">
+                            <X size={18} />
                         </button>
                     </div>
                 </div>

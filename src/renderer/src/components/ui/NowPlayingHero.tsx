@@ -4,9 +4,9 @@ import { useAudioStore } from '../../store/useAudioStore';
 import { useProjectStore } from '../../store/useProjectStore';
 import { AudioClip } from '../../types';
 
-// Hero "IN ONDA" — banner ON AIR del tema Spectrum.
+// Hero "IN ONDA" — il display della regia (tema Pad luminosi, v1.15.36).
 // SOLA LETTURA dello stato esistente (activeClips dello store): non modifica nulla,
-// non avvia/ferma clip. Replica fedele del markup .hero del prototipo.
+// non avvia/ferma clip.
 //
 // v1.15.31 — hero FISSA: resta sempre montata (a riposo in stato OFF AIR) e ogni
 // sua zona ha un ingombro costante. Prima compariva/spariva con la clip in onda
@@ -94,30 +94,35 @@ export const NowPlayingHero: React.FC = () => {
     let timerColor = '#ffffff';
     let timerText: string;
     if (!clip) {
-        timerColor = '#52525b';
+        timerColor = '#8A8F99';
         timerText = '--:--';
     } else if (loop) {
         timerText = 'LOOP';
     } else if (introT > 0 && elapsed < introT) {
-        timerColor = '#22d3ee';
+        timerColor = '#5AD8FF';
         timerText = fmt(introT - elapsed);
     } else if (final10) {
-        timerColor = '#ef4444';
+        timerColor = '#FF4D3D';
         timerText = `-${fmt(rem)}`;
     } else if (outroT > 0 && elapsed >= outroT) {
-        timerColor = '#fb923c';
+        timerColor = '#FFB547';
         timerText = `-${fmt(rem)}`;
     } else {
         timerText = `-${fmt(rem)}`;
     }
 
-    const bars = 56;
-    const wave = (
-        <div className="hero-wave">
-            {Array.from({ length: bars }).map((_, i) => {
-                const on = i / bars < progress;
-                const h = 24 + Math.abs(Math.sin(i * 0.7 + elapsed * 0.6)) * 70;
-                return <i key={i} className={on ? 'on' : ''} style={{ height: `${h}%` }} />;
+    // v1.15.36 (tema Pad luminosi): al posto dell'onda finta, una barra di LED che
+    // è l'avanzamento vero. I LED prima della fine dell'intro sono ciano, quelli
+    // dal marker di outro in poi ambra (spenti, mostrano in anticipo dove cade
+    // l'outro; accesi, dicono che ci si è dentro).
+    const segs = 48;
+    const bar = (
+        <div className="hero-bar">
+            {Array.from({ length: segs }).map((_, i) => {
+                const on = i / segs < progress;
+                const at = ((i + 0.5) / segs) * dur;
+                const zone = dur > 0 && introT > 0 && at < introT ? 'zi' : dur > 0 && outroT > 0 && at >= outroT ? 'zo' : '';
+                return <i key={i} className={`${on ? 'on' : ''} ${zone}`} />;
             })}
             {dur > 0 && introT > 0 && introT < dur && (
                 <span className="hero-mark intro" style={{ left: `${(introT / dur) * 100}%` }} />
@@ -130,35 +135,44 @@ export const NowPlayingHero: React.FC = () => {
 
     return (
         <div className={`hero ${clip ? '' : 'idle'}`}>
-            <div className="hero-onair">
-                <span className={`dot ${clip ? 'pulse' : ''}`} />
-                <span>{t('nowPlaying.onAir', 'ON AIR')}</span>
-            </div>
-
-            <div className="hero-info">
-                <span className="hero-label">{clip ? `${t('nowPlaying.onAirLabel', 'IN ONDA')} · ${col?.title ?? ''}` : t('nowPlaying.offAir', 'OFF AIR')}</span>
-                <span className="hero-title">{clip ? (clip.title || clip.name) : '—'}</span>
-                <span className="hero-artist">
-                    {clip ? (clip.artist || (loop ? t('nowPlaying.inLoop', 'In loop') : ' ')) : t('nowPlaying.noTrack', 'Nessun brano in onda')}
-                </span>
-            </div>
-
-            {wave}
-
-            <div className="hero-right">
-                <div className={`hero-count ${final10 ? 'pulse' : ''}`} style={{ color: timerColor }}>
-                    {timerText}
+            <div className="lcd">
+                {/* La spia ON AIR: accesa con un brano in onda, spenta a riposo. */}
+                <div className={`lamp ${clip ? '' : 'off'}`}>
+                    <b>{t('nowPlaying.onAir', 'ON AIR')}</b>
                 </div>
-                {/* Slot della cue sempre presente: comparendo non allunga la hero. */}
-                <div className={`hero-cue ${inOutroPre ? 'pulse' : 'off'}`} aria-hidden={!inOutroPre}>
-                    {t('nowPlaying.outroIn', 'OUTRO IN {{time}}', { time: fmt(Math.max(0, outroT - elapsed)) })}
-                </div>
-            </div>
 
-            {/* Slot UP NEXT sempre presente e a larghezza fissa: comparendo non stringe l'onda. */}
-            <div className={`hero-next ${nextClip ? '' : 'off'}`}>
-                <span className="nlbl">{t('nowPlaying.upNext', 'UP NEXT')}</span>
-                <span className="ntitle">{nextClip ? (nextClip.title || nextClip.name) : '—'}</span>
+                <div className="hero-info">
+                    <span className="hero-label">{clip ? `${t('nowPlaying.onAirLabel', 'IN ONDA')} · ${col?.title ?? ''}` : t('nowPlaying.offAir', 'OFF AIR')}</span>
+                    <div className="hero-titles">
+                        <span className="hero-title">{clip ? (clip.title || clip.name) : t('nowPlaying.noTrack', 'Nessun brano in onda')}</span>
+                        {clip && (clip.artist || loop) && (
+                            <span className="hero-artist">{clip.artist || t('nowPlaying.inLoop', 'In loop')}</span>
+                        )}
+                    </div>
+                    <div className="hero-seg">
+                        <span className="num">{clip ? fmt(elapsed) : '--:--'}</span>
+                        {bar}
+                        <span className="num">{clip ? (loop ? 'LOOP' : fmt(dur)) : '--:--'}</span>
+                    </div>
+                </div>
+
+                <div className="hero-right">
+                    <span className="k">{t('nowPlaying.remaining', 'RIMANENTE')}</span>
+                    <div className={`hero-count ${final10 ? 'pulse' : ''}`} style={{ color: timerColor }}>
+                        {timerText}
+                    </div>
+                    {/* Slot della cue sempre presente: comparendo non allunga la hero. */}
+                    <div className={`hero-cue ${inOutroPre ? 'pulse' : 'off'}`} aria-hidden={!inOutroPre}>
+                        {t('nowPlaying.outroIn', 'OUTRO IN {{time}}', { time: fmt(Math.max(0, outroT - elapsed)) })}
+                    </div>
+                </div>
+
+                {/* Slot UP NEXT sempre presente e a larghezza fissa: comparendo non stringe la barra. */}
+                <div className={`hero-next ${nextClip ? '' : 'off'}`}>
+                    <span className="k"><span className={`led ${nextClip ? 'g' : ''}`} />{t('nowPlaying.upNext', 'UP NEXT')}</span>
+                    <b>{nextClip ? (nextClip.title || nextClip.name) : '—'}</b>
+                    <em>{nextClip ? [nextClip.artist, fmt(nextClip.duration || 0)].filter(Boolean).join(' · ') : ''}</em>
+                </div>
             </div>
         </div>
     );

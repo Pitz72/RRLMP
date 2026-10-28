@@ -235,12 +235,12 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
             <div className="ov-panel anim-in w-full max-w-7xl max-h-[92vh]">
 
                 {/* HEADER */}
-                <div className="p-4 flex justify-between items-center border-b border-zinc-800 bg-zinc-950/50 rounded-t-lg shrink-0">
+                <div className="ov-head">
                     <h2 className="text-lg font-bold text-white flex items-center gap-2">
                         <Keyboard className="text-cyan-400" /> {t('keymap.title', 'Keybinds & MIDI Dashboard')}
                     </h2>
-                    <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">
-                        <X size={20} />
+                    <button onClick={onClose} className="ov-x" aria-label="×">
+                        <X size={18} />
                     </button>
                 </div>
 

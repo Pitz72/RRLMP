@@ -113,7 +113,7 @@ export const WelcomeScreen = ({ onNewProject, onLoadProject, updaterStatus, onOp
                     <img src={appLogo} alt="Runtime Live Machine" className="w-20 h-auto mb-5 drop-shadow-lg" />
 
                     {/* TITLE */}
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent mb-1">
+                    <h1 className="text-3xl font-extrabold text-white mb-1">
                         {t('welcome.title')}
                     </h1>
 

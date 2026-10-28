@@ -37,9 +37,9 @@ export const UpdateModal: React.FC<Props> = ({ isOpen, status, currentVersion, o
             <div className="ov-panel anim-in w-full max-w-2xl">
 
                 {/* HEADER */}
-                <div className="bg-gradient-to-r from-emerald-900/60 to-zinc-800 px-5 py-4 border-b border-emerald-500/20 flex items-center justify-between">
+                <div className="ov-head">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
+                        <div className="w-9 h-9 rounded-[10px] flex items-center justify-center" style={{ background: '#101114', boxShadow: 'inset 0 2px 6px rgba(0,0,0,.75), 0 1px 0 rgba(255,255,255,.05)' }}>
                             {status.type === 'ready' ? <CheckCircle2 size={16} className="text-emerald-400" /> : <Download size={16} className="text-emerald-400" />}
                         </div>
                         <div>
@@ -55,9 +55,10 @@ export const UpdateModal: React.FC<Props> = ({ isOpen, status, currentVersion, o
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-zinc-500 hover:text-white w-7 h-7 flex items-center justify-center rounded hover:bg-zinc-700 transition-colors"
+                        className="ov-x"
+                        aria-label="×"
                     >
-                        <X size={14} />
+                        <X size={18} />
                     </button>
                 </div>
 

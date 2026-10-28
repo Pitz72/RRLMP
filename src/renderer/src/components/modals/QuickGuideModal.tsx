@@ -24,9 +24,10 @@ export const QuickGuideModal = ({ isOpen, onClose }: QuickGuideModalProps) => {
             <div className="ov-panel anim-in w-[640px] max-h-[85vh] relative" onClick={e => e.stopPropagation()}>
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 z-10 text-zinc-500 hover:text-white transition-colors"
+                    className="ov-x absolute top-4 right-4 z-10"
+                    aria-label="×"
                 >
-                    <X size={20} />
+                    <X size={18} />
                 </button>
 
                 {/* v1.15.9: il contenuto scrollabile va in .ov-body — .ov-panel ha

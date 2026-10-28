@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useAudioStore } from '../../store/useAudioStore';
 import { AudioClip } from '../../types';
 import { useProjectStore } from '../../store/useProjectStore';
+import { AlertTriangle, ClipboardList } from 'lucide-react';
+import { inkFor, prefersLightInk } from '../../utils/colorInk';
 
 interface ClipCardProps {
     clip: AudioClip;
@@ -116,135 +118,121 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
         onEdit(clip);
     };
 
+    // v1.15.36 (tema Pad luminosi): in onda il pad si accende del colore della
+    // colonna; il testo diventa scuro o bianco secondo la tinta (utils/colorInk).
+    const lightInk = prefersLightInk(effectiveColor);
+    // Una cue in corso prende il posto dei tasti assegnati nella riga in basso:
+    // nelle colonne strette tasto + cue + timer non ci starebbero insieme.
+    const cueActive = inIntro || inOutroPre || inOutroActive;
+
     return (
         <div
             onClick={handleClick}
             onContextMenu={handleContextMenu}
-            className={`clip group transition-all
+            className={`clip
                 ${isPlaying ? 'live' : ''}
+                ${isPlaying && lightInk ? 'ink-light' : ''}
+                ${isNextUp && !isPlaying ? 'upnext' : ''}
                 ${(clip.hasPlayed && clip.type === 'preshow' && !isPlaying) ? 'played' : ''}
-                ${clip.isMissing ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}
-                ${isSelected ? 'ring-2 ring-blue-500 z-10' : ''}
-                ${isMidiLearnMode && isSelected ? 'ring-2 ring-cyan-400 ring-dashed' : ''}
-                ${isMidiLearnMode && !isSelected ? 'border-dashed border-cyan-800 opacity-80' : ''}
+                ${clip.isMissing ? 'missing' : ''}
+                ${isSelected ? 'picked' : ''}
+                ${isMidiLearnMode ? 'learn' : ''}
             `}
             style={{
                 // override per-clip del colore colonna (preserva il colore custom della clip)
                 '--col-color': effectiveColor,
-                ...(clip.isMissing ? { borderColor: '#991b1b', background: 'rgba(69,10,10,0.6)' } : {}),
+                '--col-ink': inkFor(effectiveColor),
             } as React.CSSProperties}
         >
-            {/* Progress Bar Background */}
-            <div
-                className="clip-prog transition-all duration-100 ease-linear"
-                style={{ width: `${progress * 100}%` }}
-            />
+            {/* LED in alto nel colore della colonna (bianco in onda, verde se è il prossimo) */}
+            <span className="clip-led" />
 
-            {/* Missing File Banner (v0.14.2) */}
-            {clip.isMissing && (
-                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-red-950/70 pointer-events-none">
-                    <span className="text-red-400 text-lg leading-none">⚠️</span>
-                    <span className="text-red-300 text-[9px] font-bold tracking-widest mt-0.5">{t('card.missingFile', 'FILE MANCANTE')}</span>
-                </div>
-            )}
-
-            {/* Visual Tags Overlay (Top Left) */}
-            <div className="clip-row clip-badges">
-                {clip.isLooping && <span className="badge b-loop">{t('card.loopBadge', 'LOOP')}</span>}
-                {clip.nextAction === 'play_next' && !isNextUp && <span className="badge b-next">{t('card.nextBadge', 'NEXT')}</span>}
-                {isNextUp && <span className="badge b-upnext animate-pulse">{t('card.upNextBadge', '▶ UP NEXT')}</span>}
-                {clip.notes && <span className="badge bg-zinc-700 text-zinc-300" title={clip.notes}>📋</span>}
+            {/* Riga badge: altezza fissa anche vuota (anti-scatto) */}
+            <div className="clip-badges">
+                {/* Missing File (v0.14.2): primo badge, rosso pieno; il pad diventa rosso scuro */}
+                {clip.isMissing && (
+                    <span className="badge b-missing">
+                        <AlertTriangle />
+                        {t('card.missingFile', 'FILE MANCANTE')}
+                    </span>
+                )}
+                {isPlaying && (
+                    <span className="badge b-air">
+                        <span className="led r pulse" style={{ width: 6, height: 6 }} />
+                        {t('card.onAirBadge', 'IN ONDA')}
+                    </span>
+                )}
+                {isNextUp && <span className="badge b-upnext pulse">{t('card.upNextBadge', '▶ UP NEXT')}</span>}
+                {isFading && <span className="badge b-fade pulse">{t('card.fadeOutBadge', 'FADE OUT')}</span>}
                 {clip.isAnalyzing && (
-                    <span className="badge bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center gap-1">
-                        <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-ping opacity-75" />
+                    <span className="badge b-trim">
+                        <span className="led a pulse" style={{ width: 6, height: 6 }} />
                         {t('card.trimmingBadge', 'TRIM…')}
                     </span>
                 )}
-                {/* 2026-07-01 — BPM stimato (solo colonna Music, solo visualizzazione: non ancora usato dal mix) */}
-                {clip.type === 'music' && clip.bpm !== undefined && (
-                    <span className="badge bg-[#eaff00] text-black font-bold" title={t('card.bpmTip', 'BPM stimato (analisi automatica)')}>
-                        {clip.bpm} BPM
-                    </span>
-                )}
-                {/* 2026-07-04 — Intro: stesso colore del marker/segnalino Intro nel Waveform Editor (#22d3ee, cyan-400) */}
+                {clip.isLooping && <span className="badge b-loop">{t('card.loopBadge', 'LOOP')}</span>}
+                {clip.nextAction === 'play_next' && !isNextUp && <span className="badge b-next">{t('card.nextBadge', 'NEXT')}</span>}
+                {clip.duckingRole === 'source' && <span className="badge b-prio">{t('card.priorityBadge', 'PRIORITY')}</span>}
+                {/* 2026-07-04 — Intro: stesso colore del marker Intro nel Waveform Editor (ciano) */}
                 {clip.introMarker !== undefined && clip.introMarker > 0 && (
-                    <span className="badge bg-cyan-400/20 text-cyan-400 border border-cyan-400/40" title={t('card.introTip', 'Fine intro (ingresso voce)')}>
+                    <span className="badge b-intro" title={t('card.introTip', 'Fine intro (ingresso voce)')}>
                         I {Math.round(clip.introMarker)}s
                     </span>
                 )}
-                {isFading && (
-                    <span className="badge bg-violet-500/20 text-violet-300 border border-violet-500/40 flex items-center gap-1 animate-pulse">
-                        <span className="inline-block w-2 h-2 rounded-full bg-violet-400" />
-                        {t('card.fadeOutBadge', 'FADE OUT')}
+                {/* 2026-07-01 — BPM stimato (solo colonna Music, solo visualizzazione) */}
+                {clip.type === 'music' && clip.bpm !== undefined && (
+                    <span className="badge b-bpm" title={t('card.bpmTip', 'BPM stimato (analisi automatica)')}>
+                        {clip.bpm} BPM
+                    </span>
+                )}
+                {clip.notes && (
+                    <span className="badge b-note" title={clip.notes}>
+                        <ClipboardList />
                     </span>
                 )}
             </div>
 
-            <div className="clip-row clip-head">
-                <div className="clip-id">
-                    {/* Il pallino occupa sempre il suo spazio (invisibile da ferma):
-                        altrimenti all'avvio della clip il titolo scatta a destra. */}
-                    <span className={`clip-live-dot ${isPlaying ? 'animate-pulse' : 'idle'}`} />
+            <div className="clip-title">
+                {clip.isMissing ? clip.name : (clip.title || clip.name)}
+            </div>
+            {/* v0.16.4: artista (solo clip music con tag ID3), su una riga sua */}
+            {clip.type === 'music' && clip.artist && (
+                <div className="clip-artist">{clip.artist}</div>
+            )}
 
-                    <span
-                        className="clip-title"
-                        style={clip.isMissing ? { color: '#ef4444' } : undefined}
-                    >
-                        {clip.isMissing ? t('card.missingTitle', '⚠️ {{name}} (File Non Trovato)', { name: clip.name }) : (clip.title || clip.name)}
-                    </span>
-                    {/* v0.16.4: artista (solo clip music con tag ID3) */}
-                    {clip.type === 'music' && clip.artist && (
-                        <span className="clip-artist">{clip.artist}</span>
-                    )}
-                </div>
-                <div className="clip-binds">
-                    {clip.midiBind && (
-                        <span className="midi">
-                            {clip.midiBind.replace('NOTE:', 'M')}
-                        </span>
-                    )}
-                    {clip.keybind && (
+            {/* Riga in basso: tasti assegnati (o la cue in corso) + timer, altezza fissa */}
+            <div className="clip-meta">
+                <span className="clip-chips">
+                    {!cueActive && clip.keybind && (
                         <span className="kbd" title={`Keybind: ${clip.keybind}`}>
                             {clip.keybind.replace('Key', '').replace('Digit', '')}
                         </span>
                     )}
-                    {clip.duckingRole === 'source' && (
-                        <span className="pri">{t('card.priorityBadge', 'PRIORITY')}</span>
+                    {!cueActive && clip.midiBind && (
+                        <span className="midi">{clip.midiBind.replace('NOTE:', 'M')}</span>
                     )}
-                </div>
-            </div>
-
-
-            {/* TIMER ROW */}
-            <div className="clip-row clip-meta">
-                <span className="clip-type">
-                    {clip.type.toUpperCase()}
-
-                    {/* Visual Cues Real-Time: Sponsorizzato tramite Implementation Plan v0.12.0 */}
+                    {/* Visual Cues Real-Time (v0.12.0) */}
                     {inIntro && (
-                        <span className="cue c-intro font-bold animate-pulse">
-                            INTRO: -{formatTime(introRemaining)}
-                        </span>
+                        <span className="cue c-intro pulse">INTRO -{formatTime(introRemaining)}</span>
                     )}
                     {inOutroPre && (
-                        <span className="cue c-outro font-bold animate-pulse">
-                            OUTRO IN: -{formatTime(outroRemainingPre)}
-                        </span>
+                        <span className="cue c-outro pulse">OUTRO IN -{formatTime(outroRemainingPre)}</span>
                     )}
                     {inOutroActive && (
-                        <span className="cue c-outro font-bold">
-                            🚨 OUTRO
-                        </span>
+                        <span className="cue c-outro">OUTRO</span>
                     )}
                 </span>
-
-                <span
-                    className={`clip-time ${isNearEnd ? 'animate-pulse' : ''}`}
-                    style={isNearEnd ? { color: '#ef4444' } : undefined}
-                >
+                <span className={`clip-time ${isNearEnd ? 'warn pulse' : ''}`}>
                     {isPlaying ? `-${formatTime(remaining)}` : formatTime(duration)}
                 </span>
             </div>
+
+            {/* Avanzamento: barra in basso, solo in onda */}
+            {isPlaying && (
+                <div className="clip-gauge">
+                    <i style={{ width: `${progress * 100}%` }} />
+                </div>
+            )}
         </div>
     );
 };

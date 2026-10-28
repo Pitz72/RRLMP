@@ -564,7 +564,7 @@ function App() {
 
 
     return (
-        <div className="h-screen w-screen flex flex-col select-none theme-spectrum">
+        <div className="h-screen w-screen flex flex-col select-none theme-pad">
             {/* DEBUG OVERLAY */}
             <DebugOverlay />
             <ToastContainer />
@@ -623,51 +623,46 @@ function App() {
                 />
             )}
 
-            {/* GLOBAL HEADER (Top Bar) */}
-            <header className="tb flex items-center justify-between shrink-0 relative z-10">
-                <div className="flex items-center gap-2 min-w-0">
-                    {/* BRAND (Spectrum) */}
-                    <div className="brand mr-2">
-                        <img src={appLogo} alt="Logo" className="brand-logo" title={`Runtime Live Machine PRO · v${__APP_VERSION__}`} />
-                        {/* v1.10.27 (rifiniture utente): versione allineata alla BASELINE del
-                            nome (prima self-end approssimativo) e "PRO" iridescente con la
-                            classe .pro del tema (prima verde fisso hardcoded). */}
-                        <div className="flex items-baseline gap-1.5">
-                            <span className="brand-name">RLM <span className="pro">PRO</span></span>
-                            {/* v1.10.7: versione leggibile a colpo d'occhio (triage regia) */}
-                            <span className="text-[9px] font-mono text-zinc-600">v{__APP_VERSION__}</span>
-                        </div>
+            {/* GLOBAL HEADER (Top Bar) — v1.15.36 (tema Pad luminosi): a sinistra i
+                comandi che non servono in onda (menu FILE e Strumenti, dentro
+                GlobalControls), a destra quelli da diretta (audio, FX, MIX, STOP ALL,
+                registrazione, tempo in onda, orologio). Deve stare in 1366 px anche
+                con il microfono armato e la registrazione in corso. */}
+            <header className="tb">
+                <div className="brand" title={`Runtime Live Machine PRO · v${__APP_VERSION__}`}>
+                    <img src={appLogo} alt="Logo" className="brand-logo" />
+                    <div className="brand-txt">
+                        <span className="brand-name">RLM <b>PRO</b></span>
+                        {/* v1.10.7: versione leggibile a colpo d'occhio (triage regia) */}
+                        <span className="brand-ver">v{__APP_VERSION__}</span>
                     </div>
-
-                    {/* GLOBAL CONTROLS */}
-
-                    <GlobalControls
-                        fxPadOpen={showFxPad}
-                        onToggleFxPad={() => setShowFxPad((v) => !v)}
-                        automixOpen={showAutomix}
-                        onToggleAutomix={() => setShowAutomix((v) => !v)}
-                        updaterStatus={updaterStatus}
-                        onOpenUpdateModal={() => setShowUpdateModal(true)}
-                        onCheckUpdatesNow={handleCheckUpdatesNow}
-                    />
                 </div>
 
-                {/* v1.10.27 (rifiniture): gap-4→gap-2 e Log icon-only — spazio topbar */}
-                <div className="flex items-center gap-2 shrink-0">
-                    <button
-                        onClick={() => setShowPlayoutLog(true)}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400 hover:text-cyan-300 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 hover:border-cyan-600/50 rounded transition-all"
-                        title={i18n.t('app.openPlayoutLog', 'Apri Playout Log')}
-                    >
-                        <ListChecks size={13} />
-                    </button>
-                    <RecordingButton />
-                    <OnAirTimer />
-                    <DigitalClock />
-                </div>
+                <GlobalControls
+                    fxPadOpen={showFxPad}
+                    onToggleFxPad={() => setShowFxPad((v) => !v)}
+                    automixOpen={showAutomix}
+                    onToggleAutomix={() => setShowAutomix((v) => !v)}
+                    updaterStatus={updaterStatus}
+                    onOpenUpdateModal={() => setShowUpdateModal(true)}
+                    onCheckUpdatesNow={handleCheckUpdatesNow}
+                />
+
+                <span className="tb-sep" />
+                <button
+                    onClick={() => setShowPlayoutLog(true)}
+                    className="kbtn icon"
+                    title={i18n.t('app.openPlayoutLog', 'Apri Playout Log')}
+                    aria-label={i18n.t('app.openPlayoutLog', 'Apri Playout Log')}
+                >
+                    <ListChecks size={16} />
+                </button>
+                <RecordingButton />
+                <OnAirTimer />
+                <DigitalClock />
             </header>
 
-            {/* NOW PLAYING HERO (Spectrum) */}
+            {/* NOW PLAYING HERO */}
             <ErrorBoundary zone="NowPlayingHero">
                 <NowPlayingHero />
             </ErrorBoundary>

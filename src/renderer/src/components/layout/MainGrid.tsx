@@ -49,21 +49,14 @@ const SortableColumn: React.FC<SortableColumnProps> = ({ column, children, onNat
         id: column.id,
     });
 
-    // Spectrum: variabili colore per-colonna (derivazione 1:1 dal prototipo —
-    // tint=+22, border=+55, glow=+88). Solo presentazione: il colore è quello
-    // già scelto per la colonna nello store.
-    const c = column.customColor || column.color;
-    const colVars = {
-        '--col-color': c,
-        '--col-tint': `${c}22`,
-        '--col-border': `${c}55`,
-        '--col-glow': `${c}88`,
-    } as React.CSSProperties;
+    // Colore della colonna come variabile CSS (LED della testata, scrollbar, pad).
+    // Solo presentazione: il colore è quello già scelto per la colonna nello store.
+    const colVars = { '--col-color': column.customColor || column.color } as React.CSSProperties;
 
     return (
         <div
             ref={setNodeRef}
-            className="col flex-1 min-w-0"
+            className="col"
             style={colVars}
             onDrop={(e) => onNativeDrop(e, column.id)}
             onDragOver={(e) => onNativeDragOver(e, column.id)}
@@ -584,19 +577,19 @@ export const MainGrid: React.FC = () => {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
-            <div className="flex h-full w-full text-white overflow-hidden relative gap-2.5 px-4 pb-4 pt-1">
+            <div className="board">
                 {/* v1.10.7: banner globale analisi su colonne nascoste */}
                 {hiddenAnalyzingCount > 0 && (
-                    <div className="absolute top-1 left-1/2 -translate-x-1/2 z-30 px-3 py-1.5 bg-amber-950/80 border border-amber-500/40 rounded text-amber-300 text-[10px] flex items-center gap-2 pointer-events-none">
-                        <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                    <div className="scan global">
+                        <span className="led a pulse" />
                         <span>{t('grid.silenceScanHiddenColumns', 'Rilevamento silenzio su colonne nascoste… {{count}} file in analisi', { count: hiddenAnalyzingCount })}</span>
                     </div>
                 )}
                 {/* v1.10.7: tutte le colonne nascoste → board vuota senza spiegazione */}
                 {visibleColumns.length === 0 && (
-                    <div className="flex-1 flex flex-col items-center justify-center text-zinc-600 gap-2">
-                        <span className="text-sm font-semibold">{t('grid.allColumnsHidden', 'Tutte le colonne sono nascoste')}</span>
-                        <span className="text-xs">{t('grid.reenableHint', 'Riattivale da Impostazioni → Generali → "Layout regia — colonne"')}</span>
+                    <div className="board-empty">
+                        <b>{t('grid.allColumnsHidden', 'Tutte le colonne sono nascoste')}</b>
+                        <span>{t('grid.reenableHint', 'Riattivale da Impostazioni → Generali → "Layout regia — colonne"')}</span>
                     </div>
                 )}
                 {visibleColumns.map((col) => (
@@ -608,14 +601,14 @@ export const MainGrid: React.FC = () => {
                         onNativeDragLeave={handleNativeDragLeave}
                     >
                         {col.type === 'preshow' && preshowAnalyzingCount > 0 && (
-                            <div className="mx-2 mb-1 px-2 py-1.5 bg-amber-950/60 border border-amber-500/40 rounded text-amber-300 text-[10px] flex items-center gap-2">
-                                <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                            <div className="scan">
+                                <span className="led a pulse" />
                                 <span>{t('grid.silenceScanPreshow', 'Rilevamento silenzio… {{count}} file in analisi', { count: preshowAnalyzingCount })}</span>
                             </div>
                         )}
                         {col.type === 'music' && musicAnalyzingCount > 0 && (
-                            <div className="mx-2 mb-1 px-2 py-1.5 bg-red-950/60 border border-red-500/40 rounded text-red-300 text-[10px] flex items-center gap-2">
-                                <span className="inline-block w-2 h-2 rounded-full bg-red-400 animate-pulse shrink-0" />
+                            <div className="scan">
+                                <span className="led a pulse" />
                                 <span>{t('grid.silenceScanMusic', 'Rilevamento silenzio… {{count}} canzoni in analisi', { count: musicAnalyzingCount })}</span>
                             </div>
                         )}
@@ -626,7 +619,7 @@ export const MainGrid: React.FC = () => {
                             {col.clips.map((clip, idx) => (
                                 <React.Fragment key={clip.id}>
                                     {dropIndicator?.colId === col.id && dropIndicator.index === idx && (
-                                        <div className="h-0.5 rounded mx-0.5 shadow-[0_0_8px_rgba(96,165,250,0.9)] pointer-events-none" style={{ backgroundColor: '#60a5fa' }} />
+                                        <div className="drop-line" />
                                     )}
                                     <SortableClip
                                         clip={clip}
@@ -635,15 +628,14 @@ export const MainGrid: React.FC = () => {
                                 </React.Fragment>
                             ))}
                             {dropIndicator?.colId === col.id && dropIndicator.index === col.clips.length && (
-                                <div className="h-0.5 rounded mx-0.5 shadow-[0_0_8px_rgba(96,165,250,0.9)] pointer-events-none" style={{ backgroundColor: '#60a5fa' }} />
+                                <div className="drop-line" />
                             )}
                         </SortableContext>
 
                         {col.clips.length === 0 && (
-                            <div className="h-32 border-2 border-dashed border-zinc-800 rounded flex flex-col items-center justify-center text-zinc-600 m-2 pointer-events-none">
-                                <Upload size={24} className="mb-2 opacity-50" />
-                                <span className="text-xs">{t('grid.dropAudioHere', 'Trascina qui i file audio')}</span>
-
+                            <div className="col-empty">
+                                <Upload size={22} />
+                                <span>{t('grid.dropAudioHere', 'Trascina qui i file audio')}</span>
                             </div>
                         )}
                     </SortableColumn>

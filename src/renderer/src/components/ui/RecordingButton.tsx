@@ -37,30 +37,30 @@ export const RecordingButton: React.FC = () => {
         <>
             {/* STATO: CONVERSIONE IN CORSO */}
             {isConverting && (
-                <div className="flex items-center gap-2 px-3 py-1 rounded border border-sky-500/60 bg-sky-600/20 text-sky-400 shadow-[0_0_10px_rgba(14,165,233,0.2)]">
-                    <Loader2 size={12} className="animate-spin" />
-                    <span className="font-mono text-[10px] font-bold tracking-widest uppercase">{t('recording.converting', 'Conversione...')}</span>
+                <div className="kbtn busy" aria-busy="true">
+                    <Loader2 size={15} className="animate-spin" />
+                    <span>{t('recording.converting', 'Conversione...')}</span>
                 </div>
             )}
 
             {/* STATO: REGISTRAZIONE TERMINATA (in attesa di export) */}
             {!isConverting && tempPath && (
-                <div className="flex items-center gap-1 p-0.5 rounded border border-zinc-700 bg-zinc-900 shadow-xl animate-in fade-in zoom-in-95 duration-200">
+                <div className="rec-split">
                     <button
                         onClick={() => setShowExportModal(true)}
                         title={t('recording.openExportTip', 'Apri finestra di esportazione')}
-                        className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-emerald-500 hover:text-white text-emerald-500 transition-all cursor-pointer"
+                        className="kbtn sm on"
                     >
-                        <FileAudio size={14} />
-                        <span className="font-mono text-[10px] font-bold">{t('recording.exportLabel', 'ESPORTA')}</span>
+                        <FileAudio size={15} />
+                        <span>{t('recording.exportLabel', 'ESPORTA')}</span>
                     </button>
-                    <div className="w-px h-4 bg-zinc-800" />
                     <button
                         onClick={handleCancelExport}
                         title={t('recording.deleteTempTip', 'Elimina registrazione temporanea')}
-                        className="flex items-center px-2 py-1 rounded hover:bg-red-500 hover:text-white text-zinc-500 transition-all cursor-pointer"
+                        aria-label={t('recording.deleteTempTip', 'Elimina registrazione temporanea')}
+                        className="kbtn sm icon"
                     >
-                        <XCircle size={14} />
+                        <XCircle size={15} />
                     </button>
                 </div>
             )}
@@ -70,10 +70,13 @@ export const RecordingButton: React.FC = () => {
                 <button
                     onClick={handleStop}
                     title={t('recording.stopTip', 'Ferma registrazione')}
-                    className="flex items-center gap-2 px-3 py-1 rounded border border-red-500/60 bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse transition-all cursor-pointer"
+                    className="kbtn rec-live"
                 >
-                    <StopCircle size={12} className="fill-white" />
-                    <span className="font-mono text-xs font-bold tracking-widest uppercase">{t('recording.recBadge', 'REC')} {timeString}</span>
+                    <StopCircle size={15} className="blink" />
+                    <span className="lcd-stack">
+                        <span className="k">{t('recording.recBadge', 'REC')}</span>
+                        <span className="v">{timeString}</span>
+                    </span>
                 </button>
             )}
 
@@ -82,10 +85,10 @@ export const RecordingButton: React.FC = () => {
                 <button
                     onClick={handleStart}
                     title={t('recording.startTip', 'Avvia registrazione sessione (Master Mix)')}
-                    className="group flex items-center gap-2 px-3 py-1 rounded border border-zinc-800/60 hover:border-red-500/40 hover:bg-red-950/20 transition-all cursor-pointer"
+                    className="kbtn group"
                 >
-                    <Circle size={12} className="text-zinc-500 group-hover:text-red-500 transition-colors fill-zinc-800 group-hover:fill-red-900/40" />
-                    <span className="font-mono text-xs font-bold tracking-widest text-zinc-500 group-hover:text-red-400 uppercase">{t('recording.recBadge', 'REC')}</span>
+                    <Circle size={13} className="text-[#FF6B5A] fill-[#5A1D17] group-hover:fill-[#FF4D3D] transition-colors" />
+                    <span>{t('recording.recBadge', 'REC')}</span>
                 </button>
             )}
 

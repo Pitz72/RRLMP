@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileAudio, FileVideo, XCircle, Loader2 } from 'lucide-react';
+import { FileAudio, FileVideo, XCircle, Loader2, X } from 'lucide-react';
 import { useRecordingStore } from '../../store/useRecordingStore';
 import { toast } from '../../store/useToastStore';
 import { useEscapeToClose } from '../../hooks/useEscapeToClose';
@@ -95,7 +95,7 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
         return (
             <div className="ov" style={{ zIndex: 50 }}>
                 <div className="ov-panel anim-in w-full max-w-md">
-                    <div className="bg-zinc-800 px-5 py-4 border-b border-zinc-700">
+                    <div className="ov-head flex-col !items-start !gap-0">
                         <h2 className="text-sm font-bold text-white">{t('modal.export.title', 'Esporta Registrazione')}</h2>
                         <p className="text-[10px] text-zinc-500 mt-0.5">{t('modal.export.converting', 'Conversione audio in corso…')}</p>
                     </div>
@@ -124,12 +124,12 @@ export const RecordingExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <div className="ov-panel anim-in w-full max-w-md">
 
                 {/* HEADER */}
-                <div className="bg-zinc-800 px-5 py-4 border-b border-zinc-700 flex items-center justify-between">
+                <div className="ov-head">
                     <div>
                         <h2 className="text-sm font-bold text-white">{t('modal.export.title', 'Esporta Registrazione')}</h2>
                         <p className="text-[10px] text-zinc-500 mt-0.5">{t('modal.export.subtitle', 'Scegli formato e qualità, poi seleziona dove salvare.')}</p>
                     </div>
-                    <button onClick={onClose} className="text-zinc-400 hover:text-white w-7 h-7 flex items-center justify-center rounded hover:bg-zinc-700 transition-colors">&times;</button>
+                    <button onClick={onClose} className="ov-x" aria-label="×"><X size={18} /></button>
                 </div>
 
                 <div className="p-5 space-y-5">

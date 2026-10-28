@@ -1,7 +1,7 @@
 # RRLMP — Roadmap & Backlog
 
-**Versione corrente:** 1.15.35 — **non ancora rilasciata** (revisione del codice del 2026-10-28). Ultima rilasciata: 1.15.34 su `Pitz72/RRLMP` il 2026-09-19 (run 35402635920, 5/5; SHA-512 degli asset e `app-update.yml` del `.deb` verificati). Il ponte `Ecosystem-Runtime/RRLMP-Releases` resta alla 1.15.33
-**Ultimo aggiornamento:** 2026-10-28 — revisione del codice: 19 criticità corrette nella 1.15.35 ([report](./technical/REVISIONE-CODICE-2026-10-28.md))
+**Versione corrente:** 1.15.36 — **non ancora rilasciata** (nuova interfaccia «Pad luminosi», sopra la revisione del codice 1.15.35 del 2026-10-28, anch'essa non rilasciata). Ultima rilasciata: 1.15.34 su `Pitz72/RRLMP` il 2026-09-19 (run 35402635920, 5/5; SHA-512 degli asset e `app-update.yml` del `.deb` verificati). Il ponte `Ecosystem-Runtime/RRLMP-Releases` resta alla 1.15.33
+**Ultimo aggiornamento:** 2026-10-28 — interfaccia riprogettata da capo nella 1.15.36 ([changelog](./changelogs/current/1.15.36.md)); revisione del codice: 19 criticità corrette nella 1.15.35 ([report](./technical/REVISIONE-CODICE-2026-10-28.md))
 
 Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio). Nessuna automazione 24h. L'unica eccezione controllata è la rotazione PRE-SHOW — vedi [VISION.md](./VISION.md).
 
@@ -12,11 +12,11 @@ Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio)
 | Area | Stato |
 |------|-------|
 | Typecheck (renderer/main/node/preload) | **0 errori** su tutti e 4 |
-| Test Vitest | **265/265 verdi** (28 file) |
+| Test Vitest | **269/269 verdi** (29 file) |
 | Criticità aperte del codice | **nessuna** dalla [revisione 2026-10-28](./technical/REVISIONE-CODICE-2026-10-28.md): 1 gravissima (Ctrl+R ricaricava l'interfaccia), 4 gravi (MIDI hardware negato, registrazione persa all'uscita, export che sovrascriveva l'archivio, catena ferma su clip non riproducibile), 4 medie e 10 lievi, tutte corrette nella 1.15.35. Precedente: [revisione 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md), 22 reperti chiusi in 1.15.16 → 1.15.29 |
 | Ultima release **pubblicata** | **v1.15.33** su `Pitz72/RRLMP` e, identica, sul ponte `RRLMP-Releases` (unica release in entrambi) — note cumulative 1.15.16 → 1.15.33 in italiano e inglese |
 | Lingue | **Solo italiano e inglese** in app, guida rapida, manuale e note di rilascio (dalla 1.15.32) |
-| Manuale utente | IT + EN allineati alla 1.15.33, licenza MIT; il pulsante dell'app li apre da `Pitz72/RRLMP/manuale-utente/typst` (le versioni ≤ 1.15.32 da `RRLMP-Releases/manuals`, aggiornati anch'essi) |
+| Manuale utente | IT + EN allineati alla 1.15.33, licenza MIT. **Schermate e descrizioni dell'interfaccia da rifare dopo la 1.15.36** (nuova grafica); il pulsante dell'app li apre da `Pitz72/RRLMP/manuale-utente/typst` (le versioni ≤ 1.15.32 da `RRLMP-Releases/manuals`, aggiornati anch'essi) |
 | Auto-updater | operativo (nativo su Windows/Linux-AppImage, fallback browser su .deb e macOS compilato); dalla 1.15.33 legge `Pitz72/RRLMP`, le versioni ≤ 1.15.32 il ponte |
 | Pacchetti | exe 114 MB · AppImage 158 MB · deb 108 MB · dmg 143 MB (il problema dei 500 MB non si ripresenta). Dalla 1.15.33 niente più `.dmg`: macOS si compila dal sorgente |
 | Apertura del sorgente | **Fasi 1-4 chiuse**: repository pubblico MIT, release ponte 1.15.33. Resta la Fase 5 (Gumroad, sito, dismissione del ponte) — vedi [PIANO-APERTURA.md](./PIANO-APERTURA.md) |
@@ -46,6 +46,7 @@ Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio)
 Non riproducibili con i test automatici:
 
 - **Revisione 2026-10-28 (1.15.35), sull'exe installato:** Ctrl+R / Ctrl+Shift+R / Ctrl+Shift+I non devono fare nulla · un **controller MIDI reale** deve funzionare (MIDI Learn, lancio, STOP ALL) — dalla 0.17.0 non veniva mai visto · chiudere con REC acceso o con registrazione non esportata deve chiedere conferma · export con due file omonimi, uno già archiviato · una clip `.wma` in PRE-SHOW deve dare l'avviso e passare al brano successivo.
+- **Nuova interfaccia «Pad luminosi»** (1.15.36), sull'exe installato: i caratteri Manrope/Martian Mono si vedono davvero (prima la CSP bloccava Poppins) · topbar intera a 1366 px con ARM armato e REC in corso · clip in onda accesa e leggibile anche con colori colonna scuri · nessuno scatto della board durante una sequenza play_next con intro/outro.
 - **Hero IN ONDA e card stabili** (1.15.31) durante una sequenza play_next reale, con intro/outro.
 - **Aggiornamento automatico dalla 1.15.32 (o precedente) alla 1.15.33 tramite il ponte**, con il popup che mostra le note cumulative; poi la 1.15.34 deve arrivare da `Pitz72/RRLMP`.
 - **Share di rete reale** (1.15.20): riprodurre un brano su NAS/cartella condivisa.
@@ -163,6 +164,7 @@ Si guadagna: niente cattura di sistema (niente AGC, niente notifiche Windows in 
 
 | Versione | Contenuto |
 |---|---|
+| **1.15.36** | **Interfaccia riprogettata da capo — «Pad luminosi»**: superficie hardware, clip in onda accesa nel colore colonna, display IN ONDA con avanzamento a LED, font inclusi, contrasto WCAG verificato su 24 schermate |
 | **1.15.35** | **Revisione del codice 2026-10-28**: via il menu di serie (Ctrl+R ricaricava), MIDI hardware di nuovo attivo, registrazione protetta all'uscita, export che non sovrascrive l'archivio, catena che non si ferma su una clip non riproducibile, più 4 medie e 10 lievi |
 | **1.15.32** | App **solo italiano e inglese** · schermata di benvenuto con tendina lingua · manuali IT/EN aggiornati con schermate nuove e pubblicati · note di rilascio bilingui e cumulative |
 | **1.15.31** | Hero IN ONDA sempre presente e card clip senza scatti |

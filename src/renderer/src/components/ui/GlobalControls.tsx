@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAudioStore } from '../../store/useAudioStore';
 import AudioContextManager from '../../engine/AudioContextManager';
 import MicManager from '../../engine/MicManager';
-import { Button } from './Button';
-import { Square, Volume2, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic, Check, Mic, MicOff, Undo2, Redo2, Grid3x3, Files, ChevronDown, Disc3, Wrench } from 'lucide-react';
+import { Square, FileCheck2, FolderInput, SlidersHorizontal, FilePlus2, HardDriveDownload, FileOutput, BookOpen, Command, ListMusic, Check, MicOff, Undo2, Redo2, Files, ChevronDown, Wrench, Cable } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 
@@ -590,170 +589,190 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
         }
     };
 
-    return (
-        <div className="flex items-center gap-2 border-l border-zinc-800 pl-3 ml-2">
+    // v1.15.36 (tema Pad luminosi): mini VU del microfono, 8 LED (soglie invariate:
+    // −60 dBFS + 6,25 dB per LED, giallo il sesto, rossi gli ultimi due).
+    const micLeds = Array.from({ length: 8 }).map((_, i) => {
+        const isLit = micLevel >= -60 + i * 6.25;
+        const tone = i >= 6 ? 'o' : i === 5 ? 'y' : 'g';
+        return <i key={i} className={isLit ? tone : ''} style={{ height: `${40 + i * 7}%` }} />;
+    });
 
-            {/* FILE MENU (v1.10.19, spostato in testa in v1.10.27 su richiesta utente:
-                subito dopo titolo+versione). Trigger a larghezza STABILE tra chiuso e
-                aperto: prima lo stato aperto perdeva la width fissa di .tool → shift
-                di layout e "STOP ALL su due righe" (bug segnalato). */}
+    // v1.15.36: GlobalControls restituisce i figli direttamente nella topbar (App.tsx).
+    // A sinistra i due menu (FILE, Strumenti): comandi che non servono in onda.
+    // Dopo lo spaziatore, i controlli da diretta: microfono, VU, master, FX, MIX, STOP ALL.
+    return (
+        <>
+            {/* FILE MENU (v1.10.19; v1.10.27 subito dopo titolo+versione). Il pallino
+                ambra segnala le modifiche non salvate. */}
             <div className="relative" ref={fileMenuRef}>
-                <Button
-                    size="sm"
-                    className={`${showFileMenu ? 'bg-zinc-700 text-white border-zinc-600' : 'bg-white/5 text-zinc-300 hover:bg-white/10 border-white/10'} border relative whitespace-nowrap`}
+                <button
+                    className={`kbtn ${showFileMenu ? 'open' : ''}`}
                     title={t('controls.fileMenuTip', 'Menu file — nuovo/salva/carica/M3U/esporta')}
+                    aria-haspopup="menu"
+                    aria-expanded={showFileMenu}
                     onClick={(e) => {
                         // v1.10.3: blur anti-retrigger (Space/Enter non deve riaprire il menu)
                         e.currentTarget.blur();
                         setShowFileMenu(v => !v);
                     }}
                 >
-                    <div className="flex items-center gap-1.5 font-bold text-[11px]">
-                        <Files size={14} />
-                        <span>{t('controls.fileMenu', 'FILE')}</span>
-                        <ChevronDown size={12} className={`transition-transform ${showFileMenu ? 'rotate-180' : ''}`} />
-                    </div>
-                    {/* Indicatore modifiche non salvate (prima era il pulsante Salva giallo) */}
-                    {isDirty && (
-                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse pointer-events-none" />
-                    )}
-                </Button>
+                    <Files size={16} />
+                    <span>{t('controls.fileMenu', 'FILE')}</span>
+                    <ChevronDown className="chev" />
+                    {isDirty && <span className="kdot pulse" />}
+                </button>
                 {showFileMenu && (
-                    <div className="absolute left-0 top-full mt-2 w-60 bg-zinc-900 border border-zinc-700 rounded-lg shadow-2xl z-50 py-1">
-                        <button
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
-                            onClick={() => { setShowFileMenu(false); void handleNewProject(); }}
-                        >
-                            <FilePlus2 size={15} className="shrink-0" /> {t('welcome.newProject')}
+                    <div className="menu" style={{ left: 0 }} role="menu">
+                        <button className="menu-item" onClick={() => { setShowFileMenu(false); void handleNewProject(); }}>
+                            <FilePlus2 size={16} /> {t('welcome.newProject')}
                         </button>
-                        <button
-                            className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs transition-colors text-left ${isDirty ? 'text-yellow-400 hover:bg-yellow-500/10' : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'}`}
-                            onClick={() => { setShowFileMenu(false); void handleSaveProject(); }}
-                        >
-                            <FileCheck2 size={15} className={`shrink-0 ${isDirty ? 'animate-pulse' : ''}`} /> {t('controls.save')}
+                        <button className={`menu-item ${isDirty ? 'warn' : ''}`} onClick={() => { setShowFileMenu(false); void handleSaveProject(); }}>
+                            <FileCheck2 size={16} className={isDirty ? 'pulse' : ''} /> {t('controls.save')}
                         </button>
-                        <button
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
-                            onClick={() => { setShowFileMenu(false); void handleSaveAs(); }}
-                        >
-                            <FileOutput size={15} className="shrink-0" /> {t('controls.saveAs')}
+                        <button className="menu-item" onClick={() => { setShowFileMenu(false); void handleSaveAs(); }}>
+                            <FileOutput size={16} /> {t('controls.saveAs')}
                         </button>
                         {/* v1.15.9: Export subito sotto Salva/Salva come (è un salvataggio
-                            con audio incluso, richiesta utente). Etichetta resa comprensibile. */}
-                        <button
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
-                            onClick={() => { setShowFileMenu(false); void handleExportProject(); }}
-                        >
-                            <HardDriveDownload size={15} className="shrink-0" /> {t('controls.export')}
+                            con audio incluso, richiesta utente). */}
+                        <button className="menu-item" onClick={() => { setShowFileMenu(false); void handleExportProject(); }}>
+                            <HardDriveDownload size={16} /> {t('controls.export')}
                         </button>
-                        <button
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
-                            onClick={() => { setShowFileMenu(false); void handleLoadProject(); }}
-                        >
-                            <FolderInput size={15} className="shrink-0" /> {t('welcome.loadProject')}
+                        <button className="menu-item" onClick={() => { setShowFileMenu(false); void handleLoadProject(); }}>
+                            <FolderInput size={16} /> {t('welcome.loadProject')}
                         </button>
-                        <div className="h-px bg-zinc-800 my-1" />
+                        <div className="menu-sep" />
+                        <button className="menu-item" onClick={() => { setShowFileMenu(false); void handleImportM3u(); }}>
+                            <ListMusic size={16} /> {t('controls.importM3u')}
+                        </button>
+                    </div>
+                )}
+                {/* AUTO-SAVED BADGE (v0.16.0) — appare 3s dopo ogni auto-backup riuscito.
+                    Flottante sotto il menu FILE: zero larghezza occupata in topbar. */}
+                <span className={`autosaved ${showAutoSaved ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} style={{ left: 0, right: 'auto' }}>
+                    <Check size={12} strokeWidth={2.5} />
+                    {t('controls.autoSaved', 'Salvataggio automatico')}
+                </span>
+            </div>
+
+            {/* STRUMENTI (v1.10.27) — annulla/ripeti, MIDI Learn, tastiera, impostazioni,
+                info: stessa logica del menu FILE. */}
+            <div className="relative" ref={toolsMenuRef}>
+                <button
+                    className={`kbtn icon ${showToolsMenu ? 'open' : ''}`}
+                    title={t('controls.toolsTip', 'Strumenti — annulla/ripeti, MIDI, tastiera, impostazioni, info')}
+                    aria-label={t('controls.toolsTip', 'Strumenti — annulla/ripeti, MIDI, tastiera, impostazioni, info')}
+                    aria-haspopup="menu"
+                    aria-expanded={showToolsMenu}
+                    onClick={(e) => {
+                        e.currentTarget.blur();
+                        setShowToolsMenu(v => !v);
+                    }}
+                >
+                    <Wrench size={16} />
+                    <ChevronDown className="chev" />
+                    {/* Stato MIDI visibile anche a menu chiuso: countdown learn */}
+                    {isMidiLearnMode && (
+                        <span className="kmark pulse">
+                            {midiLearnCountdown !== null ? `${midiLearnCountdown}s` : 'MIDI'}
+                        </span>
+                    )}
+                    {/* v1.15.9: niente pallino "MIDI non disponibile" (era statico e
+                        fuorviante). Lo stato MIDI resta DENTRO il menu, accanto a "MIDI Learn". */}
+                </button>
+                {showToolsMenu && (
+                    <div className="menu" style={{ left: 0 }} role="menu">
+                        <button className="menu-item" disabled={!canUndo} onClick={() => { setShowToolsMenu(false); undo(); }}>
+                            <Undo2 size={16} /> {t('controls.undo', 'Annulla')}
+                            <span className="mk">Ctrl+Z</span>
+                        </button>
+                        <button className="menu-item" disabled={!canRedo} onClick={() => { setShowToolsMenu(false); redo(); }}>
+                            <Redo2 size={16} /> {t('controls.redo', 'Ripeti')}
+                            <span className="mk">Ctrl+Y</span>
+                        </button>
+                        <div className="menu-sep" />
                         <button
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
-                            onClick={() => { setShowFileMenu(false); void handleImportM3u(); }}
+                            className={`menu-item ${isMidiLearnMode ? 'active' : ''}`}
+                            disabled={!midiSupported}
+                            onClick={() => { setShowToolsMenu(false); setIsMidiLearnMode(!isMidiLearnMode); }}
                         >
-                            <ListMusic size={15} className="shrink-0" /> {t('controls.importM3u')}
+                            <Cable size={16} />
+                            {isMidiLearnMode ? t('controls.midiLearnActive', 'MIDI Learn — attivo (esci)') : t('controls.midiLearn')}
+                            {!midiSupported
+                                ? <span className="mk no">✕ n/d</span>
+                                : <span className={`mk ${midiInputCount > 0 ? 'ok' : ''}`}>{midiInputCount} ctrl</span>}
+                        </button>
+                        <button className="menu-item" onClick={() => { setShowToolsMenu(false); setShowKeymapping(true); }}>
+                            <Command size={16} /> {t('controls.keybinds')}
+                        </button>
+                        <div className="menu-sep" />
+                        <button className="menu-item" onClick={() => { setShowToolsMenu(false); setShowSettings(true); }}>
+                            <SlidersHorizontal size={16} /> {t('controls.settings')}
+                        </button>
+                        <button className="menu-item" onClick={() => { setShowToolsMenu(false); setShowAbout(true); }}>
+                            <BookOpen size={16} /> {t('controls.info')}
                         </button>
                     </div>
                 )}
             </div>
 
-            {/* SMART MIC — ARM button + mini VU + Mic Mix Vol (v1.0.0+).
-                v1.11.1: dietro MIC_ARM_ENABLED (vedi utils/featureFlags.ts) —
-                inaffidabile coi mixer USB che espongono il mix, non il solo mic. */}
-            {MIC_ARM_ENABLED && (
-            <div className="flex items-center gap-2 border-l border-zinc-800 pl-2">
-                <div className="flex flex-col gap-1">
-                    <button
-                        onClick={handleArmToggle}
-                        title={isArmed ? t('controls.micDisarm', 'Disarma microfono') : t('controls.micArm', 'Arma microfono (Smart Ducking + Mix Input)')}
-                        className={`flex items-center justify-center gap-1.5 px-2.5 py-1 rounded text-[10px] font-bold transition-all ${
-                            isArmed
-                                ? isMicActive
-                                    ? 'bg-red-500 text-white shadow-lg shadow-red-500/40 animate-pulse'
-                                    : 'bg-red-900/60 text-red-400 border border-red-700'
-                                : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-300 border border-zinc-700'
-                        }`}
-                    >
-                        {isArmed ? <Mic size={12} /> : <MicOff size={12} />}
-                        <span>ARM</span>
-                    </button>
-                    {/* Badge indicatore Mix attivo */}
-                    {isArmed && micMixEnabled && (
-                        <span className="text-[8px] text-center font-bold text-emerald-500 uppercase tracking-tighter">{t('controls.onMixBadge', 'On Mix')}</span>
-                    )}
-                </div>
+            <span className="tb-spacer" />
 
-                {/* Mini VU mic — 8 barre verticali */}
-                <div className="flex items-end gap-px h-6 w-10" title={`${micLevel.toFixed(1)} dBFS`}>
-                    {isArmed ? (
-                        Array.from({ length: 8 }).map((_, i) => {
-                            const barThreshold = -60 + i * 6.25;
-                            const isLit = micLevel >= barThreshold;
-                            const isRed = i >= 6;
-                            const isYellow = i === 5;
-                            return (
-                                <div
-                                    key={i}
-                                    className={`w-1 rounded-sm transition-all duration-75 ${
-                                        isLit
-                                            ? isRed    ? 'bg-red-500'
-                                            : isYellow ? 'bg-yellow-400'
-                                                       : 'bg-emerald-400'
-                                            : 'bg-zinc-700'
-                                    }`}
-                                    style={{ height: `${40 + i * 7}%` }}
+            {/* POZZETTO AUDIO: SMART MIC (ARM + VU mic + Mic Vol) · VU master · MASTER */}
+            <div className="audio-well">
+                {/* v1.11.1: dietro MIC_ARM_ENABLED (vedi utils/featureFlags.ts). */}
+                {MIC_ARM_ENABLED && (
+                    <>
+                        <button
+                            onClick={handleArmToggle}
+                            title={isArmed ? t('controls.micDisarm', 'Disarma microfono') : t('controls.micArm', 'Arma microfono (Smart Ducking + Mix Input)')}
+                            className={`kbtn ${isArmed ? (isMicActive ? 'arm-hot pulse' : 'arm-on on') : ''}`}
+                        >
+                            {isArmed
+                                ? <span className="mic-ladder" title={`${micLevel.toFixed(1)} dBFS`}>{micLeds}</span>
+                                : <MicOff size={15} />}
+                            <span>ARM</span>
+                            {/* Badge indicatore Mix attivo */}
+                            {isArmed && micMixEnabled && (
+                                <span className="arm-badge">{t('controls.onMixBadge', 'On Mix')}</span>
+                            )}
+                        </button>
+                        {/* Mic Volume (visibile solo se armato) */}
+                        {isArmed && (
+                            <div className="fader sm">
+                                <div className="fader-lbl">
+                                    <span>{t('controls.micVolBadge', 'Mic Vol')}</span>
+                                    <span className="num">{Math.round(micVolume * 100)}</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="1"
+                                    step="0.01"
+                                    value={micVolume}
+                                    onChange={handleMicVolumeChange}
+                                    className="fader-rng red"
+                                    aria-label={t('controls.micVolBadge', 'Mic Vol')}
                                 />
-                            );
-                        })
-                    ) : (
-                        <div className="w-full h-px bg-zinc-800 self-center" />
-                    )}
-                </div>
-
-                {/* Mic Volume Slider (visibile solo se armato) */}
-                {isArmed && (
-                    <div className="flex flex-col w-16 animate-in fade-in slide-in-from-left-2">
-                        <div className="flex justify-between items-center mb-0.5">
-                            <span className="text-[9px] text-zinc-500 font-bold uppercase">{t('controls.micVolBadge', 'Mic Vol')}</span>
-                            <span className="text-[9px] text-red-400 font-mono">{Math.round(micVolume * 100)}%</span>
-                        </div>
-                        <input
-                            type="range"
-                            min="0"
-                            max="1"
-                            step="0.01"
-                            value={micVolume}
-                            onChange={handleMicVolumeChange}
-                            className="h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-red-500 hover:accent-red-400 w-full"
-                        />
-                    </div>
-                )}
-            </div>
-            )}
-
-            {/* VU METER */}
-            <VUMeter />
-
-            {/* MASTER VOLUME */}
-            <div className={`flex items-center gap-2 group relative ${isMidiLearnMode ? 'cursor-pointer hover:ring-1 ring-cyan-500 rounded p-1' : ''}`}
-                onClick={() => {
-                    if (isMidiLearnMode) setPendingBind('masterVolume');
-                }}
-            >
-                <Volume2 size={16} className={`${pendingBind === 'masterVolume' ? 'text-cyan-400 animate-bounce' : 'text-zinc-500 group-hover:text-white'} transition-colors`} />
-                {/* v1.10.27: w-32 → w-24, guadagno spazio topbar (rifiniture utente) */}
-                <div className="flex flex-col w-24">
-                    <div className="flex justify-between">
-                        <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold mb-0.5">{t('controls.masterVol')}</span>
-                        {globalMidiBinds['masterVolume'] && (
-                            <span className="text-[9px] text-cyan-500 font-mono">{globalMidiBinds['masterVolume'].replace('CC:', 'C')}</span>
+                            </div>
                         )}
+                    </>
+                )}
+
+                {/* VU METER master */}
+                <VUMeter />
+
+                {/* MASTER VOLUME — in MIDI Learn un clic lo prepara all'assegnazione */}
+                <div
+                    className={`fader ${isMidiLearnMode ? 'learn' : ''}`}
+                    onClick={() => {
+                        if (isMidiLearnMode) setPendingBind('masterVolume');
+                    }}
+                >
+                    <div className="fader-lbl">
+                        <span>{t('controls.masterVol')}</span>
+                        {globalMidiBinds['masterVolume']
+                            ? <span className="bind num">{globalMidiBinds['masterVolume'].replace('CC:', 'C')}</span>
+                            : <span className="num">{Math.round(masterVolume * 100)}</span>}
                     </div>
                     <input
                         type="range"
@@ -762,21 +781,56 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                         step="0.01"
                         value={masterVolume}
                         onChange={handleVolumeChange}
-                        disabled={isMidiLearnMode} // Disable slider dragging in learn mode to prevent conflicts? Or allow? Prompt says "Rendi cliccabile".
-                        className={`h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-white hover:accent-emerald-400 w-full ${isMidiLearnMode ? 'pointer-events-none' : ''}`}
+                        disabled={isMidiLearnMode}
+                        className={`fader-rng ${isMidiLearnMode ? 'pointer-events-none' : ''}`}
+                        aria-label={t('controls.masterVol')}
                     />
+                    {isMidiLearnMode && pendingBind === 'masterVolume' && (
+                        <div className="fader-learn pulse">MOVE FADER...</div>
+                    )}
                 </div>
-                {isMidiLearnMode && pendingBind === 'masterVolume' && (
-                    <div className="absolute inset-0 bg-cyan-900/80 flex items-center justify-center text-[10px] text-cyan-200 font-bold backdrop-blur-sm rounded">
-                        MOVE FADER...
-                    </div>
-                )}
             </div>
 
-            {/* GLOBAL STOP — v1.10.27: etichetta compatta "ALL" (richiesta utente:
-                "solo ALL accanto al pulsante stop dentro l'etichetta rossa, lascia
-                intendere che stoppa tutto") + whitespace-nowrap anti-wrap. */}
-            <Button
+            {/* FX PAD (Step 3 UI regia) — toggle del minipad FX 5×5. Il LED acceso dice
+                che il pad è aperto; il numero verde quanti effetti sono in onda (v1.10.5). */}
+            {onToggleFxPad && (
+                <button
+                    onClick={(e) => {
+                        // v1.10.3: blur — un toggle focused verrebbe ri-attivato da
+                        // Space/Enter, aprendo/chiudendo il pad a sorpresa in diretta.
+                        e.currentTarget.blur();
+                        onToggleFxPad();
+                    }}
+                    className={`kbtn ${fxPadOpen ? 'on' : ''}`}
+                    title={t('controls.fxTip', 'Pad FX (5×5) — mostra/nascondi')}
+                    aria-pressed={!!fxPadOpen}
+                >
+                    <span className={`led ${fxPadOpen ? 'g' : ''}`} />
+                    <span>FX</span>
+                    {sfxActiveCount > 0 && <span className="kcount pulse">{sfxActiveCount}</span>}
+                </button>
+            )}
+
+            {/* AUTOMIX (Fase C1, v1.10.22) — toggle della vista full-screen, accanto a FX */}
+            {onToggleAutomix && (
+                <button
+                    onClick={(e) => {
+                        // v1.10.3: blur anti-retrigger (come FX)
+                        e.currentTarget.blur();
+                        onToggleAutomix();
+                    }}
+                    className={`kbtn ${automixOpen ? 'on' : ''}`}
+                    title={t('controls.automixTip', 'Automix — mix automatico sui BPM (colonna Music)')}
+                    aria-pressed={!!automixOpen}
+                >
+                    <span className={`led ${automixOpen ? 'g' : ''}`} />
+                    <span>MIX</span>
+                </button>
+            )}
+
+            {/* GLOBAL STOP — v1.10.27: etichetta compatta "ALL" (richiesta utente). In
+                MIDI Learn diventa il bersaglio dell'assegnazione (contorno ciano). */}
+            <button
                 onClick={() => {
                     if (isMidiLearnMode) {
                         setPendingBind('stopAll');
@@ -785,169 +839,16 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                     }
                 }}
                 title={`${t('controls.stopAll')} — ${t('controls.stopAllTipSuffix', 'ferma tutto (Emergency Stop)')}`}
-                className={`${isMidiLearnMode
-                    ? (pendingBind === 'stopAll' ? 'bg-cyan-600 text-white animate-pulse' : 'bg-zinc-800 text-cyan-500 border-cyan-500/50 hover:bg-zinc-700')
-                    : 'stop'} relative whitespace-nowrap`}
-                size="sm"
+                className={isMidiLearnMode ? `kbtn ${pendingBind === 'stopAll' ? 'learn-on pulse' : 'learn'}` : 'stop'}
             >
-                <div className="flex items-center gap-2">
-                    <Square fill="currentColor" size={14} />
-                    <span className="font-bold">ALL</span>
-                </div>
+                <Square fill="currentColor" size={13} />
+                <span>ALL</span>
                 {globalMidiBinds['stopAll'] && (
-                    <span className="absolute -top-2 -right-1 text-[8px] bg-zinc-900 border border-zinc-700 text-cyan-500 px-1 rounded">
+                    <span className="kmark">
                         {globalMidiBinds['stopAll'].replace('NOTE:', 'N').replace('CC:', 'C')}
                     </span>
                 )}
-            </Button>
-
-            {/* FX PAD (Step 3 UI regia) — toggle del minipad FX 5×5, accanto a STOP ALL
-                per essere sempre ben visibile e a portata durante la diretta. */}
-            {onToggleFxPad && (
-                <Button
-                    size="sm"
-                    onClick={(e) => {
-                        // v1.10.3: blur — un toggle focused verrebbe ri-attivato da
-                        // Space/Enter, aprendo/chiudendo il pad a sorpresa in diretta.
-                        e.currentTarget.blur();
-                        onToggleFxPad();
-                    }}
-                    className={`${fxPadOpen
-                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
-                        : 'bg-white/5 text-zinc-300 hover:bg-white/10 border-white/10'} border relative whitespace-nowrap`}
-                    title={t('controls.fxTip', 'Pad FX (5×5) — mostra/nascondi')}
-                >
-                    <div className="flex items-center gap-1.5 font-bold text-[11px]">
-                        <Grid3x3 size={14} />
-                        <span>FX</span>
-                    </div>
-                    {/* v1.10.5: badge effetti in onda (visibile anche a pad chiuso) */}
-                    {sfxActiveCount > 0 && (
-                        <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-emerald-500 text-black text-[9px] font-bold flex items-center justify-center animate-pulse pointer-events-none">
-                            {sfxActiveCount}
-                        </span>
-                    )}
-                </Button>
-            )}
-
-            {/* AUTOMIX (Fase C1, v1.10.22) — toggle della vista full-screen, accanto a FX */}
-            {onToggleAutomix && (
-                <Button
-                    size="sm"
-                    onClick={(e) => {
-                        // v1.10.3: blur anti-retrigger (come FX)
-                        e.currentTarget.blur();
-                        onToggleAutomix();
-                    }}
-                    className={`${automixOpen
-                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
-                        : 'bg-white/5 text-zinc-300 hover:bg-white/10 border-white/10'} border whitespace-nowrap`}
-                    title={t('controls.automixTip', 'Automix — mix automatico sui BPM (colonna Music)')}
-                >
-                    <div className="flex items-center gap-1.5 font-bold text-[11px]">
-                        <Disc3 size={14} />
-                        <span>MIX</span>
-                    </div>
-                </Button>
-            )}
-
-            {/* STRUMENTI (v1.10.27) — menu a tendina per i comandi non-immediati
-                (annulla/ripeti, MIDI Learn, tastiera, impostazioni, info), stessa
-                logica del menu FILE. Richiesta utente: in topbar restano solo i
-                controlli da diretta; il caso scatenante era il Mic Vol che compare
-                ad ARM attivo e faceva traboccare la barra. */}
-            <div className="relative flex items-center gap-2 border-l border-zinc-800 pl-3">
-                <div className="relative" ref={toolsMenuRef}>
-                    <Button
-                        size="sm"
-                        className={`${showToolsMenu ? 'bg-zinc-700 text-white border-zinc-600' : 'bg-white/5 text-zinc-300 hover:bg-white/10 border-white/10'} border relative whitespace-nowrap`}
-                        title={t('controls.toolsTip', 'Strumenti — annulla/ripeti, MIDI, tastiera, impostazioni, info')}
-                        onClick={(e) => {
-                            e.currentTarget.blur();
-                            setShowToolsMenu(v => !v);
-                        }}
-                    >
-                        <div className="flex items-center gap-1.5 font-bold text-[11px]">
-                            <Wrench size={14} />
-                            <ChevronDown size={12} className={`transition-transform ${showToolsMenu ? 'rotate-180' : ''}`} />
-                        </div>
-                        {/* Stato MIDI visibile anche a menu chiuso: countdown learn / errore */}
-                        {isMidiLearnMode && (
-                            <span className="absolute -top-2 -right-1 text-[8px] bg-zinc-900 border border-cyan-500 text-cyan-400 px-1 rounded animate-pulse pointer-events-none">
-                                {midiLearnCountdown !== null ? `${midiLearnCountdown}s` : 'MIDI'}
-                            </span>
-                        )}
-                        {/* v1.15.9: rimosso il pallino rosso "MIDI non disponibile" — era
-                            statico e sempre acceso (allarme fuorviante). Lo stato MIDI resta
-                            visibile DENTRO il menu, accanto a "MIDI Learn" (✕ n/d / N ctrl). */}
-                    </Button>
-                    {showToolsMenu && (
-                        <div className="absolute right-0 top-full mt-2 w-64 bg-zinc-900 border border-zinc-700 rounded-lg shadow-2xl z-50 py-1">
-                            <button
-                                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
-                                disabled={!canUndo}
-                                onClick={() => { setShowToolsMenu(false); undo(); }}
-                            >
-                                <Undo2 size={15} className="shrink-0" /> {t('controls.undo', 'Annulla')}
-                                <span className="ml-auto text-[9px] font-mono text-zinc-600">Ctrl+Z</span>
-                            </button>
-                            <button
-                                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
-                                disabled={!canRedo}
-                                onClick={() => { setShowToolsMenu(false); redo(); }}
-                            >
-                                <Redo2 size={15} className="shrink-0" /> {t('controls.redo', 'Ripeti')}
-                                <span className="ml-auto text-[9px] font-mono text-zinc-600">Ctrl+Y</span>
-                            </button>
-                            <div className="h-px bg-zinc-800 my-1" />
-                            <button
-                                className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs transition-colors text-left disabled:opacity-40 disabled:cursor-not-allowed ${isMidiLearnMode ? 'text-cyan-400 bg-cyan-500/10' : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'}`}
-                                disabled={!midiSupported}
-                                onClick={() => { setShowToolsMenu(false); setIsMidiLearnMode(!isMidiLearnMode); }}
-                            >
-                                <span className="shrink-0 font-bold text-[10px] w-[15px]">M</span>
-                                {isMidiLearnMode ? t('controls.midiLearnActive', 'MIDI Learn — attivo (esci)') : t('controls.midiLearn')}
-                                <span className="ml-auto text-[9px] font-mono">
-                                    {!midiSupported
-                                        ? <span className="text-red-400">✕ n/d</span>
-                                        : midiInputCount > 0
-                                            ? <span className="text-emerald-400">{midiInputCount} ctrl</span>
-                                            : <span className="text-zinc-600">0 ctrl</span>}
-                                </span>
-                            </button>
-                            <button
-                                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
-                                onClick={() => { setShowToolsMenu(false); setShowKeymapping(true); }}
-                            >
-                                <Command size={15} className="shrink-0" /> {t('controls.keybinds')}
-                            </button>
-                            <div className="h-px bg-zinc-800 my-1" />
-                            <button
-                                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
-                                onClick={() => { setShowToolsMenu(false); setShowSettings(true); }}
-                            >
-                                <SlidersHorizontal size={15} className="shrink-0" /> {t('controls.settings')}
-                            </button>
-                            <button
-                                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-left"
-                                onClick={() => { setShowToolsMenu(false); setShowAbout(true); }}
-                            >
-                                <BookOpen size={15} className="shrink-0" /> {t('controls.info')}
-                            </button>
-                        </div>
-                    )}
-                </div>
-
-                {/* AUTO-SAVED BADGE (v0.16.0) — appare 3s dopo ogni auto-backup riuscito.
-                    v1.10.27: FLOTTANTE sotto la topbar (absolute) → zero larghezza
-                    occupata, niente shift di layout quando compare/scompare. */}
-                <span
-                    className={`absolute right-0 top-full mt-1 z-40 flex items-center gap-1 text-[10px] font-medium text-emerald-400 bg-zinc-900/90 border border-emerald-500/30 rounded px-2 py-0.5 transition-opacity duration-500 whitespace-nowrap ${showAutoSaved ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                >
-                    <Check size={11} strokeWidth={2.5} />
-                    {t('controls.autoSaved', 'Salvataggio automatico')}
-                </span>
-            </div>
+            </button>
 
             <GeneralSettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
             <AboutModal
@@ -964,7 +865,6 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 total={exportProgress.total}
                 filename={exportProgress.filename}
             />
-        </div>
-
+        </>
     );
 };

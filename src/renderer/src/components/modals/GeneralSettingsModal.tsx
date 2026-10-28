@@ -8,6 +8,7 @@ import { FlagIcon } from '../ui/FlagIcon';
 import { RemoteControlStatus } from '../../types';
 import { MIC_ARM_ENABLED } from '../../utils/featureFlags';
 import { toast } from '../../store/useToastStore';
+import { X } from 'lucide-react';
 
 interface Props {
     isOpen: boolean;
@@ -223,7 +224,7 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 {/* HEADER */}
                 <div className="ov-head">
                     <h2 className="ov-title">{t('modal.settings.title')}</h2>
-                    <button onClick={onClose} className="ov-x">&times;</button>
+                    <button onClick={onClose} className="ov-x" aria-label="×"><X size={18} /></button>
                 </div>
 
                 {/* TAB BAR */}

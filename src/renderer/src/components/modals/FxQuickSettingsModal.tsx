@@ -61,10 +61,11 @@ export const FxQuickSettingsModal: React.FC<FxQuickSettingsModalProps> = ({ clip
                     </div>
                     <button
                         onClick={onClose}
-                        className="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
+                        className="ov-x"
                         title={t('modal.fxQuick.closeTip', 'Chiudi')}
+                        aria-label={t('modal.fxQuick.closeTip', 'Chiudi')}
                     >
-                        <X size={15} />
+                        <X size={18} />
                     </button>
                 </div>
 
@@ -148,13 +149,13 @@ export const FxQuickSettingsModal: React.FC<FxQuickSettingsModalProps> = ({ clip
                     <div className="flex items-center gap-2">
                         <button
                             onClick={onClose}
-                            className="px-3 py-1.5 rounded-lg text-xs text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 transition-colors"
+                            className="btn btn-ghost"
                         >
                             {t('modal.fxQuick.cancel', 'Annulla')}
                         </button>
                         <button
                             onClick={handleSave}
-                            className="px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+                            className="btn btn-green"
                         >
                             {t('modal.fxQuick.save', 'Salva')}
                         </button>

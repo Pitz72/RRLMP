@@ -88,38 +88,38 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
         if (ok) clearColumn(column.id);
     };
 
+    // v1.15.36 (tema Pad luminosi): testata su due righe — titolo per intero sopra,
+    // tipo · numero di clip e i tasti della colonna sotto. Così i titoli lunghi
+    // ("VOCI / PREREGISTRAZIONI") non vanno più a capo. A fine colonna (ultima
+    // clip, meno di 20 s) la testata diventa ambra con il LED che lampeggia.
     return (
-        <div
-            className={`col-head transition-all duration-500 ${isDeadAirWarning ? 'animate-pulse' : ''}`}
-            style={isDeadAirWarning ? {
-                background: 'rgba(120,53,15,0.5)',
-                color: '#f59e0b',
-                borderColor: '#f59e0b'
-            } : undefined}
-        >
-            <div className="col-title" style={isDeadAirWarning ? { color: '#f59e0b', textShadow: 'none' } : undefined}>
-                {isDeadAirWarning && <AlertTriangle size={16} className="animate-bounce" />}
+        <div className={`col-head ${isDeadAirWarning ? 'deadair' : ''}`}>
+            <span className={`col-strip ${isDeadAirWarning ? 'blink' : ''}`} />
+            <div className="col-title">
+                {isDeadAirWarning && <AlertTriangle size={15} className="shrink-0 pulse" />}
                 {/* Il titolo è dato di progetto (l'utente può rinominarlo): si mostra
                     com'è salvato. I default vengono localizzati alla CREAZIONE del
                     progetto (getDefaultColumns in useProjectStore) — un lookup per id
                     qui sovrascriverebbe i titoli rinominati. */}
-                <span>{column.title}</span>
+                <span title={column.title}>{column.title}</span>
             </div>
 
-            <div className="col-meta relative" ref={pickerRef}>
+            <div className="col-meta" ref={pickerRef}>
                 {isDeadAirWarning && (
-                    <span className="text-[10px] bg-amber-500 text-black px-1 rounded font-bold">{t('column.endBadge', 'END')}</span>
+                    <span className="end-badge pulse">{t('column.endBadge', 'END')}</span>
                 )}
-                <div className={`col-type ${isDeadAirWarning ? 'text-amber-200 opacity-100' : ''}`}>
-                    {t(`column.type.${column.type}`, column.type.toUpperCase())}
-                </div>
+                <span className="lbl">
+                    {t(`column.type.${column.type}`, column.type.toUpperCase())} · {column.clips.length}
+                </span>
+                <span className="grow" />
 
                 {/* v1.3.21 — Rotazione PRE-SHOW (Jingle&Promo) */}
                 {isPreshow && !isDeadAirWarning && (
                     <button
                         onClick={() => setShowRotation(true)}
-                        className={`shrink-0 transition-all hover:scale-110 ${rotationActive ? 'text-violet-300' : 'text-white/40 hover:text-white/80'}`}
+                        className={`col-tool ${rotationActive ? 'on' : ''}`}
                         title={rotationActive ? t('column.rotationActiveTip', 'Rotazione Jingle&Promo attiva') : t('column.rotationConfigTip', 'Configura rotazione Jingle&Promo')}
+                        aria-label={rotationActive ? t('column.rotationActiveTip', 'Rotazione Jingle&Promo attiva') : t('column.rotationConfigTip', 'Configura rotazione Jingle&Promo')}
                     >
                         <RefreshCw size={14} className={rotationActive ? 'animate-[spin_4s_linear_infinite]' : ''} />
                     </button>
@@ -129,18 +129,22 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
                 {!isDeadAirWarning && (
                     <button
                         onClick={() => setShowPicker(v => !v)}
-                        className="w-4 h-4 rounded-full border-2 border-white/30 hover:border-white/80 hover:scale-125 transition-all shrink-0 shadow-md"
-                        style={{ backgroundColor: effectiveColor }}
+                        className="col-tool"
                         title={t('column.changeColorTip', 'Cambia colore colonna')}
-                    />
+                        aria-label={t('column.changeColorTip', 'Cambia colore colonna')}
+                        aria-expanded={showPicker}
+                    >
+                        <span className="sw" />
+                    </button>
                 )}
 
                 {/* v1.15.9 — Svuota colonna (con conferma). Nascosto se già vuota. */}
                 {!isDeadAirWarning && column.clips.length > 0 && (
                     <button
                         onClick={handleClearColumn}
-                        className="shrink-0 text-white/30 hover:text-red-400 hover:scale-110 transition-all"
+                        className="col-tool danger"
                         title={t('column.clearTip', 'Svuota colonna (rimuovi tutte le clip)')}
+                        aria-label={t('column.clearTip', 'Svuota colonna (rimuovi tutte le clip)')}
                     >
                         <Trash2 size={14} />
                     </button>
@@ -148,19 +152,17 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
 
                 {/* Color Picker Popover */}
                 {showPicker && (
-                    <div className="absolute top-7 right-0 z-50 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl p-4 animate-in fade-in zoom-in-95 duration-150" style={{ width: '220px' }}>
-                        <p className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-3">{t('column.colorLabel', 'Colore Colonna')}</p>
-                        <div className="grid grid-cols-6 gap-2">
+                    <div className="col-picker">
+                        <span className="k">{t('column.colorLabel', 'Colore Colonna')}</span>
+                        <div className="grid6">
                             {COLUMN_COLORS.map(c => (
                                 <button
                                     key={c}
                                     onClick={() => { setColumnColor(column.id, c); setShowPicker(false); }}
-                                    className="w-7 h-7 rounded-full transition-all hover:scale-125 hover:shadow-lg focus:outline-none"
-                                    style={{
-                                        backgroundColor: c,
-                                        boxShadow: effectiveColor === c ? `0 0 0 2px white, 0 0 0 4px ${c}` : undefined
-                                    }}
+                                    className={`swb ${effectiveColor === c ? 'on' : ''}`}
+                                    style={{ backgroundColor: c, color: c }}
                                     title={c}
+                                    aria-label={c}
                                 />
                             ))}
                         </div>
@@ -168,7 +170,7 @@ export const ColumnHeader: React.FC<ColumnHeaderProps> = ({ column }) => {
                         {column.customColor && column.customColor !== column.color && (
                             <button
                                 onClick={() => { setColumnColor(column.id, column.color); setShowPicker(false); }}
-                                className="mt-3 w-full text-[9px] text-zinc-500 hover:text-zinc-200 transition-colors py-1 border border-zinc-800 hover:border-zinc-600 rounded"
+                                className="reset kbtn"
                             >
                                 {t('column.resetColor', '↺ Ripristina colore originale')}
                             </button>

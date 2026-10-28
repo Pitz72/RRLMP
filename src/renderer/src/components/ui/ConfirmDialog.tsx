@@ -20,8 +20,8 @@ export const ConfirmDialog: React.FC = () => {
             <div className="ov" style={{ zIndex: 300 }}>
                 <div className="ov-panel anim-in p-6 max-w-sm w-full mx-4">
                     <div className="flex items-start gap-3 mb-5">
-                        <AlertTriangle className="text-amber-400 shrink-0 mt-0.5" size={20} />
-                        <p className="text-sm text-white/90 leading-relaxed">{threeWayRequest.message}</p>
+                        <AlertTriangle className="text-[#FFB547] shrink-0 mt-0.5" size={22} />
+                        <p className="text-[15px] text-white leading-relaxed">{threeWayRequest.message}</p>
                     </div>
                     <div className="flex justify-between gap-2">
                         {/* Annulla — sinistra */}
@@ -32,7 +32,7 @@ export const ConfirmDialog: React.FC = () => {
                             {/* Non Salvare — rosso */}
                             <button
                                 onClick={() => respondThree('third')}
-                                className="btn text-white bg-red-700 hover:bg-red-600"
+                                className="btn btn-red"
                             >
                                 {threeWayRequest.thirdLabel}
                             </button>
@@ -52,8 +52,8 @@ export const ConfirmDialog: React.FC = () => {
         <div className="ov" style={{ zIndex: 300 }}>
             <div className="ov-panel anim-in p-6 max-w-sm w-full mx-4">
                 <div className="flex items-start gap-3 mb-5">
-                    <AlertTriangle className="text-amber-400 shrink-0 mt-0.5" size={20} />
-                    <p className="text-sm text-white/90 leading-relaxed">{request!.message}</p>
+                    <AlertTriangle className="text-[#FFB547] shrink-0 mt-0.5" size={22} />
+                    <p className="text-[15px] text-white leading-relaxed">{request!.message}</p>
                 </div>
                 <div className="flex justify-end gap-3">
                     <button onClick={() => respond(false)} className="btn btn-ghost">
@@ -61,7 +61,7 @@ export const ConfirmDialog: React.FC = () => {
                     </button>
                     <button
                         onClick={() => respond(true)}
-                        className="btn text-white bg-red-600 hover:bg-red-500"
+                        className="btn btn-red"
                         autoFocus
                     >
                         {request!.confirmLabel}

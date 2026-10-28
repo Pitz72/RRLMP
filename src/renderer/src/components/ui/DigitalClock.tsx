@@ -14,8 +14,8 @@ export const DigitalClock: React.FC = () => {
     const timeString = `${pad(time.getHours())}:${pad(time.getMinutes())}:${pad(time.getSeconds())}`;
 
     return (
-        <div className="font-mono text-xl font-bold tracking-wider text-green-500 tabular-nums select-none bg-black/20 px-3 py-1 rounded border border-green-500/10 shadow-[0_0_10px_rgba(34,197,94,0.2)]">
-            {timeString}
+        <div className="lcd-sm select-none" style={{ padding: 0 }}>
+            <span className="clock">{timeString}</span>
         </div>
     );
 };

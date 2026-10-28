@@ -25,18 +25,16 @@ export const OnAirTimer: React.FC = () => {
     const seconds = totalSeconds % 60;
     const timeString = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 
-    if (!onAirStartTime) {
-        return (
-            <div className="font-mono text-sm font-bold tracking-wider text-zinc-700 tabular-nums select-none px-3 py-1 rounded border border-zinc-800/60 whitespace-nowrap shrink-0">
-                ON AIR --:--:--
-            </div>
-        );
-    }
-
+    // v1.15.36 (tema Pad luminosi): piccolo display incassato, stessa larghezza da
+    // fermo e in onda; il LED rosso si accende quando la diretta è partita.
+    const isLive = !!onAirStartTime;
     return (
-        <div className="font-mono text-sm font-bold tracking-wider text-red-400 tabular-nums select-none bg-red-950/40 px-3 py-1 rounded border border-red-500/40 shadow-[0_0_10px_rgba(239,68,68,0.25)] flex items-center gap-2 whitespace-nowrap shrink-0">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
-            <span>ON AIR {timeString}</span>
+        <div className={`lcd-sm select-none ${isLive ? 'live' : ''}`}>
+            <span className={`led ${isLive ? 'r pulse' : ''}`} />
+            <span className="lcd-stack">
+                <span className="k">ON AIR</span>
+                <span className="v">{isLive ? timeString : '--:--:--'}</span>
+            </span>
         </div>
     );
 };
