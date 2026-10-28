@@ -118,12 +118,18 @@ function pinMatches(submitted: string, expected: string | null): boolean {
  * server: o non manda `Origin` (WebSocket da app non-browser), oppure manda
  * l'origine di questo server. Qualunque altra origine è una pagina di terzi.
  */
-export function isAllowedWsOrigin(origin: string | undefined, port: number): boolean {
+export function isAllowedWsOrigin(origin: string | undefined, port: number, host?: string): boolean {
     if (!origin) return true; // client non-browser: nessun Origin da falsificare
     try {
         const u = new URL(origin);
         if (u.protocol !== 'http:' && u.protocol !== 'https:') return false;
-        return u.port === String(port);
+        if (u.port !== String(port)) return false;
+        // v1.15.35 (L10): la sola porta non bastava — `http://sito-esterno:8787` passava.
+        // La nostra pagina apre il socket verso lo stesso indirizzo da cui è stata
+        // servita, quindi Origin e Host della richiesta coincidono (IP o nome, porta
+        // compresa). Host assente (client particolari): resta il solo controllo di porta.
+        if (host && u.host.toLowerCase() !== host.toLowerCase()) return false;
+        return true;
     } catch {
         return false;
     }
@@ -243,7 +249,7 @@ export function startRemoteControlServer(
 
         // v1.15.23 (M6): rifiuta le connessioni che arrivano da una pagina web di
         // terzi. Vedi isAllowedWsOrigin — i WebSocket ignorano la same-origin policy.
-        if (!isAllowedWsOrigin(req.headers.origin, PORT)) {
+        if (!isAllowedWsOrigin(req.headers.origin, PORT, req.headers.host)) {
             logger.warn(`[RemoteControlServer] Connessione WS rifiutata, origine non consentita: ${req.headers.origin}`);
             ws.close();
             return;

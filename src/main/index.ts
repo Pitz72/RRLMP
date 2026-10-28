@@ -1,5 +1,5 @@
 import { isAllowedExternalUrl } from './externalLinks';
-import { app, shell, BrowserWindow, protocol, nativeImage, ipcMain, dialog, globalShortcut, session } from 'electron';
+import { app, shell, BrowserWindow, protocol, nativeImage, ipcMain, dialog, globalShortcut, session, Menu } from 'electron';
 import { join, normalize, isAbsolute, extname } from 'path';
 import * as fs from 'fs';
 import { AudioProcessor } from './AudioProcessor';
@@ -9,6 +9,7 @@ import { initUpdateManager, checkForUpdates, downloadUpdate, quitAndInstall } fr
 import { setMainLanguage, tMain } from './i18nMain';
 import { mediaUrlToFilePath } from './mediaPath';
 import { detectExistingUserData, consumeWhatsNew } from './whatsNew';
+import { planArchiveNames } from './archivePlan';
 
 // v1.15.34 — schermata «Novità» (whatsNew.ts). Le tracce di un utente esistente
 // vanno lette ADESSO, prima che la finestra crei il proprio localStorage: dopo,
@@ -237,6 +238,20 @@ function createWindow(initialFilePath?: string): void {
         });
     });
 
+    // v1.15.35 (L9): difesa in profondità — la finestra della regia non deve mai
+    // lasciare la propria pagina. Un file trascinato fuori da una zona di drop, o un
+    // link finito per errore in un testo, farebbe navigare via l'interfaccia: audio
+    // fermo, stato perso. I drop sono già bloccati nel renderer; qui si chiude la via
+    // anche lato main. Solo in produzione: in sviluppo Vite ricarica da sé la pagina.
+    if (!isDev) {
+        mainWindow.webContents.on('will-navigate', (event, url) => {
+            if (url !== mainWindow.webContents.getURL()) {
+                event.preventDefault();
+                logger.warn(`[Main] Navigazione bloccata: ${url}`);
+            }
+        });
+    }
+
     // DIAGNOSTICS: Catch Renderer Hangs/Crashes (White Screen)
     mainWindow.on('unresponsive', () => {
         logger.warn('!!! RENDERER PROCESS IS HANGING (White Screen detected) !!!');
@@ -322,8 +337,10 @@ ipcMain.handle('detect-smart-cues', async (_event, filePath: string) => {
     ).catch((err: Error) => ({ success: false, error: err.message }));
 });
 
-ipcMain.handle('check-files-exist', async (_event, paths: string[]) => {
-    const missing = (paths as string[]).filter(p => !fs.existsSync(p));
+ipcMain.handle('check-files-exist', async (_event, paths: unknown) => {
+    // v1.15.35 (L7): input dal renderer — solo stringhe, mai un'eccezione sull'IPC.
+    const list = Array.isArray(paths) ? paths.filter((p): p is string => typeof p === 'string') : [];
+    const missing = list.filter(p => !fs.existsSync(p));
     return { missing };
 });
 
@@ -466,6 +483,25 @@ ipcMain.handle('save-project-direct', async (_event: Electron.IpcMainInvokeEvent
     }
 });
 
+// v1.15.35 (L6): diagnostica delle clip mancanti all'apertura di un .lmp, in un punto
+// solo. Le due vie di caricamento (dialog e doppio clic) avevano ciascuna la propria
+// copia, con due regole diverse sui path vuoti, e nessuna controllava la struttura:
+// una colonna senza `clips` faceva fallire `forEach` e il progetto veniva respinto
+// come "corrotto" con un TypeError, invece di arrivare al validatore del renderer
+// (validateLmpProjectData) che spiega con precisione che cosa non va.
+// NB: il renderer ricalcola comunque `isMissing` con il controllo di integrità.
+function markMissingClips(parsed: any): void {
+    const columns = parsed?.project?.columns;
+    if (!Array.isArray(columns)) return;
+    for (const col of columns) {
+        if (!col || !Array.isArray(col.clips)) continue;
+        for (const clip of col.clips) {
+            if (!clip || typeof clip !== 'object') continue;
+            clip.isMissing = typeof clip.path === 'string' && clip.path !== '' && !fs.existsSync(clip.path);
+        }
+    }
+}
+
 ipcMain.handle('dialog:load-project', async (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     if (!win) return { success: false };
@@ -481,20 +517,7 @@ ipcMain.handle('dialog:load-project', async (event) => {
         const content = fs.readFileSync(filePaths[0], 'utf-8');
         try {
             const parsed = JSON.parse(content) as any;
-            if (parsed && parsed.project && parsed.project.columns) {
-                // Diagnostica all'apertura del salvataggio: segnaliamo le clip mancanti
-                parsed.project.columns.forEach((col: any) => {
-                    col.clips.forEach((clip: any) => {
-                        let absolutePath = clip.path;
-                        // Resolve if relative or use as is
-                        if (absolutePath && !fs.existsSync(absolutePath)) {
-                            clip.isMissing = true;
-                        } else {
-                            clip.isMissing = false;
-                        }
-                    });
-                });
-            }
+            markMissingClips(parsed);
             return { success: true, data: JSON.stringify(parsed), filePath: filePaths[0] };
         } catch (e) {
             // PERSIST-04 (v1.3.3): se il parse JSON fallisce non spacciare il raw come "success".
@@ -603,77 +626,76 @@ ipcMain.handle('export-project', async (event, projectJsonString: string, lmpPat
         // ripuntare le clip alle copie in `audio/` (path assoluto) dopo l'export, così
         // cancellare gli originali diventa sicuro (l'archivio è il riferimento).
         const remap: { id: string; path: string }[] = [];
-        // SYNC: nomi-destinazione effettivamente usati da QUESTO export. Serve sia per il
-        // dedup interno (due clip con stesso filename) sia per il pruning degli orfani dopo.
-        const usedDestNames = new Set<string>();
-        let totalFiles = 0;
-        columns.forEach((col: any) => {
-            totalFiles += Array.isArray(col.clips) ? col.clips.length : 0;
-        });
+        // v1.15.35 (L6): una colonna senza `clips` non deve far fallire l'export.
+        const clips: any[] = columns.flatMap((col: any) => (Array.isArray(col?.clips) ? col.clips : []));
+        // v1.15.35 (G3): i nomi in `audio/` si decidono PRIMA di copiare, sapendo quali
+        // file sono già nell'archivio (vedi archivePlan.ts). Prima si assegnavano in
+        // ordine di scaletta e una clip nuova con lo stesso nome di una archiviata
+        // poteva sovrascriverne la copia — l'unica rimasta, se l'originale era stato
+        // cancellato come l'export consente.
+        const plan = planArchiveNames(
+            clips.map((clip) => (typeof clip?.path === 'string' && clip.path && fs.existsSync(clip.path)) ? clip.path : null),
+            audioDir,
+            process.platform
+        );
+        // SYNC: nomi-destinazione effettivamente usati da QUESTO export, per il pruning
+        // degli orfani più sotto.
+        const usedDestNames = new Set<string>(
+            plan.filter((e): e is NonNullable<typeof e> => e !== null).map((e) => e.destName.toLowerCase())
+        );
+        const totalFiles = clips.length;
 
-        let processed = 0;
-        for (const col of columns) {
-            for (const clip of col.clips) {
-                processed++;
-                const originalPath = clip.path;
+        for (let i = 0; i < clips.length; i++) {
+            const clip = clips[i];
+            const originalPath = clip?.path;
 
-                if (originalPath) {
-                    const currentFileName = join(originalPath).split(process.platform === 'win32' ? '\\' : '/').pop() || 'Unknown';
-                    if (!win.isDestroyed()) {
-                        win.webContents.send('export-progress', {
-                            current: processed,
-                            total: totalFiles,
-                            filename: currentFileName
-                        });
-                    }
+            if (originalPath) {
+                const currentFileName = join(originalPath).split(process.platform === 'win32' ? '\\' : '/').pop() || 'Unknown';
+                if (!win.isDestroyed()) {
+                    win.webContents.send('export-progress', {
+                        current: i + 1,
+                        total: totalFiles,
+                        filename: currentFileName
+                    });
                 }
+            }
 
-                await new Promise(resolve => setTimeout(resolve, 5));
+            await new Promise(resolve => setTimeout(resolve, 5));
 
-                // GR-07 Fix: dopo ogni yield controlla che la finestra esista ancora.
-                // Se l'utente chiude l'app durante l'export il loop si interrompe senza
-                // lasciare stream di copia o promise zombie nel main process.
-                if (win.isDestroyed()) {
-                    return { success: false, error: 'Export cancelled: window closed' };
-                }
+            // GR-07 Fix: dopo ogni yield controlla che la finestra esista ancora.
+            // Se l'utente chiude l'app durante l'export il loop si interrompe senza
+            // lasciare stream di copia o promise zombie nel main process.
+            if (win.isDestroyed()) {
+                return { success: false, error: 'Export cancelled: window closed' };
+            }
 
-                if (originalPath && fs.existsSync(originalPath)) {
-                    const fileName = join(originalPath).split(process.platform === 'win32' ? '\\' : '/').pop();
-                    if (fileName) {
-                        const ext = fileName.includes('.') ? fileName.split('.').pop()! : '';
-                        const base = ext ? fileName.slice(0, -(ext.length + 1)) : fileName;
-                        let destFileName = fileName;
-                        let counter = 1;
-                        // SYNC: il dedup è SOLO rispetto ai file di questo export (usedDestNames),
-                        // non rispetto ai file già presenti sul disco. Così i nomi restano stabili
-                        // tra un export e l'altro: copyFileSync sovrascrive il file aggiornato,
-                        // e gli orfani vengono rimossi dopo (pruning). Niente accumulo di _1, _2…
-                        while (usedDestNames.has(destFileName.toLowerCase())) {
-                            destFileName = `${base}_${counter++}.${ext}`;
-                        }
-                        usedDestNames.add(destFileName.toLowerCase());
-                        const destPath = join(audioDir, destFileName);
-                        // v1.4.14 (#4c): copia solo i file mancanti o cambiati (confronto
-                        // dimensione). I file già presenti e identici si saltano: su archivi
-                        // grandi evita di ricopiare l'intero banco regia a ogni export.
-                        let needsCopy = true;
-                        try {
-                            const dst = fs.statSync(destPath);
-                            if (dst.isFile() && dst.size === fs.statSync(originalPath).size) needsCopy = false;
-                        } catch { needsCopy = true; }
-                        if (needsCopy) {
-                            fs.copyFileSync(originalPath, destPath);
-                            successParams.copied++;
-                        } else {
-                            successParams.skipped++;
-                        }
-                        clip.path = `audio/${destFileName}`;
-                        if (clip.id) remap.push({ id: clip.id, path: clip.path });
-                    }
+            const entry = plan[i];
+            if (!entry) {
+                successParams.skipped++;
+                continue;
+            }
+            if (entry.inPlace) {
+                // Il file È già la copia nell'archivio: niente da fare.
+                successParams.skipped++;
+            } else {
+                const destPath = join(audioDir, entry.destName);
+                // v1.4.14 (#4c): copia solo i file mancanti o cambiati (confronto
+                // dimensione). I file già presenti e identici si saltano: su archivi
+                // grandi evita di ricopiare l'intero banco regia a ogni export.
+                let needsCopy = true;
+                try {
+                    const dst = fs.statSync(destPath);
+                    if (dst.isFile() && dst.size === fs.statSync(originalPath).size) needsCopy = false;
+                } catch { needsCopy = true; }
+                if (needsCopy) {
+                    fs.copyFileSync(originalPath, destPath);
+                    successParams.copied++;
                 } else {
                     successParams.skipped++;
                 }
             }
+            clip.path = `audio/${entry.destName}`;
+            if (clip.id) remap.push({ id: clip.id, path: clip.path });
         }
 
         // SYNC (audit 2026-05-29): pruning — la cartella audio deve rispecchiare lo stato reale
@@ -746,7 +768,15 @@ ipcMain.handle('export-project', async (event, projectJsonString: string, lmpPat
 ipcMain.handle('save-project-silent', async (_event: Electron.IpcMainInvokeEvent, content: string, filePath?: string) => {
     try {
         let targetPath = '';
-        if (filePath && fs.existsSync(filePath)) {
+        // v1.15.35 (L8): `filePath` arriva dal renderer. Era l'unica scrittura su disco
+        // senza la validazione già messa su save-project-direct: ora il `.bak` si scrive
+        // solo accanto a un .lmp assoluto ed esistente, altrimenti si va negli autosave.
+        // E la rotazione segue la cartella in cui si è scritto davvero: prima, con un
+        // .lmp spostato o su una chiavetta staccata, gli autosave si accumulavano
+        // senza limite (la rotazione guardava solo se `filePath` era stato passato).
+        const besideProject = typeof filePath === 'string' && isAbsolute(filePath)
+            && extname(filePath).toLowerCase() === '.lmp' && fs.existsSync(filePath);
+        if (besideProject) {
             targetPath = filePath + '.bak';
         } else {
             const userDataPath = app.getPath('userData');
@@ -761,7 +791,7 @@ ipcMain.handle('save-project-silent', async (_event: Electron.IpcMainInvokeEvent
         writeFileAtomicSync(targetPath, content);
 
         // GR10 Fix: rotazione autosave
-        if (!filePath) {
+        if (!besideProject) {
             const userDataPath = app.getPath('userData');
             const autosaveDir = join(userDataPath, 'autosaves');
             const allFiles = fs.readdirSync(autosaveDir)
@@ -790,6 +820,12 @@ ipcMain.handle('save-project-silent', async (_event: Electron.IpcMainInvokeEvent
 });
 
 // --- SESSION RECORDING IPC (v1.1.1+) ---
+// v1.15.35 (L5) — ATTENZIONE: i tre canali start-recording / append-record-chunk /
+// stop-recording NON sono esposti dal preload e oggi nessuno li chiama. La
+// registrazione della sessione resta in memoria nel renderer (AudioRecorder) e arriva
+// qui solo allo stop, in un colpo, tramite `save-recording-buffer`. Le correzioni
+// fatte su questi canali (es. v1.15.21, attesa di 'drain') non sono quindi attive in
+// regia. Restano come base per un'eventuale scrittura progressiva su disco.
 
 let recordingWriteStream: fs.WriteStream | null = null;
 let currentTempRecordingPath: string | null = null;
@@ -1101,13 +1137,7 @@ ipcMain.handle('load-project-path', async (_event, filePath: string) => {
         const content = fs.readFileSync(filePath, 'utf-8');
         try {
             const parsed = JSON.parse(content) as any;
-            if (parsed && parsed.project && parsed.project.columns) {
-                parsed.project.columns.forEach((col: any) => {
-                    col.clips.forEach((clip: any) => {
-                        clip.isMissing = !fs.existsSync(clip.path);
-                    });
-                });
-            }
+            markMissingClips(parsed);
             return { success: true, data: JSON.stringify(parsed), filePath };
         } catch (e) {
             // PERSIST-04 (v1.3.3): coerente con dialog:load-project — niente più
@@ -1328,6 +1358,29 @@ app.whenReady().then(() => {
     // toast notification raggruppato sotto "Electron Framework").
     if (process.platform === 'win32') app.setAppUserModelId('com.antigravity.rrlmp');
 
+    // v1.15.35 (GV1): via il menu predefinito di Electron nelle build installate.
+    // Senza un menu dell'app, Electron ne monta uno di serie (File/Modifica/Visualizza/
+    // Finestra/Aiuto): qui era nascosto (`autoHideMenuBar`) ma le sue scorciatoie
+    // restavano attive — Ctrl+R e Ctrl+Shift+R RICARICAVANO l'interfaccia (verificato:
+    // la pagina riparte da zero). In diretta voleva dire silenzio immediato, progetto
+    // non salvato perso, microfono disarmato, registrazione in corso persa e ritorno
+    // alla schermata di benvenuto. Restavano attivi anche Ctrl+Shift+I (strumenti di
+    // sviluppo) e lo zoom (Ctrl +/−), che sposta tutta la board.
+    // Windows/Linux: nessun menu (copia/incolla nei campi di testo funzionano lo stesso).
+    // macOS: solo app/modifica/finestra — senza il menu Modifica, Cmd+C/V nei campi di
+    // testo non funzionerebbero. In sviluppo il menu di serie resta (ricarica, DevTools).
+    if (app.isPackaged) {
+        if (process.platform === 'darwin') {
+            Menu.setApplicationMenu(Menu.buildFromTemplate([
+                { role: 'appMenu' },
+                { role: 'editMenu' },
+                { role: 'windowMenu' }
+            ]));
+        } else {
+            Menu.setApplicationMenu(null);
+        }
+    }
+
     // v1.2.3 — Rileva file .lmp passato come argomento (doppio click / file association OS)
     // Su Windows l'OS passa il path tra gli argv quando l'app è registrata come handler.
     // Escludiamo path interni di Electron (app.asar, electron.exe) e verifichiamo esistenza su disco.
@@ -1355,6 +1408,15 @@ app.whenReady().then(() => {
                 callback(false);
                 return;
             }
+            callback(true);
+        } else if (permission === 'midi') {
+            // v1.15.35 (G1): Web MIDI. Electron chiede anche questo permesso a questo
+            // gestore, che dalla v0.17.0 lo negava insieme a tutto il resto: con un
+            // controller vero `requestMIDIAccess()` falliva (SecurityError, verificato)
+            // e MIDI Learn, lanci da pad, velocity e comandi globali non funzionavano.
+            // Il Simulatore MIDI (Ctrl+Shift+M) non passa dal browser e lo nascondeva.
+            // Solo 'midi': 'midiSysex' (scrittura di dati di sistema sui dispositivi)
+            // resta negato, l'app non lo usa.
             callback(true);
         } else if (permission === 'clipboard-sanitized-write') {
             // v1.4.1: il bottone COPY del LOG STREAM (Debug Overlay) usa

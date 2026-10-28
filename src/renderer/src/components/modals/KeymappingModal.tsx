@@ -58,7 +58,9 @@ export const KeymappingModal: React.FC<KeymappingModalProps> = ({ isOpen, onClos
         if (!isOpen || !pendingMidiTarget) return;
 
         const handleMidi = (note: number, _velocity: number, command: number) => {
-            const type = command === 144 ? 'NOTE' : (command === 176 ? 'CC' : null);
+            // v1.15.35 (L1): tutti i 16 canali (vedi GlobalControls, stesso difetto).
+            const status = command & 0xf0;
+            const type = status === 0x90 ? 'NOTE' : (status === 0xb0 ? 'CC' : null);
             if (!type) return;
 
             const bindString = `${type}:${note}`;

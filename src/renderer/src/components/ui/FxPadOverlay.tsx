@@ -161,7 +161,10 @@ export const FxPadOverlay: React.FC<FxPadOverlayProps> = ({ isOpen, onClose }) =
                 await loadClip(clip);
             }
         }
-        toast(added > 0 ? `${added} effetti di default aggiunti al pad` : 'Tutti gli effetti di default sono già nel pad', added > 0 ? 'success' : 'info');
+        // v1.15.35 (L4): messaggi tradotti (erano in italiano fisso anche con l'app in inglese).
+        toast(added > 0
+            ? t('fxPad.defaultsAdded', '{{count}} effetti di default aggiunti al pad', { count: added })
+            : t('fxPad.defaultsAllPresent', 'Tutti gli effetti di default sono già nel pad'), added > 0 ? 'success' : 'info');
     };
 
     const midiLabel = (bind?: string) => bind?.replace('NOTE:', 'N').replace('CC:', 'C');

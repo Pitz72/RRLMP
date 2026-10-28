@@ -64,7 +64,8 @@
         "fileMenu": "FILE",
         "onMixBadge": "On Mix",
         "micVolBadge": "Mic Vol",
-        "autoSaved": "Salvataggio automatico"
+        "autoSaved": "Salvataggio automatico",
+        "micArmFailed": "Microfono non disponibile: {{err}}"
     },
     "modal": {
         "about": {
@@ -353,7 +354,9 @@
         "removeOk": "Rimuovi",
         "restoreConfirm": "Aggiungere al pad gli effetti di default mancanti (libreria inclusa nel software)? Gli FX già presenti non vengono toccati.",
         "restoreOk": "Ripristina",
-        "libUnavailable": "Libreria FX di default non disponibile: {{err}}"
+        "libUnavailable": "Libreria FX di default non disponibile: {{err}}",
+        "defaultsAdded": "{{count}} effetti di default aggiunti al pad",
+        "defaultsAllPresent": "Tutti gli effetti di default sono già nel pad"
     },
     "automix": {
         "reason": {
@@ -501,7 +504,12 @@
         "deleteSelectedConfirm": "Eliminare {{count}} clip selezionate?",
         "deleteLabel": "Elimina",
         "saveError": "Errore salvataggio: {{err}}",
-        "openPlayoutLog": "Apri Playout Log"
+        "openPlayoutLog": "Apri Playout Log",
+        "recordingActiveExit": "È in corso la registrazione della sessione. Uscendo adesso andrà persa: fermala ed esportala prima di uscire. Uscire comunque?",
+        "recordingNotExported": "La registrazione della sessione non è ancora stata esportata. Uscendo adesso andrà persa. Uscire comunque?",
+        "exitAnyway": "Esci comunque",
+        "openWhileOnAir": "C’è audio in onda. Aprire «{{name}}» fermerà la riproduzione. Continuare?",
+        "openAndStop": "Apri e ferma"
     },
     "keymap": {
         "title": "Keybinds & MIDI Dashboard",
@@ -543,7 +551,8 @@
         "asyncError": "Errore asincrono: {{msg}}",
         "zoneError": "Errore in {{zone}}",
         "unknownRender": "Errore sconosciuto nel render.",
-        "retry": "Riprova"
+        "retry": "Riprova",
+        "playFailed": "Impossibile riprodurre «{{name}}»: formato non supportato o file illeggibile."
     },
     "debug": {
         "notMeasured": "non misurata",

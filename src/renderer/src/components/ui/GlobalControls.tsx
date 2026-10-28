@@ -41,7 +41,10 @@ interface GlobalControlsProps {
 
 export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggleAutomix, updaterStatus, onOpenUpdateModal, onCheckUpdatesNow }: GlobalControlsProps) => {
     const { t } = useTranslation();
-    const { stopAll } = useAudioStore();
+    // v1.15.35 (M4): selettore singolo. `useAudioStore()` senza selettore abbonava la
+    // barra comandi all'INTERO store audio, che durante la riproduzione cambia 10 volte
+    // al secondo (progresso delle clip): la topbar si ridisegnava di continuo.
+    const stopAll = useAudioStore((s) => s.stopAll);
     const loadClip = useAudioStore((s) => s.loadClip);
     const { columns, isDirty, setDirty, loadProject, resetProject, currentFilePath, isMidiLearnMode, setIsMidiLearnMode, runIntegrityCheck, updateClip, addClipFromPath, applyArchivedPaths, setCurrentFilePath } = useProjectStore();
     const { globalMidiBinds, setGlobalMidiBind, masterVolume, setMasterVolume: setStoredVolume,
@@ -50,9 +53,10 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
     const isMicActive = useAudioStore(s => s.isMicActive);
     // v1.10.5: badge FX attivi sul toggle — a pad chiuso un effetto in onda
     // (loop/lungo) non aveva NESSUN riscontro visivo in regia.
-    const activeClips = useAudioStore((s) => s.activeClips);
+    // v1.15.35 (M4): il selettore restituisce direttamente il conteggio (un numero
+    // stabile), non la mappa delle clip in onda.
     const sfxCol = columns.find((c) => c.type === 'sfx');
-    const sfxActiveCount = sfxCol ? sfxCol.clips.filter((c) => !!activeClips[c.id]).length : 0;
+    const sfxActiveCount = useAudioStore((s) => (sfxCol ? sfxCol.clips.filter((c) => !!s.activeClips[c.id]).length : 0));
     // v1.5.0: Undo/Redo playlist (selettori reattivi per abilitare/disabilitare i pulsanti)
     const canUndo = useProjectStore((s) => s.undoStack.length > 0);
     const canRedo = useProjectStore((s) => s.redoStack.length > 0);
@@ -228,7 +232,12 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
         if (!isMidiLearnMode || !pendingBind) return;
 
         const handleMidi = (note: number, _velocity: number, command: number) => {
-            const type = command === 144 ? 'NOTE' : (command === 176 ? 'CC' : null);
+            // v1.15.35 (L1): tutti i 16 canali, come il riconoscimento in App.tsx
+            // (che maschera il canale dal 2026-05-29). Qui si confrontava ancora
+            // `command === 144/176`: un controller che trasmette su un canale diverso
+            // dall'1 veniva riconosciuto in onda ma non si lasciava assegnare.
+            const status = command & 0xf0;
+            const type = status === 0x90 ? 'NOTE' : (status === 0xb0 ? 'CC' : null);
             if (!type) return;
 
             const bindString = `${type}:${note}`;
@@ -323,6 +332,10 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 setIsArmed(true);
             } catch (e) {
                 console.error('[SmartMic] Arm failed:', e);
+                // v1.15.35 (L3): prima l'errore finiva solo in console — in regia il
+                // pulsante ARM semplicemente non si accendeva (microfono scollegato,
+                // dispositivo cambiato, accesso negato), senza alcuna spiegazione.
+                toast(t('controls.micArmFailed', 'Microfono non disponibile: {{err}}', { err: e instanceof Error ? e.message : String(e) }), 'error', 7000);
                 micArmingRef.current = false;
                 return;
             }

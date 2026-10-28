@@ -13,6 +13,7 @@ Punto di ingresso unico alla documentazione del progetto. Ogni voce dice **a cos
 | Documento | A cosa serve | Stato |
 |---|---|---|
 | [Piano di apertura del sorgente](./PIANO-APERTURA.md) | Ritiro dalla vendita e pubblicazione sotto licenza MIT: decisioni, fasi, stato | 🔄 **Fasi 1-4 chiuse**, resta la Fase 5 |
+| [Revisione codice 2026-10-28](./technical/REVISIONE-CODICE-2026-10-28.md) | Scopo e uso del programma, criticità classificate per gravità con file:riga, verifiche fatte con Electron | ✅ **chiusa** (1 gravissima, 4 gravi, 4 medie, 10 lievi corrette nella 1.15.35) |
 | [Revisione codice 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md) | Criticità aperte del codice, classificate per gravità con file:riga e fix proposto | ✅ **chiusa** (reperti risolti in 1.15.16-29, rilasciati con la 1.15.32) |
 | [Roadmap & Backlog](./ROADMAP.md) | Cosa c'è da fare adesso, cosa è sospeso, cosa è chiuso | ✅ **allineato a 1.15.33** |
 | [Regole per colonna](./regole-colonne/README.md) | Il comportamento di ogni colonna in regia — **fonte di verità del motore** | ✅ allineato a 1.15.15 |

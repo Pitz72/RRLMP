@@ -46,6 +46,18 @@ describe('isAllowedWsOrigin', () => {
         expect(isAllowedWsOrigin('http://192.168.1.42:3000', PORT)).toBe(false);
     });
 
+    // v1.15.35 (L10): con l'header Host l'origine deve coincidere con l'indirizzo
+    // a cui il browser si è collegato, non solo con la porta.
+    it('con Host: accetta la pagina servita dallo stesso indirizzo', () => {
+        expect(isAllowedWsOrigin('http://192.168.1.42:8787', PORT, '192.168.1.42:8787')).toBe(true);
+        expect(isAllowedWsOrigin('http://Regia.local:8787', PORT, 'regia.local:8787')).toBe(true);
+    });
+
+    it('con Host: rifiuta un sito esterno che usa la stessa porta', () => {
+        expect(isAllowedWsOrigin('http://sito-malevolo.example:8787', PORT, '192.168.1.42:8787')).toBe(false);
+        expect(isAllowedWsOrigin('http://192.168.1.99:8787', PORT, '192.168.1.42:8787')).toBe(false);
+    });
+
     it('rifiuta origini con schemi non web o malformate', () => {
         expect(isAllowedWsOrigin('file://', PORT)).toBe(false);
         expect(isAllowedWsOrigin('non-un-url', PORT)).toBe(false);

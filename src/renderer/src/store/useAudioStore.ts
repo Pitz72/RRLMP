@@ -7,6 +7,7 @@ import AudioContextManager from '../engine/AudioContextManager';
 import { debugLog } from './useDebugStore';
 import { useProjectStore } from './useProjectStore';
 import { useSettingsStore } from './useSettingsStore';
+import { toast } from './useToastStore';
 import i18n from '../i18n';
 
 // v1.2.19 (NEW-GR-04): cap FIFO sul playoutLog per evitare degrado progressivo
@@ -387,7 +388,14 @@ const scheduleSequencerPlay = (fn: () => void, delay = 20): void => {
 // lento il gap era udibile. Si tiene UN solo player precaricato (il sequenziale della
 // clip in onda); playClip lo riusa se id+path corrispondono, altrimenti lo scarta.
 let _preloadedNext: { clipId: string; path: string; player: IAudioPlayer } | null = null;
+// v1.15.35 (L2): numero del preload più recente. Due preload in volo insieme (clip
+// lanciate a breve distanza) si sovrascrivevano: il primo player caricato restava
+// orfano, con il suo elemento <audio> e i nodi Web Audio mai rilasciati. Anche uno
+// scarto (STOP ALL, take-over) arrivato durante il caricamento veniva ignorato.
+// Ora un preload che termina dopo essere stato superato si libera da solo.
+let _preloadSeq = 0;
 const discardPreloadedNext = (): void => {
+    _preloadSeq++;
     if (_preloadedNext) {
         _preloadedNext.player.cleanup();
         _preloadedNext = null;
@@ -398,9 +406,14 @@ const preloadNextClip = async (currentClipId: string): Promise<void> => {
     if (!next || next.isMissing || !next.path) return;
     if (_preloadedNext?.clipId === next.id && _preloadedNext.path === next.path) return;
     discardPreloadedNext();
+    const seq = _preloadSeq;
     const p: IAudioPlayer = new StreamPlayer();
     try {
         await p.load(next.path);
+        if (seq !== _preloadSeq) {
+            p.cleanup(); // superato da un preload più recente o scartato nel frattempo
+            return;
+        }
         _preloadedNext = { clipId: next.id, path: next.path, player: p };
         debugLog(`AudioStore: Preload next ${next.name}`, 'info');
     } catch {
@@ -670,7 +683,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 ? freshClip.volume * velocityGain
                 : freshClip.volume;
             const effectiveVolume = Math.max(0, Math.min(1.5, baseVolume * loudnessGain));
-            const effectiveClip = effectiveVolume !== freshClip.volume
+            let effectiveClip = effectiveVolume !== freshClip.volume
                 ? { ...freshClip, volume: effectiveVolume }
                 : freshClip;
 
@@ -1117,6 +1130,20 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     return;
                 }
 
+                // v1.15.35 (M1): clip senza durata. Fino alla 1.15.34 i file trascinati in
+                // JINGLE e PROMO non la ricevevano mai (loadClip la scriveva sulla colonna
+                // SHOW ASSETS, vedi sotto): in onda il banner IN ONDA mostrava -00:00 rosso
+                // lampeggiante per tutto il jingle e la card restava a 00:00. Il file è
+                // appena stato caricato, quindi la durata è nota: la si prende da qui e si
+                // ripara anche il progetto (scrittura di runtime, non sporca il progetto).
+                const loadedDuration = player.getDuration();
+                if (!(freshClip.duration > 0) && Number.isFinite(loadedDuration) && loadedDuration > 0) {
+                    effectiveClip = { ...effectiveClip, duration: loadedDuration };
+                    if (columnId) {
+                        useProjectStore.getState().updateClip(columnId, freshClip.id, { duration: loadedDuration }, { runtime: true });
+                    }
+                }
+
                 // v0.14.10: imposta fadeOut dinamico per clip con play_next così onPreEnd scatta
                 // al momento giusto per crossfade/segue (crossfadeDuration o segueDuration ms prima della fine).
                 // v0.16.4: esteso a Music e Assets (rimosso guard type === 'preshow')
@@ -1192,9 +1219,43 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 // v1.4.10 (#18): rilascia i nodi Web Audio del player fallito — prima
                 // restavano connessi al grafo (accumulo su tentativi ripetuti).
                 player.cleanup();
+
+                // v1.15.35 (G4): un lancio fallito libera il proprio run-ID. Prima restava
+                // registrato: il clic successivo dell'operatore sulla stessa clip veniva
+                // preso per "annulla il caricamento in corso" e ingoiato in silenzio.
+                // Se il run non è più quello corrente (STOP ALL, stop, rilancio durante il
+                // caricamento) qualcun altro ha già deciso cosa fare: nessuna azione.
+                const isCurrentRun = playRunIds.get(freshClip.id) === runId;
+                if (isCurrentRun) playRunIds.delete(freshClip.id);
+                const wasActiveInsert = _activeInsertId === freshClip.id;
+
                 // v1.4.8 (#2 rotazione): inserto fallito al load → recupero (coda/ripresa),
                 // niente più PRE-SHOW in silenzio con stato stale.
                 recoverFromInsertFailure(freshClip.id);
+
+                if (isCurrentRun) {
+                    // v1.15.35 (G4): l'operatore deve saperlo — prima l'errore finiva solo
+                    // nel Debug Overlay e in regia la clip sembrava semplicemente "non partire".
+                    // Caso tipico: un formato che il motore di riproduzione non decodifica
+                    // (es. .wma, accettato al trascinamento perché FFmpeg lo analizza).
+                    toast(i18n.t('errors.playFailed','Impossibile riprodurre «{{name}}»: formato non supportato o file illeggibile.', { name: freshClip.name }), 'error', 7000);
+
+                    // v1.15.35 (G4): in una catena play_next (PRE-SHOW, scalette) la clip
+                    // precedente è già stata fermata o sfumata: senza avanzamento la catena
+                    // si interrompeva qui, cioè silenzio in onda finché qualcuno non se ne
+                    // accorgeva. Stessa regola già usata per un errore a riproduzione in
+                    // corso (onPlaybackError): si passa alla clip successiva. Solo per i
+                    // lanci della macchina — un clic dell'operatore non deve far partire
+                    // altro — e mai per gli inserti, che hanno il loro recupero (sopra).
+                    const live = getFreshClipById(freshClip.id) ?? freshClip;
+                    if (opts?.machine && !wasActiveInsert && live.nextAction === 'play_next' && !live.isLooping) {
+                        const nextClip = resolvePreshowNext(live, getColumnForClip(freshClip.id));
+                        if (nextClip && nextClip.id !== freshClip.id && !get().activeClips[nextClip.id]) {
+                            debugLog(`AudioStore: Avanzamento dopo lancio fallito → ${nextClip.name}`, 'event');
+                            scheduleSequencerPlay(() => get().playClip(nextClip, undefined, { machine: true }));
+                        }
+                    }
+                }
             }
         },
 
@@ -1227,7 +1288,11 @@ export const useAudioStore = create<AudioStore>((set, get) => {
 
                 const { useProjectStore } = await import('./useProjectStore');
                 useProjectStore.getState().updateClip(
-                    clip.type === 'asset' ? 'col-assets' : `col-${clip.type}`,
+                    // v1.15.35 (M1): la colonna REALE della clip. Ricavarla dal tipo
+                    // ('asset' → col-assets) mandava a vuoto la scrittura per JINGLE e
+                    // PROMO, che sono anch'esse di tipo 'asset': quelle clip restavano
+                    // senza durata. Il ripiego sul tipo resta per una clip già rimossa.
+                    getColumnForClip(clip.id) ?? (clip.type === 'asset' ? 'col-assets' : `col-${clip.type}`),
                     clip.id,
                     { duration, trimStart, trimEnd, ...(artist !== undefined ? { artist } : {}), ...(title !== undefined ? { title } : {}) },
                     { runtime: true } // v1.15.18: durata e tag ID3 letti dal file, non modifiche dell'operatore

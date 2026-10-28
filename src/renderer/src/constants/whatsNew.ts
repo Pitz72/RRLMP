@@ -11,6 +11,22 @@ export interface WhatsNewEntry {
 }
 
 export const WHATS_NEW: Record<string, WhatsNewEntry> = {
+    '1.15.35': {
+        it: [
+            'Ctrl+R non ricarica più l’interfaccia: in diretta fermava tutto.',
+            'I controller MIDI tornano a funzionare (lanci, MIDI Learn, comandi globali).',
+            'Chiudendo il programma con una registrazione in corso o non esportata, ora viene chiesta conferma.',
+            'L’esportazione con audio non sovrascrive più i file già archiviati con lo stesso nome.',
+            'Una clip che non si può riprodurre mostra un avviso e la sequenza passa alla successiva.',
+        ],
+        en: [
+            'Ctrl+R no longer reloads the interface: on air it stopped everything.',
+            'MIDI controllers work again (launching, MIDI Learn, global commands).',
+            'Quitting with a recording running or not yet exported now asks for confirmation.',
+            'Export with audio no longer overwrites archived files with the same name.',
+            'A clip that cannot be played shows a message and the sequence moves on to the next one.',
+        ],
+    },
     '1.15.34': {
         it: [
             'Limiter del master corretto: non alza più di mezzo decibel tutto il programma e tiene davvero il tetto impostato. Prima, con segnali molto forti, poteva superare 0 dBFS.',

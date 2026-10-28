@@ -37,6 +37,21 @@ import i18n from './i18n';
 
 import appLogo from './assets/logo.png';
 
+/**
+ * v1.15.35 (G2): la registrazione della sessione vive in memoria finché non viene
+ * fermata, e dopo lo stop resta in un file temporaneo finché non viene esportata.
+ * Chiudere l'app (o "Riavvia e installa") la perdeva senza una parola: la chiusura
+ * guardava solo le modifiche al progetto. Ritorna true se si può uscire.
+ */
+async function confirmExitWithRecording(): Promise<boolean> {
+    const rec = useRecordingStore.getState();
+    if (!rec.isRecording && !rec.tempPath) return true;
+    const message = rec.isRecording
+        ? i18n.t('app.recordingActiveExit', 'È in corso la registrazione della sessione. Uscendo adesso andrà persa: fermala ed esportala prima di uscire. Uscire comunque?')
+        : i18n.t('app.recordingNotExported', 'La registrazione della sessione non è ancora stata esportata. Uscendo adesso andrà persa. Uscire comunque?');
+    return confirm(message, i18n.t('app.exitAnyway', 'Esci comunque'), i18n.t('modal.dialog.cancel', 'Annulla'));
+}
+
 function App() {
     const [showWelcome, setShowWelcome] = useState(true);
     const [showPlayoutLog, setShowPlayoutLog] = useState(false);
@@ -115,6 +130,22 @@ function App() {
     useEffect(() => {
         const unsub = window.electron.onOpenFile(async (filePath: string) => {
             try {
+                // v1.15.35 (M2): il gate qui sotto proteggeva la diretta solo se il
+                // progetto aveva modifiche non salvate. Dalla 1.15.18 le analisi
+                // automatiche non sporcano più il progetto, quindi in regia è quasi
+                // sempre "pulito": un doppio clic su un .lmp in Esplora risorse durante
+                // la trasmissione fermava tutto senza una domanda. Ora, con audio in
+                // onda, si chiede sempre conferma.
+                if (Object.keys(useAudioStore.getState().activeClips).length > 0) {
+                    const fileName = filePath.split(/[\\/]/).pop() ?? filePath;
+                    const goOn = await confirm(
+                        i18n.t('app.openWhileOnAir', 'C’è audio in onda. Aprire «{{name}}» fermerà la riproduzione. Continuare?', { name: fileName }),
+                        i18n.t('app.openAndStop', 'Apri e ferma'),
+                        i18n.t('modal.dialog.cancel', 'Annulla')
+                    );
+                    if (!goOn) return;
+                }
+
                 // Gate isDirty: salva / non salvare / annulla, identico a handleCloseIntent
                 const state = useProjectStore.getState();
                 if (state.isDirty) {
@@ -262,6 +293,8 @@ function App() {
     // avviare la procedura. Stessa scelta a tre vie della chiusura normale.
     // Ritorna true se si può procedere con l'installazione.
     const confirmSaveBeforeUpdate = async (): Promise<boolean> => {
+        // v1.15.35 (G2): anche l'aggiornamento chiude l'app — stessa tutela della chiusura.
+        if (!(await confirmExitWithRecording())) return false;
         const state = useProjectStore.getState();
         if (!state.isDirty) return true;
 
@@ -376,6 +409,8 @@ function App() {
         };
 
         const handleCloseIntent = async () => {
+            // v1.15.35 (G2): prima la registrazione, poi il progetto.
+            if (!(await confirmExitWithRecording())) return;
             const state = useProjectStore.getState();
             if (!state.isDirty) {
                 window.electron.forceClose();

@@ -64,7 +64,8 @@
         "fileMenu": "FILE",
         "onMixBadge": "On Mix",
         "micVolBadge": "Mic Vol",
-        "autoSaved": "Auto-saved"
+        "autoSaved": "Auto-saved",
+        "micArmFailed": "Microphone not available: {{err}}"
     },
     "modal": {
         "about": {
@@ -353,7 +354,9 @@
         "removeOk": "Remove",
         "restoreConfirm": "Add the missing default effects to the pad (library included with the software)? Existing FX are not touched.",
         "restoreOk": "Restore",
-        "libUnavailable": "Default FX library unavailable: {{err}}"
+        "libUnavailable": "Default FX library unavailable: {{err}}",
+        "defaultsAdded": "{{count}} default effects added to the pad",
+        "defaultsAllPresent": "All default effects are already on the pad"
     },
     "automix": {
         "reason": {
@@ -501,7 +504,12 @@
         "deleteSelectedConfirm": "Delete {{count}} selected clips?",
         "deleteLabel": "Delete",
         "saveError": "Save error: {{err}}",
-        "openPlayoutLog": "Open Playout Log"
+        "openPlayoutLog": "Open Playout Log",
+        "recordingActiveExit": "The session is being recorded. If you quit now the recording will be lost: stop and export it before quitting. Quit anyway?",
+        "recordingNotExported": "The session recording has not been exported yet. If you quit now it will be lost. Quit anyway?",
+        "exitAnyway": "Quit anyway",
+        "openWhileOnAir": "Audio is on air. Opening “{{name}}” will stop playback. Continue?",
+        "openAndStop": "Open and stop"
     },
     "keymap": {
         "title": "Keybinds & MIDI Dashboard",
@@ -543,7 +551,8 @@
         "asyncError": "Async error: {{msg}}",
         "zoneError": "Error in {{zone}}",
         "unknownRender": "Unknown render error.",
-        "retry": "Retry"
+        "retry": "Retry",
+        "playFailed": "Cannot play “{{name}}”: unsupported format or unreadable file."
     },
     "debug": {
         "notMeasured": "not measured",

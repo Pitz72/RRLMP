@@ -25,7 +25,6 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
     const progress = activeState?.progress || 0;
 
     // v0.14.4 — UP NEXT badge: la clip immediatamente successiva a quella in play (stessa colonna, nextAction = play_next)
-    const activeClips = useAudioStore((state) => state.activeClips);
     const columns = useProjectStore((state) => state.columns);
 
     // v1.1.6 — Colore dinamico: segue il colore corrente della colonna (customColor || color).
@@ -33,13 +32,18 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
     const parentColumn = React.useMemo(() => columns.find(c => c.clips.some(cl => cl.id === clip.id)), [columns, clip.id]);
     const effectiveColor = clip.customColor || (parentColumn ? (parentColumn.customColor || parentColumn.color) : clip.color);
 
-    const isNextUp = React.useMemo(() => {
-        if (!parentColumn) return false;
+    // v1.15.35 (M4): ogni card era abbonata all'INTERA mappa delle clip in onda, che
+    // cambia 10 volte al secondo con il progresso: durante la riproduzione TUTTE le
+    // card della board si ridisegnavano di continuo (con 100 clip, mille ridisegni al
+    // secondo). Alla card serve solo sapere se la clip che la precede è in onda.
+    const prevClipIdForNextUp = React.useMemo(() => {
+        if (!parentColumn) return null;
         const clipIdx = parentColumn.clips.findIndex(c => c.id === clip.id);
-        if (clipIdx <= 0) return false;
+        if (clipIdx <= 0) return null;
         const prevClip = parentColumn.clips[clipIdx - 1];
-        return prevClip.nextAction === 'play_next' && !!activeClips[prevClip.id];
-    }, [parentColumn, activeClips, clip.id]);
+        return prevClip.nextAction === 'play_next' ? prevClip.id : null;
+    }, [parentColumn, clip.id]);
+    const isNextUp = useAudioStore((state) => prevClipIdForNextUp !== null && !!state.activeClips[prevClipIdForNextUp]);
 
     // v1.2.25 (NEW-ME-04): currentTime derivato dal progress globale dello store
     // (aggiornato a 10fps da _syncProgress). Elimina il setInterval per-ClipCard:

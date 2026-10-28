@@ -81,13 +81,19 @@ const SortableColumn: React.FC<SortableColumnProps> = ({ column, children, onNat
 export const MainGrid: React.FC = () => {
     const { t } = useTranslation();
     const { columns, addClipAtIndex, updateClip, removeClip, moveClip, moveSelectedClips, currentFilePath } = useProjectStore();
-    const { loadClip, playColumn } = useAudioStore((state) => ({
-        loadClip: state.loadClip,
-        playColumn: state.playColumn
-    }));
+    // v1.15.35 (M4): due selettori separati. Il selettore a oggetto `({ loadClip,
+    // playColumn })` restituiva un oggetto nuovo a ogni giro dello store audio: la
+    // griglia intera si ridisegnava 10 volte al secondo mentre qualcosa suonava
+    // (il progresso delle clip aggiorna lo store a 10 Hz).
+    const loadClip = useAudioStore((state) => state.loadClip);
+    const playColumn = useAudioStore((state) => state.playColumn);
     // Controllo Remoto (2026-07-01, Step 4/N) — sottoscrizione reattiva separata:
     // serve solo per sapere QUALI clip sono in play, non richiede altro dallo store.
-    const activeClips = useAudioStore((state) => state.activeClips);
+    // v1.15.35 (M4): solo l'ELENCO delle clip in onda, come stringa stabile. La mappa
+    // intera cambia a ogni aggiornamento del progresso: il ridisegno della griglia e
+    // la ripubblicazione dello stato al tablet (IPC + broadcast WebSocket) avvenivano
+    // 10 volte al secondo anche senza alcun cambiamento da mostrare.
+    const activeIdsKey = useAudioStore((state) => JSON.stringify(Object.keys(state.activeClips).sort()));
     // Layout regia configurabile (v1.9.8) — colonne nascoste dalla board (globale).
     const hiddenColumnIds = useSettingsStore((state) => state.hiddenColumnIds);
 
@@ -114,6 +120,16 @@ export const MainGrid: React.FC = () => {
             // 2. Input Guard
             const activeTag = document.activeElement?.tagName.toLowerCase();
             if (activeTag === 'input' || activeTag === 'textarea') return;
+
+            // v1.15.35 (M3): le combinazioni con Ctrl, Alt o Cmd sono scorciatoie
+            // dell'app o del sistema, non tasti di lancio. I keybind registrano solo il
+            // tasto fisico (e.code), quindi prima Ctrl+Z (annulla) lanciava ANCHE il
+            // jingle assegnato a Z, Ctrl+Y quello su Y, Ctrl+Shift+D quello su D, e
+            // Alt+F4 faceva partire la colonna di F4 mentre la finestra si chiudeva.
+            // Eccezione: se il tasto premuto È un modificatore (un bind su Ctrl destro,
+            // per esempio), il suo stesso flag è acceso e va lasciato passare.
+            const isModifierKey = e.key === 'Control' || e.key === 'Alt' || e.key === 'AltGraph' || e.key === 'Meta' || e.key === 'Shift';
+            if ((e.ctrlKey || e.altKey || e.metaKey) && !isModifierKey) return;
 
             // 3. Custom Keybinds (Priority)
             // Nota: Escape (Emergency Stop) è gestito dal keydown globale in App.tsx
@@ -308,13 +324,14 @@ export const MainGrid: React.FC = () => {
     const musicColumnForRemote = columns.find(c => c.type === 'music');
     useEffect(() => {
         if (!window.electron?.publishRemoteState) return;
+        const active = new Set<string>(JSON.parse(activeIdsKey) as string[]);
         const clips = (musicColumnForRemote?.clips ?? []).map(c => ({
             id: c.id,
             name: c.title || c.name,
-            isPlaying: !!activeClips[c.id]
+            isPlaying: active.has(c.id)
         }));
         window.electron.publishRemoteState(clips);
-    }, [musicColumnForRemote, activeClips]);
+    }, [musicColumnForRemote, activeIdsKey]);
 
     // Sensors
     const sensors = useSensors(

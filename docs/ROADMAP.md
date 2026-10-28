@@ -1,7 +1,7 @@
 # RRLMP — Roadmap & Backlog
 
-**Versione corrente:** 1.15.34 — **rilasciata** su `Pitz72/RRLMP` il 2026-09-19 (run 35402635920, 5/5; SHA-512 degli asset e `app-update.yml` del `.deb` verificati). Il ponte `Ecosystem-Runtime/RRLMP-Releases` resta alla 1.15.33
-**Ultimo aggiornamento:** 2026-09-19 — schermata «Novità», `electron-builder.yml`, limiter misurato
+**Versione corrente:** 1.15.35 — **non ancora rilasciata** (revisione del codice del 2026-10-28). Ultima rilasciata: 1.15.34 su `Pitz72/RRLMP` il 2026-09-19 (run 35402635920, 5/5; SHA-512 degli asset e `app-update.yml` del `.deb` verificati). Il ponte `Ecosystem-Runtime/RRLMP-Releases` resta alla 1.15.33
+**Ultimo aggiornamento:** 2026-10-28 — revisione del codice: 19 criticità corrette nella 1.15.35 ([report](./technical/REVISIONE-CODICE-2026-10-28.md))
 
 Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio). Nessuna automazione 24h. L'unica eccezione controllata è la rotazione PRE-SHOW — vedi [VISION.md](./VISION.md).
 
@@ -12,8 +12,8 @@ Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio)
 | Area | Stato |
 |------|-------|
 | Typecheck (renderer/main/node/preload) | **0 errori** su tutti e 4 |
-| Test Vitest | **246/246 verdi** (26 file) |
-| Criticità aperte del codice | **nessuna** dalla [revisione 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md) (22 reperti chiusi in 1.15.16 → 1.15.29) — limiter misurato e corretto nella 1.15.34 |
+| Test Vitest | **265/265 verdi** (28 file) |
+| Criticità aperte del codice | **nessuna** dalla [revisione 2026-10-28](./technical/REVISIONE-CODICE-2026-10-28.md): 1 gravissima (Ctrl+R ricaricava l'interfaccia), 4 gravi (MIDI hardware negato, registrazione persa all'uscita, export che sovrascriveva l'archivio, catena ferma su clip non riproducibile), 4 medie e 10 lievi, tutte corrette nella 1.15.35. Precedente: [revisione 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md), 22 reperti chiusi in 1.15.16 → 1.15.29 |
 | Ultima release **pubblicata** | **v1.15.33** su `Pitz72/RRLMP` e, identica, sul ponte `RRLMP-Releases` (unica release in entrambi) — note cumulative 1.15.16 → 1.15.33 in italiano e inglese |
 | Lingue | **Solo italiano e inglese** in app, guida rapida, manuale e note di rilascio (dalla 1.15.32) |
 | Manuale utente | IT + EN allineati alla 1.15.33, licenza MIT; il pulsante dell'app li apre da `Pitz72/RRLMP/manuale-utente/typst` (le versioni ≤ 1.15.32 da `RRLMP-Releases/manuals`, aggiornati anch'essi) |
@@ -45,10 +45,11 @@ Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio)
 
 Non riproducibili con i test automatici:
 
+- **Revisione 2026-10-28 (1.15.35), sull'exe installato:** Ctrl+R / Ctrl+Shift+R / Ctrl+Shift+I non devono fare nulla · un **controller MIDI reale** deve funzionare (MIDI Learn, lancio, STOP ALL) — dalla 0.17.0 non veniva mai visto · chiudere con REC acceso o con registrazione non esportata deve chiedere conferma · export con due file omonimi, uno già archiviato · una clip `.wma` in PRE-SHOW deve dare l'avviso e passare al brano successivo.
 - **Hero IN ONDA e card stabili** (1.15.31) durante una sequenza play_next reale, con intro/outro.
 - **Aggiornamento automatico dalla 1.15.32 (o precedente) alla 1.15.33 tramite il ponte**, con il popup che mostra le note cumulative; poi la 1.15.34 deve arrivare da `Pitz72/RRLMP`.
 - **Share di rete reale** (1.15.20): riprodurre un brano su NAS/cartella condivisa.
-- **Distacco di un supporto durante la registrazione** (1.15.21): la sessione deve chiudersi salvando quanto raccolto.
+- ~~**Distacco di un supporto durante la registrazione** (1.15.21)~~ — **non verificabile**: la revisione 2026-10-28 ha accertato che i canali di registrazione in streaming corretti nella 1.15.21 non sono esposti dal preload e non vengono usati. La registrazione resta in memoria fino allo stop (vedi Priorità 3).
 - **Tasti F1–F6** (1.15.26): F6 lancia PRE-SHOW; nascondendo una colonna i tasti si rimappano.
 - **Esportazione su cartella `audio/` preesistente** (1.15.17): avviso al primo export, nessun file estraneo rimosso.
 - **"Riavvia e installa" con progetto sporco** (1.15.19): deve chiedere Salva / Non Salvare / Annulla.
@@ -71,6 +72,8 @@ Feature precedenti mai validate su materiale reale:
 - **`music-metadata` / `file-type`** (ancora `^7.14.0`) — vulnerabilità alta (ciclo infinito nel parser ASF su `.wma`/`.asf` malformati). La correzione richiede il salto major `7.14 → 11.x` con interfaccia diversa: **sessione dedicata**, verifica su file reali. Attenuazione presente: lettura tag sotto `withIpcTimeout(10s)`.
 - **`uuid`** (ancora `^9.0.1`) — vulnerabilità media su modalità non usate (gli identificatori vengono da `crypto.randomUUID`). Da sistemare con un aggiornamento major delle dipendenze.
 - **Aggiornamento generale delle dipendenze** — `npm audit fix` automatico tocca decine di pacchetti di sviluppo: da fare per conto suo, mai insieme a correzioni.
+- **Registrazione della sessione su disco durante la ripresa** — oggi resta in RAM fino allo stop: un crash del programma la perde (la chiusura normale ora chiede conferma, 1.15.35). I canali main per scriverla progressivamente esistono già (`start-recording` / `append-record-chunk` / `stop-recording`) ma non sono collegati: sessione dedicata, è un cambio di architettura.
+- **Formati accettati ma non riproducibili** (`.wma`, `.m4a` ALAC, WAV non PCM): FFmpeg li analizza, il motore Chromium no. Dalla 1.15.35 l'errore è visibile e non ferma la catena; decidere se rifiutarli al trascinamento.
 - **Zoom del Waveform Editor** — ancora cosmetico: stira le 200 barre generate da `AudioProcessor.ts` senza aggiungere risoluzione. Evoluzione: più punti, aggregati lato renderer in base allo zoom.
 - **PDF delle 6 lingue rimosse** in `RRLMP-Releases/manuals` — lasciati volutamente: le versioni ≤ 1.15.31 impostate in quelle lingue li aprono ancora. Rimuovibili quando nessuno userà più quelle versioni.
 
@@ -160,6 +163,7 @@ Si guadagna: niente cattura di sistema (niente AGC, niente notifiche Windows in 
 
 | Versione | Contenuto |
 |---|---|
+| **1.15.35** | **Revisione del codice 2026-10-28**: via il menu di serie (Ctrl+R ricaricava), MIDI hardware di nuovo attivo, registrazione protetta all'uscita, export che non sovrascrive l'archivio, catena che non si ferma su una clip non riproducibile, più 4 medie e 10 lievi |
 | **1.15.32** | App **solo italiano e inglese** · schermata di benvenuto con tendina lingua · manuali IT/EN aggiornati con schermate nuove e pubblicati · note di rilascio bilingui e cumulative |
 | **1.15.31** | Hero IN ONDA sempre presente e card clip senza scatti |
 | **1.15.30** | Torna Smart Mic (microfono USB diretto) |
