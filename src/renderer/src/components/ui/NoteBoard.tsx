@@ -1,8 +1,10 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAudioStore } from '../../store/useAudioStore';
 import { useProjectStore } from '../../store/useProjectStore';
 
 export const NoteBoard: React.FC = () => {
+    const { t } = useTranslation();
     const activeClips = useAudioStore((state) => state.activeClips);
     const columns = useProjectStore((state) => state.columns);
 
@@ -31,7 +33,7 @@ export const NoteBoard: React.FC = () => {
             <div className="notes-head">
                 <span className="led pulse" style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}` }} />
                 <span className="k" style={{ color: `color-mix(in srgb, ${color} 65%, #fff)` }}>
-                    NOTE REGIA
+                    {t('nowPlaying.notesBoard', 'NOTE REGIA')}
                 </span>
                 <span className="n">— {clip.name}</span>
             </div>

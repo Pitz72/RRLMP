@@ -89,10 +89,10 @@ In alto ci sono due display. A sinistra il brano #strong[in onda]:
 titolo, BPM, tempo trascorso e durata, tempo rimanente e una barra di
 avanzamento a LED. A destra il #strong[prossimo] brano della colonna
 Musica, con BPM, durata e compatibilità. In mezzo c'è il pulsantone
-verde di transizione: con un solo comando applica lo stesso crossfade
-che useresti dalla griglia, ma con l'attenzione in più dell'aggancio
-ritmico. Se non c'è niente in onda, al suo posto trovi #strong[START],
-che fa partire il primo brano.
+verde #strong[TRANSIZIONE]: con un solo comando applica lo stesso
+crossfade che useresti dalla griglia, ma con l'attenzione in più
+dell'aggancio ritmico. Se non c'è niente in onda, al suo posto trovi
+#strong[START], che fa partire il primo brano.
 
 Sotto i display c'è la scaletta della colonna Musica, una riga per brano
 con numero, titolo, durata e BPM. La riga del brano in onda è accesa del

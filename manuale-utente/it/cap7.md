@@ -48,7 +48,7 @@ La **vista Automix** è il deck della colonna Musica: una schermata a tutto camp
 
 ### Il deck
 
-In alto ci sono due display. A sinistra il brano **in onda**: titolo, BPM, tempo trascorso e durata, tempo rimanente e una barra di avanzamento a LED. A destra il **prossimo** brano della colonna Musica, con BPM, durata e compatibilità. In mezzo c'è il pulsantone verde di transizione: con un solo comando applica lo stesso crossfade che useresti dalla griglia, ma con l'attenzione in più dell'aggancio ritmico. Se non c'è niente in onda, al suo posto trovi **START**, che fa partire il primo brano.
+In alto ci sono due display. A sinistra il brano **in onda**: titolo, BPM, tempo trascorso e durata, tempo rimanente e una barra di avanzamento a LED. A destra il **prossimo** brano della colonna Musica, con BPM, durata e compatibilità. In mezzo c'è il pulsantone verde **TRANSIZIONE**: con un solo comando applica lo stesso crossfade che useresti dalla griglia, ma con l'attenzione in più dell'aggancio ritmico. Se non c'è niente in onda, al suo posto trovi **START**, che fa partire il primo brano.
 
 Sotto i display c'è la scaletta della colonna Musica, una riga per brano con numero, titolo, durata e BPM. La riga del brano in onda è accesa del colore della colonna.
 

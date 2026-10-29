@@ -383,6 +383,7 @@
         "endOfPlaylistLower": "fine scaletta",
         "autoEndTitle": "Quando il brano sta per finire, la transizione parte da sola (stessa logica del pulsante). Si disattiva chiudendo la vista.",
         "autoAtEnd": "Auto a fine brano",
+        "transition": "TRANSIZIONE",
         "next": "PROSSIMO",
         "endNoTrackAfter": "Fine scaletta — nessun brano dopo questo.",
         "nextAppearsHere": "Il prossimo brano compare qui a playlist avviata.",
@@ -403,7 +404,8 @@
         "offAir": "OFF AIR",
         "outroIn": "OUTRO IN {{time}}",
         "remaining": "RIMANENTE",
-        "upNext": "UP NEXT"
+        "upNext": "UP NEXT",
+        "notesBoard": "NOTE REGIA"
     },
     "confirm": {
         "newProject": "Nuovo Progetto: le modifiche non salvate andranno perse. Continuare?",

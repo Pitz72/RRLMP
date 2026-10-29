@@ -383,6 +383,7 @@
         "endOfPlaylistLower": "end of queue",
         "autoEndTitle": "When the track is about to end, the transition starts on its own (same logic as the button). It turns off when you close the view.",
         "autoAtEnd": "Auto at end of track",
+        "transition": "TRANSITION",
         "next": "NEXT",
         "endNoTrackAfter": "End of queue — no track after this one.",
         "nextAppearsHere": "The next track appears here once the queue is started.",
@@ -403,7 +404,8 @@
         "offAir": "OFF AIR",
         "outroIn": "OUTRO IN {{time}}",
         "remaining": "REMAINING",
-        "upNext": "UP NEXT"
+        "upNext": "UP NEXT",
+        "notesBoard": "BROADCAST NOTES"
     },
     "confirm": {
         "newProject": "New Project: unsaved changes will be lost. Continue?",

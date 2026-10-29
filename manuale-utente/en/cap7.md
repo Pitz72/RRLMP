@@ -48,7 +48,7 @@ The **Automix view** is the deck of the Music column: a full-screen display, sum
 
 ### The deck
 
-At the top there are two displays. On the left, the track **on air**: title, BPM, elapsed time and duration, time remaining and an LED progress bar. On the right, the **next** track in the Music column, with BPM, duration and compatibility. Between them sits the big green transition button: with a single command it applies the same crossfade you would use from the grid, but with the added care of rhythmic locking. If nothing is on air, you find **START** in its place, which starts the first track.
+At the top there are two displays. On the left, the track **on air**: title, BPM, elapsed time and duration, time remaining and an LED progress bar. On the right, the **next** track in the Music column, with BPM, duration and compatibility. Between them sits the big green **TRANSITION** button: with a single command it applies the same crossfade you would use from the grid, but with the added care of rhythmic locking. If nothing is on air, you find **START** in its place, which starts the first track.
 
 Below the displays is the Music column’s running order, one row per track with number, title, duration and BPM. The row of the track on air is lit in the column’s colour.
 

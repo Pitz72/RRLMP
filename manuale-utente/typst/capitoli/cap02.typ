@@ -126,7 +126,7 @@ accompagnato dallo stato del sistema di aggiornamento:
 - #strong[«Aggiornamento v…»] (ambra, saltellante) --- c'è una versione
   più recente, indicata dal numero. È un pulsante: cliccalo per aprire
   la finestra di aggiornamento (Capitolo 12).
-- #strong[«OFFLINE»] (rosso scuro) --- non è stato possibile contattare
+- #strong[«OFFLINE»] (rosso chiaro) --- non è stato possibile contattare
   il servizio di aggiornamento; il software funziona ugualmente.
 
 Sotto trovi le azioni principali:

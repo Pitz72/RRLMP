@@ -199,7 +199,7 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                                 className="amx-big"
                                 title={nextClip ? t('automix.mixTowards', 'Mixa verso: {{v}}', { v: nextClip.name }) : t('automix.endOfPlaylist', 'Fine scaletta')}
                             >
-                                <Shuffle size={18} /> TRANSIZIONE
+                                <Shuffle size={18} /> {t('automix.transition', 'TRANSIZIONE')}
                             </button>
                             <p className="amx-hint">
                                 {nextClip ? (nextClip.isMissing ? t('automix.nextFileMissing', 'prossimo file MANCANTE') : nextCompatLabel) : t('automix.endOfPlaylistLower', 'fine scaletta')}

@@ -75,7 +75,7 @@ Il logo del software (le barre di un VU meter con il simbolo di play) identifica
 
 - **«Ultima versione»** (verde, con il segno di spunta) — stai usando l'ultima versione disponibile.
 - **«Aggiornamento v…»** (ambra, saltellante) — c'è una versione più recente, indicata dal numero. È un pulsante: cliccalo per aprire la finestra di aggiornamento (Capitolo 12).
-- **«OFFLINE»** (rosso scuro) — non è stato possibile contattare il servizio di aggiornamento; il software funziona ugualmente.
+- **«OFFLINE»** (rosso chiaro) — non è stato possibile contattare il servizio di aggiornamento; il software funziona ugualmente.
 
 Sotto trovi le azioni principali:
 

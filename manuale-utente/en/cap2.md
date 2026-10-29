@@ -75,7 +75,7 @@ The software logo (the bars of a VU meter with the play symbol) identifies the P
 
 - **“Latest Version”** (green, with a tick) — you are running the most recent version available.
 - **“Update Available v…”** (amber, bouncing) — a newer version exists, shown by its number. This is a button: click it to open the update window (Chapter 12).
-- **“OFFLINE”** (dark red) — the update service could not be reached; the software works all the same.
+- **“OFFLINE”** (light red) — the update service could not be reached; the software works all the same.
 
 Below that are the main actions:
 

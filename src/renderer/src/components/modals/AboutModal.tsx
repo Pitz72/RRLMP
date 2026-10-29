@@ -76,7 +76,7 @@ export const AboutModal = ({ isOpen, onClose, updaterStatus, onOpenUpdateModal, 
                                 {t('welcome.updateAvailable', { version: updaterStatus.type === 'downloading' ? '' : updaterStatus.version })}
                             </button>
                         )}
-                        {updaterStatus.type === 'error' && <span className="text-[10px] text-red-900">OFFLINE</span>}
+                        {updaterStatus.type === 'error' && <span className="text-[10px] font-bold text-[#FF8A7D]">OFFLINE</span>}
                     </div>
 
                     <div className="card w-full text-sm text-zinc-400 space-y-2 mb-4">

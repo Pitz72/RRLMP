@@ -19,7 +19,7 @@ Clips with a note show a badge with a clipboard icon on the card.
 
 ### The panel during the live show
 
-When a clip with notes starts playing, the **NoteBoard panel** appears at the bottom of the screen with the associated text. The panel’s header carries the words NOTE REGIA, an LED pulsing in the clip’s colour and the clip’s name. The panel stays visible for the whole duration of playback and closes on its own when the clip ends. If several clips with notes play together, the panel shows the one with the highest priority.
+When a clip with notes starts playing, the **NoteBoard panel** appears at the bottom of the screen with the associated text. The panel’s header carries the words BROADCAST NOTES, an LED pulsing in the clip’s colour and the clip’s name. The panel stays visible for the whole duration of playback and closes on its own when the clip ends. If several clips with notes play together, the panel shows the one with the highest priority.
 
 ### Use cases
 
