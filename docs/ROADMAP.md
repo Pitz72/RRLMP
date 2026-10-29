@@ -1,7 +1,7 @@
 # RRLMP — Roadmap & Backlog
 
-**Versione corrente:** 1.15.36 — **non ancora rilasciata** (nuova interfaccia «Pad luminosi», sopra la revisione del codice 1.15.35 del 2026-10-28, anch'essa non rilasciata). Ultima rilasciata: 1.15.34 su `Pitz72/RRLMP` il 2026-09-19 (run 35402635920, 5/5; SHA-512 degli asset e `app-update.yml` del `.deb` verificati). Il ponte `Ecosystem-Runtime/RRLMP-Releases` resta alla 1.15.33
-**Ultimo aggiornamento:** 2026-10-28 — interfaccia riprogettata da capo nella 1.15.36 ([changelog](./changelogs/current/1.15.36.md)); revisione del codice: 19 criticità corrette nella 1.15.35 ([report](./technical/REVISIONE-CODICE-2026-10-28.md))
+**Versione corrente:** 1.15.36 — **rilasciata** il 2026-10-29 su `Pitz72/RRLMP`, Latest (run 40800529362, 5/5; SHA-512 di exe e AppImage confrontati con `latest.yml` e `latest-linux.yml`). Nuova interfaccia «Pad luminosi» più la revisione del codice 1.15.35, che non è uscita da sola: le note di rilascio le comprendono entrambe. La 1.15.34 (2026-09-19) resta pubblicata. Il ponte `Ecosystem-Runtime/RRLMP-Releases` resta alla 1.15.33
+**Ultimo aggiornamento:** 2026-10-29 — rilascio della 1.15.36; interfaccia riprogettata da capo nella 1.15.36 ([changelog](./changelogs/current/1.15.36.md)); revisione del codice: 19 criticità corrette nella 1.15.35 ([report](./technical/REVISIONE-CODICE-2026-10-28.md))
 
 Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio). Nessuna automazione 24h. L'unica eccezione controllata è la rotazione PRE-SHOW — vedi [VISION.md](./VISION.md).
 
@@ -14,9 +14,9 @@ Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio)
 | Typecheck (renderer/main/node/preload) | **0 errori** su tutti e 4 |
 | Test Vitest | **269/269 verdi** (29 file) |
 | Criticità aperte del codice | **nessuna** dalla [revisione 2026-10-28](./technical/REVISIONE-CODICE-2026-10-28.md): 1 gravissima (Ctrl+R ricaricava l'interfaccia), 4 gravi (MIDI hardware negato, registrazione persa all'uscita, export che sovrascriveva l'archivio, catena ferma su clip non riproducibile), 4 medie e 10 lievi, tutte corrette nella 1.15.35. Precedente: [revisione 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md), 22 reperti chiusi in 1.15.16 → 1.15.29 |
-| Ultima release **pubblicata** | **v1.15.33** su `Pitz72/RRLMP` e, identica, sul ponte `RRLMP-Releases` (unica release in entrambi) — note cumulative 1.15.16 → 1.15.33 in italiano e inglese |
+| Ultima release **pubblicata** | **v1.15.36** su `Pitz72/RRLMP` (2026-10-29), note cumulative 1.15.35 + 1.15.36 in italiano e inglese |
 | Lingue | **Solo italiano e inglese** in app, guida rapida, manuale e note di rilascio (dalla 1.15.32) |
-| Manuale utente | IT + EN allineati alla 1.15.36 («Pad luminosi»: schermate e descrizioni rifatte, non ancora pubblicati), licenza MIT; il pulsante dell'app li apre da `Pitz72/RRLMP/manuale-utente/typst` (le versioni ≤ 1.15.32 da `RRLMP-Releases/manuals`, aggiornati anch'essi) |
+| Manuale utente | IT + EN allineati alla 1.15.36 («Pad luminosi»: schermate e descrizioni rifatte, pubblicati con il push del 2026-10-29), licenza MIT; il pulsante dell'app li apre da `Pitz72/RRLMP/manuale-utente/typst` (le versioni ≤ 1.15.32 da `RRLMP-Releases/manuals`, aggiornati anch'essi) |
 | Auto-updater | operativo (nativo su Windows/Linux-AppImage, fallback browser su .deb e macOS compilato); dalla 1.15.33 legge `Pitz72/RRLMP`, le versioni ≤ 1.15.32 il ponte |
 | Pacchetti | exe 114 MB · AppImage 158 MB · deb 108 MB · dmg 143 MB (il problema dei 500 MB non si ripresenta). Dalla 1.15.33 niente più `.dmg`: macOS si compila dal sorgente |
 | Apertura del sorgente | **Fasi 1-4 chiuse**: repository pubblico MIT, release ponte 1.15.33. Resta la Fase 5 (Gumroad, sito, dismissione del ponte) — vedi [PIANO-APERTURA.md](./PIANO-APERTURA.md) |
