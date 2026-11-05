@@ -5,7 +5,28 @@ import { spawn } from 'child_process';
 import { logger } from './logger';
 import { computeEnergyEnvelope, estimateBpmFromEnvelope, estimateBeatOffsetSec, lowPassFilter, computeOnsetEnvelope, refineBeatGrid, BEAT_GRID_LOWPASS_HZ } from './bpmDetection';
 import { PeakAccumulator, reduceToBars, WAVEFORM_SAMPLE_RATE } from './waveformPeaks';
+import { BlockLevelAccumulator, computeEdgeTrim, parseSilenceRegions, pickSmartCues, TRIM_SAMPLE_RATE, TRIM_CHANNELS, type BlockLevels } from './silenceTrim';
 import { tMain } from './i18nMain';
+
+/** Esito di detectSilence (contratto IPC `detect-silence`). */
+export interface DetectSilenceResult {
+    success: boolean;
+    data?: {
+        trimStart: number;
+        trimEnd: number;
+        noSilence?: boolean;
+        /** Soglia (dBFS RMS) usata in apertura; in coda può differire, vedi silenceTrim.ts. */
+        thresholdUsed?: number;
+        contentStartSec?: number;
+        contentEndSec?: number;
+        durationSec?: number;
+        /** Solo con options.withLegacy: ciò che il rilevatore fino alla 1.15.37 produrrebbe
+         *  oggi sullo stesso file (null se allora falliva). Serve a riconoscere, nei progetti
+         *  salvati, i tagli automatici da ricalcolare rispetto a quelli fatti a mano. */
+        legacy?: { trimStart: number; trimEnd: number } | null;
+    };
+    error?: string;
+}
 
 // Fix ESM/CJS interop per questi pacchetti old-school exports
 const ffmpegStatic = require('ffmpeg-static');
@@ -306,23 +327,12 @@ export class AudioProcessor {
                     ? parseInt(durMatch[1]) * 3600 + parseInt(durMatch[2]) * 60 + parseFloat(durMatch[3])
                     : 0;
 
-                const silenceEnds: number[] = [];
-                const silenceStarts: number[] = [];
-                for (const line of stderrData.split('\n')) {
-                    const eMatch = line.match(/silence_end:\s*([\d.e+\-]+)/);
-                    if (eMatch) silenceEnds.push(parseFloat(eMatch[1]));
-                    const sMatch = line.match(/silence_start:\s*([\d.e+\-]+)/);
-                    if (sMatch) silenceStarts.push(parseFloat(sMatch[1]));
-                }
-
-                // introCue: primo silence_end nel primo 40% del brano (dove l'audio raggiunge piena energia)
-                const earlyEnds = silenceEnds.filter(t => t > 0.3 && t < duration * 0.4);
-                const introCue = earlyEnds.length > 0 ? parseFloat(earlyEnds[0].toFixed(3)) : 0;
-
-                // outroCue: ultimo silence_start dopo il 40% del brano (inizio dissolvenza finale)
-                const lateStarts = silenceStarts.filter(t => t > duration * 0.4 && t < duration - 1.0);
-                const outroCue = lateStarts.length > 0 ? parseFloat(lateStarts[lateStarts.length - 1].toFixed(3)) : 0;
-
+                // v1.15.38: un tratto quieto vale come intro solo se parte dall'inizio
+                // del file, come outro solo se arriva alla fine. Prima l'outro era
+                // «l'ultimo tratto quieto dopo il 40%» anche con la musica che ripartiva
+                // dopo: in PRE-SHOW il marker di outro lancia il brano successivo, quindi
+                // una pausa interna tagliava via il resto della canzone.
+                const { introCue, outroCue } = pickSmartCues(parseSilenceRegions(stderrData), duration);
                 resolve({ success: true, data: { introCue, outroCue } });
             } catch (parseErr) {
                 resolve({ success: false, error: String(parseErr) });
@@ -372,99 +382,149 @@ export class AudioProcessor {
     });
   }
 
-  static async detectSilence(filePath: string, overrideThresholdDb?: number): Promise<any> {
+  /**
+   * v1.15.38 — Taglio automatico del silenzio ai BORDI del file (vedi silenceTrim.ts
+   * per il perché e le misure). Decodifica l'intero file in PCM 24 kHz stereo e ne
+   * calcola l'energia a blocchi da 10 ms in streaming: si taglia solo ciò che sta
+   * prima del primo suono e dopo l'ultimo, mai una pausa interna.
+   *
+   * @param overrideThresholdDb  Soglia fissa (dBFS RMS) al posto di quella automatica.
+   * @param options.withLegacy   Calcola anche il risultato del vecchio rilevatore
+   *                             (impronta per riconoscere i tagli automatici salvati).
+   */
+  static async detectSilence(filePath: string, overrideThresholdDb?: number, options?: { withLegacy?: boolean }): Promise<DetectSilenceResult> {
     if (!fs.existsSync(filePath)) {
         return { success: false, error: tMain('err.fileNotFound') };
     }
 
-    // Step 1: calcola soglia — override manuale o analisi dinamica del livello medio
-    let thresholdDb: number;
-    if (overrideThresholdDb !== undefined) {
-        thresholdDb = overrideThresholdDb;
-    } else {
-        const meanLevel = await AudioProcessor._estimateMeanLevel(filePath);
-        if (meanLevel !== null) {
-            // Soglia = livello medio − 25 dB, clamped tra −55 e −20 dBFS
-            // Es: file mastered a −10 dBFS → soglia −35 dBFS (rimuove code quasi-silenti)
-            // Es: registrazione vocale a −25 dBFS → soglia −50 dBFS (cattura anche pause brevi)
-            thresholdDb = Math.max(-55, Math.min(-20, meanLevel - 25));
-        } else {
-            thresholdDb = -40; // fallback legacy
-        }
-    }
+    type Decoded = { ok: true; levels: BlockLevels } | { ok: false; error: string };
+    const decoded = await new Promise<Decoded>((resolve) => {
+        try {
+            const acc = new BlockLevelAccumulator();
+            const proc = spawn(safeFfmpegPath, [
+                '-hide_banner', '-nostdin', '-v', 'error',
+                '-i', filePath,
+                '-map', '0:a:0', '-vn', '-sn', '-dn', // solo il primo flusso audio (le copertine sono «video»)
+                '-ac', String(TRIM_CHANNELS),
+                '-ar', String(TRIM_SAMPLE_RATE),
+                '-f', 's16le', '-acodec', 'pcm_s16le',
+                'pipe:1'
+            ]);
+            let stderrData = '';
+            let settled = false;
+            const finish = (r: Decoded): void => {
+                if (settled) return;
+                settled = true;
+                clearTimeout(killTimeout);
+                resolve(r);
+            };
+            const killTimeout = setTimeout(() => {
+                try { proc.kill('SIGKILL'); } catch { /* noop */ }
+                finish({ ok: false, error: 'Timeout: silence detection exceeded 28s' });
+            }, 28000);
 
-    // Step 2: silencedetect con soglia calcolata
+            proc.stdout.on('data', (chunk: Buffer) => { acc.push(chunk); });
+            proc.stderr.on('data', (chunk: Buffer) => { stderrData += chunk.toString(); });
+            proc.on('error', (err: Error) => finish({ ok: false, error: err.message }));
+            proc.on('close', (code: number | null) => {
+                const levels = acc.finalize();
+                // Un file illeggibile non deve mai diventare «nessun silenzio»: esito
+                // fallito, così il renderer lo ritenta al caricamento successivo.
+                if (levels.durationSec <= 0) {
+                    const lastLine = stderrData.trim().split(/\r?\n/).pop();
+                    return finish({ ok: false, error: lastLine || `ffmpeg exit ${code}` });
+                }
+                finish({ ok: true, levels });
+            });
+        } catch (error) {
+            resolve({ ok: false, error: String(error) });
+        }
+    });
+
+    if (!decoded.ok) return { success: false, error: decoded.error };
+
+    const r = computeEdgeTrim(decoded.levels, overrideThresholdDb);
+    if (r.allSilent) return { success: false, error: tMain('err.allSilence') };
+
+    const legacy = options?.withLegacy ? await AudioProcessor._legacyDetectSilenceTrims(filePath) : undefined;
+    const legacyNote = legacy === undefined ? '' : ` (vecchio rilevatore: ${legacy ? `${legacy.trimStart}/${legacy.trimEnd}` : 'fallito'})`;
+    logger.info(`[AudioProcessor] Silenzio ai bordi: ${filePath} — durata ${r.durationSec.toFixed(2)}s, rif ${r.referenceDb.toFixed(1)} dB, soglie ${r.headThresholdDb.toFixed(1)}/${r.tailThresholdDb.toFixed(1)} dB, suono ${r.contentStartSec}–${r.contentEndSec}s → taglio ${r.trimStart}/${r.trimEnd}s${legacyNote}`);
+
+    return {
+        success: true,
+        data: {
+            trimStart: r.trimStart,
+            trimEnd: r.trimEnd,
+            ...(r.trimStart === 0 && r.trimEnd === 0 ? { noSilence: true } : {}),
+            thresholdUsed: r.headThresholdDb,
+            contentStartSec: r.contentStartSec,
+            contentEndSec: r.contentEndSec,
+            durationSec: r.durationSec,
+            ...(legacy !== undefined ? { legacy } : {}),
+        },
+    };
+  }
+
+  /**
+   * Il rilevatore fino alla 1.15.37, IDENTICO nei numeri (soglia = livello medio dei
+   * primi 60 s − 25 dB, silencedetect d=0.1, margine 0.1, arrotondamento a 3 decimali).
+   * NON va più usato per tagliare: serve solo da impronta. Se i tagli salvati in una
+   * clip coincidono con ciò che questo produce oggi, li aveva scritti lui (e vanno
+   * ricalcolati); se differiscono, li ha toccati l'operatore e restano com'erano.
+   * Ritorna null se allora l'analisi falliva o dava «tutto silenzio».
+   */
+  private static async _legacyDetectSilenceTrims(filePath: string): Promise<{ trimStart: number; trimEnd: number } | null> {
+    const meanLevel = await AudioProcessor._estimateMeanLevel(filePath);
+    const thresholdDb = meanLevel !== null ? Math.max(-55, Math.min(-20, meanLevel - 25)) : -40;
+
     return new Promise((resolve) => {
         try {
-            const args = [
+            const proc = spawn(safeFfmpegPath, [
                 '-i', filePath,
                 '-af', `silencedetect=noise=${thresholdDb.toFixed(1)}dB:d=0.1`,
                 '-f', 'null', '-'
-            ];
-
-            const proc = spawn(safeFfmpegPath, args);
+            ]);
             let stderrData = '';
-
-            const _silenceKillTimeout = setTimeout(() => {
+            const killTimeout = setTimeout(() => {
                 try { proc.kill('SIGKILL'); } catch { /* noop */ }
-                resolve({ success: false, error: 'Timeout: silence detection exceeded 28s' });
+                resolve(null);
             }, 28000);
-
             proc.stderr.on('data', (chunk: Buffer) => { stderrData += chunk.toString(); });
-
-            proc.on('error', (err: Error) => {
-                clearTimeout(_silenceKillTimeout);
-                resolve({ success: false, error: err.message });
-            });
-
+            proc.on('error', () => { clearTimeout(killTimeout); resolve(null); });
             proc.on('close', () => {
-                clearTimeout(_silenceKillTimeout);
+                clearTimeout(killTimeout);
                 try {
                     const durMatch = stderrData.match(/Duration:\s*(\d+):(\d+):([\d.]+)/);
                     const duration = durMatch
                         ? parseInt(durMatch[1]) * 3600 + parseInt(durMatch[2]) * 60 + parseFloat(durMatch[3])
                         : 0;
-
                     const silenceEnds: number[] = [];
                     const silenceStarts: number[] = [];
-
                     for (const line of stderrData.split('\n')) {
                         const endMatch = line.match(/silence_end:\s*([\d.e+\-]+)/);
                         if (endMatch) silenceEnds.push(parseFloat(endMatch[1]));
                         const startMatch = line.match(/silence_start:\s*([\d.e+\-]+)/);
                         if (startMatch) silenceStarts.push(parseFloat(startMatch[1]));
                     }
-
                     const margin = 0.1;
                     let trimStart = 0;
                     let trimEnd = 0;
-
-                    // Silenzio iniziale: il file comincia con silenzio
                     if (silenceEnds.length > 0 && silenceEnds[0] < duration * 0.5) {
                         trimStart = parseFloat(Math.max(0, silenceEnds[0] - margin).toFixed(3));
                     }
-
-                    // Silenzio finale: il file termina con silenzio
                     if (silenceStarts.length > 0 && silenceStarts[silenceStarts.length - 1] > duration * 0.5) {
                         trimEnd = parseFloat(Math.max(0, duration - silenceStarts[silenceStarts.length - 1] - margin).toFixed(3));
                     }
-
-                    if (trimStart === 0 && trimEnd === 0) {
-                        return resolve({ success: true, data: { trimStart: 0, trimEnd: 0, noSilence: true, thresholdUsed: thresholdDb } });
+                    if ((trimStart !== 0 || trimEnd !== 0) && duration > 0 && duration - trimEnd <= trimStart + 0.1) {
+                        return resolve(null);
                     }
-
-                    if (duration > 0 && duration - trimEnd <= trimStart + 0.1) {
-                        return resolve({ success: false, error: tMain('err.allSilence') });
-                    }
-
-                    resolve({ success: true, data: { trimStart, trimEnd, thresholdUsed: thresholdDb } });
-                } catch (parseErr) {
-                    resolve({ success: false, error: String(parseErr) });
+                    resolve({ trimStart, trimEnd });
+                } catch {
+                    resolve(null);
                 }
             });
-
-        } catch (error) {
-            resolve({ success: false, error: String(error) });
+        } catch {
+            resolve(null);
         }
     });
   }

@@ -15,7 +15,7 @@ import { debugLog } from '../../store/useDebugStore';
 import { AboutModal } from '../modals/AboutModal';
 import { toast } from '../../store/useToastStore';
 import { confirm } from '../../store/useConfirmStore';
-import { classifySilenceResult } from '../../utils/silenceDetection';
+import { decideSilenceUpdate } from '../../utils/silenceDetection';
 import { populateDefaultFxIfPadEmpty } from '../../utils/defaultSfx';
 import { MIC_ARM_ENABLED } from '../../utils/featureFlags';
 import { UpdaterStatusPayload } from '../../types';
@@ -509,13 +509,10 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 if (window.electron?.detectSilence) {
                     updateClip(preshowColId, newClip.id, { isAnalyzing: true }, { runtime: true });
                     window.electron.detectSilence(filePath).then(r => {
-                        const c = classifySilenceResult(r);
-                        if (c.checked) {
-                            updateClip(preshowColId, newClip.id, {
-                                ...(c.trimStart !== undefined ? { trimStart: c.trimStart, trimEnd: c.trimEnd } : {}),
-                                isAnalyzing: false,
-                                silenceCheckedV2: true
-                            }, { runtime: true });
+                        // v1.15.38: clip appena importata → taglio ai bordi (decideSilenceUpdate).
+                        const d = decideSilenceUpdate(newClip, r);
+                        if (d.patch) {
+                            updateClip(preshowColId, newClip.id, { ...d.patch, isAnalyzing: false }, { runtime: true });
                         } else {
                             updateClip(preshowColId, newClip.id, { isAnalyzing: false }, { runtime: true });
                         }

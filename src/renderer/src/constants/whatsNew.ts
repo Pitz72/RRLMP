@@ -11,6 +11,22 @@ export interface WhatsNewEntry {
 }
 
 export const WHATS_NEW: Record<string, WhatsNewEntry> = {
+    '1.15.38': {
+        it: [
+            'Taglio automatico del silenzio riscritto: una pausa dentro la canzone poteva far partire il brano da metà o toglierne la fine. Ora si taglia solo il silenzio all’inizio e alla fine del file.',
+            'Dissolvenze finali e attacchi morbidi non vengono più tagliati.',
+            'Alla prima apertura dei progetti i tagli automatici vengono ricalcolati; quelli fatti a mano restano come sono. Salva il progetto per conservare la correzione.',
+            'Smart Cues: il marker di outro non cade più su una pausa interna (in PRE-SHOW faceva partire il brano dopo).',
+            'Telefono: i nomi lunghi dei pad non si spezzano più a metà parola.',
+        ],
+        en: [
+            'Automatic silence trim rewritten: a pause inside a song could start the track halfway through or cut off its ending. Now only the silence at the start and end of the file is trimmed.',
+            'Fade-outs and soft attacks are no longer cut.',
+            'The first time a project is opened, automatic trims are recalculated; trims you set by hand stay as they are. Save the project to keep the fix.',
+            'Smart Cues: the outro marker no longer lands on a pause inside the track (in PRE-SHOW it started the next track).',
+            'Phone: long pad names no longer break in the middle of a word.',
+        ],
+    },
     '1.15.37': {
         it: [
             'Pad FX dal telefono: il Controllo Remoto mostra la cartwall con i suoi colori, e il pad parte appena lo tocchi. QR code nelle Impostazioni, PIN che non cambia più a ogni avvio.',

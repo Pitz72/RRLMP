@@ -31,7 +31,7 @@ if (process.contextIsolated) {
             getAudioMetadata: (filePath: string) => ipcRenderer.invoke('get-audio-metadata', filePath),
             measureLoudness: (filePath: string) => ipcRenderer.invoke('measure-loudness', filePath),
             getWaveformData: (filePath: string) => ipcRenderer.invoke('get-waveform-data', filePath),
-            detectSilence: (filePath: string, thresholdDb?: number) => ipcRenderer.invoke('detect-silence', filePath, thresholdDb),
+            detectSilence: (filePath: string, thresholdDb?: number, options?: { withLegacy?: boolean }) => ipcRenderer.invoke('detect-silence', filePath, thresholdDb, options),
             detectSmartCues: (filePath: string) => ipcRenderer.invoke('detect-smart-cues', filePath),
             detectBpm: (filePath: string) => ipcRenderer.invoke('detect-bpm', filePath),
 

@@ -292,9 +292,13 @@ ipcMain.handle('get-waveform-data', async (_event, filePath: string) => {
     ).catch((err: Error) => ({ success: false, error: err.message }));
 });
 
-ipcMain.handle('detect-silence', async (_event, filePath: string, thresholdDb?: number) => {
+ipcMain.handle('detect-silence', async (_event, filePath: string, thresholdDb?: number, options?: { withLegacy?: boolean }) => {
+    // v1.15.38: valida l'oggetto opzioni (arriva dal renderer) e alza il timeout:
+    // con withLegacy si sommano decodifica (≤28 s) e vecchio rilevatore (≤10+28 s).
+    const opts = { withLegacy: options?.withLegacy === true };
+    const threshold = typeof thresholdDb === 'number' && Number.isFinite(thresholdDb) ? thresholdDb : undefined;
     return withConcurrencyLimit('detect-silence', 3, () =>
-        withIpcTimeout(AudioProcessor.detectSilence(filePath, thresholdDb), 45_000, 'detect-silence')
+        withIpcTimeout(AudioProcessor.detectSilence(filePath, threshold, opts), 90_000, 'detect-silence')
     ).catch((err: Error) => ({ success: false, error: err.message }));
 });
 

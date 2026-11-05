@@ -28,7 +28,7 @@ import { SortableClip } from './SortableClip'; // New component
 import { Upload } from 'lucide-react';
 import { ClipSettingsModal } from '../modals/ClipSettingsModal';
 import { AudioClip, Column } from '../../types';
-import { classifySilenceResult } from '../../utils/silenceDetection';
+import { decideSilenceUpdate, needsLegacyFingerprint } from '../../utils/silenceDetection';
 import { classifyBpmResult } from '../../utils/bpmDetection';
 import { assessCompatibility, findMixNext } from '../../engine/automixEngine';
 import { useTranslation } from 'react-i18next';
@@ -177,103 +177,79 @@ export const MainGrid: React.FC = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [editingClip, playColumn]); // columns/hiddenColumnIds letti via getState(); stopAll non usato qui
 
-    // AUTO-SILENCE DETECTION BATCH — colonna Music al caricamento progetto
+    // AUTO-SILENCE DETECTION BATCH — colonne MUSIC e PRE-SHOW al caricamento progetto.
+    // Parte a ogni cambio di currentFilePath (qualunque via di caricamento).
+    // v1.7.1: un'analisi fallita non viene mai segnata come controllata (si ritenta).
+    // v1.15.38: gate silenceCheckedV3. Fino alla 1.15.37 il rilevatore poteva far
+    // partire un brano da una pausa interna (o finirlo lì): al primo caricamento ogni
+    // clip viene rianalizzata col rilevatore ai bordi. I tagli scritti dal vecchio
+    // rilevatore vengono sostituiti (e il progetto risulta da salvare), quelli fatti a
+    // mano restano: vedi decideSilenceUpdate in utils/silenceDetection.ts.
     useEffect(() => {
         if (!currentFilePath) return;
-        const freshColumns = useProjectStore.getState().columns;
-        const musicCol = freshColumns.find(c => c.type === 'music');
-        if (!musicCol) return;
 
-        // v1.7.1: gate su silenceCheckedV2 (non più il vecchio silenceChecked, che
-        // poteva risultare true senza analisi reale — vedi tipo in types/index.ts).
-        // Nei .lmp esistenti nessuna clip lo possiede ancora: al primo caricamento
-        // dopo l'aggiornamento QUESTO batch ricontrolla realmente ogni clip una volta.
-        const unanalyzed = musicCol.clips.filter(c => !c.silenceCheckedV2 && !c.isMissing);
-        debugLog(`AutoSilence[music] load: ${musicCol.clips.length} clip totali, ${unanalyzed.length} da analizzare (silenceCheckedV2 assente/false)`, 'info');
-        if (unanalyzed.length === 0 || !window.electron?.detectSilence) return;
+        const runBatch = (colType: 'music' | 'preshow', setCount: React.Dispatch<React.SetStateAction<number>>, doneToastKey: string, doneToastFallback: string) => {
+            const col = useProjectStore.getState().columns.find(c => c.type === colType);
+            const tag = `AutoSilence[${colType}]`;
+            if (!col) {
+                if (colType === 'preshow') debugLog(`${tag} load: nessuna colonna con type="preshow" trovata nel progetto`, 'error');
+                return;
+            }
+            const colId = col.id;
+            const pending = col.clips.filter(c => !c.silenceCheckedV3 && !c.isMissing);
+            debugLog(`${tag} load: colonna id="${colId}", ${col.clips.length} clip totali, ${pending.length} da analizzare (silenceCheckedV3 assente/false)`, 'info');
+            if (pending.length === 0 || !window.electron?.detectSilence) return;
 
-        setMusicAnalyzingCount(unanalyzed.length);
-        let processed = 0;
-        let optimized = 0;
+            setCount(pending.length);
+            let processed = 0;
+            let optimized = 0;
+            let repaired = 0;
 
-        unanalyzed.forEach(clip => {
-            updateClip('col-music', clip.id, { isAnalyzing: true }, { runtime: true });
-            window.electron.detectSilence(clip.path).then(result => {
-                const r = classifySilenceResult(result);
-                if (r.checked) {
-                    updateClip('col-music', clip.id, {
-                        ...(r.trimStart !== undefined ? { trimStart: r.trimStart, trimEnd: r.trimEnd } : {}),
-                        isAnalyzing: false,
-                        silenceCheckedV2: true
-                    }, { runtime: true });
-                    if (r.trimStart !== undefined) optimized++;
-                } else {
-                    updateClip('col-music', clip.id, { isAnalyzing: false }, { runtime: true });
-                    debugLog(`AutoSilence[music]: analisi fallita per "${clip.name}" (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');
-                }
+            const finishOne = () => {
                 processed++;
-                setMusicAnalyzingCount(n => Math.max(0, n - 1));
-                if (processed === unanalyzed.length && optimized > 0) {
-                    toast(t('grid.silenceRemovedSongs', 'Silenzio rimosso automaticamente da {{count}} canzoni.', { count: optimized }), 'success');
-                }
-            }).catch((err) => {
-                updateClip('col-music', clip.id, { isAnalyzing: false }, { runtime: true });
-                debugLog(`AutoSilence[music]: eccezione per "${clip.name}": ${err}`, 'error');
-                processed++;
-                setMusicAnalyzingCount(n => Math.max(0, n - 1));
+                setCount(n => Math.max(0, n - 1));
+                if (processed !== pending.length) return;
+                if (optimized > 0) toast(t(doneToastKey, doneToastFallback, { count: optimized }), 'success');
+                if (repaired > 0) toast(t('grid.trimRepaired', 'Taglio automatico ricalcolato su {{count}} clip con il nuovo rilevatore (i tagli fatti a mano non sono stati toccati). Salva il progetto per conservarlo.', { count: repaired }), 'warning', 9000);
+            };
+
+            pending.forEach(clip => {
+                updateClip(colId, clip.id, { isAnalyzing: true }, { runtime: true });
+                window.electron.detectSilence(clip.path, undefined, { withLegacy: needsLegacyFingerprint(clip) }).then(result => {
+                    const fresh = useProjectStore.getState().columns.find(c => c.id === colId)?.clips.find(c => c.id === clip.id);
+                    if (!fresh) return; // clip rimossa nel frattempo
+                    const d = decideSilenceUpdate(clip, result);
+                    if (!d.patch) {
+                        updateClip(colId, clip.id, { isAnalyzing: false }, { runtime: true });
+                        debugLog(`${tag}: analisi fallita per "${clip.name}" (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');
+                        return;
+                    }
+                    // Se l'operatore ha cambiato i tagli mentre l'analisi girava, vincono i suoi.
+                    const editedMeanwhile = (fresh.trimStart ?? 0) !== (clip.trimStart ?? 0) || (fresh.trimEnd ?? 0) !== (clip.trimEnd ?? 0);
+                    if (editedMeanwhile) {
+                        updateClip(colId, clip.id, { isAnalyzing: false, silenceCheckedV2: true, silenceCheckedV3: true }, { runtime: true });
+                        return;
+                    }
+                    if (d.reason === 'replacedLegacy' && d.changed) {
+                        // Correzione vera di un dato salvato: scrittura NON runtime, così il
+                        // progetto risulta da salvare e la correzione finisce nel .lmp.
+                        updateClip(colId, clip.id, { ...d.patch, isAnalyzing: false });
+                        repaired++;
+                        debugLog(`${tag}: taglio corretto per "${clip.name}": ${clip.trimStart ?? 0}s/${clip.trimEnd ?? 0}s → ${d.patch.trimStart}s/${d.patch.trimEnd}s (il vecchio rilevatore tagliava dentro il brano)`, 'event');
+                        return;
+                    }
+                    updateClip(colId, clip.id, { ...d.patch, isAnalyzing: false }, { runtime: true });
+                    if (d.reason === 'applied' && ((d.patch.trimStart ?? 0) > 0 || (d.patch.trimEnd ?? 0) > 0)) optimized++;
+                    if (d.reason === 'keptManual') debugLog(`${tag}: "${clip.name}" ha un taglio impostato a mano (${clip.trimStart ?? 0}s/${clip.trimEnd ?? 0}s): conservato`, 'info');
+                }).catch((err) => {
+                    updateClip(colId, clip.id, { isAnalyzing: false }, { runtime: true });
+                    debugLog(`${tag}: eccezione per "${clip.name}": ${err}`, 'error');
+                }).finally(finishOne);
             });
-        });
-    }, [currentFilePath]); // eslint-disable-line react-hooks/exhaustive-deps
+        };
 
-    // AUTO-SILENCE DETECTION BATCH — colonna PRE-SHOW al caricamento progetto (2026-07-01)
-    // Analogo al batch MUSIC qui sopra: rende AUTOMATICO il rilevamento silenzio anche
-    // sulle clip PRE-SHOW già caricate (prima avveniva solo al drop di un file o dietro
-    // un prompt nel pulsante "Carica Progetto") → transizioni PRE-SHOW ottimizzate senza
-    // intervento manuale. Parte a ogni cambio di currentFilePath (qualunque via di load).
-    useEffect(() => {
-        if (!currentFilePath) return;
-        const freshColumns = useProjectStore.getState().columns;
-        const preshowCol = freshColumns.find(c => c.type === 'preshow');
-        if (!preshowCol) {
-            debugLog('AutoSilence[preshow] load: nessuna colonna con type="preshow" trovata nel progetto', 'error');
-            return;
-        }
-
-        const unanalyzed = preshowCol.clips.filter(c => !c.silenceCheckedV2 && !c.isMissing);
-        debugLog(`AutoSilence[preshow] load: colonna id="${preshowCol.id}", ${preshowCol.clips.length} clip totali, ${unanalyzed.length} da analizzare (silenceCheckedV2 assente/false)`, 'info');
-        if (unanalyzed.length === 0 || !window.electron?.detectSilence) return;
-
-        setPreshowAnalyzingCount(unanalyzed.length);
-        let processed = 0;
-        let optimized = 0;
-
-        unanalyzed.forEach(clip => {
-            updateClip('col-preshow', clip.id, { isAnalyzing: true }, { runtime: true });
-            window.electron.detectSilence(clip.path).then(result => {
-                const r = classifySilenceResult(result);
-                if (r.checked) {
-                    updateClip('col-preshow', clip.id, {
-                        ...(r.trimStart !== undefined ? { trimStart: r.trimStart, trimEnd: r.trimEnd } : {}),
-                        isAnalyzing: false,
-                        silenceCheckedV2: true
-                    }, { runtime: true });
-                    if (r.trimStart !== undefined) optimized++;
-                } else {
-                    updateClip('col-preshow', clip.id, { isAnalyzing: false }, { runtime: true });
-                    debugLog(`AutoSilence[preshow]: analisi fallita per "${clip.name}" (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');
-                }
-                processed++;
-                setPreshowAnalyzingCount(n => Math.max(0, n - 1));
-                if (processed === unanalyzed.length && optimized > 0) {
-                    toast(t('grid.silenceRemovedPreshow', 'Silenzio rimosso automaticamente da {{count}} clip PRE-SHOW.', { count: optimized }), 'success');
-                }
-            }).catch((err) => {
-                updateClip('col-preshow', clip.id, { isAnalyzing: false }, { runtime: true });
-                debugLog(`AutoSilence[preshow]: eccezione per "${clip.name}": ${err}`, 'error');
-                processed++;
-                setPreshowAnalyzingCount(n => Math.max(0, n - 1));
-            });
-        });
+        runBatch('music', setMusicAnalyzingCount, 'grid.silenceRemovedSongs', 'Silenzio rimosso automaticamente da {{count}} canzoni.');
+        runBatch('preshow', setPreshowAnalyzingCount, 'grid.silenceRemovedPreshow', 'Silenzio rimosso automaticamente da {{count}} clip PRE-SHOW.');
     }, [currentFilePath]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // AUTO-BPM DETECTION BATCH — colonna Music al caricamento progetto (2026-07-01)
@@ -421,14 +397,11 @@ export const MainGrid: React.FC = () => {
                     if (isPreshow) setPreshowAnalyzingCount(n => n + 1);
                     else setMusicAnalyzingCount(n => n + 1);
                     window.electron.detectSilence(newClip.path).then(result => {
-                        const r = classifySilenceResult(result);
-                        if (r.checked) {
-                            updateClip(colId, newClip.id, {
-                                ...(r.trimStart !== undefined ? { trimStart: r.trimStart, trimEnd: r.trimEnd } : {}),
-                                isAnalyzing: false,
-                                silenceCheckedV2: true
-                            }, { runtime: true });
-                            if (r.trimStart !== undefined) debugLog(`AutoSilence [${newClip.name}]: trimStart=${r.trimStart}s, trimEnd=${r.trimEnd}s`, 'info');
+                        // v1.15.38: clip appena aggiunta → decideSilenceUpdate scrive il taglio ai bordi.
+                        const d = decideSilenceUpdate(newClip, result);
+                        if (d.patch) {
+                            updateClip(colId, newClip.id, { ...d.patch, isAnalyzing: false }, { runtime: true });
+                            debugLog(`AutoSilence [${newClip.name}]: trimStart=${d.patch.trimStart}s, trimEnd=${d.patch.trimEnd}s`, 'info');
                         } else {
                             updateClip(colId, newClip.id, { isAnalyzing: false }, { runtime: true });
                             debugLog(`AutoSilence [${newClip.name}]: analisi fallita (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');

@@ -230,7 +230,7 @@
             "outroIncoherent": "Outro marker incoerente con trim/durata — disattivato.",
             "analysisQueued": "Analisi in coda — troppe operazioni FFmpeg parallele. Riprova tra qualche secondo.",
             "autoTrimError": "Auto-Trim: errore durante l’analisi FFmpeg.",
-            "autoTrimNoSilence": "Auto-Trim: nessun silenzio rilevato ai bordi del file.",
+            "autoTrimNoSilence": "Auto-Trim: nessun silenzio ai bordi del file, taglio azzerato. Premi Salva modifiche per confermare.",
             "autoTrimApplied": "Auto-Trim applicato — Start: {{start}}s / End cut: {{end}}s",
             "silenceAnalysisError": "Errore durante l’analisi del silenzio.",
             "nameLabel": "Nome Clip",
@@ -466,6 +466,7 @@
     "grid": {
         "silenceRemovedSongs": "Silenzio rimosso automaticamente da {{count}} canzoni.",
         "silenceRemovedPreshow": "Silenzio rimosso automaticamente da {{count}} clip PRE-SHOW.",
+        "trimRepaired": "Taglio automatico ricalcolato su {{count}} clip con il nuovo rilevatore (i tagli fatti a mano non sono stati toccati). Salva il progetto per conservarlo.",
         "silenceScanHiddenColumns": "Rilevamento silenzio su colonne nascoste… {{count}} file in analisi",
         "allColumnsHidden": "Tutte le colonne sono nascoste",
         "reenableHint": "Riattivale da Impostazioni → Generali → \"Layout regia — colonne\"",

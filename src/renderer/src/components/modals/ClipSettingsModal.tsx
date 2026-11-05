@@ -168,7 +168,11 @@ export const ClipSettingsModal: React.FC<ClipSettingsModalProps> = ({ clip, isOp
                 return;
             }
             if (result.data.noSilence) {
-                toast(t('modal.clip.autoTrimNoSilence', 'Auto-Trim: nessun silenzio rilevato ai bordi del file.'), 'warning');
+                // v1.15.38: azzera i campi. Prima restava il valore precedente: un taglio
+                // sbagliato del vecchio rilevatore (es. partenza a 105 s) sopravviveva.
+                setTrimStart(0);
+                setTrimEnd(0);
+                toast(t('modal.clip.autoTrimNoSilence', 'Auto-Trim: nessun silenzio ai bordi del file, taglio azzerato. Premi Salva modifiche per confermare.'), 'warning');
                 return;
             }
             setTrimStart(parseFloat(result.data.trimStart.toFixed(3)));

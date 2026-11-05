@@ -1,29 +1,70 @@
 import { describe, it, expect } from 'vitest';
-import { classifySilenceResult } from '../silenceDetection';
+import { decideSilenceUpdate, needsLegacyFingerprint } from '../silenceDetection';
 
-// v1.7.1 — regressione del bug rate-limiter: un risultato "fallito" (rate-limit,
-// timeout, file corrotto) non deve mai essere trattato come "controllato".
+// v1.7.1 — un'analisi fallita non è mai «controllata».
+// v1.15.38 — tagli del vecchio rilevatore sostituiti, tagli dell'operatore conservati.
 
-describe('classifySilenceResult', () => {
-    it('silenzio reale trovato -> checked + trim', () => {
-        const r = classifySilenceResult({ success: true, data: { trimStart: 1.5, trimEnd: 3.2, noSilence: false } });
-        expect(r).toEqual({ checked: true, trimStart: 1.5, trimEnd: 3.2 });
+const ok = (trimStart: number, trimEnd: number, legacy?: { trimStart: number; trimEnd: number } | null) => ({
+    success: true,
+    data: { trimStart, trimEnd, ...(trimStart === 0 && trimEnd === 0 ? { noSilence: true } : {}), ...(legacy !== undefined ? { legacy } : {}) },
+});
+
+describe('decideSilenceUpdate', () => {
+    it('analisi fallita (rate-limit, timeout) → niente da scrivere, si ritenta', () => {
+        expect(decideSilenceUpdate({}, { success: false, error: 'IPC_RATE_LIMITED' })).toEqual({ reason: 'failed' });
+        expect(decideSilenceUpdate({}, { success: true, data: null })).toEqual({ reason: 'failed' });
     });
 
-    it('analisi riuscita senza silenzio -> checked, nessun trim', () => {
-        const r = classifySilenceResult({ success: true, data: { trimStart: 0, trimEnd: 0, noSilence: true } });
-        expect(r.checked).toBe(true);
-        expect(r.trimStart).toBeUndefined();
+    it('clip nuova → taglio nuovo e entrambi i gate', () => {
+        const d = decideSilenceUpdate({}, ok(0.95, 1.85));
+        expect(d.reason).toBe('applied');
+        expect(d.patch).toEqual({ trimStart: 0.95, trimEnd: 1.85, silenceCheckedV2: true, silenceCheckedV3: true });
     });
 
-    it('rate-limit/errore (success:false) -> NON checked', () => {
-        const r = classifySilenceResult({ success: false, error: 'IPC_RATE_LIMITED' });
-        expect(r.checked).toBe(false);
-        expect(r.trimStart).toBeUndefined();
+    it('nessun silenzio → tagli esplicitamente a zero', () => {
+        expect(decideSilenceUpdate({}, ok(0, 0)).patch).toMatchObject({ trimStart: 0, trimEnd: 0 });
     });
 
-    it('success:true senza data -> NON checked (difensivo)', () => {
-        const r = classifySilenceResult({ success: true, data: null });
-        expect(r.checked).toBe(false);
+    it('caso «Splash! Boing!»: 105,517 s scritti dal vecchio rilevatore → sostituiti con 0', () => {
+        const clip = { trimStart: 105.517, trimEnd: 0.19, silenceCheckedV2: true };
+        const d = decideSilenceUpdate(clip, ok(0, 0, { trimStart: 105.517, trimEnd: 0.19 }));
+        expect(d.reason).toBe('replacedLegacy');
+        expect(d.changed).toBe(true);
+        expect(d.patch).toMatchObject({ trimStart: 0, trimEnd: 0 });
+    });
+
+    it('taglio fatto a mano (diverso dall\'impronta) → resta com\'era', () => {
+        const clip = { trimStart: 12.5, trimEnd: 0, silenceCheckedV2: true };
+        const d = decideSilenceUpdate(clip, ok(0.05, 0, { trimStart: 0.1, trimEnd: 0 }));
+        expect(d.reason).toBe('keptManual');
+        expect(d.patch).toEqual({ silenceCheckedV2: true, silenceCheckedV3: true });
+    });
+
+    it('impronta non disponibile (vecchio rilevatore fallito) → si conserva, mai si sovrascrive alla cieca', () => {
+        const clip = { trimStart: 0.4, trimEnd: 1, silenceCheckedV2: true };
+        expect(decideSilenceUpdate(clip, ok(0, 0.5, null)).reason).toBe('keptManual');
+        expect(decideSilenceUpdate(clip, ok(0, 0.5)).reason).toBe('keptManual');
+    });
+
+    it('clip già analizzata ma con tagli a zero → taglio nuovo', () => {
+        const d = decideSilenceUpdate({ trimStart: 0, trimEnd: 0, silenceCheckedV2: true }, ok(0.3, 1.2));
+        expect(d.reason).toBe('applied');
+        expect(d.patch).toMatchObject({ trimStart: 0.3, trimEnd: 1.2 });
+    });
+
+    it('tolleranza: arrotondamenti a 3 decimali contano come la stessa impronta', () => {
+        const clip = { trimStart: 0.0561, trimEnd: 0.546, silenceCheckedV2: true };
+        const d = decideSilenceUpdate(clip, ok(0.08, 0.29, { trimStart: 0.056, trimEnd: 0.546 }));
+        expect(d.reason).toBe('replacedLegacy');
+        expect(d.changed).toBe(true);
+    });
+});
+
+describe('needsLegacyFingerprint', () => {
+    it('solo per clip già analizzate con almeno un taglio', () => {
+        expect(needsLegacyFingerprint({})).toBe(false);
+        expect(needsLegacyFingerprint({ silenceCheckedV2: true })).toBe(false);
+        expect(needsLegacyFingerprint({ silenceCheckedV2: true, trimEnd: 0.2 })).toBe(true);
+        expect(needsLegacyFingerprint({ trimStart: 3 })).toBe(false);
     });
 });

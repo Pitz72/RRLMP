@@ -71,7 +71,7 @@ declare global {
             getAudioMetadata: (filePath: string) => Promise<{success: boolean, data?: unknown, error?: string}>;
             measureLoudness: (filePath: string) => Promise<{success: boolean, data?: {integratedLufs: number}, error?: string}>;
             getWaveformData: (filePath: string) => Promise<{success: boolean, data?: number[], error?: string}>;
-            detectSilence: (filePath: string, thresholdDb?: number) => Promise<{success: boolean, data?: {trimStart: number, trimEnd: number, noSilence?: boolean, thresholdUsed?: number}, error?: string}>;
+            detectSilence: (filePath: string, thresholdDb?: number, options?: { withLegacy?: boolean }) => Promise<{success: boolean, data?: {trimStart: number, trimEnd: number, noSilence?: boolean, thresholdUsed?: number, contentStartSec?: number, contentEndSec?: number, durationSec?: number, legacy?: {trimStart: number, trimEnd: number} | null}, error?: string}>;
             detectSmartCues: (filePath: string) => Promise<{success: boolean, data?: {introCue: number, outroCue: number}, error?: string}>;
             // 2026-07-01 — BPM Detection automatica (rilevamento + persistenza)
             detectBpm: (filePath: string) => Promise<{success: boolean, data?: {bpm: number, confidence: number, detected: boolean, beatOffsetSec?: number, gridScore?: number}, error?: string}>;
@@ -246,6 +246,12 @@ export interface AudioClip {
     // ricontrollare" al prossimo caricamento.
     /** True solo se il rilevamento silenzio è realmente avvenuto con esito valido. */
     silenceCheckedV2?: boolean;
+    /** v1.15.38 — taglio ricontrollato col rilevatore ai bordi (silenceTrim.ts nel main).
+     *  Fino alla 1.15.37 una pausa interna poteva diventare il punto di partenza o di
+     *  fine del brano. Al primo caricamento ogni clip senza questo campo viene rianalizzata:
+     *  i tagli scritti dal vecchio rilevatore vengono sostituiti, quelli fatti a mano
+     *  restano (vedi decideSilenceUpdate in utils/silenceDetection.ts). */
+    silenceCheckedV3?: boolean;
 
     // Audio metadata (v0.16.4) — estratti da tag ID3/Vorbis, persistiti nel .lmp
     /** Artista/Autore dal tag ID3 */

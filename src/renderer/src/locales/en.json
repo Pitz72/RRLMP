@@ -230,7 +230,7 @@
             "outroIncoherent": "Outro marker inconsistent with trim/duration — disabled.",
             "analysisQueued": "Analysis queued — too many parallel FFmpeg operations. Try again in a few seconds.",
             "autoTrimError": "Auto-Trim: error during FFmpeg analysis.",
-            "autoTrimNoSilence": "Auto-Trim: no silence detected at the file edges.",
+            "autoTrimNoSilence": "Auto-Trim: no silence at the file edges, trim reset to zero. Press Save changes to confirm.",
             "autoTrimApplied": "Auto-Trim applied — Start: {{start}}s / End cut: {{end}}s",
             "silenceAnalysisError": "Error during silence analysis.",
             "nameLabel": "Clip Name",
@@ -466,6 +466,7 @@
     "grid": {
         "silenceRemovedSongs": "Silence automatically removed from {{count}} songs.",
         "silenceRemovedPreshow": "Silence automatically removed from {{count}} PRE-SHOW clips.",
+        "trimRepaired": "Automatic trim recalculated on {{count}} clips with the new detector (manual trims were left untouched). Save the project to keep it.",
         "silenceScanHiddenColumns": "Silence detection on hidden columns… {{count}} files being analyzed",
         "allColumnsHidden": "All columns are hidden",
         "reenableHint": "Re-enable them from Settings → General → \"Broadcast layout — columns\"",
