@@ -156,3 +156,75 @@ describe('estimateBeatOffsetSec (v1.10.16, Fase A Automix)', () => {
         expect(estimateBeatOffsetSec([0.1, 0.2, 0.1], envelopeRateHz, 120)).toBeNull();
     });
 });
+
+// ---------------------------------------------------------------------------
+// v1.15.37 — griglia raffinata. Segnali audio sintetici a tempo e primo battito
+// NOTI (cassa + charleston in controtempo), alla stessa frequenza della pipeline
+// reale (11025 Hz). Il vecchio rilevatore sbagliava il primo battito di 35-90 ms.
+// ---------------------------------------------------------------------------
+import { lowPassFilter, computeOnsetEnvelope, refineBeatGrid, BEAT_GRID_LOWPASS_HZ } from '../bpmDetection';
+
+const SR = 11025;
+function drumLoop(bpm: number, offsetSec: number, seconds: number, hats = true): Int16Array {
+    const out = new Float32Array(SR * seconds);
+    const period = 60 / bpm;
+    let seed = 7;
+    const noise = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff * 2 - 1; };
+    for (let t0 = offsetSec; t0 < seconds; t0 += period) {
+        const s = Math.round(t0 * SR);
+        for (let i = 0; i < SR * 0.2 && s + i < out.length; i++) {           // cassa
+            const t = i / SR;
+            out[s + i] += 0.8 * Math.exp(-t * 18) * Math.sin(2 * Math.PI * (45 + 65 * Math.exp(-t * 30)) * t);
+        }
+        if (hats) {                                                          // charleston in controtempo, forte
+            const h = Math.round((t0 + period / 2) * SR);
+            for (let i = 0; i < SR * 0.04 && h + i < out.length; i++) out[h + i] += 0.5 * Math.exp(-i / SR * 90) * noise();
+        }
+    }
+    const pcm = new Int16Array(out.length);
+    for (let i = 0; i < out.length; i++) pcm[i] = Math.max(-32767, Math.min(32767, Math.round(out[i] * 32767)));
+    return pcm;
+}
+function analyze(pcm: Int16Array, coarseBpm: number) {
+    const { onset, rateHz } = computeOnsetEnvelope(lowPassFilter(pcm, SR, BEAT_GRID_LOWPASS_HZ), SR);
+    return refineBeatGrid(onset, rateHz, coarseBpm);
+}
+
+describe('computeOnsetEnvelope (v1.15.37)', () => {
+    it('riporta la frequenza VERA: a 11025 Hz «5 ms» sono 55 campioni', () => {
+        const { rateHz } = computeOnsetEnvelope(new Float32Array(SR), SR);
+        expect(rateHz).toBeCloseTo(SR / 55, 9); // 200,45 Hz, non 200
+    });
+});
+
+describe('refineBeatGrid (v1.15.37)', () => {
+    const cases: Array<[number, number]> = [[124, 0.25], [120, 0.31], [118, 0.18], [96, 0.42], [132, 0.05]];
+    for (const [bpm, offset] of cases) {
+        it(`${bpm} BPM, primo battito a ${offset}s: tempo esatto e fase entro 10 ms, anche con charleston forte in controtempo`, () => {
+            // stima grezza volutamente sbagliata dell'1,5% (come può uscire dall'autocorrelazione)
+            const g = analyze(drumLoop(bpm, offset, 40), bpm * 1.015)!;
+            expect(g).not.toBeNull();
+            expect(Math.abs(g.bpm - bpm)).toBeLessThanOrEqual(0.05);
+            const period = 60 / bpm;
+            const d = ((g.beatOffsetSec - offset) % period + period) % period;
+            expect(Math.min(d, period - d) * 1000).toBeLessThan(10);
+            expect(g.gridScore).toBeGreaterThan(2.5);
+        });
+    }
+
+    it('accordo tenuto senza ritmo: punteggio sotto la soglia del mix (niente falso «a tempo»)', () => {
+        const pcm = new Int16Array(SR * 30);
+        for (let i = 0; i < pcm.length; i++) {
+            const t = i / SR;
+            pcm[i] = Math.round(3500 * (Math.sin(2 * Math.PI * 220 * t) + Math.sin(2 * Math.PI * 277.18 * t) + Math.sin(2 * Math.PI * 329.63 * t)));
+        }
+        const g = analyze(pcm, 147);
+        expect(g === null || g.gridScore < 2.5).toBe(true);
+    });
+
+    it('silenzio o dati troppo corti → null', () => {
+        expect(analyze(new Int16Array(SR * 10), 120)).toBeNull();
+        expect(analyze(drumLoop(120, 0.1, 1), 120)).toBeNull();
+        expect(refineBeatGrid(new Float32Array(100), 200, 0)).toBeNull();
+    });
+});

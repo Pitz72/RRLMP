@@ -26,6 +26,7 @@ import { confirm, confirmThree } from './store/useConfirmStore';
 import { ListChecks } from 'lucide-react';
 import { FxPadOverlay } from './components/ui/FxPadOverlay';
 import { AutomixView } from './components/automix/AutomixView';
+import { findMixNext } from './engine/automixEngine';
 import { populateDefaultFxIfPadEmpty } from './utils/defaultSfx';
 import { UpdateModal } from './components/modals/UpdateModal';
 import { WhatsNewModal } from './components/modals/WhatsNewModal';
@@ -59,7 +60,14 @@ function App() {
     const [showFxPad, setShowFxPad] = useState(false);
     // Automix Section (Fase C1, v1.10.22) — vista full-screen alternativa alla
     // board, stesso pattern del pad FX (nessun routing nell'app).
-    const [showAutomix, setShowAutomix] = useState(false);
+    // v1.15.37: vista aperta = MODALITÀ MIX, stato nel motore audio (mixMode):
+    // playClip lo legge per trasformare i passaggi manuali in mix, e il telefono
+    // può accenderla e spegnerla.
+    const showAutomix = useAudioStore((s) => s.mixMode);
+    const setShowAutomix = (v: boolean | ((prev: boolean) => boolean)) => {
+        const store = useAudioStore.getState();
+        store.setMixMode(typeof v === 'function' ? v(store.mixMode) : v);
+    };
     const masterChain = useSettingsStore((s) => s.masterChain);
 
     // Auto-Updater (2026-07-02) — stato centralizzato qui: un solo listener sul
@@ -535,15 +543,50 @@ function App() {
         // inoltrati dal main via IPC. Whitelist lato server (RemoteControlServer.ts,
         // ALLOWED_COMMANDS): qui gestiamo solo i comandi abilitati per ora, limitati
         // alla colonna Music (playClip/stopClip) + STOP ALL globale.
+        // v1.15.37: pad FX dal telefono — `fxTrigger` è lo stesso gesto del click sul
+        // pad in regia (FxPadOverlay): suona, o ferma se è già in onda. La decisione
+        // si prende QUI, sullo stato vero del motore audio, non su quello (forse
+        // vecchio di qualche millisecondo) mostrato dal telefono. `stopAllFx` ferma
+        // solo gli effetti: la musica e il resto restano in onda.
         const unsubscribeRemoteCommand = window.electron.onRemoteCommand?.((data) => {
+            const audio = useAudioStore.getState();
+            const columnsNow = useProjectStore.getState().columns;
             if (data.name === 'stopAll') {
-                useAudioStore.getState().stopAll();
+                useDebugStore.getState().log('Remoto: STOP ALL', 'event');
+                audio.stopAll();
+            } else if (data.name === 'fxTrigger' && data.clipId) {
+                const sfxCol = columnsNow.find(c => c.type === 'sfx');
+                const clip = sfxCol?.clips.find(c => c.id === data.clipId);
+                if (!clip || clip.isMissing) return;
+                useDebugStore.getState().log(`Remoto: pad FX "${clip.title || clip.name}"`, 'event');
+                if (audio.activeClips[clip.id]) audio.stopClip(clip.id);
+                else void audio.playClip(clip);
+            } else if (data.name === 'stopAllFx') {
+                const sfxIds = new Set((columnsNow.find(c => c.type === 'sfx')?.clips ?? []).map(c => c.id));
+                useDebugStore.getState().log('Remoto: STOP FX', 'event');
+                for (const id of Object.keys(audio.activeClips)) {
+                    if (sfxIds.has(id)) audio.stopClip(id);
+                }
             } else if (data.name === 'stopClip' && data.clipId) {
-                useAudioStore.getState().stopClip(data.clipId);
+                audio.stopClip(data.clipId);
             } else if (data.name === 'playClip' && data.clipId) {
-                const musicCol = useProjectStore.getState().columns.find(c => c.type === 'music');
+                // v1.15.37: in modalità MIX playClip stesso trasforma il passaggio in mix
+                const musicCol = columnsNow.find(c => c.type === 'music');
                 const clip = musicCol?.clips.find(c => c.id === data.clipId);
-                if (clip) useAudioStore.getState().playClip(clip);
+                if (clip) void audio.playClip(clip);
+            } else if (data.name === 'mixNext') {
+                // v1.15.37: «PROSSIMO» dal telefono — mix sul brano dopo quello in onda
+                // (i file mancanti si saltano); nulla in onda → parte il primo brano.
+                const clips = columnsNow.find(c => c.type === 'music')?.clips ?? [];
+                const onAir = clips.find(c => audio.activeClips[c.id] && !audio.fadingClipIds.includes(c.id)) ?? null;
+                const next = findMixNext(clips, onAir?.id ?? null);
+                if (!next) { useDebugStore.getState().log('Remoto: PROSSIMO — fine scaletta', 'event'); return; }
+                useDebugStore.getState().log(`Remoto: PROSSIMO → "${next.title || next.name}"`, 'event');
+                if (onAir) void audio.automixTransition(onAir.id, next.id);
+                else void audio.playClip(next);
+            } else if (data.name === 'mixOn' || data.name === 'mixOff') {
+                useDebugStore.getState().log(`Remoto: modalità MIX ${data.name === 'mixOn' ? 'accesa' : 'spenta'}`, 'event');
+                audio.setMixMode(data.name === 'mixOn');
             }
         });
 
@@ -623,21 +666,12 @@ function App() {
                 />
             )}
 
-            {/* GLOBAL HEADER (Top Bar) — v1.15.36 (tema Pad luminosi): a sinistra i
-                comandi che non servono in onda (menu FILE e Strumenti, dentro
-                GlobalControls), a destra quelli da diretta (audio, FX, MIX, STOP ALL,
-                registrazione, tempo in onda, orologio). Deve stare in 1366 px anche
-                con il microfono armato e la registrazione in corso. */}
+            {/* GLOBAL HEADER (Top Bar) — v1.15.37: tre zone (vedi GlobalControls).
+                Sinistra: marchio, FILE, Strumenti, registro (non servono in onda).
+                Centro: console audio. Destra: FX, MIX, STOP ALL · REC, ON AIR, orologio.
+                Deve stare in 1366 px anche con il microfono armato e la registrazione
+                in corso (v1.15.36). */}
             <header className="tb">
-                <div className="brand" title={`Runtime Live Machine PRO · v${__APP_VERSION__}`}>
-                    <img src={appLogo} alt="Logo" className="brand-logo" />
-                    <div className="brand-txt">
-                        <span className="brand-name">RLM <b>PRO</b></span>
-                        {/* v1.10.7: versione leggibile a colpo d'occhio (triage regia) */}
-                        <span className="brand-ver">v{__APP_VERSION__}</span>
-                    </div>
-                </div>
-
                 <GlobalControls
                     fxPadOpen={showFxPad}
                     onToggleFxPad={() => setShowFxPad((v) => !v)}
@@ -646,20 +680,42 @@ function App() {
                     updaterStatus={updaterStatus}
                     onOpenUpdateModal={() => setShowUpdateModal(true)}
                     onCheckUpdatesNow={handleCheckUpdatesNow}
+                    brand={
+                        <div className="brand" title={`Runtime Live Machine PRO · v${__APP_VERSION__}`}>
+                            <img src={appLogo} alt="Logo" className="brand-logo" />
+                            <div className="brand-txt">
+                                <span className="brand-name">RLM <b>PRO</b></span>
+                                {/* v1.10.7: versione leggibile a colpo d'occhio (triage regia) */}
+                                <span className="brand-ver">v{__APP_VERSION__}</span>
+                            </div>
+                        </div>
+                    }
+                    leftExtra={
+                        // v1.15.37: l'archivio della trasmissione — registro dei brani andati
+                        // in onda e registrazione del programma — sta con FILE e Strumenti.
+                        // REC si preme una volta a inizio show; così le due metà della barra
+                        // si bilanciano attorno alla console audio.
+                        <>
+                            <button
+                                onClick={() => setShowPlayoutLog(true)}
+                                className="kbtn tb-log"
+                                title={i18n.t('app.openPlayoutLog', 'Apri Playout Log')}
+                                aria-label={i18n.t('app.openPlayoutLog', 'Apri Playout Log')}
+                            >
+                                <ListChecks size={16} />
+                                <span className="tb-wide-only">LOG</span>
+                            </button>
+                            <span className="tb-sep tb-wide-only" />
+                            <RecordingButton />
+                        </>
+                    }
+                    rightExtra={
+                        <>
+                            <OnAirTimer />
+                            <DigitalClock />
+                        </>
+                    }
                 />
-
-                <span className="tb-sep" />
-                <button
-                    onClick={() => setShowPlayoutLog(true)}
-                    className="kbtn icon"
-                    title={i18n.t('app.openPlayoutLog', 'Apri Playout Log')}
-                    aria-label={i18n.t('app.openPlayoutLog', 'Apri Playout Log')}
-                >
-                    <ListChecks size={16} />
-                </button>
-                <RecordingButton />
-                <OnAirTimer />
-                <DigitalClock />
             </header>
 
             {/* NOW PLAYING HERO */}

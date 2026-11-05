@@ -8,6 +8,11 @@
 
 import * as fs from 'fs';
 import { join } from 'path';
+import { readMainSettings, writeMainSettings } from './mainSettings';
+
+// v1.15.37: lettura/scrittura spostate in mainSettings.ts (ora servono anche al
+// Controllo Remoto); riesportate qui per chi le importava da questo modulo.
+export { readMainSettings, writeMainSettings };
 
 /**
  * @param previous      versione salvata all'ultimo «consume» (null = mai salvata)
@@ -31,31 +36,6 @@ const USER_DATA_MARKERS = [join('Local Storage', 'leveldb'), 'autosaves', 'defau
 
 export function detectExistingUserData(userDataPath: string): boolean {
     return USER_DATA_MARKERS.some((m) => fs.existsSync(join(userDataPath, m)));
-}
-
-// Impostazioni del main: un piccolo JSON nella cartella dei dati. Per ora
-// contiene solo `lastSeenVersion`.
-const SETTINGS_FILE = 'main-settings.json';
-
-interface MainSettings {
-    lastSeenVersion?: string;
-}
-
-export function readMainSettings(userDataPath: string): MainSettings {
-    try {
-        const parsed = JSON.parse(fs.readFileSync(join(userDataPath, SETTINGS_FILE), 'utf-8'));
-        return parsed && typeof parsed === 'object' ? parsed as MainSettings : {};
-    } catch {
-        return {};
-    }
-}
-
-export function writeMainSettings(userDataPath: string, settings: MainSettings): void {
-    const target = join(userDataPath, SETTINGS_FILE);
-    const tmp = `${target}.tmp`;
-    fs.mkdirSync(userDataPath, { recursive: true });
-    fs.writeFileSync(tmp, JSON.stringify(settings, null, 2), 'utf-8');
-    fs.renameSync(tmp, target);
 }
 
 export interface WhatsNewResult {

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { IAudioPlayer } from '../engine/AudioPlayer.interface';
 import { StreamPlayer } from '../engine/StreamPlayer';
 import { AudioClip, PlayoutLogEntry, TransitionType } from '../types';
-import { planTransition } from '../engine/automixEngine';
+import { planTransition, incomingSeekForPhase } from '../engine/automixEngine';
 import AudioContextManager from '../engine/AudioContextManager';
 import { debugLog } from './useDebugStore';
 import { useProjectStore } from './useProjectStore';
@@ -59,6 +59,12 @@ interface AudioStore {
     // beat-match se il piano lo consente, altrimenti crossfade classico (Fase D).
     // Ritorna l'esito per la telemetria/toast della vista.
     automixTransition: (fromClipId: string, toClipId: string) => Promise<{ mode: 'beatmatched' | 'classic' | 'skipped'; reason?: string }>;
+    /** v1.15.37 — MODALITÀ MIX (vista MIX aperta): ogni passaggio MANUALE da un
+     *  brano Music all'altro (clic, tasto, MIDI, telefono) diventa un mix. */
+    mixMode: boolean;
+    setMixMode: (on: boolean) => void;
+    /** v1.15.37 — esito dell'ultimo mix (per la vista MIX e il telefono). */
+    lastAutomix: { mode: 'beatmatched' | 'classic' | 'skipped'; reason?: string; from: string; to: string; at: number } | null;
     stopAll: () => void;
     setMicActive: (active: boolean) => void;
     // v1.4.7 (#14): riallinea il player di una clip GIÀ in onda alle impostazioni
@@ -648,6 +654,9 @@ export const useAudioStore = create<AudioStore>((set, get) => {
         isMicActive: false,
         playoutLog: [],
         clearPlayoutLog: () => set({ playoutLog: [] }),
+        mixMode: false,
+        setMixMode: (on: boolean) => set({ mixMode: !!on }),
+        lastAutomix: null,
 
         playClip: async (clipArg: AudioClip, velocityGain?: number, opts?: { machine?: boolean }) => {
             const currentStore = get();
@@ -716,6 +725,29 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 playRunIds.delete(freshClip.id);
                 debugLog(`AudioStore: PlayClip annullato durante il caricamento di ${freshClip.name}`, 'info');
                 return;
+            }
+
+            // v1.15.37 — MODALITÀ MIX. Con la vista MIX aperta, un brano della colonna
+            // Music lanciato a mano mentre un altro brano Music è in onda NON lo taglia:
+            // si passa con lo stesso mix del pulsante TRANSIZIONE (a tempo se i BPM lo
+            // consentono, altrimenti crossfade). Vale per ogni ingresso, perché passano
+            // tutti di qui: clic sulla card, tasto, nota MIDI, PLAY dal telefono.
+            // Restano fuori i lanci macchina (la transizione stessa, play_next,
+            // rotazione) — altrimenti automixTransition richiamerebbe se stessa.
+            if (!opts?.machine && currentStore.mixMode && columnId === 'col-music') {
+                const onAir = Object.values(currentStore.activeClips).find(ac =>
+                    ac.clip.id !== freshClip.id
+                    && getColumnForClip(ac.clip.id) === 'col-music'
+                    && !currentStore.fadingClipIds.includes(ac.clip.id)
+                );
+                if (onAir) {
+                    debugLog(`AudioStore: MODALITÀ MIX — ${onAir.clip.name} → ${freshClip.name} (mix invece del taglio)`, 'event');
+                    const result = await get().automixTransition(onAir.clip.id, freshClip.id);
+                    if (result.mode === 'skipped') {
+                        debugLog(`AudioStore: MODALITÀ MIX — passaggio non eseguito: ${result.reason ?? 'stato non valido'}`, 'error');
+                    }
+                    return;
+                }
             }
 
             debugLog(`AudioStore: PlayClip ${freshClip.name} (Next: ${freshClip.nextAction}, Behavior: ${freshClip.behavior})`, 'event');
@@ -1520,10 +1552,36 @@ export const useAudioStore = create<AudioStore>((set, get) => {
         // dal motore puro planTransition (engine/automixEngine.ts, Fase B+D).
         automixTransition: async (fromClipId: string, toClipId: string) => {
             if (_automixInFlight) return { mode: 'skipped' as const, reason: i18n.t('automix.skipInFlight', 'transizione già in corso') };
+            // v1.15.37: esito memorizzato per la vista MIX e per il telefono (anche
+            // quando il passaggio non avviene: l'operatore deve saperlo).
+            const remember = <R extends { mode: 'beatmatched' | 'classic' | 'skipped'; reason?: string }>(r: R): R => {
+                set({ lastAutomix: { mode: r.mode, reason: r.reason, from: fromClipId, to: toClipId, at: Date.now() } });
+                return r;
+            };
+
+            // v1.15.37 (collaudo 2026-11-05): il brano scelto può essere quello che sta
+            // ancora sfumando dal passaggio precedente (l'operatore torna indietro, o va
+            // più veloce del crossfade). Prima il comando veniva ignorato in silenzio
+            // («entrante già in onda»). Ora quel brano esce in 40 ms e riparte col mix.
+            const targetFadingOut = get().activeClips[fromClipId] && get().activeClips[toClipId]
+                && get().fadingClipIds.includes(toClipId) && toClipId !== fromClipId;
+            if (targetFadingOut) {
+                _automixInFlight = true;
+                try {
+                    get().activeClips[toClipId]?.player.fadeTo(0, 40);
+                    clearTransitionTimeout(toClipId);
+                    await new Promise(r => setTimeout(r, 50));
+                    get().stopClip(toClipId);
+                    set(state => ({ fadingClipIds: state.fadingClipIds.filter(id => id !== toClipId) }));
+                } finally {
+                    _automixInFlight = false;
+                }
+            }
+
             const fromState = get().activeClips[fromClipId];
             const toClip = getFreshClipById(toClipId);
             if (!fromState || !toClip || toClip.isMissing || get().activeClips[toClipId]) {
-                return { mode: 'skipped' as const, reason: i18n.t('automix.skipInvalidState', 'stato non valido (uscente fermo, entrante già in onda o file mancante)') };
+                return remember({ mode: 'skipped' as const, reason: i18n.t('automix.skipInvalidState', 'stato non valido (uscente fermo, entrante già in onda o file mancante)') });
             }
             _automixInFlight = true;
             try {
@@ -1532,20 +1590,48 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 const positionSec = fromPlayer.getCurrentTime();
                 const durationSec = fromPlayer.getDuration() || fromClip.duration || 0;
 
+                // v1.15.37 — PASSAGGI RAPIDI. L'uscente può essere a sua volta l'entrante
+                // di un mix di pochi secondi fa: suona ancora a un rate diverso da 1 e la
+                // sua rampa di rientro è attiva. (1) Si congela il rate dove si trova:
+                // durante il crossfade le due griglie devono restare agganciate. (2) Il
+                // piano usa il tempo UDITO (bpm x rate), non quello nominale.
+                clearRateRamp(fromClipId);
+                const outgoingRate = fromPlayer.getPlaybackRate?.() ?? 1;
+
+                // v1.15.37: un brano Music ancora in dissolvenza da un passaggio
+                // precedente (l'operatore va veloce) esce in 250 ms: mai tre brani
+                // sovrapposti.
+                for (const staleId of get().fadingClipIds) {
+                    if (staleId === fromClipId || getColumnForClip(staleId) !== 'col-music') continue;
+                    const stale = get().activeClips[staleId];
+                    if (!stale) continue;
+                    stale.player.fadeTo(0, 250);
+                    clearTransitionTimeout(staleId);
+                    _transitionTimeouts.set(staleId, setTimeout(() => {
+                        _transitionTimeouts.delete(staleId);
+                        get().stopClip(staleId);
+                        set(state => ({ fadingClipIds: state.fadingClipIds.filter(id => id !== staleId) }));
+                    }, 300));
+                }
+
                 const plan = planTransition({
                     outgoing: {
                         bpm: fromClip.bpm, beatOffsetSec: fromClip.beatOffsetSec, bpmConfidence: fromClip.bpmConfidence,
+                        beatGridScore: fromClip.beatGridScore,
                         positionSec,
+                        playbackRate: outgoingRate,
                         effectiveEndSec: durationSec > 0 ? durationSec - (fromClip.trimEnd || 0) : undefined
                     },
                     incoming: {
                         bpm: toClip.bpm, beatOffsetSec: toClip.beatOffsetSec, bpmConfidence: toClip.bpmConfidence,
+                        beatGridScore: toClip.beatGridScore,
                         trimStartSec: toClip.trimStart || 0
                     },
                     // Lead più largo del default: l'aggancio deve restare nel futuro anche
                     // dopo load()+play() dell'entrante (latenza assorbita poi dalla
                     // correzione di fase qui sotto).
-                    options: { minLeadSec: 0.5 }
+                    // v1.15.37: durata del mix scelta dall'operatore (corto/medio/lungo).
+                    options: { minLeadSec: 0.5, crossfadeBeats: useSettingsStore.getState().automixBeats ?? 8 }
                 });
 
                 if (plan.mode === 'classic') {
@@ -1562,12 +1648,12 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     }, crossfadeDuration + 200));
                     pendingCrossfadeFadeIn = crossfadeDuration;
                     await get().playClip(toClip, undefined, { machine: true });
-                    return { mode: 'classic' as const, reason: plan.reason };
+                    return remember({ mode: 'classic' as const, reason: plan.reason });
                 }
 
                 // BEAT-MATCH (piano B.1-B.5)
                 const fadeMs = Math.round(plan.crossfadeSec * 1000);
-                debugLog(`Automix: TRANSIZIONE beat-match — ${fromClip.name} → ${toClip.name} | rate ${plan.rate.toFixed(4)}, aggancio ${plan.anchorBeatSec.toFixed(3)}s, partenza entrante ${plan.incomingStartSec.toFixed(3)}s, fade ${fadeMs}ms`, 'event');
+                debugLog(`Automix: TRANSIZIONE beat-match — ${fromClip.name} → ${toClip.name} | rate ${plan.rate.toFixed(4)} (uscente a ${plan.outgoingRate.toFixed(4)}), aggancio ${plan.anchorBeatSec.toFixed(3)}s, partenza entrante ${plan.incomingStartSec.toFixed(3)}s, fade ${fadeMs}ms`, 'event');
 
                 // v1.10.26 (FIX "transizione secca", riscontro dev): l'uscente va marcato
                 // in fadingClipIds PRIMA di playClip — la conflict resolution di colonna
@@ -1585,7 +1671,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     // il fade non era ancora stato armato. MAI dead air per un tentativo di mix.
                     set(state => ({ fadingClipIds: state.fadingClipIds.filter(id => id !== fromClipId) }));
                     debugLog(`Automix: partenza di ${toClip.name} fallita — transizione annullata, uscente in onda`, 'error');
-                    return { mode: 'skipped' as const, reason: i18n.t('automix.skipStartFailed', 'partenza entrante fallita') };
+                    return remember({ mode: 'skipped' as const, reason: i18n.t('automix.skipStartFailed', 'partenza entrante fallita') });
                 }
                 const toPlayer = toState.player;
                 toPlayer.setPlaybackRate?.(plan.rate);
@@ -1596,13 +1682,11 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 // l'entrante deve trovarsi su incomingStartSec — da lì le griglie
                 // restano agganciate dal rate. La seek avviene nei primissimi ms del
                 // fade-in (volume ~0) → inudibile.
+                // v1.15.37: calcolo spostato nel motore puro (incomingSeekForPhase), che
+                // tiene conto anche del rate dell'uscente. Mai posizioni negative: si
+                // avanza a beat INTERI dell'entrante (stessa fase).
                 const posOutNow = fromPlayer.getCurrentTime();
-                let aligned = plan.incomingStartSec + (posOutNow - plan.anchorBeatSec) * plan.rate;
-                // Mai posizioni negative: si avanza a beat INTERI dell'entrante
-                // (griglia equivalente, l'aggancio di fase resta identico).
-                const periodIn = 60 / (toClip.bpm as number);
-                if (aligned < 0) aligned += Math.ceil(-aligned / periodIn) * periodIn;
-                toPlayer.seek(aligned);
+                toPlayer.seek(incomingSeekForPhase(plan, posOutNow, toClip.bpm as number));
 
                 // Crossfade: l'uscente scende in fadeMs da ORA (l'entrante sta già
                 // salendo con il fade-in armato via pendingCrossfadeFadeIn) — rampe
@@ -1620,7 +1704,7 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                 // inudibile) così i mix successivi non accumulano scostamento.
                 startRateRampBack(toClipId, fadeMs + 500);
 
-                return { mode: 'beatmatched' as const };
+                return remember({ mode: 'beatmatched' as const });
             } finally {
                 _automixInFlight = false;
             }

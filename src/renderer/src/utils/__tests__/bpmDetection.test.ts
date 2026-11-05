@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { classifyBpmResult } from '../bpmDetection';
+import { classifyBpmResult, formatBpm } from '../bpmDetection';
 
 describe('classifyBpmResult', () => {
     it('BPM rilevato -> checked + bpm (+confidence dal v1.10.20)', () => {
@@ -46,5 +46,22 @@ describe('classifyBpmResult', () => {
     it('confidence propagata insieme a bpm e offset', () => {
         const r = classifyBpmResult({ success: true, data: { bpm: 120, confidence: 0.62, detected: true, beatOffsetSec: 0.4 } });
         expect(r).toEqual({ checked: true, bpm: 120, beatOffsetSec: 0.4, confidence: 0.62 });
+    });
+});
+
+// v1.15.37 — punteggio della griglia dei beat
+describe('classifyBpmResult — gridScore (v1.15.37)', () => {
+    it('propagato quando presente, scartato se non finito', () => {
+        expect(classifyBpmResult({ success: true, data: { bpm: 124, confidence: 0.9, detected: true, beatOffsetSec: 0.25, gridScore: 4.2 } }).gridScore).toBe(4.2);
+        expect(classifyBpmResult({ success: true, data: { bpm: 124, confidence: 0.9, detected: true, gridScore: NaN } }).gridScore).toBeUndefined();
+        expect(classifyBpmResult({ success: true, data: { bpm: 124, confidence: 0.9, detected: true } }).gridScore).toBeUndefined();
+    });
+});
+
+describe('formatBpm (v1.15.37)', () => {
+    it('una cifra decimale a schermo', () => {
+        expect(formatBpm(123.99)).toBe('124');
+        expect(formatBpm(118.64)).toBe('118.6');
+        expect(formatBpm(100)).toBe('100');
     });
 });

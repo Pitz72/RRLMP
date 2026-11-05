@@ -53,6 +53,10 @@ interface SettingsState {
     // spostarlo dal pulsante nell'header del pad. Preferenza globale persistita.
     fxPadSide: 'left' | 'right';
 
+    // v1.15.37: durata del mix a tempo della modalità MIX, in beat (corto 4 ·
+    // medio 8 · lungo 16). Il corto serve ai passaggi rapidi (classifica, medley).
+    automixBeats: 4 | 8 | 16;
+
     setOutputDeviceId: (id: string) => void;
     setGlobalMidiBind: (actionKey: string, midiMessage: string) => void;
     setMasterVolume: (v: number) => void;
@@ -78,6 +82,8 @@ interface SettingsState {
     toggleColumnVisibility: (columnId: string) => void;
     /** v1.10.6: sposta il pad FX nell'angolo sinistro/destro. */
     setFxPadSide: (side: 'left' | 'right') => void;
+    /** v1.15.37: durata del mix a tempo (beat). */
+    setAutomixBeats: (beats: 4 | 8 | 16) => void;
 }
 
 
@@ -124,6 +130,9 @@ export const useSettingsStore = create<SettingsState>()(
             // Pad FX (v1.10.6) — in basso a destra come in v1.9.7
             fxPadSide: 'right' as const,
 
+            // Modalità MIX (v1.15.37) — 8 beat, come fino alla 1.15.36
+            automixBeats: 8 as const,
+
             setOutputDeviceId: (id) => set({ outputDeviceId: id }),
             setGlobalMidiBind: (actionKey, midiMessage) => set((state) => ({
                 globalMidiBinds: { ...state.globalMidiBinds, [actionKey]: midiMessage }
@@ -167,6 +176,7 @@ export const useSettingsStore = create<SettingsState>()(
                     : [...state.hiddenColumnIds, columnId],
             })),
             setFxPadSide: (side) => set({ fxPadSide: side }),
+            setAutomixBeats: (beats) => set({ automixBeats: beats === 4 || beats === 16 ? beats : 8 }),
         }),
 
         {

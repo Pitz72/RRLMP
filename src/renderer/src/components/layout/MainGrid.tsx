@@ -30,6 +30,7 @@ import { ClipSettingsModal } from '../modals/ClipSettingsModal';
 import { AudioClip, Column } from '../../types';
 import { classifySilenceResult } from '../../utils/silenceDetection';
 import { classifyBpmResult } from '../../utils/bpmDetection';
+import { assessCompatibility, findMixNext } from '../../engine/automixEngine';
 import { useTranslation } from 'react-i18next';
 
 // Helper component for Drop Area (Column)
@@ -87,6 +88,11 @@ export const MainGrid: React.FC = () => {
     // la ripubblicazione dello stato al tablet (IPC + broadcast WebSocket) avvenivano
     // 10 volte al secondo anche senza alcun cambiamento da mostrare.
     const activeIdsKey = useAudioStore((state) => JSON.stringify(Object.keys(state.activeClips).sort()));
+    // v1.15.37: modalità MIX verso il telefono — brani in uscita, stato MIX, esito
+    // dell'ultimo passaggio (valori stabili: nessun ridisegno a 10 Hz).
+    const fadingIdsKey = useAudioStore((state) => state.fadingClipIds.join('|'));
+    const mixMode = useAudioStore((state) => state.mixMode);
+    const lastAutomix = useAudioStore((state) => state.lastAutomix);
     // Layout regia configurabile (v1.9.8) — colonne nascoste dalla board (globale).
     const hiddenColumnIds = useSettingsStore((state) => state.hiddenColumnIds);
 
@@ -282,9 +288,11 @@ export const MainGrid: React.FC = () => {
         const musicCol = freshColumns.find(c => c.type === 'music');
         if (!musicCol) return;
 
-        const unanalyzed = musicCol.clips.filter(c => !c.bpmCheckedV2 && !c.isMissing);
+        // v1.15.37: gate V3 — griglia raffinata (le griglie V2 erano sfasate di ~140 ms in
+        // mediana su musica vera): ogni brano già analizzato viene rianalizzato UNA volta.
+        const unanalyzed = musicCol.clips.filter(c => !c.bpmCheckedV3 && !c.isMissing);
         if (unanalyzed.length === 0 || !window.electron?.detectBpm) return;
-        debugLog(`AutoBpm[music] load: ${musicCol.clips.length} clip totali, ${unanalyzed.length} da analizzare (bpmCheckedV2 assente/false)`, 'info');
+        debugLog(`AutoBpm[music] load: ${musicCol.clips.length} clip totali, ${unanalyzed.length} da analizzare (bpmCheckedV3 assente/false)`, 'info');
 
         unanalyzed.forEach(clip => {
             window.electron.detectBpm(clip.path).then(result => {
@@ -294,7 +302,9 @@ export const MainGrid: React.FC = () => {
                         ...(r.bpm !== undefined ? { bpm: r.bpm } : {}),
                         ...(r.beatOffsetSec !== undefined ? { beatOffsetSec: r.beatOffsetSec } : {}),
                         ...(r.confidence !== undefined ? { bpmConfidence: r.confidence } : {}),
-                        bpmCheckedV2: true
+                        ...(r.gridScore !== undefined ? { beatGridScore: r.gridScore } : {}),
+                        bpmCheckedV2: true,
+                        bpmCheckedV3: true
                     }, { runtime: true });
                     // v1.10.18 (Fase A, supporto A3): esito nel Debug Overlay — servono i
                     // numeri (BPM, confidence, offset) per la validazione su musica reale.
@@ -314,17 +324,41 @@ export const MainGrid: React.FC = () => {
     // Music (id/nome/in-play) al main a ogni cambio, così il server LAN può
     // mostrarlo sul tablet. Fire-and-forget: se il server non è attivo, il main
     // riceve comunque il messaggio ma non lo trasmette a nessun client connesso.
+    // v1.15.37: anche i pad FX (colonna col-sfx), con il colore assegnato
+    // dall'utente e il flag file mancante — il telefono mostra la stessa cartwall.
+    // Il main scarta i duplicati: pubblicare spesso non costa traffico di rete.
     const musicColumnForRemote = columns.find(c => c.type === 'music');
+    const sfxColumnForRemote = columns.find(c => c.type === 'sfx');
     useEffect(() => {
         if (!window.electron?.publishRemoteState) return;
         const active = new Set<string>(JSON.parse(activeIdsKey) as string[]);
-        const clips = (musicColumnForRemote?.clips ?? []).map(c => ({
+        const fading = new Set<string>(fadingIdsKey ? fadingIdsKey.split('|') : []);
+        const musicClips = musicColumnForRemote?.clips ?? [];
+        // v1.15.37: un brano in dissolvenza (mix in corso) non è più «in onda»: è in uscita
+        const music = musicClips.map(c => ({
             id: c.id,
             name: c.title || c.name,
-            isPlaying: active.has(c.id)
+            isPlaying: active.has(c.id) && !fading.has(c.id),
+            ...(active.has(c.id) && fading.has(c.id) ? { fading: true } : {})
         }));
-        window.electron.publishRemoteState(clips);
-    }, [musicColumnForRemote, activeIdsKey]);
+        const fx = (sfxColumnForRemote?.clips ?? []).map(c => ({
+            id: c.id,
+            name: c.title || c.name,
+            isPlaying: !c.isMissing && active.has(c.id),
+            ...(c.customColor ? { color: c.customColor } : {}),
+            ...(c.isMissing ? { missing: true } : {})
+        }));
+        // v1.15.37: «PROSSIMO» sul telefono — stesso brano che sceglierebbe la regia
+        const onAir = musicClips.find(c => active.has(c.id) && !fading.has(c.id)) ?? null;
+        const next = findMixNext(musicClips, onAir?.id ?? null);
+        const nextTempo = onAir && next ? assessCompatibility(onAir, next).level !== 'red' : false;
+        const mix = {
+            on: mixMode,
+            ...(next ? { nextId: next.id, nextName: next.title || next.name, nextMode: (onAir ? (nextTempo ? 'tempo' : 'classic') : 'start') as 'tempo' | 'classic' | 'start' } : {}),
+            ...(lastAutomix ? { last: lastAutomix.mode } : {})
+        };
+        window.electron.publishRemoteState({ music, fx, mix });
+    }, [musicColumnForRemote, sfxColumnForRemote, activeIdsKey, fadingIdsKey, mixMode, lastAutomix]);
 
     // Sensors
     const sensors = useSensors(
@@ -419,7 +453,9 @@ export const MainGrid: React.FC = () => {
                                 ...(r.bpm !== undefined ? { bpm: r.bpm } : {}),
                                 ...(r.beatOffsetSec !== undefined ? { beatOffsetSec: r.beatOffsetSec } : {}),
                                 ...(r.confidence !== undefined ? { bpmConfidence: r.confidence } : {}),
-                                bpmCheckedV2: true
+                                ...(r.gridScore !== undefined ? { beatGridScore: r.gridScore } : {}),
+                                bpmCheckedV2: true,
+                                bpmCheckedV3: true
                             }, { runtime: true });
                             // v1.10.18: stesso log del batch (validazione A3 dal Debug Overlay)
                             debugLog(`AutoBpm [${newClip.name}]: ${r.bpm !== undefined

@@ -1,7 +1,8 @@
 # RRLMP — Roadmap & Backlog
 
-**Versione corrente:** 1.15.36 — **rilasciata** il 2026-10-29 su `Pitz72/RRLMP`, Latest (run 40800529362, 5/5; SHA-512 di exe e AppImage confrontati con `latest.yml` e `latest-linux.yml`). Nuova interfaccia «Pad luminosi» più la revisione del codice 1.15.35, che non è uscita da sola: le note di rilascio le comprendono entrambe. La 1.15.34 (2026-09-19) resta pubblicata. Il ponte `Ecosystem-Runtime/RRLMP-Releases` resta alla 1.15.33
-**Ultimo aggiornamento:** 2026-10-29 — rilascio della 1.15.36; interfaccia riprogettata da capo nella 1.15.36 ([changelog](./changelogs/current/1.15.36.md)); revisione del codice: 19 criticità corrette nella 1.15.35 ([report](./technical/REVISIONE-CODICE-2026-10-28.md))
+**Versione in sviluppo:** 1.15.37 — **pronta, non ancora rilasciata** (2026-11-05): pad FX comandabili dal telefono col Controllo Remoto (QR code, PIN stabile, avvio automatico facoltativo) e **modalità MIX vera** (ogni passaggio manuale è un mix, anche dal telefono; griglia dei beat corretta) ([changelog](./changelogs/current/1.15.37.md), [validazione griglia](./automix/VALIDAZIONE-GRIGLIA-2026-11-05.md)). Collaudata con l'app vera via Wi-Fi sullo stesso PC; resta la prova da un telefono vero in regia e l'ascolto dei mix su brani veri.
+**Versione pubblicata:** 1.15.36 — **rilasciata** il 2026-10-29 su `Pitz72/RRLMP`, Latest (run 40800529362, 5/5; SHA-512 di exe e AppImage confrontati con `latest.yml` e `latest-linux.yml`). Nuova interfaccia «Pad luminosi» più la revisione del codice 1.15.35, che non è uscita da sola: le note di rilascio le comprendono entrambe. La 1.15.34 (2026-09-19) resta pubblicata. Il ponte `Ecosystem-Runtime/RRLMP-Releases` resta alla 1.15.33
+**Ultimo aggiornamento:** 2026-11-05 — Controllo Remoto con i pad FX e modalità MIX (1.15.37, non rilasciata). Prima: 2026-10-29 — rilascio della 1.15.36; interfaccia riprogettata da capo nella 1.15.36 ([changelog](./changelogs/current/1.15.36.md)); revisione del codice: 19 criticità corrette nella 1.15.35 ([report](./technical/REVISIONE-CODICE-2026-10-28.md))
 
 Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio). Nessuna automazione 24h. L'unica eccezione controllata è la rotazione PRE-SHOW — vedi [VISION.md](./VISION.md).
 
@@ -12,11 +13,11 @@ Scope del prodotto: **regia umana per show finiti** (podcast, eventi, web radio)
 | Area | Stato |
 |------|-------|
 | Typecheck (renderer/main/node/preload) | **0 errori** su tutti e 4 |
-| Test Vitest | **269/269 verdi** (29 file) |
+| Test Vitest | **356/356 verdi** (33 file) — dalla 1.15.37 comprende il server del Controllo Remoto con socket veri, la pagina del telefono eseguita in jsdom, la modalità MIX nel motore audio e la griglia dei beat su segnali sintetici a battito noto |
 | Criticità aperte del codice | **nessuna** dalla [revisione 2026-10-28](./technical/REVISIONE-CODICE-2026-10-28.md): 1 gravissima (Ctrl+R ricaricava l'interfaccia), 4 gravi (MIDI hardware negato, registrazione persa all'uscita, export che sovrascriveva l'archivio, catena ferma su clip non riproducibile), 4 medie e 10 lievi, tutte corrette nella 1.15.35. Precedente: [revisione 2026-07-28](./technical/REVISIONE-CODICE-2026-07-28.md), 22 reperti chiusi in 1.15.16 → 1.15.29 |
 | Ultima release **pubblicata** | **v1.15.36** su `Pitz72/RRLMP` (2026-10-29), note cumulative 1.15.35 + 1.15.36 in italiano e inglese |
 | Lingue | **Solo italiano e inglese** in app, guida rapida, manuale e note di rilascio (dalla 1.15.32) |
-| Manuale utente | IT + EN allineati alla 1.15.36 («Pad luminosi»: schermate e descrizioni rifatte, pubblicati con il push del 2026-10-29), licenza MIT; il pulsante dell'app li apre da `Pitz72/RRLMP/manuale-utente/typst` (le versioni ≤ 1.15.32 da `RRLMP-Releases/manuals`, aggiornati anch'essi) |
+| Manuale utente | ⚠️ da aggiornare per la 1.15.37: capitolo 11 (Controllo Remoto: pad FX, QR code, PIN stabile, scheda MUSICA con MIX e PROSSIMO) e il capitolo dell'Automix (modalità MIX sui passaggi manuali, righe cliccabili, durata del mix, soglia della griglia). Il resto: IT + EN allineati alla 1.15.36 («Pad luminosi»: schermate e descrizioni rifatte, pubblicati con il push del 2026-10-29), licenza MIT; il pulsante dell'app li apre da `Pitz72/RRLMP/manuale-utente/typst` (le versioni ≤ 1.15.32 da `RRLMP-Releases/manuals`, aggiornati anch'essi) |
 | Auto-updater | operativo (nativo su Windows/Linux-AppImage, fallback browser su .deb e macOS compilato); dalla 1.15.33 legge `Pitz72/RRLMP`, le versioni ≤ 1.15.32 il ponte |
 | Pacchetti | exe 114 MB · AppImage 158 MB · deb 108 MB · dmg 143 MB (il problema dei 500 MB non si ripresenta). Dalla 1.15.33 niente più `.dmg`: macOS si compila dal sorgente |
 | Apertura del sorgente | **Fasi 1-4 chiuse**: repository pubblico MIT, release ponte 1.15.33. Resta la Fase 5 (Gumroad, sito, dismissione del ponte) — vedi [PIANO-APERTURA.md](./PIANO-APERTURA.md) |
@@ -63,8 +64,8 @@ Feature precedenti mai validate su materiale reale:
 
 - **Preset Glue Multibanda non-neutri** (rock/jazz/elettronico, v1.7.0) — valori plausibili ma mai misurati; richiedono ascolto critico.
 - **I 10 suoni FX di default** (v1.10.8) — solo CC0/Public Domain, **mai ascoltati**.
-- **Automix beat-match su musica reale** — motore coperto da 26 test, orchestrazione live no.
-- **Plausibilità BPM su musica reale** — validato su toni sintetici.
+- **Automix beat-match su musica reale** — griglia dei beat misurata il 2026-11-05 su 57 brani di Sanremo 2026 (coerenza fra primo e secondo minuto: 3 ms mediani sui brani agganciabili, era 141 ms; [rapporto](./automix/VALIDAZIONE-GRIGLIA-2026-11-05.md)); mix collaudati nell'app vera con basi sintetiche. **Manca l'ascolto** di un mix fra brani veri in regia.
+- **Plausibilità BPM su musica reale** — tempi esatti sulle basi a battito noto; su Sanremo 2026 coerenti fra un minuto e l'altro sui brani con cassa regolare.
 
 ---
 
@@ -130,7 +131,7 @@ Si guadagna: niente cattura di sistema (niente AGC, niente notifiche Windows in 
 | F-06 | — | Loudness normalization LUFS per clip | **FATTA** (v1.4.3) |
 | F-11 | — | Undo/Redo playlist | **FATTA** (v1.5.0) |
 | F-13 | — | BPM detection automatica | **FATTA** (v1.8.0), usata dall'Automix dalla v1.10.21 |
-| F-25 | Medio | Controllo remoto da tablet | **FATTO** in forma HTTP+WS+PIN (v1.11.3). OSC/TouchOSC resta un'ipotesi non pianificata |
+| F-25 | Medio | Controllo remoto da tablet | **FATTO** in forma HTTP+WS+PIN (v1.11.3); **pad FX dal telefono nella 1.15.37** (tocco alla pressione, conferma di ricezione, QR code, PIN stabile, ricollegamento automatico). OSC/TouchOSC resta un'ipotesi non pianificata |
 | F-07 | Medio | Metadata streaming Icecast/Shoutcast ("Now Playing") | **SOSPESO** — da riprendere insieme al Passo 3 (LIVE) |
 | F-12 | Alto | Voice Tracking / registrazione inserti | **SOSPESO** — l'utente non è convinto che serva |
 
@@ -164,6 +165,7 @@ Si guadagna: niente cattura di sistema (niente AGC, niente notifiche Windows in 
 
 | Versione | Contenuto |
 |---|---|
+| **1.15.37** | **Pad FX dal telefono** (Controllo Remoto): cartwall con i colori della regia, tocco alla pressione, conferma di ricezione, STOP FX, QR code, PIN stabile, avvio automatico facoltativo, indirizzo di rete giusto (non WSL/Hyper-V) · **Barra in alto a tre zone** (progetto e archivio · console audio al centro · diretta e orologio) · **Modalità MIX vera**: passaggi manuali (clic, tasti, MIDI, telefono) sempre mixati, PROSSIMO dal telefono, durata corto/medio/lungo, passaggi rapidi a tempo, griglia dei beat riscritta (tempo+fase sulla cassa, soglia di affidabilità) — *pronta, non rilasciata* |
 | **1.15.36** | **Interfaccia riprogettata da capo — «Pad luminosi»**: superficie hardware, clip in onda accesa nel colore colonna, display IN ONDA con avanzamento a LED, font inclusi, contrasto WCAG verificato su 24 schermate |
 | **1.15.35** | **Revisione del codice 2026-10-28**: via il menu di serie (Ctrl+R ricaricava), MIDI hardware di nuovo attivo, registrazione protetta all'uscita, export che non sovrascrive l'archivio, catena che non si ferma su una clip non riproducibile, più 4 medie e 10 lievi |
 | **1.15.32** | App **solo italiano e inglese** · schermata di benvenuto con tendina lingua · manuali IT/EN aggiornati con schermate nuove e pubblicati · note di rilascio bilingui e cumulative |

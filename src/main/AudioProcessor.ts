@@ -3,7 +3,7 @@ import * as mm from 'music-metadata';
 import * as ffmpeg from 'fluent-ffmpeg';
 import { spawn } from 'child_process';
 import { logger } from './logger';
-import { computeEnergyEnvelope, estimateBpmFromEnvelope, estimateBeatOffsetSec } from './bpmDetection';
+import { computeEnergyEnvelope, estimateBpmFromEnvelope, estimateBeatOffsetSec, lowPassFilter, computeOnsetEnvelope, refineBeatGrid, BEAT_GRID_LOWPASS_HZ } from './bpmDetection';
 import { PeakAccumulator, reduceToBars, WAVEFORM_SAMPLE_RATE } from './waveformPeaks';
 import { tMain } from './i18nMain';
 
@@ -483,7 +483,7 @@ export class AudioProcessor {
    * dall'inizio del file), quando stimabile. Estensione ADDITIVA: i campi
    * esistenti sono invariati, i chiamanti vecchi continuano a funzionare.
    */
-  static async detectBpm(filePath: string): Promise<{ success: boolean; data?: { bpm: number; confidence: number; detected: boolean; beatOffsetSec?: number }; error?: string }> {
+  static async detectBpm(filePath: string): Promise<{ success: boolean; data?: { bpm: number; confidence: number; detected: boolean; beatOffsetSec?: number; gridScore?: number }; error?: string }> {
     if (!fs.existsSync(filePath)) return { success: false, error: tMain('err.fileNotFound') };
 
     const SAMPLE_RATE = 11025;
@@ -524,7 +524,11 @@ export class AudioProcessor {
                     const samples = new Int16Array(pcm.buffer, pcm.byteOffset, sampleCount);
 
                     const envelope = computeEnergyEnvelope(samples, SAMPLE_RATE, WINDOW_MS);
-                    const envelopeRateHz = 1000 / WINDOW_MS;
+                    // v1.15.37: frequenza VERA dell'inviluppo. A 11025 Hz una finestra di
+                    // «20 ms» è di 221 campioni (20,045 ms): con 1000/20 = 50 Hz tutti i BPM
+                    // uscivano gonfiati dello 0,23% e la griglia scivolava di ~1 ms a battito.
+                    const windowSize = Math.max(1, Math.round((SAMPLE_RATE * WINDOW_MS) / 1000));
+                    const envelopeRateHz = SAMPLE_RATE / windowSize;
                     const estimate = estimateBpmFromEnvelope(envelope, envelopeRateHz);
 
                     // "Non rilevabile" (nessuna periodicità marcata, es. voce/ambient) è
@@ -535,6 +539,14 @@ export class AudioProcessor {
                     // v1.10.17 (Fase A Automix): fase della griglia dei beat sul BPM
                     // appena stimato. Se non stimabile (null) il campo resta assente:
                     // a valle scatterà il fallback crossfade classico (Fase D).
+                    // v1.15.37: tempo e fase raffinati INSIEME sulla cassa (vedi
+                    // refineBeatGrid in bpmDetection.ts) + punteggio della griglia, che
+                    // il mix usa per decidere se agganciare le battute o fare un crossfade.
+                    const { onset, rateHz } = computeOnsetEnvelope(lowPassFilter(samples, SAMPLE_RATE, BEAT_GRID_LOWPASS_HZ), SAMPLE_RATE);
+                    const grid = refineBeatGrid(onset, rateHz, estimate.bpm);
+                    if (grid) {
+                        return resolve({ success: true, data: { bpm: grid.bpm, confidence: estimate.confidence, detected: true, beatOffsetSec: grid.beatOffsetSec, gridScore: grid.gridScore } });
+                    }
                     const beatOffsetSec = estimateBeatOffsetSec(envelope, envelopeRateHz, estimate.bpm);
                     resolve({ success: true, data: { ...estimate, detected: true, ...(beatOffsetSec !== null ? { beatOffsetSec } : {}) } });
                 } catch (parseErr) {

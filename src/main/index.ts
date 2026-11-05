@@ -4,7 +4,9 @@ import { join, normalize, isAbsolute, extname } from 'path';
 import * as fs from 'fs';
 import { AudioProcessor } from './AudioProcessor';
 import { logger } from './logger';
-import { startRemoteControlServer, stopRemoteControlServer, getRemoteControlStatus, updateRemoteMusicState, RemoteCommandName } from './RemoteControlServer';
+import { startRemoteControlServer, stopRemoteControlServer, getRemoteControlStatus, updateRemoteState, changeRemotePin, generatePin, isValidPin, RemoteCommandName, RemoteControlStatus } from './RemoteControlServer';
+import { buildQrMatrix } from './qrMatrix';
+import { readMainSettings, updateMainSettings } from './mainSettings';
 import { initUpdateManager, checkForUpdates, downloadUpdate, quitAndInstall } from './updateManager';
 import { setMainLanguage, tMain } from './i18nMain';
 import { mediaUrlToFilePath } from './mediaPath';
@@ -311,12 +313,63 @@ function notifyRemoteControlFailure(message: string): void {
         mainWindowRef.webContents.send('remote-control:failed', { message });
     }
 }
-ipcMain.handle('remote-control:start', () => startRemoteControlServer(forwardRemoteCommandToRenderer, notifyRemoteControlFailure));
-ipcMain.handle('remote-control:stop', () => { stopRemoteControlServer(); return getRemoteControlStatus(); });
-ipcMain.handle('remote-control:status', () => getRemoteControlStatus());
-// Step 4/N — verso opposto: il renderer pubblica lo stato della colonna Music
+// v1.15.37: numero di dispositivi collegati, per le Impostazioni (conferma visiva
+// che il telefono è davvero agganciato alla regia).
+function notifyRemoteClients(count: number): void {
+    if (mainWindowRef && !mainWindowRef.isDestroyed()) {
+        mainWindowRef.webContents.send('remote-control:clients', { count });
+    }
+}
+
+// v1.15.37: il PIN resta lo stesso fra un avvio e l'altro (main-settings.json),
+// così il telefono che lo ha memorizzato si ricollega da solo a ogni trasmissione.
+// Si cambia solo a mano («Nuovo PIN» nelle Impostazioni).
+function getPersistentRemotePin(): string {
+    const userData = app.getPath('userData');
+    const saved = readMainSettings(userData).remotePin;
+    if (isValidPin(saved)) return saved;
+    const pin = generatePin();
+    try { updateMainSettings(userData, { remotePin: pin }); }
+    catch (err) { logger.warn(`[Main] PIN del controllo remoto non salvato: ${(err as Error).message}`); }
+    return pin;
+}
+
+function remoteStatusWithPrefs(status: RemoteControlStatus): RemoteControlStatus & { autoStart: boolean } {
+    return { ...status, autoStart: readMainSettings(app.getPath('userData')).remoteAutoStart === true };
+}
+
+function startRemoteControl(): RemoteControlStatus {
+    return startRemoteControlServer({
+        onCommand: forwardRemoteCommandToRenderer,
+        onFailure: notifyRemoteControlFailure,
+        onClientsChanged: notifyRemoteClients
+    }, getPersistentRemotePin());
+}
+
+ipcMain.handle('remote-control:start', () => remoteStatusWithPrefs(startRemoteControl()));
+ipcMain.handle('remote-control:stop', () => { stopRemoteControlServer(); return remoteStatusWithPrefs(getRemoteControlStatus()); });
+ipcMain.handle('remote-control:status', () => remoteStatusWithPrefs(getRemoteControlStatus()));
+ipcMain.handle('remote-control:new-pin', () => {
+    const pin = generatePin();
+    try { updateMainSettings(app.getPath('userData'), { remotePin: pin }); }
+    catch (err) { logger.warn(`[Main] Nuovo PIN non salvato: ${(err as Error).message}`); }
+    return remoteStatusWithPrefs(changeRemotePin(pin));
+});
+ipcMain.handle('remote-control:set-autostart', (_event, enabled: unknown) => {
+    try { updateMainSettings(app.getPath('userData'), { remoteAutoStart: enabled === true }); }
+    catch (err) { logger.warn(`[Main] Preferenza avvio automatico non salvata: ${(err as Error).message}`); }
+    return remoteStatusWithPrefs(getRemoteControlStatus());
+});
+// v1.15.37: QR code del link (con il PIN nel frammento #, che il browser non
+// invia mai in rete) — il telefono lo inquadra e si collega senza digitare nulla.
+// Il main restituisce solo la matrice di moduli; il disegno è del renderer.
+ipcMain.handle('remote-control:qr', (_event, text: unknown) => {
+    if (typeof text !== 'string' || text.length > 200 || !/^http:\/\/[\w.:-]+\/(#pin=\d{6})?$/.test(text)) return null;
+    try { return buildQrMatrix(text); } catch { return null; }
+});
+// Step 4/N — verso opposto: il renderer pubblica lo stato (colonna Music + pad FX)
 // (fire-and-forget, nessuna risposta attesa) così il server può servirlo al tablet.
-ipcMain.on('remote-control:publish-state', (_event, clips: unknown) => updateRemoteMusicState(clips));
+ipcMain.on('remote-control:publish-state', (_event, payload: unknown) => updateRemoteState(payload));
 
 // 2026-07-01 — Stima BPM (rilevamento + persistenza, nessun uso ancora nel motore
 // audio). Timeout 25s: copre i 20s interni di AudioProcessor.detectBpm + grace.
@@ -1390,6 +1443,13 @@ app.whenReady().then(() => {
         fs.existsSync(arg)
     );
     createWindow(initialFilePath);
+
+    // v1.15.37 — Controllo Remoto con avvio automatico (opt-in dalle Impostazioni,
+    // spento per default). I comandi arrivano al renderer appena ha caricato: prima
+    // di allora la colonna FX pubblicata è vuota e il server li rifiuta da sé.
+    if (readMainSettings(app.getPath('userData')).remoteAutoStart === true) {
+        startRemoteControl();
+    }
 
     // v0.17.0 — Smart Mic: approva automaticamente i permessi getUserMedia (audio)
     // Electron 28 richiede che il main process approvi esplicitamente le richieste

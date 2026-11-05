@@ -11,6 +11,24 @@ export interface WhatsNewEntry {
 }
 
 export const WHATS_NEW: Record<string, WhatsNewEntry> = {
+    '1.15.37': {
+        it: [
+            'Pad FX dal telefono: il Controllo Remoto mostra la cartwall con i suoi colori, e il pad parte appena lo tocchi. QR code nelle Impostazioni, PIN che non cambia più a ogni avvio.',
+            'Modalità MIX: con la vista MIX aperta ogni cambio di brano è un mix, anche quando lo fai tu (clic, tasto, MIDI, telefono). Dal telefono: MIX acceso/spento e un grande PROSSIMO.',
+            'Durata del mix a scelta: corto (4 beat) per classifiche veloci e medley, medio, lungo.',
+            'Mix a tempo corretto: il primo battito dei brani era sbagliato fino a 90 ms e i passaggi rapidi uscivano sfasati. I brani vengono rianalizzati una volta, da soli.',
+            'I brani senza un ritmo regolare passano con un crossfade, mai con battute agganciate a caso.',
+            'Barra in alto riorganizzata: progetto e registrazione a sinistra, console audio al centro, diretta e orologio a destra; più grande sugli schermi Full HD.',
+        ],
+        en: [
+            'FX pads from your phone: Remote Control shows the cartwall in its colours, and a pad fires the moment you touch it. QR code in Settings, and the PIN no longer changes at every launch.',
+            'MIX mode: with the MIX view open every track change is a mix, even when you make it yourself (click, key, MIDI, phone). From the phone: MIX on/off and a large NEXT button.',
+            'Choose the mix length: short (4 beats) for fast chart countdowns and medleys, medium, long.',
+            'Beat-matched mixing fixed: the first beat of tracks could be up to 90 ms off and fast changes came out of phase. Tracks are analysed again once, automatically.',
+            'Tracks without a steady beat change with a crossfade, never with beats locked at random.',
+            'Top bar reorganised: project and recording on the left, audio console in the centre, live controls and clock on the right; larger on Full HD screens.',
+        ],
+    },
     '1.15.36': {
         it: [
             'Interfaccia nuova, «Pad luminosi»: la board è una superficie con tasti in rilievo e la clip in onda si accende del colore della sua colonna.',

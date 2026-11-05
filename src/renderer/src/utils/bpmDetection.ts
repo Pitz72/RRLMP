@@ -6,7 +6,7 @@
 
 export interface BpmDetectResult {
     success: boolean;
-    data?: { bpm: number; confidence: number; detected: boolean; beatOffsetSec?: number } | null;
+    data?: { bpm: number; confidence: number; detected: boolean; beatOffsetSec?: number; gridScore?: number } | null;
     error?: string;
 }
 
@@ -21,6 +21,8 @@ export interface BpmClassification {
     /** v1.10.20 (chiusura A3): confidence 0..1 della stima — segnale di fallback
      *  della Fase D (soglia ≥0.5, vedi docs/automix/VALIDAZIONE-A3.md). */
     confidence?: number;
+    /** v1.15.37: punteggio della griglia dei beat (soglia del mix a tempo 2,5). */
+    gridScore?: number;
 }
 
 export function classifyBpmResult(result: BpmDetectResult): BpmClassification {
@@ -38,6 +40,14 @@ export function classifyBpmResult(result: BpmDetectResult): BpmClassification {
             : {}),
         ...(typeof result.data.confidence === 'number' && isFinite(result.data.confidence)
             ? { confidence: result.data.confidence }
+            : {}),
+        ...(typeof result.data.gridScore === 'number' && isFinite(result.data.gridScore)
+            ? { gridScore: result.data.gridScore }
             : {})
     };
+}
+
+/** v1.15.37: il BPM è salvato con 2 decimali (griglia raffinata); a schermo ne basta 1. */
+export function formatBpm(bpm: number): string {
+    return String(Math.round(bpm * 10) / 10);
 }

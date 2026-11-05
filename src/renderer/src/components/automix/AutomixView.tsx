@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { useProjectStore } from '../../store/useProjectStore';
 import { useAudioStore } from '../../store/useAudioStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
-import { assessCompatibility, crossfadeDurationSec } from '../../engine/automixEngine';
+import { assessCompatibility, crossfadeDurationSec, findMixNext, AUTOMIX_BEAT_CHOICES } from '../../engine/automixEngine';
 import { toast } from '../../store/useToastStore';
 import { debugLog } from '../../store/useDebugStore';
 import { Square, X, Disc3, Music2, Play, Shuffle } from 'lucide-react';
+import { formatBpm } from '../../utils/bpmDetection';
 
 // AUTOMIX SECTION — Fase C1 (v1.10.22) + C2 deck/transizione (v1.10.23) +
 // auto a fine brano (v1.10.24). v1.10.25: restyling in linguaggio Spectrum
@@ -59,6 +60,10 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
     const stopAll = useAudioStore(s => s.stopAll);
     const playClip = useAudioStore(s => s.playClip);
     const automixTransition = useAudioStore(s => s.automixTransition);
+    const lastAutomix = useAudioStore(s => s.lastAutomix);
+    // v1.15.37: durata del mix scelta dall'operatore (corto 4 / medio 8 / lungo 16 beat)
+    const automixBeats = useSettingsStore(s => s.automixBeats) ?? 8;
+    const setAutomixBeats = useSettingsStore(s => s.setAutomixBeats);
 
     // Auto a fine brano (richiesta utente 2026-07-02) — DEFAULT OFF e attiva SOLO
     // a vista aperta: chiudere la vista disattiva l'automazione (l'automix è
@@ -74,8 +79,9 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
     // Deck: "in onda" = clip Music attiva NON in fade-out di transizione (durante
     // il crossfade l'uscente è in fadingClipIds → il deck mostra subito l'entrante).
     const currentClip = clips.find(c => activeClips[c.id] && !fadingClipIds.includes(c.id)) ?? null;
-    const currentIndex = currentClip ? clips.findIndex(c => c.id === currentClip.id) : -1;
-    const nextClip = currentIndex >= 0 && currentIndex < clips.length - 1 ? clips[currentIndex + 1] : null;
+    // v1.15.37: il prossimo è il primo brano DOPO quello in onda con un file
+    // (in una classifica veloce un file mancante si salta, non ferma la sequenza).
+    const nextClip = currentClip ? findMixNext(clips, currentClip.id) : null;
     const currentState = currentClip ? activeClips[currentClip.id] : null;
 
     const currentDuration = currentClip?.duration || 0;
@@ -96,7 +102,7 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
         if (currentDuration <= 0 || currentTime <= 0) return;
         if (autoFiredRef.current.has(currentClip.id)) return;
         const fadeSec = currentClip.bpm
-            ? crossfadeDurationSec(currentClip.bpm)
+            ? crossfadeDurationSec(currentClip.bpm, automixBeats)
             : useSettingsStore.getState().crossfadeDuration / 1000;
         // Margine 2.5s: lead di aggancio (0.5s) + fino a 1 beat di arrotondamento +
         // latenza avvio. Più stretto e il piano degrada quasi sempre a classico
@@ -112,7 +118,7 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                 }
             });
         }
-    }, [isOpen, autoMode, currentClip, nextClip, remaining, currentDuration, currentTime, automixTransition]);
+    }, [isOpen, autoMode, currentClip, nextClip, remaining, currentDuration, currentTime, automixTransition, automixBeats]);
 
     if (!isOpen) return null;
 
@@ -141,6 +147,26 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
             toast(t('automix.transitionSkipped', 'Transizione non eseguita: {{v}}', { v: result.reason ?? t('automix.invalidState', 'stato non valido') }), 'warning');
         }
     };
+
+    // v1.15.37: clic su una riga della scaletta = passa a QUEL brano con il mix
+    // (in modalità MIX playClip mixa da sé; nulla in onda = parte e basta). Le
+    // righe già in onda o in uscita non reagiscono: un clic lì non deve fermarle.
+    const handlePick = (clipId: string) => {
+        const clip = clips.find(c => c.id === clipId);
+        if (!clip || clip.isMissing || activeClips[clip.id]) return;
+        void playClip(clip);
+    };
+
+    // Esito dell'ultimo mix, per capire subito se è andato a tempo
+    const lastAutomixLabel = lastAutomix
+        ? (lastAutomix.mode === 'beatmatched'
+            ? t('automix.lastBeatmatched', 'Ultimo passaggio: mix a tempo')
+            : lastAutomix.mode === 'classic'
+                ? t('automix.lastClassic', 'Ultimo passaggio: crossfade classico ({{v}})', {
+                    v: REASON_LABEL[lastAutomix.reason ?? ''] ? t(REASON_LABEL[lastAutomix.reason!][0], REASON_LABEL[lastAutomix.reason!][1]) : (lastAutomix.reason ?? '')
+                })
+                : t('automix.lastSkipped', 'Ultimo passaggio non eseguito: {{v}}', { v: lastAutomix.reason ?? '' }))
+        : '';
 
     return (
         <div className="amx" style={{ '--col-color': colColor } as React.CSSProperties}>
@@ -176,7 +202,7 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                         <>
                             <div className="amx-deck-title">{currentClip.name}</div>
                             <div className="amx-deck-meta">
-                                <span className={`amx-bpm ${currentClip.bpm ? '' : 'off'}`}>{currentClip.bpm ? `${currentClip.bpm} BPM` : 'NO BPM'}</span>
+                                <span className={`amx-bpm ${currentClip.bpm ? '' : 'off'}`}>{currentClip.bpm ? `${formatBpm(currentClip.bpm)} BPM` : 'NO BPM'}</span>
                                 <span>{formatTime(currentTime)} / {formatTime(currentDuration)}</span>
                                 <span className={`amx-remain ${remaining < 20 ? 'warn' : ''}`}>-{formatTime(remaining)}</span>
                             </div>
@@ -214,6 +240,28 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                             <Play size={18} fill="currentColor" /> START
                         </button>
                     )}
+                    {/* v1.15.37: durata del mix — corto per classifiche e medley a passaggi rapidi */}
+                    <div className="amx-len" role="group" aria-label={t('automix.mixLength', 'Durata del mix')}>
+                        <span className="amx-len-lbl">{t('automix.mixLength', 'Durata del mix')}</span>
+                        <div className="amx-len-btns">
+                            {AUTOMIX_BEAT_CHOICES.map((beats) => (
+                                <button
+                                    key={beats}
+                                    type="button"
+                                    onClick={() => setAutomixBeats(beats)}
+                                    className={`seg ${automixBeats === beats ? 'on' : ''}`}
+                                    aria-pressed={automixBeats === beats}
+                                    title={t('automix.mixLengthBeats', '{{n}} beat', { n: beats })}
+                                >
+                                    {beats === 4 ? t('automix.lenShort', 'CORTO') : beats === 8 ? t('automix.lenMedium', 'MEDIO') : t('automix.lenLong', 'LUNGO')}
+                                    <span className="amx-len-n">{t('automix.mixLengthBeats', '{{n}} beat', { n: beats })}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    {lastAutomixLabel && (
+                        <p className={`amx-last ${lastAutomix?.mode === 'beatmatched' ? 'ok' : 'warn'}`} role="status">{lastAutomixLabel}</p>
+                    )}
                     {/* AUTO A FINE BRANO (default OFF, attiva solo a vista aperta) — toggle .tgl del tema */}
                     <label className="tgl" title={t('automix.autoEndTitle', 'Quando il brano sta per finire, la transizione parte da sola (stessa logica del pulsante). Si disattiva chiudendo la vista.')}>
                         <span className="tgl-lbl" style={autoMode ? { color: '#4ade80', fontWeight: 700 } : undefined}>{t('automix.autoAtEnd', 'Auto a fine brano')}</span>
@@ -230,7 +278,7 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                         <>
                             <div className="amx-deck-title">{nextClip.name}</div>
                             <div className="amx-deck-meta">
-                                <span className={`amx-bpm ${nextClip.bpm ? '' : 'off'}`}>{nextClip.bpm ? `${nextClip.bpm} BPM` : 'NO BPM'}</span>
+                                <span className={`amx-bpm ${nextClip.bpm ? '' : 'off'}`}>{nextClip.bpm ? `${formatBpm(nextClip.bpm)} BPM` : 'NO BPM'}</span>
                                 <span>{formatTime(nextClip.duration || 0)}</span>
                             </div>
                             {nextCompat && (
@@ -266,8 +314,29 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                                         ? t(REASON_LABEL[compat.reason!][0], REASON_LABEL[compat.reason!][1])
                                         : t('automix.classicCrossfade', 'crossfade classico')))
                                 : t('automix.firstTrack', 'primo brano');
+                            // v1.15.37: riga cliccabile (mouse, Invio, Spazio) se il brano non è
+                            // già in onda o in uscita e ha il file
+                            const pickable = !activeClips[clip.id] && !clip.isMissing;
+                            const pickTitle = currentClip
+                                ? t('automix.rowMixTo', 'Mixa verso questo brano')
+                                : t('automix.rowStart', 'Fai partire questo brano');
                             return (
-                                <div key={clip.id} className={`amx-row ${isPlaying ? 'live' : ''}`}>
+                                <div
+                                    key={clip.id}
+                                    className={`amx-row ${isPlaying ? 'live' : ''} ${pickable ? 'pick' : ''}`}
+                                    role={pickable ? 'button' : undefined}
+                                    tabIndex={pickable ? 0 : undefined}
+                                    title={pickable ? pickTitle : undefined}
+                                    aria-label={pickable ? `${pickTitle}: ${clip.name}` : undefined}
+                                    onClick={pickable ? () => handlePick(clip.id) : undefined}
+                                    onKeyDown={pickable ? (e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            e.stopPropagation(); // Spazio/Invio non devono arrivare alle hotkey della regia
+                                            handlePick(clip.id);
+                                        }
+                                    } : undefined}
+                                >
                                     <span className="amx-num">{i + 1}</span>
                                     <div className="amx-row-main">
                                         <div className="amx-row-title">{clip.name}</div>
@@ -280,7 +349,7 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
                                         className={`amx-bpm ${clip.bpm ? '' : 'off'}`}
                                         title={clip.bpm ? t('automix.confidence', 'Confidence {{v}}', { v: clip.bpmConfidence ?? '—' }) : t('automix.bpmNotDetected', 'BPM non rilevato')}
                                     >
-                                        {clip.bpm ? `${clip.bpm} BPM` : 'NO BPM'}
+                                        {clip.bpm ? `${formatBpm(clip.bpm)} BPM` : 'NO BPM'}
                                     </span>
                                 </div>
                             );

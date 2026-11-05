@@ -5,6 +5,7 @@ import { AudioClip } from '../../types';
 import { useProjectStore } from '../../store/useProjectStore';
 import { AlertTriangle, ClipboardList } from 'lucide-react';
 import { inkFor, prefersLightInk } from '../../utils/colorInk';
+import { formatBpm } from '../../utils/bpmDetection';
 
 interface ClipCardProps {
     clip: AudioClip;
@@ -182,7 +183,7 @@ export const ClipCard: React.FC<ClipCardProps> = ({ clip, onEdit }) => {
                 {/* 2026-07-01 — BPM stimato (solo colonna Music, solo visualizzazione) */}
                 {clip.type === 'music' && clip.bpm !== undefined && (
                     <span className="badge b-bpm" title={t('card.bpmTip', 'BPM stimato (analisi automatica)')}>
-                        {clip.bpm} BPM
+                        {formatBpm(clip.bpm)} BPM
                     </span>
                 )}
                 {clip.notes && (

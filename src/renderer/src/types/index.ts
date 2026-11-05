@@ -26,7 +26,33 @@ export interface RemoteControlStatus {
     running: boolean;
     port?: number;
     pin?: string;
+    /** Indirizzi LAN, il più probabile per primo (v1.15.37: ordinati dal main). */
     addresses?: string[];
+    /** v1.15.37: dispositivi autenticati in questo momento. */
+    clients?: number;
+    /** v1.15.37: il server parte da solo all'apertura dell'app. */
+    autoStart?: boolean;
+}
+
+/** v1.15.37 — stato pubblicato verso il telefono: colonna Music + pad FX. */
+export interface RemotePublishedState {
+    /** `fading`: brano in uscita durante un mix (v1.15.37). */
+    music: Array<{ id: string; name: string; isPlaying: boolean; fading?: boolean }>;
+    fx: Array<{ id: string; name: string; isPlaying: boolean; color?: string; missing?: boolean }>;
+    /** v1.15.37 — modalità MIX: accesa?, prossimo brano e come ci si arriverà, esito dell'ultimo mix. */
+    mix?: {
+        on: boolean;
+        nextId?: string;
+        nextName?: string;
+        nextMode?: 'tempo' | 'classic' | 'start';
+        last?: 'beatmatched' | 'classic' | 'skipped';
+    };
+}
+
+/** v1.15.37 — matrice del QR code (una stringa per riga, '1' = modulo scuro). */
+export interface RemoteQrMatrix {
+    size: number;
+    rows: string[];
 }
 
 /** Auto-Updater (2026-07-02) — speculare a UpdaterStatusPayload in src/main/updateManager.ts. */
@@ -48,7 +74,7 @@ declare global {
             detectSilence: (filePath: string, thresholdDb?: number) => Promise<{success: boolean, data?: {trimStart: number, trimEnd: number, noSilence?: boolean, thresholdUsed?: number}, error?: string}>;
             detectSmartCues: (filePath: string) => Promise<{success: boolean, data?: {introCue: number, outroCue: number}, error?: string}>;
             // 2026-07-01 — BPM Detection automatica (rilevamento + persistenza)
-            detectBpm: (filePath: string) => Promise<{success: boolean, data?: {bpm: number, confidence: number, detected: boolean, beatOffsetSec?: number}, error?: string}>;
+            detectBpm: (filePath: string) => Promise<{success: boolean, data?: {bpm: number, confidence: number, detected: boolean, beatOffsetSec?: number, gridScore?: number}, error?: string}>;
             // Controllo Remoto (2026-07-01, Step 1/N) — server LAN locale opt-in
             remoteControlStart: () => Promise<RemoteControlStatus>;
             remoteControlStop: () => Promise<RemoteControlStatus>;
@@ -57,7 +83,11 @@ declare global {
             /** v1.15.25: il server di controllo remoto è caduto dopo l'avvio (porta
              *  occupata, permessi di rete). L'interfaccia deve tornare a "spento". */
             onRemoteControlFailed?: (callback: (data: { message: string }) => void) => () => void;
-            publishRemoteState: (clips: Array<{ id: string; name: string; isPlaying: boolean }>) => void;
+            publishRemoteState: (state: RemotePublishedState) => void;
+            remoteControlNewPin?: () => Promise<RemoteControlStatus>;
+            remoteControlSetAutoStart?: (enabled: boolean) => Promise<RemoteControlStatus>;
+            remoteControlQr?: (text: string) => Promise<RemoteQrMatrix | null>;
+            onRemoteControlClients?: (callback: (data: { count: number }) => void) => () => void;
             checkFilesExist: (paths: string[]) => Promise<{ missing: string[] }>;
             restoreDefaultSfx: () => Promise<{ success: boolean; sounds?: Array<{ title: string; path: string }>; error?: string }>;
             saveProject: (content: string) => Promise<{ success: boolean; filePath?: string; error?: string }>;
@@ -261,6 +291,14 @@ export interface AudioClip {
      *  legacy vengono rianalizzate al prossimo caricamento per ottenere l'offset (e la
      *  precisione dell'interpolazione parabolica v1.10.14). */
     bpmCheckedV2?: boolean;
+    /** v1.15.37 — quanto la griglia dei beat «cade sugli attacchi» della cassa
+     *  (~1 = caso; con cassa regolare > 2,5). Il mix aggancia le battute solo
+     *  sopra soglia, altrimenti crossfade classico. Vedi refineBeatGrid (main). */
+    beatGridScore?: number;
+    /** v1.15.37 — gate dell'analisi con griglia raffinata (tempo esatto + fase
+     *  sulla cassa). Le clip analizzate prima (griglia sfasata di ~140 ms in
+     *  mediana su musica vera) vengono rianalizzate una volta al caricamento. */
+    bpmCheckedV3?: boolean;
 }
 
 

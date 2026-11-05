@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, ReactNode } from 'react';
 import { useAudioStore } from '../../store/useAudioStore';
 import AudioContextManager from '../../engine/AudioContextManager';
 import MicManager from '../../engine/MicManager';
@@ -36,9 +36,15 @@ interface GlobalControlsProps {
     updaterStatus: UpdaterStatusPayload;
     onOpenUpdateModal: () => void;
     onCheckUpdatesNow: () => void;
+    /** v1.15.37 — barra a tre zone: contenuti forniti da App.tsx. `brand` apre la
+     *  zona sinistra, `leftExtra` la chiude (registro), `rightExtra` chiude la zona
+     *  destra (REC, ON AIR, orologio). */
+    brand?: ReactNode;
+    leftExtra?: ReactNode;
+    rightExtra?: ReactNode;
 }
 
-export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggleAutomix, updaterStatus, onOpenUpdateModal, onCheckUpdatesNow }: GlobalControlsProps) => {
+export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggleAutomix, updaterStatus, onOpenUpdateModal, onCheckUpdatesNow, brand, leftExtra, rightExtra }: GlobalControlsProps) => {
     const { t } = useTranslation();
     // v1.15.35 (M4): selettore singolo. `useAudioStore()` senza selettore abbonava la
     // barra comandi all'INTERO store audio, che durante la riproduzione cambia 10 volte
@@ -597,11 +603,19 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
         return <i key={i} className={isLit ? tone : ''} style={{ height: `${40 + i * 7}%` }} />;
     });
 
-    // v1.15.36: GlobalControls restituisce i figli direttamente nella topbar (App.tsx).
-    // A sinistra i due menu (FILE, Strumenti): comandi che non servono in onda.
-    // Dopo lo spaziatore, i controlli da diretta: microfono, VU, master, FX, MIX, STOP ALL.
+    // v1.15.37 — BARRA A TRE ZONE (riscontro utente 2026-11-05: «tanto spazio vuoto
+    // inutile, quasi tutto compattato a destra»). Fino alla 1.15.36 uno spaziatore
+    // spingeva tutti i controlli da diretta nell'angolo destro.
+    //  - sinistra: progetto e archivio (marchio, FILE, Strumenti · LOG, REC);
+    //  - centro, esattamente al centro: la console audio (ARM, VU, MASTER), più
+    //    grande sugli schermi larghi;
+    //  - destra: diretta e tempo (FX, MIX, STOP ALL · ON AIR, orologio).
+    // La griglia (pad.css, .tb) tiene il centro centrato quando c'è spazio e lascia
+    // ad ogni zona almeno la sua larghezza: a 1366 px non si sovrappone nulla.
     return (
         <>
+            <div className="tb-zone tb-left">
+            {brand}
             {/* FILE MENU (v1.10.19; v1.10.27 subito dopo titolo+versione). Il pallino
                 ambra segnala le modifiche non salvate. */}
             <div className="relative" ref={fileMenuRef}>
@@ -715,8 +729,10 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                 )}
             </div>
 
-            <span className="tb-spacer" />
+            {leftExtra}
+            </div>
 
+            <div className="tb-zone tb-center">
             {/* POZZETTO AUDIO: SMART MIC (ARM + VU mic + Mic Vol) · VU master · MASTER */}
             <div className="audio-well">
                 {/* v1.11.1: dietro MIC_ARM_ENABLED (vedi utils/featureFlags.ts). */}
@@ -790,6 +806,9 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                     )}
                 </div>
             </div>
+            </div>
+
+            <div className="tb-zone tb-right">
 
             {/* FX PAD (Step 3 UI regia) — toggle del minipad FX 5×5. Il LED acceso dice
                 che il pad è aperto; il numero verde quanti effetti sono in onda (v1.10.5). */}
@@ -849,6 +868,9 @@ export const GlobalControls = ({ fxPadOpen, onToggleFxPad, automixOpen, onToggle
                     </span>
                 )}
             </button>
+            {rightExtra && <span className="tb-sep" />}
+            {rightExtra}
+            </div>
 
             <GeneralSettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
             <AboutModal

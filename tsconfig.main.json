@@ -12,5 +12,10 @@
     },
     "include": [
         "src/main/**/*"
+    ],
+    // v1.15.37: i test non vanno compilati in out/main (finivano dentro app.asar,
+    // installati sul PC di regia). Restano verificati da tsconfig.json e da Vitest.
+    "exclude": [
+        "src/main/**/__tests__/**"
     ]
 }

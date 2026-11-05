@@ -51,8 +51,21 @@ if (process.contextIsolated) {
                 ipcRenderer.on('remote-control:failed', subscription);
                 return () => ipcRenderer.removeListener('remote-control:failed', subscription);
             },
-            publishRemoteState: (clips: Array<{ id: string; name: string; isPlaying: boolean }>) =>
-                ipcRenderer.send('remote-control:publish-state', clips),
+            // v1.15.37: colonna Music + pad FX (il main valida la forma prima di inoltrarla in rete)
+            publishRemoteState: (state: {
+                music: Array<{ id: string; name: string; isPlaying: boolean; fading?: boolean }>;
+                fx: Array<{ id: string; name: string; isPlaying: boolean; color?: string; missing?: boolean }>;
+                mix?: { on: boolean; nextId?: string; nextName?: string; nextMode?: string; last?: string };
+            }) => ipcRenderer.send('remote-control:publish-state', state),
+            // v1.15.37: PIN stabile, avvio automatico, QR code, dispositivi collegati
+            remoteControlNewPin: () => ipcRenderer.invoke('remote-control:new-pin'),
+            remoteControlSetAutoStart: (enabled: boolean) => ipcRenderer.invoke('remote-control:set-autostart', enabled),
+            remoteControlQr: (text: string) => ipcRenderer.invoke('remote-control:qr', text),
+            onRemoteControlClients: (callback: (data: { count: number }) => void) => {
+                const subscription = (_event: IpcRendererEvent, data: { count: number }) => callback(data);
+                ipcRenderer.on('remote-control:clients', subscription);
+                return () => ipcRenderer.removeListener('remote-control:clients', subscription);
+            },
             checkFilesExist: (paths: string[]) => ipcRenderer.invoke('check-files-exist', paths),
             // v1.10.8 — libreria FX di default (CC0): copia in userData e ritorna i path
             restoreDefaultSfx: () => ipcRenderer.invoke('restore-default-sfx'),

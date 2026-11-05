@@ -1,5 +1,59 @@
 import { describe, it, expect } from 'vitest';
-import { generatePin, isAllowedWsOrigin } from '../RemoteControlServer';
+import { generatePin, isAllowedWsOrigin, isValidPin, rankLanAddresses } from '../RemoteControlServer';
+
+// v1.15.37 — il link copiato e il QR usano il PRIMO indirizzo: deve essere quello
+// della rete vera. Caso reale del PC di regia (2026-11-05): Wi-Fi 192.168.1.5,
+// WSL 172.26.160.1, quattro schede senza rete con 169.254.x.
+describe('rankLanAddresses', () => {
+    const v4 = (address: string) => ({ family: 'IPv4', address, internal: false });
+
+    it('mette il Wi-Fi prima di WSL anche se il sistema elenca WSL per primo', () => {
+        expect(rankLanAddresses({
+            'vEthernet (WSL (Hyper-V firewall))': [v4('172.26.160.1')],
+            'Wi-Fi': [v4('192.168.1.5')]
+        })).toEqual(['192.168.1.5', '172.26.160.1']);
+    });
+
+    it('esclude gli indirizzi 169.254 (scheda senza rete), loopback e IPv6', () => {
+        expect(rankLanAddresses({
+            Ethernet: [v4('169.254.255.140')],
+            'Wi-Fi 2': [v4('169.254.179.33')],
+            'Loopback Pseudo-Interface 1': [{ family: 'IPv4', address: '127.0.0.1', internal: true }],
+            'Wi-Fi': [v4('192.168.1.5'), { family: 'IPv6', address: 'fe80::1', internal: false }]
+        })).toEqual(['192.168.1.5']);
+    });
+
+    it('accetta family numerica (Node 18.0-18.3) e toglie i duplicati', () => {
+        expect(rankLanAddresses({
+            eth0: [{ family: 4, address: '10.0.0.7', internal: false }],
+            eth1: [{ family: 4, address: '10.0.0.7', internal: false }]
+        })).toEqual(['10.0.0.7']);
+    });
+
+    it('adattatori virtuali sempre in fondo, anche con indirizzo 192.168', () => {
+        expect(rankLanAddresses({
+            'VirtualBox Host-Only Network': [v4('192.168.56.1')],
+            Ethernet: [v4('10.1.2.3')]
+        })).toEqual(['10.1.2.3', '192.168.56.1']);
+    });
+
+    it('nessuna rete → elenco vuoto', () => {
+        expect(rankLanAddresses({})).toEqual([]);
+    });
+});
+
+describe('isValidPin', () => {
+    it('accetta solo 6 cifre senza zero iniziale (la forma di generatePin)', () => {
+        expect(isValidPin('482913')).toBe(true);
+        expect(isValidPin(generatePin())).toBe(true);
+        expect(isValidPin('012345')).toBe(false);
+        expect(isValidPin('12345')).toBe(false);
+        expect(isValidPin('1234567')).toBe(false);
+        expect(isValidPin('12a456')).toBe(false);
+        expect(isValidPin(482913)).toBe(false);
+        expect(isValidPin(undefined)).toBe(false);
+    });
+});
 
 describe('generatePin', () => {
     it('genera sempre un PIN numerico di 6 cifre', () => {

@@ -5,9 +5,10 @@ import { useProjectStore } from '../../store/useProjectStore';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_MASTER_CHAIN } from '../../engine/AudioContextManager';
 import { FlagIcon } from '../ui/FlagIcon';
-import { RemoteControlStatus } from '../../types';
+import { RemoteControlStatus, RemoteQrMatrix } from '../../types';
 import { MIC_ARM_ENABLED } from '../../utils/featureFlags';
 import { toast } from '../../store/useToastStore';
+import { confirm } from '../../store/useConfirmStore';
 import { X } from 'lucide-react';
 
 interface Props {
@@ -65,6 +66,34 @@ const SectionTitle: React.FC<{ children: React.ReactNode; color?: string }> = ({
 
 const Divider: React.FC = () => <div className="divider" />;
 
+/** v1.15.37 — QR code del Controllo Remoto: moduli neri su fondo bianco (il
+ *  contrasto massimo, quello che le fotocamere leggono meglio), margine di 4
+ *  moduli come da specifica. La matrice arriva dal main (qrMatrix.ts). */
+const RemoteQrCode: React.FC<{ matrix: RemoteQrMatrix; label: string }> = ({ matrix, label }) => {
+    const quiet = 4;
+    const total = matrix.size + quiet * 2;
+    let d = '';
+    matrix.rows.forEach((row, y) => {
+        for (let x = 0; x < row.length; x++) {
+            if (row[x] === '1') d += `M${x + quiet} ${y + quiet}h1v1h-1z`;
+        }
+    });
+    return (
+        <svg
+            viewBox={`0 0 ${total} ${total}`}
+            width={176}
+            height={176}
+            role="img"
+            aria-label={label}
+            shapeRendering="crispEdges"
+            className="shrink-0 rounded-lg"
+        >
+            <rect width={total} height={total} fill="#FFFFFF" />
+            <path d={d} fill="#000000" />
+        </svg>
+    );
+};
+
 export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
     const { t, i18n } = useTranslation();
     const {
@@ -86,16 +115,43 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
     const [activeTab, setActiveTab] = useState<SettingsTab>('general');
 
     // Controllo Remoto (2026-07-01, Step 1/N) — stato letto dal main a ogni apertura
-    // della modale; niente persistenza in useSettingsStore, il server riparte SEMPRE
-    // spento a ogni avvio dell'app (nessun opt-in di rete automatico e silenzioso).
+    // della modale; niente persistenza in useSettingsStore.
+    // v1.15.37: le preferenze (PIN stabile, avvio automatico opt-in) vivono nel
+    // main (main-settings.json); per default il server resta spento all'avvio.
     const [remoteStatus, setRemoteStatus] = useState<RemoteControlStatus>({ running: false });
     const [remoteToggleBusy, setRemoteToggleBusy] = useState(false);
     const [remoteUrlCopied, setRemoteUrlCopied] = useState(false);
+    const [remoteQr, setRemoteQr] = useState<RemoteQrMatrix | null>(null);
 
     useEffect(() => {
         if (!isOpen || !window.electron?.remoteControlStatus) return;
         window.electron.remoteControlStatus().then(setRemoteStatus).catch(() => {});
     }, [isOpen]);
+
+    // v1.15.37: dispositivi collegati in tempo reale — la conferma che il telefono
+    // è davvero agganciato alla regia, senza dover provare un pad in diretta.
+    useEffect(() => {
+        if (!isOpen || !window.electron?.onRemoteControlClients) return;
+        return window.electron.onRemoteControlClients(({ count }) => {
+            setRemoteStatus((s) => (s.running ? { ...s, clients: count } : s));
+        });
+    }, [isOpen]);
+
+    // v1.15.37: il QR contiene l'indirizzo migliore e il PIN nel frammento (#pin=…),
+    // che il browser del telefono non invia mai in rete.
+    const remoteAddress = remoteStatus.addresses?.[0];
+    const remoteBaseUrl = remoteAddress && remoteStatus.port ? `http://${remoteAddress}:${remoteStatus.port}/` : null;
+    useEffect(() => {
+        if (!remoteStatus.running || !remoteBaseUrl || !remoteStatus.pin || !window.electron?.remoteControlQr) {
+            setRemoteQr(null);
+            return;
+        }
+        let alive = true;
+        window.electron.remoteControlQr(`${remoteBaseUrl}#pin=${remoteStatus.pin}`)
+            .then((m) => { if (alive) setRemoteQr(m); })
+            .catch(() => { if (alive) setRemoteQr(null); });
+        return () => { alive = false; };
+    }, [remoteStatus.running, remoteBaseUrl, remoteStatus.pin]);
 
     // v1.15.25 (M8): `listen` fallisce in modo ASINCRONO — la porta occupata da una
     // seconda istanza o da un altro programma si scopre dopo che l'avvio ha già
@@ -116,6 +172,8 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
     // (v1.4.1): navigator.clipboard può rigettare per permesso/focus -> fallback
     // execCommand su una textarea temporanea, mai un errore mostrato all'utente.
     const handleCopyRemoteUrl = async () => {
+        // v1.15.37: addresses[0] è ora l'indirizzo più probabile (Wi-Fi/Ethernet
+        // prima degli adattatori virtuali): prima poteva essere quello di WSL.
         const address = remoteStatus.addresses?.[0];
         if (!address || !remoteStatus.port) return;
         const url = `http://${address}:${remoteStatus.port}`; // v1.11.3: il server è HTTP puro (da v1.9.1); il commento HTTPS era un residuo del prototipo PWA
@@ -152,6 +210,26 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
         } finally {
             setRemoteToggleBusy(false);
         }
+    };
+
+    // v1.15.37: PIN nuovo a mano (es. dopo averlo mostrato a qualcuno). Chi è
+    // collegato viene scollegato e deve inserire quello nuovo: si chiede conferma.
+    const handleNewRemotePin = async () => {
+        if (!window.electron?.remoteControlNewPin) return;
+        const connected = remoteStatus.clients ?? 0;
+        if (connected > 0 && !(await confirm(
+            t('modal.settings.remoteNewPinConfirm', 'I dispositivi collegati ({{count}}) verranno scollegati e dovranno inserire il nuovo PIN (o inquadrare di nuovo il QR code). Continuare?', { count: connected }),
+            t('modal.settings.remoteNewPinOk', 'Nuovo PIN'),
+            t('modal.dialog.cancel', 'Annulla')
+        ))) return;
+        const next = await window.electron.remoteControlNewPin();
+        setRemoteStatus(next);
+    };
+
+    const handleRemoteAutoStart = async () => {
+        if (!window.electron?.remoteControlSetAutoStart) return;
+        const next = await window.electron.remoteControlSetAutoStart(!remoteStatus.autoStart);
+        setRemoteStatus(next);
     };
 
     useEffect(() => {
@@ -286,8 +364,8 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             <section className="space-y-3">
                                 <div className="flex items-center justify-between gap-3">
                                     <div>
-                                        <SectionTitle color="text-sky-400">{t('modal.settings.remoteControlTitle', 'Controllo Remoto (Beta)')}</SectionTitle>
-                                        <p className="text-[10px] text-zinc-600 mt-0.5 italic">{t('modal.settings.remoteControlDesc', "Server locale in rete (LAN) per comandare l'app da un tablet/PC secondario: STOP ALL e play/stop della colonna Music.")}</p>
+                                        <SectionTitle color="text-sky-400">{t('modal.settings.remoteControlTitle', 'Controllo Remoto')}</SectionTitle>
+                                        <p className="text-[10px] text-zinc-500 mt-0.5">{t('modal.settings.remoteControlDesc', 'Comanda la regia da smartphone, tablet o un altro PC della stessa rete: pad FX, colonna Music, STOP FX e STOP ALL.')}</p>
                                     </div>
                                     <Toggle
                                         enabled={remoteStatus.running}
@@ -296,22 +374,57 @@ export const GeneralSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         labelOff={t('modal.settings.remoteToggleOff', 'Spento')}
                                     />
                                 </div>
+                                {/* v1.15.37: avvio automatico, opt-in — impostabile anche a server spento */}
+                                <label className="flex items-center gap-2 text-xs text-zinc-300 cursor-pointer w-fit">
+                                    <input
+                                        type="checkbox"
+                                        checked={!!remoteStatus.autoStart}
+                                        onChange={() => void handleRemoteAutoStart()}
+                                        className="w-4 h-4"
+                                    />
+                                    {t('modal.settings.remoteAutoStart', "Attiva il Controllo Remoto all'apertura dell'app")}
+                                </label>
                                 {remoteStatus.running && (
-                                    <div className="card !p-3 space-y-2">
-                                        <p className="text-xs text-zinc-300">{t('modal.settings.remotePinLabel', 'PIN')}: <span className="font-mono text-sky-400 text-sm tracking-widest">{remoteStatus.pin}</span></p>
-                                        <p className="text-xs text-zinc-400">{t('modal.settings.remotePortLabel', 'Porta')}: <span className="font-mono">{remoteStatus.port}</span></p>
-                                        {remoteStatus.addresses && remoteStatus.addresses.length > 0 && (
-                                            <>
-                                                <p className="text-xs text-zinc-400">{t('modal.settings.remoteLanAddresses', 'Indirizzi LAN')}: <span className="font-mono">{remoteStatus.addresses.join(', ')}</span></p>
-                                                <button
-                                                    onClick={() => void handleCopyRemoteUrl()}
-                                                    className="!w-auto px-3 py-1.5 text-xs"
-                                                >
-                                                    {remoteUrlCopied ? t('modal.settings.remoteLinkCopied', '✓ Copiato') : t('modal.settings.remoteCopyLink', 'Copia link (http://{{address}}:{{port}})', { address: remoteStatus.addresses[0], port: remoteStatus.port })}
-                                                </button>
-                                            </>
-                                        )}
-                                        <p className="text-[10px] text-zinc-600 italic">{t('modal.settings.remoteControlHint', 'Apri il link nel browser del tablet/PC secondario (stessa rete) e inserisci il PIN; il pulsante "Schermo intero" nella pagina toglie la barra del browser. Utile inviare il link via Telegram/WhatsApp invece di digitarlo a mano. Il server si ferma automaticamente alla chiusura dell\'app.')}</p>
+                                    <div className="card !p-3 space-y-3">
+                                        <div className="flex gap-4 items-start flex-wrap">
+                                            {remoteQr && (
+                                                <RemoteQrCode
+                                                    matrix={remoteQr}
+                                                    label={t('modal.settings.remoteQrLabel', 'Codice QR per collegare il telefono alla regia')}
+                                                />
+                                            )}
+                                            <div className="space-y-2 min-w-0 flex-1">
+                                                {remoteQr && (
+                                                    <p className="text-xs text-zinc-300 leading-relaxed">{t('modal.settings.remoteQrHint', 'Inquadra il codice con la fotocamera del telefono o del tablet (stessa rete Wi-Fi della regia): si apre la pagina dei pad già collegata, senza digitare nulla.')}</p>
+                                                )}
+                                                <p className="text-xs text-zinc-300">{t('modal.settings.remotePinLabel', 'PIN')}: <span className="font-mono text-sky-400 text-lg tracking-widest">{remoteStatus.pin}</span></p>
+                                                {remoteBaseUrl && (
+                                                    <p className="text-xs text-zinc-300">{t('modal.settings.remoteAddressLabel', 'Indirizzo')}: <span className="font-mono text-sm">{remoteBaseUrl.replace(/\/$/, '')}</span></p>
+                                                )}
+                                                {remoteStatus.addresses && remoteStatus.addresses.length > 1 && (
+                                                    <p className="text-[10px] text-zinc-500">{t('modal.settings.remoteOtherAddresses', 'Altri indirizzi di questo PC (se il primo non risponde): {{list}}', { list: remoteStatus.addresses.slice(1).join(', ') })}</p>
+                                                )}
+                                                {!remoteBaseUrl && (
+                                                    <p className="text-xs text-amber-400">{t('modal.settings.remoteNoNetwork', 'Nessuna rete trovata: collega il PC al Wi-Fi o al cavo di rete.')}</p>
+                                                )}
+                                                <p className={`text-xs font-semibold ${(remoteStatus.clients ?? 0) > 0 ? 'text-emerald-400' : 'text-zinc-400'}`}>
+                                                    {(remoteStatus.clients ?? 0) > 0
+                                                        ? t('modal.settings.remoteClients', 'Dispositivi collegati: {{count}}', { count: remoteStatus.clients })
+                                                        : t('modal.settings.remoteNoClients', 'Nessun dispositivo collegato')}
+                                                </p>
+                                                <div className="flex gap-2 flex-wrap pt-1">
+                                                    {remoteBaseUrl && (
+                                                        <button type="button" onClick={() => void handleCopyRemoteUrl()} className="kbtn sm">
+                                                            {remoteUrlCopied ? t('modal.settings.remoteLinkCopied', '✓ Copiato') : t('modal.settings.remoteCopyLinkShort', 'Copia link')}
+                                                        </button>
+                                                    )}
+                                                    <button type="button" onClick={() => void handleNewRemotePin()} className="kbtn sm">
+                                                        {t('modal.settings.remoteNewPin', 'Nuovo PIN')}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p className="text-[10px] text-zinc-500 leading-relaxed">{t('modal.settings.remoteControlHint2', 'Il PIN resta lo stesso fra un avvio e l\'altro: il telefono lo ricorda e si ricollega da solo. Sulla pagina i pad partono alla pressione del dito; se un comando non arriva alla regia il pad diventa rosso e il telefono vibra. Se il telefono non trova la regia: stessa rete Wi-Fi (non la rete ospiti) e programma autorizzato nel firewall di Windows. Il server si ferma alla chiusura dell\'app.')}</p>
                                     </div>
                                 )}
                             </section>
