@@ -8,7 +8,7 @@ La registrazione della sessione trasforma Runtime Live Machine Pro da strumento 
 
 ## 9.1 Avviare la registrazione
 
-Il controllo della registrazione è il pulsante **REC**, con un cerchio rosso, nella parte destra dell'header.
+Il controllo della registrazione è il pulsante **REC**, con un cerchio rosso, nella zona sinistra dell'header, accanto al registro LOG.
 
 **Avvio.**
 Clicca su **REC**. Il pulsante diventa rosso, mostra il tempo di registrazione che scorre e un'icona di stop che lampeggia: la cattura è in corso. La registrazione parte immediatamente: tutto ciò che esce dall'output del software da quel momento viene catturato.

@@ -57,7 +57,7 @@ Le **Impostazioni** (menu Strumenti) raccolgono le preferenze globali del softwa
 ### Generali
 
 - **Lingua.** Seleziona la lingua dell'interfaccia: italiano o inglese. La modifica è immediata.
-- **Controllo Remoto (Beta).** Attiva il telecomando via browser e mostra PIN, porta e indirizzi (Capitolo 11).
+- **Controllo Remoto.** Attiva il telecomando via browser per telefono, tablet o un altro computer. Acceso, mostra il QR code da inquadrare, il PIN, l'indirizzo e i dispositivi collegati, con i pulsanti *Copia link* e *Nuovo PIN*. La casella *Attiva il Controllo Remoto all'apertura dell'app*, spenta di default, lo fa partire da solo a ogni avvio (Capitolo 11).
 - **Layout regia.** Mostra o nasconde singolarmente le colonne della griglia. Nascondere una colonna non ne elimina le clip: restano nel progetto. È una preferenza globale, valida per tutti i progetti.
 
 ### Audio & Mix
@@ -87,7 +87,7 @@ Riepilogo del punto di cattura (dopo il limiter) e scelta del formato predefinit
 
 ## 13.5 Playout Log
 
-Il **Playout Log** (icona nell'header) è il registro cronologico dei lanci: tiene traccia di ciò che è andato in onda e quando, fino alle ultime migliaia di eventi. È utile per ricostruire una scaletta a posteriori, verificare cosa è stato trasmesso o compilare un resoconto della diretta.
+Il **Playout Log** (pulsante **LOG** nella zona sinistra dell'header) è il registro cronologico dei lanci: tiene traccia di ciò che è andato in onda e quando, fino alle ultime migliaia di eventi. È utile per ricostruire una scaletta a posteriori, verificare cosa è stato trasmesso o compilare un resoconto della diretta.
 
 ---
 

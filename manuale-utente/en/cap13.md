@@ -57,7 +57,7 @@ The **Settings** (Tools menu) gather the software’s global preferences, organi
 ### General
 
 - **Language.** Select the interface language: English or Italian. The change is immediate.
-- **Remote Control (Beta).** Enables the browser remote and shows PIN, port and addresses (Chapter 11).
+- **Remote Control.** Turns on the browser remote for a phone, tablet or another computer. When on, it shows the QR code to scan, the PIN, the address and the connected devices, with the *Copy link* and *New PIN* buttons. The *Turn on Remote Control when the app opens* box, off by default, starts it automatically at every launch (Chapter 11).
 - **Broadcast layout.** Shows or hides the grid columns individually. Hiding a column doesn’t delete its clips: they stay in the project. It’s a global preference, valid for all projects.
 
 ### Audio & Mix
@@ -87,7 +87,7 @@ A summary of the capture point (after the limiter) and the choice of default for
 
 ## 13.5 Playout Log
 
-The **Playout Log** (icon in the header) is the chronological launch log: it tracks what went on air and when, up to the last several thousand events. It’s useful for reconstructing a running order after the fact, verifying what was broadcast, or compiling a report of the live show.
+The **Playout Log** (the **LOG** button in the left zone of the header) is the chronological launch log: it tracks what went on air and when, up to the last several thousand events. It’s useful for reconstructing a running order after the fact, verifying what was broadcast, or compiling a report of the live show.
 
 ---
 

@@ -137,9 +137,13 @@ export const INDEX_HTML = `<!DOCTYPE html>
     background: var(--panel); color: var(--tx); font-weight: 800; text-align: center; line-height: 1.15;
     touch-action: none; overflow: hidden; transition: transform .06s ease-out;
   }
+  /* v1.15.37: le parole non si spezzano a metà («Campanel-lo»). La scritta si
+     rimpicciolisce perché la parola più lunga stia intera (fitPadName); solo se
+     non basta va a capo, col trattino dove il browser sa sillabare. */
   .pad .name {
     display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-    overflow-wrap: anywhere; font-size: var(--pad-fs, 18px);
+    overflow-wrap: break-word; -webkit-hyphens: auto; hyphens: auto; font-size: var(--pad-fs, 18px);
+    width: 100%;
   }
   .pad .state { font-size: 12px; font-weight: 800; letter-spacing: .08em; min-height: 14px; }
   .pad.live {
@@ -704,7 +708,10 @@ export const INDEX_HTML = `<!DOCTYPE html>
   }
 
   function updatePad(el, clip) {
-    el.querySelector('.name').textContent = clip.name; // textContent: il nome viene da un file audio, mai innerHTML
+    var nameEl = el.querySelector('.name');
+    var renamed = nameEl.textContent !== clip.name;
+    nameEl.textContent = clip.name; // textContent: il nome viene da un file audio, mai innerHTML
+    if (renamed && el.parentNode) fitPadName(el);
     if (!el.classList.contains('failed')) el.querySelector('.state').textContent = padStateText(clip);
     var color = isHex(clip.color) ? clip.color : null;
     if (color) {
@@ -764,11 +771,33 @@ export const INDEX_HTML = `<!DOCTYPE html>
     placePads();
   }
 
+  // Corpo del nome di un pad: quello della griglia, ridotto quanto serve perché
+  // la parola più lunga stia su una riga (mai sotto 13 px).
+  var measureCtx = null;
+  function fitPadName(el) {
+    var nameEl = el.querySelector('.name');
+    if (!nameEl) return;
+    nameEl.style.fontSize = '';
+    var avail = nameEl.clientWidth;
+    if (!avail) return;
+    if (!measureCtx) {
+      try { measureCtx = document.createElement('canvas').getContext('2d'); } catch (e) { measureCtx = null; }
+    }
+    if (!measureCtx) return;
+    var cs = getComputedStyle(nameEl);
+    var size = parseFloat(cs.fontSize) || 18;
+    var longest = (nameEl.textContent || '').split(' ').reduce(function (a, b) { return b.length > a.length ? b : a; }, '');
+    measureCtx.font = cs.fontWeight + ' ' + size + 'px ' + cs.fontFamily;
+    var w = measureCtx.measureText(longest).width;
+    if (w > avail) nameEl.style.fontSize = Math.max(13, Math.floor(size * avail / w)) + 'px';
+  }
+
   function placePads() {
     var start = page * layout.per;
     var visible = fxState.slice(start, start + layout.per);
     while (padGrid.firstChild) padGrid.removeChild(padGrid.firstChild);
     for (var i = 0; i < visible.length; i++) padGrid.appendChild(padEls[visible[i].id]);
+    for (var j = 0; j < visible.length; j++) fitPadName(padEls[visible[j].id]);
     pageLabel.textContent = T.page + ' ' + (page + 1) + ' / ' + layout.pages;
     prevPage.disabled = page === 0;
     nextPage.disabled = page >= layout.pages - 1;

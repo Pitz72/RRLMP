@@ -137,7 +137,7 @@ da #strong[telecomando] via browser, tramite il Controllo Remoto
 (Capitolo 11).
 
 #strong[I file `.lmp` delle versioni precedenti sono compatibili con la
-1.15.36?] Sì. Aprendo un progetto creato con una versione precedente,
+1.15.37?] Sì. Aprendo un progetto creato con una versione precedente,
 RLMP ne aggiorna automaticamente la struttura, comprese le colonne
 aggiunte nel frattempo, senza modificare il file finché non esegui un
 salvataggio.
@@ -160,10 +160,35 @@ per il controllo degli aggiornamenti (opzionale) e per il Controllo
 Remoto in rete locale (opzionale).
 
 #strong[Il Controllo Remoto non si connette. Perché?] Verifica che il
-dispositivo remoto sia sulla #strong[stessa rete] del computer, di aver
-inserito il #strong[PIN corretto] (cambia a ogni avvio) e di usare
-l'indirizzo mostrato nelle Impostazioni. Ricorda che il Controllo Remoto
-riparte spento a ogni avvio dell'applicazione (Capitolo 11). Se
-l'interruttore si è spento da solo mostrando un messaggio, la porta 8787
-è occupata: chiudi l'altra copia di RLMP o il programma che la usa, poi
-riattivalo.
+Controllo Remoto sia acceso: per default riparte spento a ogni avvio, a
+meno che tu non abbia attivato l'avvio automatico nelle Impostazioni.
+Poi controlla che il dispositivo remoto sia sulla #strong[stessa rete]
+del computer, e non sulla rete ospiti, che spesso isola i dispositivi
+fra loro. Il modo più semplice per collegarsi è inquadrare il #strong[QR
+code]\; se digiti l'indirizzo a mano, usa il PIN mostrato nelle
+Impostazioni (resta lo stesso fra un avvio e l'altro, finché non premi
+#emph[Nuovo PIN]). Su Windows il programma deve essere autorizzato nel
+firewall, anche sulle reti pubbliche se la tua rete è impostata come
+«Pubblica». Se il primo indirizzo non risponde, prova gli altri
+elencati. Se l'interruttore si è spento da solo mostrando un messaggio,
+la porta 8787 è occupata: chiudi l'altra copia di RLMP o il programma
+che la usa, poi riattivalo. I dettagli sono nel Capitolo 11.
+
+#strong[Un pad toccato sul telefono è diventato rosso con la scritta NON
+ARRIVATO. Cosa significa?] Che la regia non ha confermato il comando
+entro un secondo e mezzo: l'effetto non è partito. Di solito il Wi-Fi è
+caduto per un attimo o il telefono si stava risvegliando. Guarda la riga
+di stato in alto nella pagina: quando torna #strong[Collegato], ritocca
+il pad. I tocchi fatti senza collegamento non vengono rimandati più
+tardi, apposta.
+
+#strong[Nella vista MIX un passaggio è stato un crossfade invece di un
+mix a tempo. Perché?] Il mix a tempo richiede che entrambi i brani
+abbiano un ritmo rilevato in modo affidabile e tempi non troppo diversi.
+Il pallino di compatibilità accanto al brano e la riga #emph[Ultimo
+passaggio] ne dicono il motivo: BPM non rilevato, ritmo poco affidabile
+(tipico delle ballate e dei brani senza batteria) o tempi troppo
+diversi. In questi casi il software sceglie apposta una dissolvenza
+normale. Subito dopo l'aggiornamento alla 1.15.37 i brani vengono
+rianalizzati una volta: finché l'analisi non è finita, i passaggi sono
+crossfade (Capitolo 7).

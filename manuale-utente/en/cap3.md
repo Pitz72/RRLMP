@@ -10,11 +10,17 @@ When you open a project, the screen divides into three bands: the **Control Bar*
 
 ## 3.1 The Control Bar (Header)
 
-The header spans the full width of the screen and is split into two groups. On the left are the commands you don’t need while on air: the logo, the **FILE** menu and the **Tools** menu. On the right, in a row, are the live controls: microphone, VU meter, master volume, FX, MIX, STOP ALL, Playout Log, recording, On Air timer and clock.
+The header spans the full width of the screen and is split into three zones:
+
+- **on the left**, project and archive: the logo, the **FILE** menu, the **Tools** menu, the **LOG** and the **REC** recording button;
+- **in the centre**, exactly halfway across the screen, the audio console: microphone (**ARM**), VU meter and master volume;
+- **on the right**, live controls and time: **FX**, **MIX**, **STOP ALL**, the **On Air** timer and the clock.
+
+On screens at least 1800 pixels wide (Full HD, for example) the extra space goes to readability: the VU LEDs are larger, the master fader is longer and therefore more precise, timer and clock are larger, the buttons taller, and the log also shows the LOG label next to its icon. On narrower screens the bar stays compact and still fits at 1366 pixels.
 
 ### Identity
 
-**Logo and version.** At the far left, the logo sits beside the wordmark **RLM PRO**, with “PRO” in amber. Below it, in small type, is the installed version (`v1.15.36`). Hover over the logo to reveal the full software name and version number.
+**Logo and version.** At the far left, the logo sits beside the wordmark **RLM PRO**, with “PRO” in amber. Below it, in small type, is the installed version (`v1.15.37`). Hover over the logo to reveal the full software name and version number.
 
 ### File menu
 
@@ -43,7 +49,13 @@ While MIDI Learn is active, the Tools button keeps showing a label, even with th
 
 ![The Control Bar with the Tools menu open.](../screenshots-en/barra-controllo.png)
 
-*Figure 3.1 — The Control Bar with the Tools menu open: logo, FILE and Tools on the left; the live controls on the right.*
+*Figure 3.1 — The Control Bar with the Tools menu open: logo, FILE, Tools, LOG and REC on the left; the audio console in the centre; FX, MIX, STOP ALL, On Air and clock on the right.*
+
+### Log and recording
+
+**LOG.** Opens the **Playout Log**, the chronological record of the tracks that went on air (Chapter 13). You consult it before or after the show, which is why it sits with FILE and Tools.
+
+**REC.** Starts and stops the session recording (Chapter 9). You press it once, at the start of the show. While recording, the button turns red and shows the running time; once recording stops it gives way to the export controls.
 
 ### Microphone, levels and transport
 
@@ -63,7 +75,7 @@ While MIDI Learn is active, the Tools button keeps showing a label, even with th
 
 ### Session indicators
 
-At the far right you find the **Playout Log** button (the chronological launch log, Chapter 13), the **REC** recording button (Chapter 9), the **On Air timer** and the **studio clock**.
+At the far right you find the **On Air timer** and the **studio clock**.
 
 The On Air timer is a small display labelled ON AIR: at rest it shows `--:--:--`; when the show starts, a red LED pulses and the time runs in `HH:MM:SS` format. The studio clock is in 24-hour format, synchronized with the system clock.
 

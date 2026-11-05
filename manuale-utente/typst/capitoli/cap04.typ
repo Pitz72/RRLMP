@@ -102,7 +102,9 @@ clip alla volta»]: se stai riproducendo il #emph[Brano A] nella colonna
 Canzoni e clicchi sul #emph[Brano B] nella stessa colonna, il
 #emph[Brano A] si ferma (con fade out) e il #emph[Brano B] parte. Non è
 necessario fermare manualmente la clip in corso prima di avviarne
-un'altra.
+un'altra. Con la vista MIX aperta, nella colonna Musica il passaggio
+diventa invece un mix, a tempo quando il ritmo dei due brani lo consente
+(Capitolo 7).
 
 Gli #strong[effetti del pad FX] sono l'eccezione: si sovrappongono a
 tutto, inclusi altri effetti, e non interrompono ciò che sta suonando.

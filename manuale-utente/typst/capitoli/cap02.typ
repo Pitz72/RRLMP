@@ -44,7 +44,7 @@ integrata ai mixer USB professionali come il Rødecaster Pro o
 l'RØDECaster Duo.
 
 == 2.2 Installazione su Windows
-+ Scarica il file `Runtime-Live-Machine-Pro-1.15.36.exe` dalla pagina
++ Scarica il file `Runtime-Live-Machine-Pro-1.15.37.exe` dalla pagina
   #strong[Releases] del progetto su GitHub
   (`github.com/Pitz72/RRLMP/releases`).
 + Fai doppio click sull'eseguibile. L'installer NSIS si avvierà e

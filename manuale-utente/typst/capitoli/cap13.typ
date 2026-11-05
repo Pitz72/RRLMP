@@ -84,8 +84,12 @@ globali del software, organizzate in schede.
 === Generali
 - #strong[Lingua.] Seleziona la lingua dell'interfaccia: italiano o
   inglese. La modifica è immediata.
-- #strong[Controllo Remoto (Beta).] Attiva il telecomando via browser e
-  mostra PIN, porta e indirizzi (Capitolo 11).
+- #strong[Controllo Remoto.] Attiva il telecomando via browser per
+  telefono, tablet o un altro computer. Acceso, mostra il QR code da
+  inquadrare, il PIN, l'indirizzo e i dispositivi collegati, con i
+  pulsanti #emph[Copia link] e #emph[Nuovo PIN]. La casella #emph[Attiva
+  il Controllo Remoto all'apertura dell'app], spenta di default, lo fa
+  partire da solo a ogni avvio (Capitolo 11).
 - #strong[Layout regia.] Mostra o nasconde singolarmente le colonne
   della griglia. Nascondere una colonna non ne elimina le clip: restano
   nel progetto. È una preferenza globale, valida per tutti i progetti.
@@ -132,11 +136,11 @@ predefinito proposto in esportazione (Capitolo 9).
   del limiter. Un pulsante ripristina i valori predefiniti (Capitolo 6).
 
 == 13.5 Playout Log
-Il #strong[Playout Log] (icona nell'header) è il registro cronologico
-dei lanci: tiene traccia di ciò che è andato in onda e quando, fino alle
-ultime migliaia di eventi. È utile per ricostruire una scaletta a
-posteriori, verificare cosa è stato trasmesso o compilare un resoconto
-della diretta.
+Il #strong[Playout Log] (pulsante #strong[LOG] nella zona sinistra
+dell'header) è il registro cronologico dei lanci: tiene traccia di ciò
+che è andato in onda e quando, fino alle ultime migliaia di eventi. È
+utile per ricostruire una scaletta a posteriori, verificare cosa è stato
+trasmesso o compilare un resoconto della diretta.
 
 == 13.6 Annulla e Ripeti
 Le modifiche alla scaletta (aggiunte, spostamenti, cancellazioni) sono

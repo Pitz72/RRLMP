@@ -16,17 +16,29 @@ il brano che sta suonando; la #strong[Griglia di Regia] al centro, dove
 si svolge il lavoro effettivo.
 
 == 3.1 La Barra di Controllo (Header)
-L'header occupa l'intera larghezza dello schermo ed è diviso in due
-gruppi. A sinistra ci sono i comandi che durante la diretta non servono:
-il logo, il menu #strong[FILE] e il menu #strong[Strumenti]. A destra,
-in fila, quelli della diretta: microfono, VU meter, volume master, FX,
-MIX, STOP ALL, Playout Log, registrazione, timer On Air e orologio.
+L'header occupa l'intera larghezza dello schermo ed è diviso in tre
+zone:
+
+- #strong[a sinistra], progetto e archivio: il logo, il menu
+  #strong[FILE], il menu #strong[Strumenti], il registro #strong[LOG] e
+  il pulsante #strong[REC] della registrazione;
+- #strong[al centro], esattamente a metà schermo, la console audio:
+  microfono (#strong[ARM]), VU meter e volume master;
+- #strong[a destra], la diretta e il tempo: #strong[FX], #strong[MIX],
+  #strong[STOP ALL], il timer #strong[On Air] e l'orologio.
+
+Sugli schermi larghi almeno 1800 pixel (per esempio i Full HD) lo spazio
+in più va alla leggibilità: i LED del VU sono più grandi, il fader del
+master è più lungo e quindi più preciso, timer e orologio sono più
+grandi, i tasti più alti, e il registro mostra anche la scritta LOG
+accanto all'icona. Sugli schermi più stretti la barra resta compatta e
+ci sta tutta anche a 1366 pixel.
 
 === Identità
 <identità>
 #strong[Logo e versione.] All'estrema sinistra, il logo affianca la
 scritta #strong[RLM PRO], con «PRO» in ambra. Sotto, in piccolo, è
-riportata la versione installata (`v1.15.36`). Passando il mouse sul
+riportata la versione installata (`v1.15.37`). Passando il mouse sul
 logo compare il nome completo del software con il numero di versione.
 
 === Menu File
@@ -70,12 +82,23 @@ Mentre MIDI Learn è attivo, sul pulsante Strumenti resta visibile, anche
 a menu chiuso, un'etichetta con la scritta MIDI o con i secondi che
 restano all'apprendimento.
 
-#figure(image("../screenshots/barra-controllo.png", alt: "Figura 3.1 — La Barra di Controllo con il menu Strumenti aperto: a sinistra logo, FILE e Strumenti; a destra i comandi della diretta."),
+#figure(image("../screenshots/barra-controllo.png", alt: "Figura 3.1 — La Barra di Controllo con il menu Strumenti aperto: a sinistra logo, FILE, Strumenti, LOG e REC; al centro la console audio; a destra FX, MIX, STOP ALL, On Air e orologio."),
   caption: [
     Figura 3.1 --- La Barra di Controllo con il menu Strumenti aperto: a
-    sinistra logo, FILE e Strumenti; a destra i comandi della diretta.
+    sinistra logo, FILE, Strumenti, LOG e REC; al centro la console
+    audio; a destra FX, MIX, STOP ALL, On Air e orologio.
   ]
 )
+
+=== Registro e registrazione
+#strong[LOG.] Apre il #strong[Playout Log], il registro cronologico dei
+brani andati in onda (Capitolo 13). Si consulta prima o dopo la diretta,
+per questo sta con FILE e Strumenti.
+
+#strong[REC.] Avvia e ferma la registrazione della sessione (Capitolo
+9). Si preme una volta, a inizio trasmissione. Durante la registrazione
+il pulsante diventa rosso e mostra il tempo che scorre; a registrazione
+ferma lascia il posto ai comandi di esportazione.
 
 === Microfono, livelli e trasporto
 #strong[ARM (microfono).] Arma e disarma il microfono per lo
@@ -126,10 +149,8 @@ usare `Esc` per chiudersi senza fermare la diretta.
 ]
 
 === Indicatori di sessione
-In fondo a destra trovi il pulsante del #strong[Playout Log] (il
-registro cronologico dei lanci, Capitolo 13), il pulsante #strong[REC]
-della registrazione (Capitolo 9), il #strong[Timer On Air] e
-l'#strong[orologio di studio].
+In fondo a destra trovi il #strong[Timer On Air] e l'#strong[orologio di
+studio].
 
 Il Timer On Air è un piccolo display con la scritta ON AIR: a riposo
 mostra `--:--:--`\; quando parte la diretta si accende un LED rosso che

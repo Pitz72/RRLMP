@@ -11,7 +11,7 @@ gli effetti del Master Chain, in un file audio sul disco.
 
 == 9.1 Avviare la registrazione
 Il controllo della registrazione è il pulsante #strong[REC], con un
-cerchio rosso, nella parte destra dell'header.
+cerchio rosso, nella zona sinistra dell'header, accanto al registro LOG.
 
 #strong[Avvio.] Clicca su #strong[REC]. Il pulsante diventa rosso,
 mostra il tempo di registrazione che scorre e un'icona di stop che

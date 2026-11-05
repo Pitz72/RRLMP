@@ -93,6 +93,21 @@ app.whenReady().then(async () => {
 
     // Automix
     try {
+        // v1.15.37: dati di battuta realistici per la figura (il demo ha solo i BPM,
+        // e senza battuta tutti i pallini sarebbero rossi) + un brano compatibile:
+        // in figura compaiono rosso (tempi troppo diversi), giallo e verde.
+        console.log('  beat demo:', await win.webContents.executeJavaScript(`(async()=>{
+            const { useProjectStore } = await import('/src/store/useProjectStore.ts');
+            const st = useProjectStore.getState();
+            const extra = { id: 'demo-closing', name: ${JSON.stringify(LANG === 'it' ? 'Sigla di chiusura' : 'Closing theme')}, path: 'C:/Demo/closing.mp3',
+                type: 'music', color: '#EF4444', volume: 1, pan: 0, isLooping: false, isPlaying: false, duration: 95, currentTime: 0,
+                nextAction: 'stop', behavior: 'normal', duckingRole: 'none', fadeIn: 0, fadeOut: 0, bpm: 82 };
+            const beat = { beatOffsetSec: 0.2, bpmConfidence: 0.8, beatGridScore: 4, bpmCheckedV2: true, bpmCheckedV3: true };
+            useProjectStore.setState({ columns: st.columns.map(c => c.type !== 'music' ? c
+                : { ...c, clips: [...c.clips, extra].map(cl => ({ ...cl, ...beat })) }) });
+            return 'ok';
+        })()`));
+        await sleep(300);
         await win.webContents.executeJavaScript(`(()=>{const b=[...document.querySelectorAll('button')].find(x=>(x.textContent||'').trim()==='MIX');if(b)b.click();return !!b;})()`);
         await sleep(700);
         await shot(win, '04-automix.png');

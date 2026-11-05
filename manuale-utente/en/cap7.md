@@ -40,27 +40,60 @@ The pad can sit in the bottom-left or bottom-right corner of the screen: the pre
 
 ## 7.2 The Automix view
 
-![The Automix view with the Music-column deck and the BPM compatibility dots.](../screenshots-en/vista-automix.png)
+![The Automix view with the Music-column deck, the mix length and the BPM compatibility dots.](../screenshots-en/vista-automix.png)
 
-*Figure 7.2 — The Automix view: the Music-column deck, BPM compatibility and automatic end-of-track mode.*
+*Figure 7.2 — The Automix view: the Music-column deck, the mix length (short, medium, long), BPM compatibility and automatic end-of-track mode.*
 
 The **Automix view** is the deck of the Music column: a full-screen display, summoned from the **MIX** button in the header, that presents the music running order like a DJ console. It opens above the board but below the pad FX, so the effects stay usable even while Automix is open. As with the pad, `Esc` doesn’t close it: it remains the emergency command, and the STOP ALL button stays reachable in the header.
 
+Opening the view turns on **MIX mode**: while it stays open, **every change from one Music-column track to another is a mix**, even when you make the change yourself. Closing the view brings back the normal behaviour, where a track launched by hand cuts the one on air.
+
 ### The deck
 
-At the top there are two displays. On the left, the track **on air**: title, BPM, elapsed time and duration, time remaining and an LED progress bar. On the right, the **next** track in the Music column, with BPM, duration and compatibility. Between them sits the big green **TRANSITION** button: with a single command it applies the same crossfade you would use from the grid, but with the added care of rhythmic locking. If nothing is on air, you find **START** in its place, which starts the first track.
+At the top there are two displays. On the left, the track **on air**: title, BPM, elapsed time and duration, time remaining and an LED progress bar. On the right, the **next** track in the Music column, with BPM, duration and compatibility. Between them sits the big green **TRANSITION** button, which moves to the next track with a mix. If nothing is on air, you find **START** in its place, which starts the first track.
 
 Below the displays is the Music column’s running order, one row per track with number, title, duration and BPM. The row of the track on air is lit in the column’s colour.
 
-### Compatibility and beat-matched transitions
+### Moving from one track to another
 
-Below the title of each track, a **compatibility dot** with the previous track shows their rhythmic affinity, followed by a short explanation (for example “beat not detected → classic crossfade”):
+With the view open you can change track in four ways, and all of them produce a mix:
 
-- **Green** — the two tempos lock well: the transition can be beat-matched.
-- **Yellow** — locking is possible but with some reservations.
-- **Red** — the tempos are too far apart for a clean lock.
+- **TRANSITION** — moves to the next track in the running order. Tracks whose file cannot be found are skipped.
+- **Clicking a row** of the running order — moves to that track, wherever it sits. It works from the keyboard too: with the row selected, `Enter` or `Space`. If nothing is on air, the click starts the track. The rows of the track on air and of the one going out don’t respond, so a careless click cannot stop them.
+- **Keys and MIDI notes** assigned to Music-column tracks (Chapter 8).
+- **From the phone**, with Remote Control: the **NEXT** button and the buttons of the single tracks (Chapter 11).
 
-When rhythmic locking isn’t practical (BPM not detected, uncertain beat, tempos too different), the software declares it and automatically falls back to a **classic crossfade**, with no surprises on air.
+The track you are leaving fades out while the new one comes in. If you move on before the fade has finished, the oldest track leaves within a quarter of a second: there are never three tracks on air on top of each other.
+
+### Mix length
+
+Below the transition button you choose how long the change lasts:
+
+- **SHORT (4 beats)** — about two seconds at 120 BPM. It’s the choice for fast changes: a **chart countdown** where only the start of each track plays, or a **medley** while waiting for the televote to close.
+- **MEDIUM (8 beats)** — about four seconds at 120 BPM. This is the default.
+- **LONG (16 beats)** — for unhurried music blocks.
+
+The length is counted in beats of the track on air, so the change always lasts the same number of beats. Your choice is remembered. When the change is a classic crossfade, its length is the crossfade length set in the Settings, *Audio & Mix* tab (Chapter 13).
+
+Below the buttons, a line reports the **outcome of the last change**: *beat-matched mix* in green, or *classic crossfade* with the reason, or *not carried out*, in amber.
+
+### Compatibility and beat-matched mixing
+
+Below the title of each track, a **compatibility dot** with the previous track shows their rhythmic affinity, followed by a short explanation (for example “beat uncertain → classic crossfade”):
+
+- **Green** — the two tempos lock well: the change will be a beat-matched mix.
+- **Yellow** — locking is possible, with a more noticeable speed adjustment.
+- **Red** — the change will be a classic crossfade; the explanation says why.
+
+In a **beat-matched mix** the incoming track starts on one of its beats, lined up with the beats of the track on air, and its speed is adjusted (by at most 8%, with the pitch preserved) so that the two tempos match. Once the mix is over, the speed returns to the original one little by little, too slowly to be heard. Even in fast changes the new track locks onto the tempo you actually hear, including that of a track that has just come in and is still sped up or slowed down.
+
+Tempo and beat positions come from an automatic analysis of every track in the Music column, done when you drag it into the column or when you open the project. The analysis also gives a **beat-reliability score**. Songs with a steady kick drum pass it easily; ballads, tracks without drums or with a changing tempo usually don’t.
+
+When rhythmic locking isn’t practical (BPM not detected, unreliable beat, tempos too different), the software declares it and falls back to a **classic crossfade**. The worst outcome is always a normal fade, never beats locked at random.
+
+> **Note.** From version 1.15.37 beat detection is more accurate. The first time you open a project created with an earlier version, the tracks in the Music column are analysed again, once only and in the background. Until a track’s analysis has finished, changes involving it are classic crossfades.
+
+> **Operational tip.** Chart countdown or medley: open the MIX view, choose **SHORT**, press **START** and use **TRANSITION**, or click the track you want directly. From the phone you do the same with **NEXT** (Chapter 11).
 
 ### Automatic mode
 

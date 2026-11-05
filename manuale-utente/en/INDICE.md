@@ -1,5 +1,5 @@
 # Runtime Live Machine Pro — User Manual
-## Table of Contents — English Edition (v1.15.36, Second Edition)
+## Table of Contents — English Edition (v1.15.37, Second Edition)
 
 ---
 
@@ -22,7 +22,7 @@ Basic properties: name, colour, Gain. The waveform editor: navigation, zoom, pla
 The audio hierarchy. Automatic ducking. Music Dominance. Smart Mic: the voice from the microphone. Rising above the hierarchy: effects and voices. Volume levelling (loudness). Master Chain: HPF, multiband glue, limiter.
 
 **Chapter 7 — The Pad FX and the Automix view**
-The pad FX “jingle machine”: overlapping playback, quick and full configuration, positioning. The Automix view: the Music-column deck, BPM compatibility, beat-matched transitions, automatic mode.
+The pad FX “jingle machine”: overlapping playback, quick and full configuration, positioning. The Automix view and MIX mode: manual changes always mixed, mix length, BPM compatibility, beat-matched mixing, automatic mode.
 
 **Chapter 8 — Hardware, keyboard and MIDI**
 Audio routing: device selection, USB mixers, latency. Keyboard commands: global shortcuts, function keys per column, per-clip keys. MIDI controllers: connection, MIDI Learn, message types, portability.
@@ -34,7 +34,7 @@ Starting the recording. What gets recorded. The internal format. Export: WAV, FL
 The `.lmp` project file. Quick Save and Save As. Protection on close. Auto-Backup and autosave. Export project with audio. Integrity check.
 
 **Chapter 11 — Remote Control**
-The local browser server. Activation and PIN. Connecting from a tablet or phone. What you control remotely. Security and limits.
+The local browser server. Activation, QR code and PIN. Connecting a phone or tablet. The FX pads from your phone. The Music column and MIX mode. Connection status. Security and limits. If the phone cannot find the studio.
 
 **Chapter 12 — Updates**
 The auto-updater. Startup behaviour and manual check. The “never during a live show” rule. Platform differences.

@@ -1,5 +1,5 @@
 # Runtime Live Machine Pro — Manuale Utente
-## Indice generale — Edizione Italiana (v1.15.36, Seconda Edizione)
+## Indice generale — Edizione Italiana (v1.15.37, Seconda Edizione)
 
 ---
 
@@ -22,7 +22,7 @@ Proprietà di base: nome, colore, Gain. L'editor della forma d'onda: navigazione
 La gerarchia audio. Ducking automatico. Music Dominance. Smart Mic: la voce dal microfono. Emergere sopra la gerarchia: effetti e voci. Omologazione del volume (loudness). Master Chain: HPF, glue multibanda, limiter.
 
 **Capitolo 7 — Il Pad FX e la vista Automix**
-Il pad FX «jingle machine»: lancio a sovrapposizione, configurazione rapida e completa, posizionamento. La vista Automix: il deck della colonna Musica, compatibilità BPM, transizioni beat-matched, modalità automatica.
+Il pad FX «jingle machine»: lancio a sovrapposizione, configurazione rapida e completa, posizionamento. La vista Automix e la modalità MIX: passaggi manuali sempre mixati, durata del mix, compatibilità BPM, mix a tempo, modalità automatica.
 
 **Capitolo 8 — Hardware, tastiera e MIDI**
 Routing audio: selezione periferica, mixer USB, latenza. Comandi da tastiera: scorciatoie globali, tasti funzione per colonna, tasti per clip. Controller MIDI: collegamento, MIDI Learn, tipi di messaggi, portabilità.
@@ -34,7 +34,7 @@ Avviare la registrazione. Cosa viene registrato. Il formato interno. Esportazion
 Il file di progetto `.lmp`. Salva rapido e Salva con Nome. Protezione alla chiusura. Auto-Backup e autosave. Esporta progetto con audio. Controllo di integrità.
 
 **Capitolo 11 — Controllo Remoto**
-Il server locale via browser. Attivazione e PIN. Connessione da tablet o telefono. Cosa si controlla da remoto. Sicurezza e limiti.
+Il server locale via browser. Attivazione, QR code e PIN. Collegare telefono o tablet. I pad FX dal telefono. La colonna Musica e la modalità MIX. Stato del collegamento. Sicurezza e limiti. Se il telefono non trova la regia.
 
 **Capitolo 12 — Aggiornamenti**
 L'auto-updater. Comportamento all'avvio e controllo manuale. La regola «mai durante la diretta». Differenze tra le piattaforme.

@@ -61,7 +61,7 @@ If a keyboard key has been assigned to the clip (see Chapter 8), that key works 
 
 ### The per-column exclusion logic
 
-In most columns, RLMP applies the **“one clip at a time”** rule: if you are playing *Track A* in the Songs column and click *Track B* in the same column, *Track A* stops (with a fade out) and *Track B* starts. There’s no need to manually stop the current clip before starting another.
+In most columns, RLMP applies the **“one clip at a time”** rule: if you are playing *Track A* in the Songs column and click *Track B* in the same column, *Track A* stops (with a fade out) and *Track B* starts. There’s no need to manually stop the current clip before starting another. With the MIX view open, in the Music column the change becomes a mix instead, beat-matched when the rhythm of the two tracks allows it (Chapter 7).
 
 The **pad FX effects** are the exception: they overlap everything, including other effects, and don’t interrupt whatever is playing. A round of applause can start while a song is playing without cutting off its playback.
 

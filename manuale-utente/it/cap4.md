@@ -61,7 +61,7 @@ Se alla clip è stato assegnato un tasto della tastiera (vedi Capitolo 8), quel 
 
 ### La logica di esclusione per colonna
 
-Nella maggior parte delle colonne, RLMP applica la regola **«una clip alla volta»**: se stai riproducendo il *Brano A* nella colonna Canzoni e clicchi sul *Brano B* nella stessa colonna, il *Brano A* si ferma (con fade out) e il *Brano B* parte. Non è necessario fermare manualmente la clip in corso prima di avviarne un'altra.
+Nella maggior parte delle colonne, RLMP applica la regola **«una clip alla volta»**: se stai riproducendo il *Brano A* nella colonna Canzoni e clicchi sul *Brano B* nella stessa colonna, il *Brano A* si ferma (con fade out) e il *Brano B* parte. Non è necessario fermare manualmente la clip in corso prima di avviarne un'altra. Con la vista MIX aperta, nella colonna Musica il passaggio diventa invece un mix, a tempo quando il ritmo dei due brani lo consente (Capitolo 7).
 
 Gli **effetti del pad FX** sono l'eccezione: si sovrappongono a tutto, inclusi altri effetti, e non interrompono ciò che sta suonando. Un applauso può partire mentre una canzone è in corso senza interromperne la riproduzione.
 

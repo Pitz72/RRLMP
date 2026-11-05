@@ -10,11 +10,17 @@ Quando apri un progetto, lo schermo si divide in tre fasce: la **Barra di Contro
 
 ## 3.1 La Barra di Controllo (Header)
 
-L'header occupa l'intera larghezza dello schermo ed è diviso in due gruppi. A sinistra ci sono i comandi che durante la diretta non servono: il logo, il menu **FILE** e il menu **Strumenti**. A destra, in fila, quelli della diretta: microfono, VU meter, volume master, FX, MIX, STOP ALL, Playout Log, registrazione, timer On Air e orologio.
+L'header occupa l'intera larghezza dello schermo ed è diviso in tre zone:
+
+- **a sinistra**, progetto e archivio: il logo, il menu **FILE**, il menu **Strumenti**, il registro **LOG** e il pulsante **REC** della registrazione;
+- **al centro**, esattamente a metà schermo, la console audio: microfono (**ARM**), VU meter e volume master;
+- **a destra**, la diretta e il tempo: **FX**, **MIX**, **STOP ALL**, il timer **On Air** e l'orologio.
+
+Sugli schermi larghi almeno 1800 pixel (per esempio i Full HD) lo spazio in più va alla leggibilità: i LED del VU sono più grandi, il fader del master è più lungo e quindi più preciso, timer e orologio sono più grandi, i tasti più alti, e il registro mostra anche la scritta LOG accanto all'icona. Sugli schermi più stretti la barra resta compatta e ci sta tutta anche a 1366 pixel.
 
 ### Identità
 
-**Logo e versione.** All'estrema sinistra, il logo affianca la scritta **RLM PRO**, con «PRO» in ambra. Sotto, in piccolo, è riportata la versione installata (`v1.15.36`). Passando il mouse sul logo compare il nome completo del software con il numero di versione.
+**Logo e versione.** All'estrema sinistra, il logo affianca la scritta **RLM PRO**, con «PRO» in ambra. Sotto, in piccolo, è riportata la versione installata (`v1.15.37`). Passando il mouse sul logo compare il nome completo del software con il numero di versione.
 
 ### Menu File
 
@@ -43,7 +49,13 @@ Mentre MIDI Learn è attivo, sul pulsante Strumenti resta visibile, anche a menu
 
 ![La Barra di Controllo con il menu Strumenti aperto.](../screenshots/barra-controllo.png)
 
-*Figura 3.1 — La Barra di Controllo con il menu Strumenti aperto: a sinistra logo, FILE e Strumenti; a destra i comandi della diretta.*
+*Figura 3.1 — La Barra di Controllo con il menu Strumenti aperto: a sinistra logo, FILE, Strumenti, LOG e REC; al centro la console audio; a destra FX, MIX, STOP ALL, On Air e orologio.*
+
+### Registro e registrazione
+
+**LOG.** Apre il **Playout Log**, il registro cronologico dei brani andati in onda (Capitolo 13). Si consulta prima o dopo la diretta, per questo sta con FILE e Strumenti.
+
+**REC.** Avvia e ferma la registrazione della sessione (Capitolo 9). Si preme una volta, a inizio trasmissione. Durante la registrazione il pulsante diventa rosso e mostra il tempo che scorre; a registrazione ferma lascia il posto ai comandi di esportazione.
 
 ### Microfono, livelli e trasporto
 
@@ -63,7 +75,7 @@ Mentre MIDI Learn è attivo, sul pulsante Strumenti resta visibile, anche a menu
 
 ### Indicatori di sessione
 
-In fondo a destra trovi il pulsante del **Playout Log** (il registro cronologico dei lanci, Capitolo 13), il pulsante **REC** della registrazione (Capitolo 9), il **Timer On Air** e l'**orologio di studio**.
+In fondo a destra trovi il **Timer On Air** e l'**orologio di studio**.
 
 Il Timer On Air è un piccolo display con la scritta ON AIR: a riposo mostra `--:--:--`; quando parte la diretta si accende un LED rosso che pulsa e il tempo scorre nel formato `HH:MM:SS`. L'orologio di studio è in formato 24 ore, sincronizzato con l'orologio di sistema.
 
