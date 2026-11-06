@@ -28,7 +28,7 @@ import { SortableClip } from './SortableClip'; // New component
 import { Upload } from 'lucide-react';
 import { ClipSettingsModal } from '../modals/ClipSettingsModal';
 import { AudioClip, Column } from '../../types';
-import { decideSilenceUpdate, needsLegacyFingerprint } from '../../utils/silenceDetection';
+import { decideSilenceUpdate, needsLegacyFingerprint, needsSilenceAnalysis } from '../../utils/silenceDetection';
 import { classifyBpmResult } from '../../utils/bpmDetection';
 import { assessCompatibility, findMixNext } from '../../engine/automixEngine';
 import { useTranslation } from 'react-i18next';
@@ -196,14 +196,16 @@ export const MainGrid: React.FC = () => {
                 return;
             }
             const colId = col.id;
-            const pending = col.clips.filter(c => !c.silenceCheckedV3 && !c.isMissing);
-            debugLog(`${tag} load: colonna id="${colId}", ${col.clips.length} clip totali, ${pending.length} da analizzare (silenceCheckedV3 assente/false)`, 'info');
+            // v1.15.39: anche le clip senza durata misurata (durationDecoded), una volta.
+            const pending = col.clips.filter(c => needsSilenceAnalysis(c));
+            debugLog(`${tag} load: colonna id="${colId}", ${col.clips.length} clip totali, ${pending.length} da analizzare (senza silenceCheckedV3 o senza durata misurata)`, 'info');
             if (pending.length === 0 || !window.electron?.detectSilence) return;
 
             setCount(pending.length);
             let processed = 0;
             let optimized = 0;
             let repaired = 0;
+            let durationsFixed = 0;
 
             const finishOne = () => {
                 processed++;
@@ -211,6 +213,7 @@ export const MainGrid: React.FC = () => {
                 if (processed !== pending.length) return;
                 if (optimized > 0) toast(t(doneToastKey, doneToastFallback, { count: optimized }), 'success');
                 if (repaired > 0) toast(t('grid.trimRepaired', 'Taglio automatico ricalcolato su {{count}} clip con il nuovo rilevatore (i tagli fatti a mano non sono stati toccati). Salva il progetto per conservarlo.', { count: repaired }), 'warning', 9000);
+                if (durationsFixed > 0) toast(t('grid.durationFixed', 'Durata corretta su {{count}} brani: il file dichiarava una durata sbagliata. Salva il progetto per conservarla.', { count: durationsFixed }), 'warning', 9000);
             };
 
             pending.forEach(clip => {
@@ -224,10 +227,17 @@ export const MainGrid: React.FC = () => {
                         debugLog(`${tag}: analisi fallita per "${clip.name}" (${result.error ?? 'errore sconosciuto'}) — riprovo al prossimo caricamento`, 'error');
                         return;
                     }
+                    // v1.15.39: durata del file sbagliata nell'intestazione → correzione vera
+                    // di un dato salvato (scrittura NON runtime: il progetto va salvato).
+                    if (d.durationFixed) {
+                        durationsFixed++;
+                        debugLog(`${tag}: durata corretta per "${clip.name}": ${(clip.duration ?? 0).toFixed(2)}s dichiarati → ${d.patch.duration?.toFixed(2)}s misurati`, 'event');
+                    }
+                    const durationOnly = d.patch.duration !== undefined ? { duration: d.patch.duration, durationDecoded: true as const } : {};
                     // Se l'operatore ha cambiato i tagli mentre l'analisi girava, vincono i suoi.
                     const editedMeanwhile = (fresh.trimStart ?? 0) !== (clip.trimStart ?? 0) || (fresh.trimEnd ?? 0) !== (clip.trimEnd ?? 0);
                     if (editedMeanwhile) {
-                        updateClip(colId, clip.id, { isAnalyzing: false, silenceCheckedV2: true, silenceCheckedV3: true }, { runtime: true });
+                        updateClip(colId, clip.id, { isAnalyzing: false, silenceCheckedV2: true, silenceCheckedV3: true, ...durationOnly }, { runtime: !d.durationFixed });
                         return;
                     }
                     if (d.reason === 'replacedLegacy' && d.changed) {
@@ -238,7 +248,7 @@ export const MainGrid: React.FC = () => {
                         debugLog(`${tag}: taglio corretto per "${clip.name}": ${clip.trimStart ?? 0}s/${clip.trimEnd ?? 0}s → ${d.patch.trimStart}s/${d.patch.trimEnd}s (il vecchio rilevatore tagliava dentro il brano)`, 'event');
                         return;
                     }
-                    updateClip(colId, clip.id, { ...d.patch, isAnalyzing: false }, { runtime: true });
+                    updateClip(colId, clip.id, { ...d.patch, isAnalyzing: false }, { runtime: !d.durationFixed });
                     if (d.reason === 'applied' && ((d.patch.trimStart ?? 0) > 0 || (d.patch.trimEnd ?? 0) > 0)) optimized++;
                     if (d.reason === 'keptManual') debugLog(`${tag}: "${clip.name}" ha un taglio impostato a mano (${clip.trimStart ?? 0}s/${clip.trimEnd ?? 0}s): conservato`, 'info');
                 }).catch((err) => {

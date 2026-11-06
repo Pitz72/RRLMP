@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useProjectStore } from '../../store/useProjectStore';
 import { useAudioStore } from '../../store/useAudioStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
-import { assessCompatibility, crossfadeDurationSec, findMixNext, AUTOMIX_BEAT_CHOICES } from '../../engine/automixEngine';
+import { assessCompatibility, autoTransitionLeadSec, findMixNext, remainingToEffectiveEndSec, AUTOMIX_BEAT_CHOICES } from '../../engine/automixEngine';
 import { toast } from '../../store/useToastStore';
 import { debugLog } from '../../store/useDebugStore';
 import { Square, X, Disc3, Music2, Play, Shuffle } from 'lucide-react';
@@ -84,9 +84,14 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
     const nextClip = currentClip ? findMixNext(clips, currentClip.id) : null;
     const currentState = currentClip ? activeClips[currentClip.id] : null;
 
-    const currentDuration = currentClip?.duration || 0;
-    const currentTime = currentState ? currentState.progress * (currentState.player.getDuration() || currentDuration) : 0;
-    const remaining = Math.max(0, currentDuration - currentTime);
+    // v1.15.39: durata dal lettore (che usa quella misurata decodificando il file,
+    // vedi StreamPlayer.getDuration), e tempo che manca alla FINE EFFETTIVA
+    // (durata − trimEnd): è lì che il lettore si ferma. Prima si contava fino alla
+    // fine grezza e con la durata dei metadati, che in alcuni FLAC è sbagliata
+    // («Baciami Alfredo»: 5:21 dichiarati, 1:42 veri → il mix non partiva mai).
+    const currentDuration = (currentState?.player.getDuration() || currentClip?.duration) || 0;
+    const currentTime = currentState ? currentState.progress * currentDuration : 0;
+    const remaining = remainingToEffectiveEndSec(currentTime, currentDuration, currentClip?.trimEnd ?? 0);
 
     // Reset dell'anti re-trigger quando non c'è più nulla in onda (nuovo giro di
     // playlist → le clip possono ri-transizionare in auto).
@@ -101,14 +106,12 @@ export const AutomixView: React.FC<AutomixViewProps> = ({ isOpen, onClose }) => 
         if (!isOpen || !autoMode || !currentClip || !nextClip || nextClip.isMissing) return;
         if (currentDuration <= 0 || currentTime <= 0) return;
         if (autoFiredRef.current.has(currentClip.id)) return;
-        const fadeSec = currentClip.bpm
-            ? crossfadeDurationSec(currentClip.bpm, automixBeats)
-            : useSettingsStore.getState().crossfadeDuration / 1000;
-        // Margine 2.5s: lead di aggancio (0.5s) + fino a 1 beat di arrotondamento +
-        // latenza avvio. Più stretto e il piano degrada quasi sempre a classico
-        // (anchor + fade devono stare PRIMA della fine effettiva — guardia Fase D,
-        // verificata empiricamente in preview con margine 1.5 → no-beat-available).
-        const thresholdSec = fadeSec + 2.5;
+        // v1.15.39: anticipo diverso per mix a tempo (N beat + 2,5 s di margine per
+        // l'aggancio) e crossfade classico (durata del crossfade + 1 s): vedi
+        // autoTransitionLeadSec in automixEngine.ts.
+        const { leadSec: thresholdSec } = autoTransitionLeadSec(
+            currentClip, nextClip, automixBeats, useSettingsStore.getState().crossfadeDuration / 1000
+        );
         if (remaining <= thresholdSec) {
             autoFiredRef.current.add(currentClip.id);
             debugLog(`Automix: AUTO-transizione a fine brano — ${currentClip.name} (-${remaining.toFixed(1)}s) → ${nextClip.name}`, 'event');

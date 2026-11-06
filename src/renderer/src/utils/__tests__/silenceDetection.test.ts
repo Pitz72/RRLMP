@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { decideSilenceUpdate, needsLegacyFingerprint } from '../silenceDetection';
+import { decideSilenceUpdate, needsLegacyFingerprint, needsSilenceAnalysis } from '../silenceDetection';
 
 // v1.7.1 — un'analisi fallita non è mai «controllata».
 // v1.15.38 — tagli del vecchio rilevatore sostituiti, tagli dell'operatore conservati.
@@ -61,10 +61,47 @@ describe('decideSilenceUpdate', () => {
 });
 
 describe('needsLegacyFingerprint', () => {
-    it('solo per clip già analizzate con almeno un taglio', () => {
+    it('solo per clip già analizzate con almeno un taglio, e mai dopo il gate V3', () => {
         expect(needsLegacyFingerprint({})).toBe(false);
         expect(needsLegacyFingerprint({ silenceCheckedV2: true })).toBe(false);
         expect(needsLegacyFingerprint({ silenceCheckedV2: true, trimEnd: 0.2 })).toBe(true);
         expect(needsLegacyFingerprint({ trimStart: 3 })).toBe(false);
+        expect(needsLegacyFingerprint({ silenceCheckedV2: true, silenceCheckedV3: true, trimEnd: 0.2 })).toBe(false);
+    });
+});
+
+// v1.15.39 — durata misurata decodificando il file (alcuni FLAC dichiarano il falso).
+const withDuration = (trimStart: number, trimEnd: number, durationSec: number) => ({
+    success: true,
+    data: { trimStart, trimEnd, ...(trimStart === 0 && trimEnd === 0 ? { noSilence: true } : {}), durationSec },
+});
+
+describe('decideSilenceUpdate — durata misurata (v1.15.39)', () => {
+    it('clip nuova: taglio e durata misurata insieme', () => {
+        const d = decideSilenceUpdate({}, withDuration(0.2, 0, 101.70312));
+        expect(d.patch).toMatchObject({ trimStart: 0.2, trimEnd: 0, duration: 101.703, durationDecoded: true });
+    });
+
+    it('«Baciami Alfredo»: 321,07 s dichiarati, 101,70 veri → durata corretta e segnalata', () => {
+        const clip = { duration: 321.0667, silenceCheckedV2: true, silenceCheckedV3: true, trimStart: 0.2, trimEnd: 0 };
+        const d = decideSilenceUpdate(clip, withDuration(0.2, 0, 101.703));
+        expect(d.reason).toBe('durationOnly');
+        expect(d.durationFixed).toBe(true);
+        expect(d.patch).toEqual({ silenceCheckedV2: true, silenceCheckedV3: true, duration: 101.703, durationDecoded: true });
+    });
+
+    it('clip già ricontrollata dalla 1.15.38: i tagli non si toccano, anche se il calcolo dà altro', () => {
+        const clip = { duration: 210, silenceCheckedV2: true, silenceCheckedV3: true, trimStart: 12.5, trimEnd: 3 };
+        const d = decideSilenceUpdate(clip, withDuration(0.05, 0.4, 209.97));
+        expect(d.patch).not.toHaveProperty('trimStart');
+        expect(d.patch).not.toHaveProperty('trimEnd');
+        expect(d.durationFixed).toBe(false); // 30 ms di scarto: normale (ritardo del codificatore)
+    });
+
+    it('needsSilenceAnalysis: senza V3 o senza durata misurata, mai per file mancanti', () => {
+        expect(needsSilenceAnalysis({})).toBe(true);
+        expect(needsSilenceAnalysis({ silenceCheckedV3: true })).toBe(true);
+        expect(needsSilenceAnalysis({ silenceCheckedV3: true, durationDecoded: true })).toBe(false);
+        expect(needsSilenceAnalysis({ isMissing: true })).toBe(false);
     });
 });

@@ -225,6 +225,43 @@ export const AUTOMIX_BEAT_CHOICES = [4, 8, 16] as const;
 export type AutomixBeats = typeof AUTOMIX_BEAT_CHOICES[number];
 
 /**
+ * v1.15.39 — «Auto a fine brano»: quanto prima della FINE EFFETTIVA del brano in onda
+ * (durata − trimEnd) far partire il mix.
+ *
+ * Fino alla 1.15.38 la vista contava fino alla fine GREZZA del file (senza trimEnd),
+ * e sempre in beat. Misurato sulla prova del 2026-11-06 (Banco del Mutuo Soccorso):
+ * con 4,2 s di coda tagliata il mix partiva 0,5 s prima della fine vera e veniva
+ * troncato; i passaggi destinati al crossfade classico (2 s) partivano invece 6,9 s
+ * prima, buttando 5 s di coda dell'uscente.
+ *
+ * - Passaggio a tempo possibile (assessCompatibility non rosso): N beat al tempo
+ *   dell'uscente + BEATMATCH_LEAD_MARGIN_SEC (aggancio a 0,5 s, arrotondamento a un
+ *   beat, latenza di avvio: sotto questo margine il piano degrada a classico).
+ * - Altrimenti (crossfade classico): durata del crossfade + CLASSIC_LEAD_MARGIN_SEC.
+ */
+export const BEATMATCH_LEAD_MARGIN_SEC = 2.5;
+export const CLASSIC_LEAD_MARGIN_SEC = 1.0;
+
+export function autoTransitionLeadSec(
+    current: BeatInfo,
+    next: BeatInfo,
+    crossfadeBeats: number,
+    classicCrossfadeSec: number
+): { leadSec: number; beatmatchExpected: boolean } {
+    const compat = assessCompatibility(current, next);
+    if (compat.level !== 'red' && current.bpm) {
+        return { leadSec: crossfadeDurationSec(current.bpm, crossfadeBeats) + BEATMATCH_LEAD_MARGIN_SEC, beatmatchExpected: true };
+    }
+    return { leadSec: Math.max(0, classicCrossfadeSec) + CLASSIC_LEAD_MARGIN_SEC, beatmatchExpected: false };
+}
+
+/** v1.15.39 — secondi che mancano alla fine effettiva (durata − trimEnd), mai negativi. */
+export function remainingToEffectiveEndSec(positionSec: number, durationSec: number, trimEndSec: number = 0): number {
+    if (!(durationSec > 0) || !Number.isFinite(positionSec)) return 0;
+    return Math.max(0, durationSec - Math.max(0, trimEndSec || 0) - positionSec);
+}
+
+/**
  * v1.15.37 — brano su cui mixare con «PROSSIMO»: il primo DOPO quello in onda
  * che abbia un file (in una classifica veloce un file mancante si salta, non
  * blocca la sequenza). Nulla in onda → il primo brano disponibile.

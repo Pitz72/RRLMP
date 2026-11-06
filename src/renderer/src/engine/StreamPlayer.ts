@@ -39,6 +39,12 @@ export class StreamPlayer implements IAudioPlayer {
     // udibile perché ogni giro di loop azzerava il mute riportandolo a volume pieno
     // (e nessun evaluateMix successivo lo ri-mutava finché non cambiava il mix).
     private lastFadeTarget: number = 1.0;
+    // v1.15.39: durata MISURATA decodificando il file (clip.durationDecoded). Alcuni
+    // file dichiarano nell'intestazione una durata falsa e l'elemento audio la riporta
+    // tale e quale (FLAC «Baciami Alfredo»: 321 s dichiarati, 101,7 s veri): fine
+    // effettiva, dissolvenza finale, PreEnd e mix automatico non scattavano mai e il
+    // brano si troncava di colpo. 0 = non nota, si usa quella dell'elemento.
+    private measuredDuration: number = 0;
 
     private currentClipId: string = '';
     private volumeGainNode: GainNode;
@@ -76,7 +82,8 @@ export class StreamPlayer implements IAudioPlayer {
         };
 
         this.audioElement.ontimeupdate = () => {
-            const { currentTime, duration } = this.audioElement;
+            const { currentTime } = this.audioElement;
+            const duration = this.getDuration(); // v1.15.39: misurata se nota
             const effectiveDuration = Math.max(0, duration - this.trimEnd);
 
             // --- L4 Logic Documentation ---
@@ -292,6 +299,7 @@ export class StreamPlayer implements IAudioPlayer {
     }
 
     getDuration(): number {
+        if (this.measuredDuration > 0) return this.measuredDuration;
         return this.audioElement.duration || 0;
     }
 
@@ -388,6 +396,9 @@ export class StreamPlayer implements IAudioPlayer {
         if (clip.fadeOut !== undefined) this.fadeOutDuration = clip.fadeOut;
         if (clip.trimStart !== undefined) this.trimStart = clip.trimStart;
         if (clip.trimEnd !== undefined) this.trimEnd = clip.trimEnd;
+        // v1.15.39: solo una durata misurata decodificando il file sostituisce quella
+        // dell'elemento; quella dei metadati no (è proprio quella che può mentire).
+        if (clip.durationDecoded && clip.duration > 0) this.measuredDuration = clip.duration;
         if (clip.introMarker !== undefined) this.introMarker = clip.introMarker;
         if (clip.outroMarker !== undefined) this.outroMarker = clip.outroMarker;
     }

@@ -1326,7 +1326,9 @@ export const useAudioStore = create<AudioStore>((set, get) => {
                     // senza durata. Il ripiego sul tipo resta per una clip già rimossa.
                     getColumnForClip(clip.id) ?? (clip.type === 'asset' ? 'col-assets' : `col-${clip.type}`),
                     clip.id,
-                    { duration, trimStart, trimEnd, ...(artist !== undefined ? { artist } : {}), ...(title !== undefined ? { title } : {}) },
+                    // v1.15.39: una durata misurata decodificando il file (durationDecoded)
+                    // vince su quella dell'elemento audio, che riporta l'intestazione e può mentire.
+                    { ...(clip.durationDecoded ? {} : { duration }), trimStart, trimEnd, ...(artist !== undefined ? { artist } : {}), ...(title !== undefined ? { title } : {}) },
                     { runtime: true } // v1.15.18: durata e tag ID3 letti dal file, non modifiche dell'operatore
                 );
                 player.cleanup();

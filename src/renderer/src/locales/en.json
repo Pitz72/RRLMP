@@ -466,7 +466,8 @@
     "grid": {
         "silenceRemovedSongs": "Silence automatically removed from {{count}} songs.",
         "silenceRemovedPreshow": "Silence automatically removed from {{count}} PRE-SHOW clips.",
-        "trimRepaired": "Automatic trim recalculated on {{count}} clips with the new detector (manual trims were left untouched). Save the project to keep it.",
+        "durationFixed": "Duration corrected on {{count}} tracks: the file declared a wrong duration. Save the project to keep it.",
+        "trimRepaired":"Automatic trim recalculated on {{count}} clips with the new detector (manual trims were left untouched). Save the project to keep it.",
         "silenceScanHiddenColumns": "Silence detection on hidden columns… {{count}} files being analyzed",
         "allColumnsHidden": "All columns are hidden",
         "reenableHint": "Re-enable them from Settings → General → \"Broadcast layout — columns\"",

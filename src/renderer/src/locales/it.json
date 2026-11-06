@@ -466,7 +466,8 @@
     "grid": {
         "silenceRemovedSongs": "Silenzio rimosso automaticamente da {{count}} canzoni.",
         "silenceRemovedPreshow": "Silenzio rimosso automaticamente da {{count}} clip PRE-SHOW.",
-        "trimRepaired": "Taglio automatico ricalcolato su {{count}} clip con il nuovo rilevatore (i tagli fatti a mano non sono stati toccati). Salva il progetto per conservarlo.",
+        "durationFixed": "Durata corretta su {{count}} brani: il file dichiarava una durata sbagliata. Salva il progetto per conservarla.",
+        "trimRepaired":"Taglio automatico ricalcolato su {{count}} clip con il nuovo rilevatore (i tagli fatti a mano non sono stati toccati). Salva il progetto per conservarlo.",
         "silenceScanHiddenColumns": "Rilevamento silenzio su colonne nascoste… {{count}} file in analisi",
         "allColumnsHidden": "Tutte le colonne sono nascoste",
         "reenableHint": "Riattivale da Impostazioni → Generali → \"Layout regia — colonne\"",

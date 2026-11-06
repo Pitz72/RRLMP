@@ -171,8 +171,14 @@ export interface AudioClip {
     // Audio Logic
     /** Dynamic state: is currently playing */
     isPlaying: boolean;
-    /** Duration in seconds (loaded from metadata) */
+    /** Duration in seconds (loaded from metadata; v1.15.39: measured by decoding when durationDecoded) */
     duration: number;
+    /** v1.15.39 — true se `duration` è stata MISURATA decodificando l'intero file (analisi
+     *  del silenzio, colonne MUSIC e PRE-SHOW) invece che letta dall'intestazione. Alcuni
+     *  file dichiarano una durata falsa (FLAC «Baciami Alfredo»: 5:21 dichiarati, 1:42
+     *  veri) e FFmpeg/Chromium la riportano tale e quale: con questo campo il lettore usa
+     *  la durata misurata per fine brano, dissolvenza finale, taglio e mix automatico. */
+    durationDecoded?: boolean;
     /** Current playback position in seconds */
     currentTime: number;
 

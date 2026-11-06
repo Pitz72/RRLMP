@@ -11,6 +11,18 @@ export interface WhatsNewEntry {
 }
 
 export const WHATS_NEW: Record<string, WhatsNewEntry> = {
+    '1.15.39': {
+        it: [
+            'Modalità MIX, «Auto a fine brano»: il mix parte sempre in tempo. Prima su alcuni brani si fermava alla fine senza mixarsi col successivo.',
+            'Quando il passaggio è un crossfade classico, il brano uscente si sente fin quasi alla fine (prima ne andavano persi alcuni secondi).',
+            'Alcuni file dichiarano una durata falsa (es. 5:21 invece di 1:42): ora la durata vera viene misurata. La dissolvenza finale e il tempo che manca sono giusti.',
+        ],
+        en: [
+            'MIX mode, "Auto at end of track": the mix always starts in time. Before, some tracks stopped at the end without mixing into the next one.',
+            'When the change is a classic crossfade, the outgoing track plays almost to its end (a few seconds used to be lost).',
+            'Some files declare a false duration (e.g. 5:21 instead of 1:42): the real duration is now measured. The fade-out and the remaining time are correct.',
+        ],
+    },
     '1.15.38': {
         it: [
             'Taglio automatico del silenzio riscritto: una pausa dentro la canzone poteva far partire il brano da metà o toglierne la fine. Ora si taglia solo il silenzio all’inizio e alla fine del file.',
